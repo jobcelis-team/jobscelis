@@ -1,0 +1,210 @@
+# ============================================
+# STREAMFLIX .GITIGNORE
+# ============================================
+
+# ============================================
+# ENVIRONMENT FILES - CRITICAL SECURITY
+# ============================================
+# NEVER commit .env files with real credentials!
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+*.env
+
+# Keep .env.example as reference
+!.env.example
+
+# ============================================
+# ELIXIR/ERLANG BUILD ARTIFACTS
+# ============================================
+/_build/
+/deps/
+*.ez
+*.beam
+erl_crash.dump
+*.plt
+*.plt.hash
+
+# ============================================
+# PHOENIX ASSETS
+# ============================================
+/apps/*/priv/static/assets/
+/priv/static/assets/
+/apps/streamflix_web/assets/node_modules/
+node_modules/
+
+# ============================================
+# DATABASE
+# ============================================
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# ============================================
+# DOCUMENTATION
+# ============================================
+/doc/
+
+# ============================================
+# RELEASE ARTIFACTS
+# ============================================
+/rel/
+/_release/
+/releases/
+*.tar.gz
+
+# ============================================
+# TEST ARTIFACTS
+# ============================================
+/cover/
+*.coverdata
+
+# ============================================
+# TEMPORARY FILES
+# ============================================
+*.swp
+*.swo
+*~
+\#*\#
+.\#*
+tmp/
+temp/
+.tmp/
+*.tmp
+*.temp
+*.log
+logs/
+
+# ============================================
+# IDE AND EDITOR FILES
+# ============================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains (IntelliJ, RubyMine, etc.)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.vim
+Session.vim
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ============================================
+# OPERATING SYSTEM FILES
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+
+# ============================================
+# DOCKER
+# ============================================
+docker-compose.override.yml
+.docker/
+
+# ============================================
+# SECRETS AND CREDENTIALS
+# ============================================
+# SSH Keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+
+# API Keys and Tokens
+*_key.json
+*_credentials.json
+secrets.json
+secrets.yml
+secrets.yaml
+credentials.json
+credentials.yml
+credentials.yaml
+service_account.json
+
+# AWS
+.aws/
+aws_credentials
+
+# Google Cloud
+.gcloud/
+gcloud.json
+*-service-account.json
+
+# Azure
+.azure/
+azure_credentials
+
+# ============================================
+# MISCELLANEOUS
+# ============================================
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Media files (if any uploaded locally)
+/uploads/
+/media/
+/storage/
+
+# Lock files (optional - some prefer to commit these)
+# mix.lock
+# package-lock.json
+
+# Dialyzer
+/priv/plts/
+
+# Local development overrides
+*.local.exs
+config/*.local.exs
+config/dev.local.exs
+config/test.local.exs
