@@ -4,9 +4,40 @@ defmodule StreamflixWebWeb.LiveAuth do
   """
 
   import Phoenix.Component
+  import Phoenix.LiveView
 
   def on_mount(:mount_current_user, _params, session, socket) do
+    socket = mount_current_user(socket, session)
+    
+    # Redirect to login if not authenticated
+    if is_nil(socket.assigns.current_user) do
+      {:halt, redirect(socket, to: "/login")}
+    else
+      {:cont, socket}
+    end
+  end
+
+  def on_mount(:mount_current_user_optional, _params, session, socket) do
     {:cont, mount_current_user(socket, session)}
+  end
+
+  def on_mount(:mount_admin_user, _params, session, socket) do
+    socket = mount_current_user(socket, session)
+    
+    # Check if user is authenticated
+    if is_nil(socket.assigns.current_user) do
+      {:halt, redirect(socket, to: "/login")}
+    else
+      # Check if user is admin (for now, check if email contains "admin" or has role field)
+      # TODO: Add proper role field to User schema
+      is_admin = check_admin(socket.assigns.current_user)
+      
+      if is_admin do
+        {:cont, socket}
+      else
+        {:halt, redirect(socket, to: "/") |> put_flash(:error, "Acceso denegado. Se requieren permisos de administrador.")}
+      end
+    end
   end
 
   defp mount_current_user(socket, session) do
@@ -32,5 +63,10 @@ defmodule StreamflixWebWeb.LiveAuth do
       nil -> nil
       id -> StreamflixAccounts.get_profile(id)
     end
+  end
+
+  defp check_admin(user) do
+    # Check if user has admin role
+    user.role == "admin"
   end
 end

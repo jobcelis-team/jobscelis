@@ -1,20 +1,33 @@
 defmodule StreamflixWebWeb.ProfilesLive do
   use StreamflixWebWeb, :live_view
 
+  alias StreamflixAccounts
+
   @impl true
   def mount(_params, _session, socket) do
+    user = socket.assigns.current_user
+    
+    # Load user profiles from database
+    profiles = StreamflixAccounts.list_profiles(user.id)
+    
     socket =
       socket
       |> assign(:page_title, "¿Quién está viendo?")
-      |> assign(:profiles, default_profiles())
+      |> assign(:profiles, format_profiles(profiles))
       |> assign(:editing, false)
 
     {:ok, socket}
   end
 
   @impl true
-  def handle_event("select_profile", %{"id" => _id}, socket) do
-    {:noreply, redirect(socket, to: ~p"/browse")}
+  def handle_event("select_profile", %{"id" => id}, socket) do
+    # Store selected profile in assigns (session will be updated on redirect)
+    socket = 
+      socket
+      |> assign(:selected_profile_id, id)
+      |> redirect(to: "/browse")
+    
+    {:noreply, socket}
   end
 
   @impl true
@@ -80,11 +93,21 @@ defmodule StreamflixWebWeb.ProfilesLive do
     """
   end
 
-  defp default_profiles do
-    [
-      %{id: "1", name: "Principal", color: "bg-red-600", avatar: nil},
-      %{id: "2", name: "Niños", color: "bg-yellow-500", avatar: nil},
-      %{id: "3", name: "Invitado", color: "bg-blue-600", avatar: nil}
-    ]
+  defp format_profiles(profiles) do
+    Enum.map(profiles, fn profile ->
+      %{
+        id: profile.id,
+        name: profile.name,
+        color: profile_color(profile),
+        avatar: profile.avatar_url
+      }
+    end)
+  end
+
+  defp profile_color(profile) do
+    # Generate color based on profile name hash
+    colors = ["bg-red-600", "bg-blue-600", "bg-green-600", "bg-yellow-500", "bg-purple-600", "bg-pink-600"]
+    index = :erlang.phash2(profile.name || "default") |> rem(length(colors))
+    Enum.at(colors, index)
   end
 end

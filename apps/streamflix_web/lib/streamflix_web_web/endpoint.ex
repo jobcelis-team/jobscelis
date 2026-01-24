@@ -8,7 +8,8 @@ defmodule StreamflixWebWeb.Endpoint do
     store: :cookie,
     key: "_streamflix_web_key",
     signing_salt: "Ig7MA6EW",
-    same_site: "Lax"
+    same_site: "Lax",
+    max_age: 2_592_000  # 30 días en segundos (para remember me)
   ]
 
   socket "/live", Phoenix.LiveView.Socket,

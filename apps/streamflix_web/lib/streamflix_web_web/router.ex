@@ -19,18 +19,25 @@ defmodule StreamflixWebWeb.Router do
   end
 
   # ============================================
-  # PUBLIC ROUTES
+  # PUBLIC ROUTES (redirect if authenticated)
   # ============================================
 
   scope "/", StreamflixWebWeb do
-    pipe_through :browser
+    pipe_through [:browser, StreamflixWebWeb.Plugs.RedirectIfAuthenticated]
 
     get "/", PageController, :home
     get "/login", PageController, :login
-    post "/login", AuthController, :login
     get "/signup", PageController, :signup
+  end
+
+  # Auth routes (no redirect)
+  scope "/", StreamflixWebWeb do
+    pipe_through :browser
+
+    post "/login", AuthController, :login
     post "/signup", AuthController, :register
     delete "/logout", AuthController, :logout
+    get "/logout", AuthController, :logout  # Also allow GET for LiveView redirects
   end
 
   # ============================================
@@ -120,7 +127,7 @@ defmodule StreamflixWebWeb.Router do
   scope "/admin", StreamflixWebWeb.Admin do
     pipe_through [:browser]
 
-    live_session :admin do
+    live_session :admin, on_mount: [{StreamflixWebWeb.LiveAuth, :mount_admin_user}] do
       live "/", DashboardLive, :index
       live "/content", ContentLive, :index
       live "/content/new", ContentLive, :new

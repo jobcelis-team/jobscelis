@@ -16,6 +16,7 @@ defmodule StreamflixAccounts.Schemas.User do
     field :password_hash, :string
     field :name, :string
     field :status, :string, default: "active"
+    field :role, :string, default: "user"
     field :email_verified_at, :utc_datetime
     field :last_login_at, :utc_datetime
 
@@ -26,13 +27,14 @@ defmodule StreamflixAccounts.Schemas.User do
   end
 
   @required_fields [:email]
-  @optional_fields [:name, :status, :email_verified_at, :last_login_at]
+  @optional_fields [:name, :status, :role, :email_verified_at, :last_login_at]
 
   def changeset(user, attrs) do
     user
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> validate_email()
+    |> validate_inclusion(:role, ["user", "admin", "moderator"])
     |> unique_constraint(:email)
   end
 
@@ -92,5 +94,13 @@ defmodule StreamflixAccounts.Schemas.User do
 
   def by_email(query \\ __MODULE__, email) do
     from u in query, where: u.email == ^String.downcase(email)
+  end
+
+  def admin(query \\ __MODULE__) do
+    from u in query, where: u.role == "admin"
+  end
+
+  def is_admin?(%__MODULE__{} = user) do
+    user.role == "admin"
   end
 end
