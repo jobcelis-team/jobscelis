@@ -201,23 +201,62 @@ defmodule StreamflixCore.Events.EventStore do
     case Repo.get(EventRecord, event_id) do
       nil ->
         record = EventRecord.from_domain_event(event)
+        
+        # Calculate version based on last event for this aggregate
+        version = calculate_version(record.aggregate_type, record.aggregate_id)
+        record = %{record | version: version}
+        
         changeset = EventRecord.changeset(record, %{})
 
         case Repo.insert(changeset) do
           {:ok, _} ->
-            Logger.debug("[EventStore] Saved event #{event_id}")
+            Logger.debug("[EventStore] Saved event #{event_id} with version #{version}")
             # Broadcast event to other processes
             broadcast_event(event)
             :ok
 
           {:error, changeset} ->
-            Logger.error("[EventStore] Failed to save event: #{inspect(changeset.errors)}")
-            {:error, changeset.errors}
+            # If it's a version conflict, try to get the latest version and retry
+            if constraint_error?(changeset, :events_aggregate_version_index) do
+              Logger.warning("[EventStore] Version conflict, recalculating...")
+              version = calculate_version(record.aggregate_type, record.aggregate_id)
+              record = %{record | version: version}
+              changeset = EventRecord.changeset(record, %{})
+              
+              case Repo.insert(changeset) do
+                {:ok, _} ->
+                  Logger.debug("[EventStore] Saved event #{event_id} with version #{version} (retry)")
+                  broadcast_event(event)
+                  :ok
+                {:error, retry_changeset} ->
+                  Logger.error("[EventStore] Failed to save event after retry: #{inspect(retry_changeset.errors)}")
+                  {:error, retry_changeset.errors}
+              end
+            else
+              Logger.error("[EventStore] Failed to save event: #{inspect(changeset.errors)}")
+              {:error, changeset.errors}
+            end
         end
 
       _existing ->
         :already_exists
     end
+  end
+
+  defp calculate_version(aggregate_type, aggregate_id) do
+    max_version = 
+      EventRecord
+      |> EventRecord.by_aggregate(aggregate_type, aggregate_id)
+      |> select([e], max(e.version))
+      |> Repo.one() || 0
+    
+    max_version + 1
+  end
+
+  defp constraint_error?(changeset, constraint_name) do
+    Enum.any?(changeset.errors, fn {field, {msg, _}} ->
+      field == constraint_name or String.contains?(inspect(msg), to_string(constraint_name))
+    end)
   end
 
   defp broadcast_event(event) do

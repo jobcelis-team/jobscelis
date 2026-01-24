@@ -1,6 +1,9 @@
 defmodule StreamflixWebWeb.MyListLive do
   use StreamflixWebWeb, :live_view
 
+  alias StreamflixCatalog
+  alias StreamflixAccounts
+
   @impl true
   def mount(_params, _session, socket) do
     socket =
@@ -18,9 +21,16 @@ defmodule StreamflixWebWeb.MyListLive do
 
   @impl true
   def handle_info(:load_list, socket) do
-    # TODO: Load from user's actual list
-    # For now, return empty list
-    items = []
+    user = socket.assigns.current_user
+    
+    # Get default profile or first profile
+    profile = get_current_profile(user.id, socket.assigns.current_profile)
+    
+    items = if profile do
+      StreamflixCatalog.get_my_list(profile.id)
+    else
+      []
+    end
 
     socket =
       socket
@@ -31,9 +41,37 @@ defmodule StreamflixWebWeb.MyListLive do
   end
 
   @impl true
-  def handle_event("remove", %{"id" => _id}, socket) do
-    # TODO: Remove from list
-    {:noreply, socket}
+  def handle_event("remove", %{"id" => content_id}, socket) do
+    user = socket.assigns.current_user
+    profile = get_current_profile(user.id, socket.assigns.current_profile)
+
+    if profile do
+      case StreamflixCatalog.remove_from_my_list(profile.id, content_id) do
+        {:ok, _} ->
+          # Reload list
+          items = StreamflixCatalog.get_my_list(profile.id)
+          socket =
+            socket
+            |> assign(:items, items)
+            |> put_flash(:info, "Eliminado de tu lista")
+          {:noreply, socket}
+
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, "Error al eliminar de la lista")}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "Selecciona un perfil primero")}
+    end
+  end
+
+  defp get_current_profile(user_id, current_profile) do
+    if current_profile do
+      current_profile
+    else
+      # Get first profile for user
+      profiles = StreamflixAccounts.list_profiles(user_id)
+      List.first(profiles)
+    end
   end
 
   @impl true
