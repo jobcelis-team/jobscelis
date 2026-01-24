@@ -1,0 +1,232 @@
+version: '3.8'
+
+# ============================================
+# STREAMFLIX DEVELOPMENT ENVIRONMENT
+# All sensitive values from .env file
+# ============================================
+
+services:
+  # ============================================
+  # APPLICATION NODES
+  # ============================================
+
+  # Node 1 - Primary
+  streamflix_node1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: streamflix_node1
+    env_file:
+      - .env
+    environment:
+      - NODE_NAME=node1@streamflix_node1
+      - DATABASE_URL=ecto://${DB_USERNAME:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_DATABASE:-streamflix_dev}
+      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - GUARDIAN_SECRET_KEY=${GUARDIAN_SECRET_KEY}
+      - AZURE_STORAGE_ACCOUNT=${AZURE_STORAGE_ACCOUNT}
+      - AZURE_STORAGE_KEY=${AZURE_STORAGE_KEY}
+      - AZURE_CDN_ENDPOINT=${AZURE_CDN_ENDPOINT}
+      - PORT=4000
+      - PHX_HOST=${PHX_HOST:-localhost}
+      - MIX_ENV=${MIX_ENV:-dev}
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+    ports:
+      - "${PORT:-4000}:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - deps:/app/deps
+      - build:/app/_build
+      - node_modules:/app/apps/streamflix_web/assets/node_modules
+    networks:
+      - streamflix_network
+    stdin_open: true
+    tty: true
+
+  # Node 2 - Secondary
+  streamflix_node2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: streamflix_node2
+    env_file:
+      - .env
+    environment:
+      - NODE_NAME=node2@streamflix_node2
+      - DATABASE_URL=ecto://${DB_USERNAME:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_DATABASE:-streamflix_dev}
+      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - GUARDIAN_SECRET_KEY=${GUARDIAN_SECRET_KEY}
+      - AZURE_STORAGE_ACCOUNT=${AZURE_STORAGE_ACCOUNT}
+      - AZURE_STORAGE_KEY=${AZURE_STORAGE_KEY}
+      - AZURE_CDN_ENDPOINT=${AZURE_CDN_ENDPOINT}
+      - PORT=4001
+      - PHX_HOST=${PHX_HOST:-localhost}
+      - MIX_ENV=${MIX_ENV:-dev}
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+    ports:
+      - "4001:4001"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      streamflix_node1:
+        condition: service_started
+    volumes:
+      - .:/app
+      - deps:/app/deps
+      - build:/app/_build
+    networks:
+      - streamflix_network
+    profiles:
+      - cluster
+
+  # Node 3 - Tertiary
+  streamflix_node3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: streamflix_node3
+    env_file:
+      - .env
+    environment:
+      - NODE_NAME=node3@streamflix_node3
+      - DATABASE_URL=ecto://${DB_USERNAME:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_DATABASE:-streamflix_dev}
+      - REDIS_URL=redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - GUARDIAN_SECRET_KEY=${GUARDIAN_SECRET_KEY}
+      - AZURE_STORAGE_ACCOUNT=${AZURE_STORAGE_ACCOUNT}
+      - AZURE_STORAGE_KEY=${AZURE_STORAGE_KEY}
+      - AZURE_CDN_ENDPOINT=${AZURE_CDN_ENDPOINT}
+      - PORT=4002
+      - PHX_HOST=${PHX_HOST:-localhost}
+      - MIX_ENV=${MIX_ENV:-dev}
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+    ports:
+      - "4002:4002"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      streamflix_node1:
+        condition: service_started
+    volumes:
+      - .:/app
+      - deps:/app/deps
+      - build:/app/_build
+    networks:
+      - streamflix_network
+    profiles:
+      - cluster
+
+  # ============================================
+  # DATABASES
+  # ============================================
+
+  # PostgreSQL 17
+  db:
+    image: postgres:17-alpine
+    container_name: streamflix_db
+    environment:
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_DATABASE:-streamflix_dev}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - streamflix_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis 7.4 (Cache & Sessions)
+  redis:
+    image: redis:7.4-alpine
+    container_name: streamflix_redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - streamflix_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}
+
+  # ============================================
+  # MONITORING (Optional)
+  # ============================================
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:v2.54.0
+    container_name: streamflix_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    networks:
+      - streamflix_network
+    profiles:
+      - monitoring
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: streamflix_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - streamflix_network
+    depends_on:
+      - prometheus
+    profiles:
+      - monitoring
+
+# ============================================
+# VOLUMES
+# ============================================
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  deps:
+  build:
+  node_modules:
+
+# ============================================
+# NETWORKS
+# ============================================
+
+networks:
+  streamflix_network:
+    driver: bridge

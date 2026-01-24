@@ -1,0 +1,108 @@
+<div class="min-h-screen bg-black text-white">
+  <!-- Background gradient -->
+  <div class="absolute inset-0 bg-gradient-to-br from-red-900/30 via-black to-gray-900"></div>
+  
+  <!-- Navigation -->
+  <nav class="absolute top-0 left-0 right-0 z-50 px-8 py-6">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <a href="/" class="text-red-600 text-4xl font-bold tracking-tight">STREAMFLIX</a>
+      <a href="/login" class="text-white hover:text-gray-300 font-medium">Iniciar Sesión</a>
+    </div>
+  </nav>
+  
+  <!-- Signup Content -->
+  <div class="relative z-10 pt-32 pb-20">
+    <div class="max-w-lg mx-auto px-4">
+      <!-- Step indicator -->
+      <div class="text-center mb-8">
+        <p class="text-gray-400 uppercase tracking-wider text-sm">Paso 1 de 3</p>
+        <h1 class="text-3xl font-bold mt-2">Crea tu cuenta</h1>
+        <p class="text-gray-400 mt-2">Solo faltan unos pasos para empezar a disfrutar StreamFlix.</p>
+      </div>
+      
+      <!-- Plan Badge -->
+      <%= if @plan do %>
+        <div class="bg-gray-800 rounded-lg p-4 mb-6 flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-400">Plan seleccionado</p>
+            <p class="font-bold text-lg capitalize"><%= @plan %></p>
+          </div>
+          <a href="/#pricing" class="text-red-500 hover:underline text-sm">Cambiar</a>
+        </div>
+      <% end %>
+      
+      <!-- Signup Form -->
+      <form action="/signup" method="post" class="bg-black/80 rounded-lg p-8 space-y-6">
+        <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+        <input type="hidden" name="plan" value={@plan || "standard"} />
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Email</label>
+          <input 
+            type="email" 
+            name="email" 
+            value={@email}
+            placeholder="tu@email.com"
+            required
+            class="w-full px-4 py-4 rounded bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-red-600"
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Nombre completo</label>
+          <input 
+            type="text" 
+            name="name" 
+            placeholder="Tu nombre"
+            required
+            class="w-full px-4 py-4 rounded bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-red-600"
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Contraseña</label>
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="Mínimo 8 caracteres"
+            required
+            minlength="8"
+            class="w-full px-4 py-4 rounded bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-red-600"
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Confirmar contraseña</label>
+          <input 
+            type="password" 
+            name="password_confirmation" 
+            placeholder="Repite tu contraseña"
+            required
+            minlength="8"
+            class="w-full px-4 py-4 rounded bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-red-600"
+          />
+        </div>
+        
+        <div class="flex items-start">
+          <input type="checkbox" name="terms" required class="mt-1 mr-3 accent-red-600" />
+          <label class="text-sm text-gray-400">
+            Acepto los <a href="#" class="text-red-500 hover:underline">Términos de uso</a> y 
+            <a href="#" class="text-red-500 hover:underline">Política de privacidad</a>
+          </label>
+        </div>
+        
+        <button 
+          type="submit" 
+          class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded font-medium text-lg transition"
+        >
+          Continuar
+        </button>
+      </form>
+      
+      <p class="text-center text-gray-400 mt-6">
+        ¿Ya tienes cuenta? 
+        <a href="/login" class="text-white hover:underline">Inicia sesión</a>
+      </p>
+    </div>
+  </div>
+</div>
