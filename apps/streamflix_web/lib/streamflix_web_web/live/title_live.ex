@@ -2,6 +2,7 @@ defmodule StreamflixWebWeb.TitleLive do
   use StreamflixWebWeb, :live_view
 
   alias StreamflixCatalog
+  alias StreamflixAccounts
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -10,11 +11,20 @@ defmodule StreamflixWebWeb.TitleLive do
         socket =
           socket
           |> put_flash(:error, "Contenido no encontrado")
-          |> redirect(to: ~p"/browse")
+          |> redirect(to: "/browse")
 
         {:ok, socket}
 
       content ->
+        user = socket.assigns.current_user
+        profile = get_current_profile(user.id, socket.assigns.current_profile)
+        
+        in_my_list = if profile do
+          StreamflixCatalog.in_my_list?(profile.id, content.id)
+        else
+          false
+        end
+
         socket =
           socket
           |> assign(:page_title, content.title)
@@ -23,7 +33,7 @@ defmodule StreamflixWebWeb.TitleLive do
           |> assign(:selected_season, 1)
           |> assign(:episodes, [])
           |> assign(:similar, [])
-          |> assign(:in_my_list, false)
+          |> assign(:in_my_list, in_my_list)
 
         if connected?(socket) do
           send(self(), :load_additional_data)
@@ -81,14 +91,59 @@ defmodule StreamflixWebWeb.TitleLive do
 
   @impl true
   def handle_event("add_to_list", _, socket) do
-    # TODO: Implement add to my list
-    {:noreply, assign(socket, :in_my_list, true)}
+    user = socket.assigns.current_user
+    profile = get_current_profile(user.id, socket.assigns.current_profile)
+    content_id = socket.assigns.content.id
+
+    if profile do
+      case StreamflixCatalog.add_to_my_list(profile.id, content_id) do
+        {:ok, _} ->
+          {:noreply, 
+           socket
+           |> assign(:in_my_list, true)
+           |> put_flash(:info, "Agregado a tu lista")}
+
+        {:error, :already_in_list} ->
+          {:noreply, put_flash(socket, :info, "Ya está en tu lista")}
+
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, "Error al agregar a la lista")}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "Selecciona un perfil primero")}
+    end
   end
 
   @impl true
   def handle_event("remove_from_list", _, socket) do
-    # TODO: Implement remove from my list
-    {:noreply, assign(socket, :in_my_list, false)}
+    user = socket.assigns.current_user
+    profile = get_current_profile(user.id, socket.assigns.current_profile)
+    content_id = socket.assigns.content.id
+
+    if profile do
+      case StreamflixCatalog.remove_from_my_list(profile.id, content_id) do
+        {:ok, _} ->
+          {:noreply,
+           socket
+           |> assign(:in_my_list, false)
+           |> put_flash(:info, "Eliminado de tu lista")}
+
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, "Error al eliminar de la lista")}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "Selecciona un perfil primero")}
+    end
+  end
+
+  defp get_current_profile(user_id, current_profile) do
+    if current_profile do
+      current_profile
+    else
+      # Get first profile for user
+      profiles = StreamflixAccounts.list_profiles(user_id)
+      List.first(profiles)
+    end
   end
 
   @impl true

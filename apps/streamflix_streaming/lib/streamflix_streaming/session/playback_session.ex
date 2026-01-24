@@ -245,18 +245,36 @@ defmodule StreamflixStreaming.Session.PlaybackSession do
   end
 
   defp update_watch_history(state, completed) do
-    # This would update the watch_history table
-    # For now, we'll just log it
-    progress = state.current_position / (state.video.duration_seconds || 1)
+    alias StreamflixCatalog
 
-    Logger.debug("""
-    [PlaybackSession] Watch history update:
-      profile_id: #{state.profile_id}
-      content_id: #{state.content_id}
-      episode_id: #{state.episode_id}
-      position: #{state.current_position}
-      progress: #{Float.round(progress * 100, 1)}%
-      completed: #{completed}
-    """)
+    attrs = %{
+      content_id: state.content_id,
+      episode_id: state.episode_id,
+      video_id: state.video.id,
+      progress_seconds: state.current_position,
+      duration_seconds: state.video.duration_seconds
+    }
+
+    case StreamflixCatalog.update_watch_history(state.profile_id, attrs) do
+      {:ok, _history} ->
+        progress = if state.video.duration_seconds && state.video.duration_seconds > 0 do
+          Float.round((state.current_position / state.video.duration_seconds) * 100, 1)
+        else
+          0.0
+        end
+
+        Logger.debug("""
+        [PlaybackSession] Watch history updated:
+          profile_id: #{state.profile_id}
+          content_id: #{state.content_id}
+          episode_id: #{state.episode_id}
+          position: #{state.current_position}s
+          progress: #{progress}%
+          completed: #{completed}
+        """)
+
+      {:error, reason} ->
+        Logger.warning("[PlaybackSession] Failed to update watch history: #{inspect(reason)}")
+    end
   end
 end

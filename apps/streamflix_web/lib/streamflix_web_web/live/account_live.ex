@@ -1,15 +1,32 @@
 defmodule StreamflixWebWeb.AccountLive do
   use StreamflixWebWeb, :live_view
 
+  alias StreamflixAccounts
+  alias StreamflixCore.Settings
+
   @impl true
   def mount(_params, _session, socket) do
+    user = socket.assigns.current_user
+    
+    # Load user with profiles
+    user_with_profiles = StreamflixAccounts.get_user_with_profiles(user.id)
+    
+    # Get active subscription
+    subscription = StreamflixAccounts.get_active_subscription(user.id)
+    
     socket =
       socket
       |> assign(:page_title, "Cuenta")
-      |> assign(:user, demo_user())
-      |> assign(:subscription, demo_subscription())
+      |> assign(:user, user_with_profiles)
+      |> assign(:subscription, format_subscription(subscription))
+      |> assign(:loading, false)
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_event("logout", _, socket) do
+    {:noreply, redirect(socket, to: "/logout", external: true)}
   end
 
   @impl true
@@ -95,7 +112,7 @@ defmodule StreamflixWebWeb.AccountLive do
               </div>
               <div class="flex justify-between items-center">
                 <span>Cerrar sesión en todos los dispositivos</span>
-                <button class="text-blue-600 hover:underline">Cerrar sesión</button>
+                <button phx-click="logout" class="text-blue-600 hover:underline">Cerrar sesión</button>
               </div>
               <div class="flex justify-between items-center">
                 <span>Descargar tu información personal</span>
@@ -111,19 +128,23 @@ defmodule StreamflixWebWeb.AccountLive do
             <h2 class="text-xl font-medium text-gray-500 mb-4">PERFILES</h2>
 
             <div class="space-y-4">
-              <%= for profile <- @user.profiles do %>
-                <div class="flex items-center justify-between py-2 border-b last:border-0">
-                  <div class="flex items-center gap-4">
-                    <div class={"w-12 h-12 rounded flex items-center justify-center #{profile.color}"}>
-                      <span class="text-xl text-white font-bold"><%= String.first(profile.name) %></span>
+              <%= if Enum.empty?(@user.profiles || []) do %>
+                <p class="text-gray-500">No hay perfiles creados. <a href="/profiles" class="text-blue-600 hover:underline">Crear perfil</a></p>
+              <% else %>
+                <%= for profile <- @user.profiles do %>
+                  <div class="flex items-center justify-between py-2 border-b last:border-0">
+                    <div class="flex items-center gap-4">
+                      <div class={"w-12 h-12 rounded flex items-center justify-center #{profile_color(profile)}"}>
+                        <span class="text-xl text-white font-bold"><%= String.first(profile.name || "?") %></span>
+                      </div>
+                      <div>
+                        <p class="font-medium"><%= profile.name %></p>
+                        <p class="text-sm text-gray-500"><%= profile_type_label(profile) %></p>
+                      </div>
                     </div>
-                    <div>
-                      <p class="font-medium"><%= profile.name %></p>
-                      <p class="text-sm text-gray-500"><%= profile.type %></p>
-                    </div>
+                    <a href="/profiles" class="text-blue-600 hover:underline">Editar</a>
                   </div>
-                  <a href="#" class="text-blue-600 hover:underline">Editar</a>
-                </div>
+                <% end %>
               <% end %>
             </div>
           </div>
@@ -138,22 +159,57 @@ defmodule StreamflixWebWeb.AccountLive do
     """
   end
 
-  defp demo_user do
+  defp format_subscription(nil) do
     %{
-      email: "usuario@example.com",
-      profiles: [
-        %{name: "Principal", color: "bg-red-600", type: "Todos los públicos"},
-        %{name: "Niños", color: "bg-yellow-500", type: "Niños"},
-        %{name: "Invitado", color: "bg-blue-600", type: "Todos los públicos"}
-      ]
+      plan_name: "Sin Plan",
+      price: "0.00",
+      next_billing_date: "N/A"
     }
   end
 
-  defp demo_subscription do
+  defp format_subscription(subscription) do
+    plan_name = String.capitalize(subscription.plan || "Sin Plan")
+    price = get_plan_price(subscription.plan)
+    
+    next_billing_date = 
+      if subscription.current_period_end do
+        format_date(subscription.current_period_end)
+      else
+        "N/A"
+      end
+
     %{
-      plan_name: "Premium",
-      price: "17.99",
-      next_billing_date: "15 de febrero, 2026"
+      plan_name: plan_name,
+      price: price,
+      next_billing_date: next_billing_date
     }
+  end
+
+  defp get_plan_price(plan) do
+    price = Settings.get_plan_price(plan)
+    :erlang.float_to_binary(price, [{:decimals, 2}])
+  end
+
+  defp format_date(date) do
+    Calendar.strftime(date, "%d de %B, %Y")
+  end
+
+  defp profile_color(profile) do
+    # Generate color based on profile name hash
+    colors = ["bg-red-600", "bg-blue-600", "bg-green-600", "bg-yellow-500", "bg-purple-600", "bg-pink-600"]
+    index = :erlang.phash2(profile.name || "default") |> rem(length(colors))
+    Enum.at(colors, index)
+  end
+
+  defp profile_type_label(profile) do
+    cond do
+      profile.is_kids -> "Niños"
+      profile.maturity_level == "all" -> "Todos los públicos"
+      profile.maturity_level == "pg" -> "PG"
+      profile.maturity_level == "pg13" -> "PG-13"
+      profile.maturity_level == "r" -> "R"
+      profile.maturity_level == "nc17" -> "NC-17"
+      true -> "Todos los públicos"
+    end
   end
 end

@@ -35,6 +35,11 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
   end
 
   @impl true
+  def handle_event("logout", _, socket) do
+    {:noreply, redirect(socket, to: "/logout", external: true)}
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-gray-100">
@@ -232,13 +237,22 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
         <.sidebar_link href="/admin/settings" icon="settings" label="Configuración" active={@active == "settings"} />
       </nav>
 
-      <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-800">
+      <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-800 space-y-3">
         <a href="/browse" class="flex items-center text-gray-400 hover:text-white">
           <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
           </svg>
           Volver a StreamFlix
         </a>
+        <button
+          phx-click="logout"
+          class="flex items-center text-gray-400 hover:text-white w-full"
+        >
+          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Cerrar Sesión
+        </button>
       </div>
     </aside>
     """

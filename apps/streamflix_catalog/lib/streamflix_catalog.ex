@@ -347,12 +347,12 @@ defmodule StreamflixCatalog do
   @doc """
   Gets the next episode after the current one.
   """
-  def get_next_episode(series_id, current_season, current_episode) do
+  def get_next_episode(content_id, current_season, current_episode) do
     # Try next episode in same season
     next_in_season =
       from(e in Episode,
         join: s in Season, on: s.id == e.season_id,
-        where: s.series_id == ^series_id,
+        where: s.content_id == ^content_id,
         where: s.season_number == ^current_season,
         where: e.episode_number == ^(current_episode + 1)
       )
@@ -364,7 +364,7 @@ defmodule StreamflixCatalog do
       # Try first episode of next season
       from(e in Episode,
         join: s in Season, on: s.id == e.season_id,
-        where: s.series_id == ^series_id,
+        where: s.content_id == ^content_id,
         where: s.season_number == ^(current_season + 1),
         where: e.episode_number == 1
       )
@@ -434,77 +434,70 @@ defmodule StreamflixCatalog do
   # MY LIST FUNCTIONS
   # ============================================
 
+  alias StreamflixCatalog.Schemas.MyList
+
   @doc """
-  Gets user's my list.
+  Gets user's my list by profile_id.
   """
-  def get_my_list(user_id, profile_id) do
-    query = from(ml in "my_list",
-      where: ml.user_id == ^user_id,
-      order_by: [desc: ml.added_at],
-      select: %{content_id: ml.content_id, added_at: ml.added_at}
-    )
-
-    query = if profile_id do
-      from(ml in query, where: ml.profile_id == ^profile_id)
-    else
-      query
-    end
-
-    list_items = Repo.all(query)
-
-    # Fetch content for each item
-    Enum.map(list_items, fn item ->
-      content = get_content(item.content_id)
-      if content, do: Map.put(content, :added_at, item.added_at), else: nil
+  def get_my_list(profile_id) do
+    MyList
+    |> where([ml], ml.profile_id == ^profile_id)
+    |> order_by([ml], desc: ml.added_at)
+    |> preload(:content)
+    |> Repo.all()
+    |> Enum.map(fn item ->
+      if item.content do
+        Map.put(item.content, :added_at, item.added_at)
+      else
+        nil
+      end
     end)
     |> Enum.filter(&(&1 != nil))
   end
 
   @doc """
+  Checks if content is in user's my list.
+  """
+  def in_my_list?(profile_id, content_id) do
+    MyList
+    |> where([ml], ml.profile_id == ^profile_id and ml.content_id == ^content_id)
+    |> Repo.exists?()
+  end
+
+  @doc """
   Adds content to my list.
   """
-  def add_to_my_list(user_id, profile_id, content_id) do
-    now = DateTime.utc_now()
+  def add_to_my_list(profile_id, content_id) do
+    attrs = %{
+      profile_id: profile_id,
+      content_id: content_id,
+      added_at: DateTime.utc_now()
+    }
 
-    # Check if already in list
-    existing = from(ml in "my_list",
-      where: ml.user_id == ^user_id and ml.content_id == ^content_id
-    ) |> Repo.one()
+    changeset = MyList.changeset(%MyList{}, attrs)
 
-    if existing do
-      {:error, :already_in_list}
-    else
-      entry = %{
-        user_id: user_id,
-        profile_id: profile_id,
-        content_id: content_id,
-        added_at: now
-      }
-
-      case Repo.insert_all("my_list", [entry]) do
-        {1, _} -> {:ok, :added}
-        _ -> {:error, :insert_failed}
-      end
+    case Repo.insert(changeset) do
+      {:ok, _my_list} -> {:ok, :added}
+      {:error, %Ecto.Changeset{errors: errors}} ->
+        if Keyword.has_key?(errors, :profile_id) or Keyword.has_key?(errors, :content_id) do
+          {:error, :already_in_list}
+        else
+          {:error, :insert_failed}
+        end
     end
   end
 
   @doc """
   Removes content from my list.
   """
-  def remove_from_my_list(user_id, profile_id, content_id) do
-    query = from(ml in "my_list",
-      where: ml.user_id == ^user_id and ml.content_id == ^content_id
-    )
-
-    query = if profile_id do
-      from(ml in query, where: ml.profile_id == ^profile_id)
-    else
-      query
-    end
-
-    case Repo.delete_all(query) do
-      {0, _} -> {:error, :not_in_list}
-      {_, _} -> {:ok, :removed}
+  def remove_from_my_list(profile_id, content_id) do
+    case Repo.get_by(MyList, profile_id: profile_id, content_id: content_id) do
+      nil -> {:error, :not_in_list}
+      my_list ->
+        case Repo.delete(my_list) do
+          {:ok, _} -> {:ok, :removed}
+          {:error, changeset} -> {:error, changeset}
+        end
     end
   end
 
@@ -580,5 +573,96 @@ defmodule StreamflixCatalog do
 
       Cache.invalidate_content(content_id)
     end
+  end
+
+  # ============================================
+  # WATCH HISTORY FUNCTIONS
+  # ============================================
+
+  alias StreamflixCatalog.Schemas.WatchHistory
+
+  @doc """
+  Updates or creates watch history entry.
+  """
+  def update_watch_history(profile_id, attrs) do
+    content_id = attrs[:content_id]
+    episode_id = attrs[:episode_id]
+    video_id = attrs[:video_id]
+    progress_seconds = attrs[:progress_seconds] || 0
+    duration_seconds = attrs[:duration_seconds]
+
+    # Find existing entry
+    existing = 
+      WatchHistory
+      |> where([wh], wh.profile_id == ^profile_id)
+      |> where([wh], wh.content_id == ^content_id)
+      |> where([wh], wh.episode_id == ^episode_id or (is_nil(wh.episode_id) and is_nil(^episode_id)))
+      |> Repo.one()
+
+    history_attrs = %{
+      profile_id: profile_id,
+      content_id: content_id,
+      episode_id: episode_id,
+      video_id: video_id,
+      progress_seconds: progress_seconds,
+      duration_seconds: duration_seconds,
+      last_watched_at: DateTime.utc_now(),
+      completed: if(duration_seconds && progress_seconds >= duration_seconds * 0.9, do: true, else: false)
+    }
+
+    if existing do
+      changeset = WatchHistory.changeset(existing, history_attrs)
+      Repo.update(changeset)
+    else
+      changeset = WatchHistory.changeset(%WatchHistory{}, history_attrs)
+      Repo.insert(changeset)
+    end
+  end
+
+  @doc """
+  Gets watch history for a profile.
+  """
+  def get_watch_history(profile_id, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 50)
+
+    WatchHistory
+    |> where([wh], wh.profile_id == ^profile_id)
+    |> order_by([wh], desc: wh.last_watched_at)
+    |> limit(^limit)
+    |> preload(:content)
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets continue watching (incomplete items) for a profile.
+  """
+  def get_continue_watching(profile_id, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 20)
+
+    WatchHistory
+    |> where([wh], wh.profile_id == ^profile_id)
+    |> where([wh], wh.completed == false)
+    |> order_by([wh], desc: wh.last_watched_at)
+    |> limit(^limit)
+    |> preload(:content)
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets watch progress for specific content/episode.
+  """
+  def get_watch_progress(profile_id, content_id, episode_id \\ nil) do
+    query = 
+      WatchHistory
+      |> where([wh], wh.profile_id == ^profile_id)
+      |> where([wh], wh.content_id == ^content_id)
+
+    query = if episode_id do
+      where(query, [wh], wh.episode_id == ^episode_id)
+    else
+      where(query, [wh], is_nil(wh.episode_id))
+    end
+
+    Repo.one(query)
   end
 end

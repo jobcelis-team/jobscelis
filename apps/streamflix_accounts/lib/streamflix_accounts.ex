@@ -25,6 +25,8 @@ defmodule StreamflixAccounts do
   Registers a new user.
   """
   def register_user(attrs) do
+    # Set default role to user unless specified
+    attrs = Map.put_new(attrs, :role, "user")
     changeset = User.registration_changeset(%User{}, attrs)
 
     case Repo.insert(changeset) do
@@ -51,6 +53,32 @@ defmodule StreamflixAccounts do
   end
 
   @doc """
+  Creates an admin user.
+  """
+  def create_admin(attrs) do
+    attrs = 
+      attrs
+      |> Map.put(:role, "admin")
+      |> Map.put_new(:name, "Administrator")
+    
+    register_user(attrs)
+  end
+
+  @doc """
+  Promotes a user to admin.
+  """
+  def promote_to_admin(user_id) do
+    case get_user(user_id) do
+      nil -> {:error, :not_found}
+      user ->
+        case update_user(user, %{role: "admin"}) do
+          {:ok, updated_user} -> {:ok, updated_user}
+          {:error, changeset} -> {:error, changeset}
+        end
+    end
+  end
+
+  @doc """
   Gets a user by ID.
   """
   def get_user(id) do
@@ -62,6 +90,15 @@ defmodule StreamflixAccounts do
   """
   def get_user!(id) do
     Repo.get!(User, id)
+  end
+
+  @doc """
+  Gets a user by ID with profiles preloaded.
+  """
+  def get_user_with_profiles(id) do
+    User
+    |> Repo.get(id)
+    |> Repo.preload(:profiles)
   end
 
   @doc """
