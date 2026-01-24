@@ -1,0 +1,72 @@
+defmodule StreamflixAccounts.Services.Authentication do
+  @moduledoc """
+  Authentication service using Guardian for JWT tokens.
+  """
+
+  alias StreamflixAccounts.Schemas.User
+  alias StreamflixCore.Repo
+
+  @doc """
+  Authenticates a user with email and password.
+  """
+  def authenticate(email, password) do
+    user = Repo.get_by(User, email: String.downcase(email))
+
+    case user do
+      nil ->
+        # Prevent timing attacks
+        Pbkdf2.no_user_verify()
+        {:error, :invalid_credentials}
+
+      user ->
+        if Pbkdf2.verify_pass(password, user.password_hash) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+    end
+  end
+
+  @doc """
+  Generates a JWT token for a user.
+  """
+  def generate_token(user) do
+    StreamflixAccounts.Guardian.encode_and_sign(user, %{}, ttl: {7, :day})
+  end
+
+  @doc """
+  Verifies and decodes a token.
+  """
+  def verify_token(token) do
+    case StreamflixAccounts.Guardian.decode_and_verify(token) do
+      {:ok, claims} ->
+        case StreamflixAccounts.Guardian.resource_from_claims(claims) do
+          {:ok, user} -> {:ok, user, claims}
+          error -> error
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Refreshes an existing token.
+  """
+  def refresh_token(token) do
+    case StreamflixAccounts.Guardian.refresh(token) do
+      {:ok, _old_stuff, {new_token, new_claims}} ->
+        {:ok, new_token, new_claims}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Revokes a token.
+  """
+  def revoke_token(token) do
+    StreamflixAccounts.Guardian.revoke(token)
+  end
+end

@@ -1,0 +1,196 @@
+<div class="min-h-screen bg-black text-white">
+  <!-- Hero Section -->
+  <div class="relative h-screen flex items-center justify-center overflow-hidden">
+    <!-- Background gradient (Netflix-style) -->
+    <div class="absolute inset-0 bg-gradient-to-br from-red-900/40 via-black to-gray-900"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/50"></div>
+    <!-- Animated grid pattern -->
+    <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
+    
+    <!-- Navigation -->
+    <nav class="absolute top-0 left-0 right-0 z-50 px-8 py-6">
+      <div class="flex items-center justify-between max-w-7xl mx-auto">
+        <span class="text-red-600 text-4xl font-bold tracking-tight">STREAMFLIX</span>
+        <div class="flex items-center space-x-4">
+          <a href="/login" class="text-white hover:text-gray-300 font-medium">Iniciar Sesión</a>
+          <a href="/signup" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-medium transition">
+            Registrarse
+          </a>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Hero Content -->
+    <div class="relative z-10 text-center max-w-4xl mx-auto px-4">
+      <h1 class="text-5xl md:text-7xl font-bold mb-6">
+        Películas y series ilimitadas
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-300 mb-8">
+        Disfruta donde quieras. Cancela cuando quieras.
+      </p>
+      <p class="text-lg text-gray-400 mb-6">
+        ¿Listo para ver? Ingresa tu email para crear o reiniciar tu membresía.
+      </p>
+      
+      <form action="/signup" method="get" class="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
+        <input 
+          type="email" 
+          name="email"
+          placeholder="Email" 
+          class="flex-1 px-6 py-4 rounded bg-black/60 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-red-600"
+        />
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded text-xl font-medium flex items-center justify-center gap-2 transition">
+          Comenzar
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Features Section -->
+  <section class="py-20 border-t-8 border-gray-800">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-4xl md:text-5xl font-bold mb-6">Disfruta en tu TV</h2>
+          <p class="text-xl text-gray-400">
+            Ve en smart TVs, PlayStation, Xbox, Chromecast, Apple TV, reproductores de Blu-ray y más.
+          </p>
+        </div>
+        <div class="relative">
+          <div class="bg-gradient-to-r from-red-600/20 to-purple-600/20 rounded-lg p-8">
+            <svg class="w-full h-48 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Download Section -->
+  <section class="py-20 border-t-8 border-gray-800">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="order-2 md:order-1">
+          <div class="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-lg p-8">
+            <svg class="w-full h-48 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="order-1 md:order-2">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6">Descarga y ve offline</h2>
+          <p class="text-xl text-gray-400">
+            Guarda tu contenido favorito y siempre tendrás algo que ver.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Streaming Section -->
+  <section class="py-20 border-t-8 border-gray-800">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-4xl md:text-5xl font-bold mb-6">Ve donde quieras</h2>
+          <p class="text-xl text-gray-400">
+            Transmite películas y series en tu teléfono, tablet, laptop y TV.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-800/50 rounded-lg p-6 text-center">
+            <svg class="w-12 h-12 mx-auto mb-3 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+            </svg>
+            <span class="text-sm">Móvil</span>
+          </div>
+          <div class="bg-gray-800/50 rounded-lg p-6 text-center">
+            <svg class="w-12 h-12 mx-auto mb-3 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/>
+            </svg>
+            <span class="text-sm">TV</span>
+          </div>
+          <div class="bg-gray-800/50 rounded-lg p-6 text-center">
+            <svg class="w-12 h-12 mx-auto mb-3 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
+            </svg>
+            <span class="text-sm">Laptop</span>
+          </div>
+          <div class="bg-gray-800/50 rounded-lg p-6 text-center">
+            <svg class="w-12 h-12 mx-auto mb-3 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.5 0h-14C3.12 0 2 1.12 2 2.5v19C2 22.88 3.12 24 4.5 24h14c1.38 0 2.5-1.12 2.5-2.5v-19C21 1.12 19.88 0 18.5 0zm-7 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm7.5-4H4V3h15v16z"/>
+            </svg>
+            <span class="text-sm">Tablet</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Pricing Section -->
+  <section class="py-20 border-t-8 border-gray-800">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <h2 class="text-4xl md:text-5xl font-bold mb-12">Elige tu plan</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Basic -->
+        <div class="bg-gray-900 rounded-xl p-8 border border-gray-800 hover:border-gray-600 transition">
+          <h3 class="text-2xl font-bold mb-2">Básico</h3>
+          <p class="text-4xl font-bold mb-6">$8.99<span class="text-lg text-gray-400">/mes</span></p>
+          <ul class="text-left space-y-3 mb-8">
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> 1 dispositivo</li>
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> HD disponible</li>
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Cancela cuando quieras</li>
+          </ul>
+          <a href="/signup?plan=basic" class="block w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded font-medium transition">Elegir plan</a>
+        </div>
+        
+        <!-- Standard -->
+        <div class="bg-gradient-to-b from-red-900/50 to-gray-900 rounded-xl p-8 border-2 border-red-600 relative">
+          <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-1 rounded-full text-sm font-medium">Popular</span>
+          <h3 class="text-2xl font-bold mb-2">Estándar</h3>
+          <p class="text-4xl font-bold mb-6">$13.99<span class="text-lg text-gray-400">/mes</span></p>
+          <ul class="text-left space-y-3 mb-8">
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> 2 dispositivos</li>
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Full HD disponible</li>
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Descargas disponibles</li>
+          </ul>
+          <a href="/signup?plan=standard" class="block w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded font-medium transition">Elegir plan</a>
+        </div>
+        
+        <!-- Premium -->
+        <div class="bg-gray-900 rounded-xl p-8 border border-gray-800 hover:border-gray-600 transition">
+          <h3 class="text-2xl font-bold mb-2">Premium</h3>
+          <p class="text-4xl font-bold mb-6">$17.99<span class="text-lg text-gray-400">/mes</span></p>
+          <ul class="text-left space-y-3 mb-8">
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> 4 dispositivos</li>
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Ultra HD + HDR</li>
+            <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Audio espacial</li>
+          </ul>
+          <a href="/signup?plan=premium" class="block w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded font-medium transition">Elegir plan</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer class="py-12 border-t-8 border-gray-800">
+    <div class="max-w-6xl mx-auto px-4">
+      <p class="text-gray-400 mb-6">¿Preguntas? Llama al 1-800-STREAMFLIX</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-400">
+        <a href="#" class="hover:underline">Preguntas frecuentes</a>
+        <a href="#" class="hover:underline">Centro de ayuda</a>
+        <a href="#" class="hover:underline">Términos de uso</a>
+        <a href="#" class="hover:underline">Privacidad</a>
+        <a href="#" class="hover:underline">Preferencias de cookies</a>
+        <a href="#" class="hover:underline">Información corporativa</a>
+        <a href="/admin" class="hover:underline">Panel Admin</a>
+        <a href="/dev/dashboard" class="hover:underline">Dashboard Dev</a>
+      </div>
+      <p class="text-gray-500 mt-8">© 2026 StreamFlix. Powered by Elixir & Phoenix.</p>
+    </div>
+  </footer>
+</div>
