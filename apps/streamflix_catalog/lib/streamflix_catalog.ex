@@ -407,7 +407,30 @@ defmodule StreamflixCatalog do
   Gets an episode by ID.
   """
   def get_episode(id) do
-    Repo.get(Episode, id)
+    Repo.get(Episode, id) |> Repo.preload(:season)
+  end
+
+  @doc """
+  Gets episode by content + season number + episode number.
+  Returns nil if not found (e.g. movie).
+  """
+  def get_episode_by_position(content_id, season_number, episode_number) do
+    season =
+      Season
+      |> where([s], s.content_id == ^content_id and s.season_number == ^season_number)
+      |> Repo.one()
+
+    if season do
+      Episode
+      |> where([e], e.season_id == ^season.id and e.episode_number == ^episode_number)
+      |> Repo.one()
+      |> case do
+        nil -> nil
+        ep -> Repo.preload(ep, :season)
+      end
+    else
+      nil
+    end
   end
 
   @doc """
@@ -676,13 +699,16 @@ defmodule StreamflixCatalog do
     progress_seconds = attrs[:progress_seconds] || 0
     duration_seconds = attrs[:duration_seconds]
 
-    # Find existing entry
-    existing = 
-      WatchHistory
+    # Find existing entry (use is_nil/1 for nil - Ecto forbids == ^nil)
+    base = WatchHistory
       |> where([wh], wh.profile_id == ^profile_id)
       |> where([wh], wh.content_id == ^content_id)
-      |> where([wh], wh.episode_id == ^episode_id or (is_nil(wh.episode_id) and is_nil(^episode_id)))
-      |> Repo.one()
+
+    existing = if is_nil(episode_id) do
+      base |> where([wh], is_nil(wh.episode_id)) |> Repo.one()
+    else
+      base |> where([wh], wh.episode_id == ^episode_id) |> Repo.one()
+    end
 
     history_attrs = %{
       profile_id: profile_id,
@@ -729,7 +755,7 @@ defmodule StreamflixCatalog do
     |> where([wh], wh.completed == false)
     |> order_by([wh], desc: wh.last_watched_at)
     |> limit(^limit)
-    |> preload(:content)
+    |> preload([:content, :episode])
     |> Repo.all()
   end
 
