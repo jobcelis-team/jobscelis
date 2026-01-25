@@ -13,6 +13,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
       |> assign(:users, [])
       |> assign(:loading, true)
       |> assign(:search, "")
+      |> assign(:editing_user, nil)
 
     if connected?(socket) do
       send(self(), :load_users)
@@ -33,7 +34,80 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("edit_user", %{"id" => id}, socket) do
+    user = Enum.find(socket.assigns.users, &(&1.id == id))
+    {:noreply, assign(socket, :editing_user, user)}
+  end
+
+  @impl true
+  def handle_event("close_user_modal", _, socket) do
+    {:noreply, assign(socket, :editing_user, nil)}
+  end
+
+  @impl true
+  def handle_event("deactivate_user", %{"id" => id}, socket) do
+    case StreamflixAccounts.deactivate_user(id) do
+      {:ok, _} ->
+        send(self(), :load_users)
+        {:noreply, put_flash(socket, :info, "Usuario desactivado correctamente")}
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Error al desactivar usuario")}
+    end
+  end
+
+  @impl true
+  def handle_event("activate_user", %{"id" => id}, socket) do
+    case StreamflixAccounts.activate_user(id) do
+      {:ok, _} ->
+        send(self(), :load_users)
+        {:noreply, put_flash(socket, :info, "Usuario activado correctamente")}
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Error al activar usuario")}
+    end
+  end
+
+  @impl true
+  def handle_event("save_user", params, socket) do
+    user_id = params["_id"] || params["id"]
+    attrs = %{
+      name: params["name"],
+      email: params["email"],
+      role: params["role"],
+      status: params["status"] || "active"
+    }
+
+    case StreamflixAccounts.get_user(user_id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, "Usuario no encontrado")}
+      user ->
+        case StreamflixAccounts.update_user(user, attrs) do
+          {:ok, _} ->
+            send(self(), :load_users)
+            socket =
+              socket
+              |> assign(:editing_user, nil)
+              |> put_flash(:info, "Usuario actualizado correctamente")
+            {:noreply, socket}
+          {:error, changeset} ->
+            errors = format_changeset_errors(changeset)
+            {:noreply, put_flash(socket, :error, "Error: #{errors}")}
+        end
+    end
+  end
+
+  defp format_changeset_errors(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
+        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
+      end)
+    end)
+    |> Enum.map(fn {field, errors} -> "#{field}: #{Enum.join(errors, ", ")}" end)
+    |> Enum.join("; ")
+  end
+
   defp load_users_from_db do
+    # Load all users including inactive for admin
     User
     |> order_by([u], desc: u.inserted_at)
     |> limit(100)
@@ -44,6 +118,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
         plan: subscription && String.capitalize(subscription.plan) || "Sin Plan",
         registered: format_date(user.inserted_at),
         active: user.status == "active"
@@ -69,7 +144,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
           <input
             type="text"
             placeholder="Buscar usuarios..."
-            class="w-full border border-gray-300 rounded-lg px-4 py-2"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
           />
         </div>
 
@@ -109,8 +184,30 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                     </span>
                   </td>
                   <td class="px-6 py-4 text-right">
-                    <button class="text-blue-600 hover:text-blue-800 mr-2">Editar</button>
-                    <button class="text-red-600 hover:text-red-800">Suspender</button>
+                    <button
+                      phx-click="edit_user"
+                      phx-value-id={user.id}
+                      class="text-blue-600 hover:text-blue-800 mr-2"
+                    >
+                      Editar
+                    </button>
+                    <%= if user.active do %>
+                      <button
+                        phx-click="deactivate_user"
+                        phx-value-id={user.id}
+                        class="text-red-600 hover:text-red-800"
+                      >
+                        Desactivar
+                      </button>
+                    <% else %>
+                      <button
+                        phx-click="activate_user"
+                        phx-value-id={user.id}
+                        class="text-green-600 hover:text-green-800"
+                      >
+                        Activar
+                      </button>
+                    <% end %>
                   </td>
                 </tr>
               <% end %>
@@ -118,6 +215,79 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
           </table>
         </div>
       </div>
+
+      <!-- User Edit Modal -->
+      <%= if @editing_user do %>
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" phx-click="close_user_modal">
+          <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4" phx-click-away="close_user_modal">
+            <div class="p-6 border-b flex justify-between items-center">
+              <h2 class="text-xl font-semibold text-gray-900">Editar Usuario</h2>
+              <button phx-click="close_user_modal" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form phx-submit="save_user" class="p-6 space-y-4">
+              <input type="hidden" name="_id" value={@editing_user.id} />
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={@editing_user.name}
+                  class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={@editing_user.email}
+                  class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                <select name="role" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white">
+                  <option value="user" selected={@editing_user.role == "user"}>Usuario</option>
+                  <option value="admin" selected={@editing_user.role == "admin"}>Administrador</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                <select name="status" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white">
+                  <option value="active" selected={@editing_user.active}>Activo</option>
+                  <option value="inactive" selected={!@editing_user.active}>Inactivo</option>
+                </select>
+              </div>
+
+              <div class="flex justify-end gap-4 pt-4 border-t">
+                <button
+                  type="button"
+                  phx-click="close_user_modal"
+                  class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      <% end %>
     </div>
     """
   end

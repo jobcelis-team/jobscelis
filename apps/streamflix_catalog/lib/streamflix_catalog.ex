@@ -40,7 +40,8 @@ defmodule StreamflixCatalog do
           description: content.description,
           genres: genres || [],
           release_year: content.release_year,
-          maturity_rating: content.maturity_rating,
+          rating: content.rating,
+          maturity_level: content.maturity_level,
           added_by: attrs[:added_by]
         }))
 
@@ -121,11 +122,29 @@ defmodule StreamflixCatalog do
   end
 
   @doc """
-  Deletes content.
+  Deactivates content (soft delete).
   """
   def delete_content(%Content{} = content) do
     Cache.invalidate_content(content.id)
-    Repo.delete(content)
+    changeset = Content.changeset(content, %{status: "archived"})
+    
+    case Repo.update(changeset) do
+      {:ok, updated} -> {:ok, updated}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  @doc """
+  Activates content.
+  """
+  def activate_content(%Content{} = content) do
+    Cache.invalidate_content(content.id)
+    changeset = Content.changeset(content, %{status: "published"})
+    
+    case Repo.update(changeset) do
+      {:ok, updated} -> {:ok, updated}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   # ============================================
@@ -139,11 +158,25 @@ defmodule StreamflixCatalog do
     page = Keyword.get(opts, :page, 1)
     per_page = Keyword.get(opts, :per_page, 20)
     type = Keyword.get(opts, :type)
+    include_archived = Keyword.get(opts, :include_archived, false)
+    include_all = Keyword.get(opts, :include_all, false)  # For admin: show all statuses
 
-    query =
-      Content
-      |> where([c], c.status == "published")
-      |> order_by([c], desc: c.view_count)
+    query = cond do
+      include_all ->
+        # Admin view: show all statuses (draft, published, archived)
+        Content
+        |> order_by([c], desc: c.view_count)
+      include_archived ->
+        # Show published and archived
+        Content
+        |> where([c], c.status == "published" or c.status == "archived")
+        |> order_by([c], desc: c.view_count)
+      true ->
+        # Default: only published
+        Content
+        |> where([c], c.status == "published")
+        |> order_by([c], desc: c.view_count)
+    end
 
     query = if type, do: where(query, [c], c.type == ^type), else: query
 
@@ -335,6 +368,32 @@ defmodule StreamflixCatalog do
   end
 
   @doc """
+  Gets a season by ID.
+  """
+  def get_season(id) do
+    Repo.get(Season, id) |> Repo.preload(:episodes)
+  end
+
+  @doc """
+  Updates a season.
+  """
+  def update_season(%Season{} = season, attrs) do
+    changeset = Season.changeset(season, attrs)
+    
+    case Repo.update(changeset) do
+      {:ok, updated} -> {:ok, updated}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  @doc """
+  Deletes a season (soft delete by marking as inactive if needed, or hard delete).
+  """
+  def delete_season(%Season{} = season) do
+    Repo.delete(season)
+  end
+
+  @doc """
   Gets episodes for a season.
   """
   def get_episodes(season_id) do
@@ -342,6 +401,32 @@ defmodule StreamflixCatalog do
     |> where([e], e.season_id == ^season_id)
     |> order_by([e], asc: e.episode_number)
     |> Repo.all()
+  end
+
+  @doc """
+  Gets an episode by ID.
+  """
+  def get_episode(id) do
+    Repo.get(Episode, id)
+  end
+
+  @doc """
+  Updates an episode.
+  """
+  def update_episode(%Episode{} = episode, attrs) do
+    changeset = Episode.changeset(episode, attrs)
+    
+    case Repo.update(changeset) do
+      {:ok, updated} -> {:ok, updated}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  @doc """
+  Deletes an episode.
+  """
+  def delete_episode(%Episode{} = episode) do
+    Repo.delete(episode)
   end
 
   @doc """

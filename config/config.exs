@@ -31,6 +31,11 @@ config :streamflix_core, StreamflixCore.Cache,
 # STREAMFLIX_WEB CONFIG
 # ============================================
 
+# Configure MIME types for file uploads
+config :mime, :types, %{
+  "video/x-matroska" => ["mkv"]
+}
+
 config :streamflix_web, StreamflixWebWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
@@ -60,6 +65,8 @@ config :streamflix_cdn,
   azure_account: nil,
   azure_key: nil,
   azure_cdn_endpoint: nil,
+  videos_playback_base_url: nil,
+  videos_playback_sas_token: nil,
   containers: %{
     videos: "streamflix-videos",
     thumbnails: "streamflix-thumbnails",
