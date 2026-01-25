@@ -17,6 +17,7 @@ defmodule StreamflixAccounts.Schemas.Profile do
     field :language, :string, default: "en"
     field :maturity_level, :string, default: "all"
     field :preferences, :map, default: %{}
+    field :status, :string, default: "active"
 
     belongs_to :user, StreamflixAccounts.Schemas.User
 
@@ -24,7 +25,7 @@ defmodule StreamflixAccounts.Schemas.Profile do
   end
 
   @required_fields [:name, :user_id]
-  @optional_fields [:avatar_url, :is_kids, :language, :maturity_level, :preferences]
+  @optional_fields [:avatar_url, :is_kids, :language, :maturity_level, :preferences, :status]
 
   def changeset(profile, attrs) do
     profile
@@ -33,6 +34,7 @@ defmodule StreamflixAccounts.Schemas.Profile do
     |> validate_length(:name, min: 1, max: 50)
     |> validate_inclusion(:language, ["en", "es", "pt", "fr", "de", "it", "ja", "ko"])
     |> validate_inclusion(:maturity_level, ["all", "pg", "pg13", "r", "nc17"])
+    |> validate_inclusion(:status, ["active", "inactive"])
     |> foreign_key_constraint(:user_id)
   end
 

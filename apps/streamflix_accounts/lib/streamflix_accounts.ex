@@ -188,11 +188,11 @@ defmodule StreamflixAccounts do
   end
 
   @doc """
-  Lists all profiles for a user.
+  Lists all active profiles for a user.
   """
   def list_profiles(user_id) do
     Profile
-    |> where([p], p.user_id == ^user_id)
+    |> where([p], p.user_id == ^user_id and (is_nil(p.status) or p.status == "active"))
     |> order_by([p], asc: p.inserted_at)
     |> Repo.all()
   end
@@ -220,8 +220,22 @@ defmodule StreamflixAccounts do
         profile_id: profile.id
       }))
 
-      Repo.delete(profile)
+      # Soft delete: mark as inactive instead of deleting
+      changeset = Profile.changeset(profile, %{status: "inactive"})
+      
+      case Repo.update(changeset) do
+        {:ok, updated} -> {:ok, updated}
+        {:error, changeset} -> {:error, changeset}
+      end
     end
+  end
+
+  @doc """
+  Activates a profile.
+  """
+  def activate_profile(%Profile{} = profile) do
+    changeset = Profile.changeset(profile, %{status: "active"})
+    Repo.update(changeset)
   end
 
   @doc """
@@ -231,6 +245,34 @@ defmodule StreamflixAccounts do
     Profile
     |> where([p], p.user_id == ^user_id)
     |> Repo.aggregate(:count)
+  end
+
+  # ============================================
+  # USER ACTIVATION FUNCTIONS
+  # ============================================
+
+  @doc """
+  Deactivates a user (soft delete).
+  """
+  def deactivate_user(user_id) do
+    case get_user(user_id) do
+      nil -> {:error, :not_found}
+      user ->
+        changeset = User.changeset(user, %{status: "inactive"})
+        Repo.update(changeset)
+    end
+  end
+
+  @doc """
+  Activates a user.
+  """
+  def activate_user(user_id) do
+    case get_user(user_id) do
+      nil -> {:error, :not_found}
+      user ->
+        changeset = User.changeset(user, %{status: "active"})
+        Repo.update(changeset)
+    end
   end
 
   # ============================================

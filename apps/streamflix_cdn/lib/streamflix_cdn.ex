@@ -127,6 +127,35 @@ defmodule StreamflixCdn do
     BlobClient.public_url(container, blob_name)
   end
 
+  @doc """
+  Generates a SAS URL for direct video access from a blob name.
+  Duration in seconds (default 1 hour).
+  """
+  def generate_video_sas_url(blob_name, opts \\ []) do
+    container = container_for(:videos)
+    BlobClient.generate_sas_url(container, blob_name, opts)
+  end
+
+  @doc """
+  Returns the playback URL for a video blob using the configured SAS (env).
+  Uses AZURE_VIDEOS_BASE_URL + AZURE_VIDEOS_SAS_TOKEN. No dynamic SAS generation.
+  Returns `nil` if not configured.
+  """
+  def video_playback_url(blob_name) when is_binary(blob_name) do
+    base = Application.get_env(:streamflix_cdn, :videos_playback_base_url)
+    sas = Application.get_env(:streamflix_cdn, :videos_playback_sas_token)
+
+    if base && sas && base != "" && sas != "" do
+      base = String.trim_trailing(base, "/")
+      blob_name = String.trim_leading(blob_name, "/")
+      "#{base}/#{blob_name}?#{sas}"
+    else
+      nil
+    end
+  end
+
+  def video_playback_url(_), do: nil
+
   # ============================================
   # DOWNLOAD OPERATIONS
   # ============================================

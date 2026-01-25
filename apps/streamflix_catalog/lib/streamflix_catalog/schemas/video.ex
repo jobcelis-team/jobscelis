@@ -11,11 +11,13 @@ defmodule StreamflixCatalog.Schemas.Video do
 
   schema "videos" do
     field :status, :string, default: "pending"
+    field :original_filename, :string
     field :original_url, :string
-    field :manifest_url, :string
     field :duration_seconds, :integer
     field :file_size_bytes, :integer
-    field :qualities, {:array, :string}, default: []
+    field :codec, :string
+    field :container, :string
+    field :audio_channels, :integer
     field :metadata, :map, default: %{}
 
     belongs_to :content, StreamflixCatalog.Schemas.Content
@@ -27,8 +29,8 @@ defmodule StreamflixCatalog.Schemas.Video do
 
   @required_fields []
   @optional_fields [
-    :content_id, :episode_id, :status, :original_url, :manifest_url,
-    :duration_seconds, :file_size_bytes, :qualities, :metadata
+    :content_id, :episode_id, :status, :original_filename, :original_url,
+    :duration_seconds, :file_size_bytes, :codec, :container, :audio_channels, :metadata
   ]
 
   def changeset(video, attrs) do
