@@ -56,11 +56,11 @@ defmodule StreamflixWebWeb.TitleLive do
     end
 
     # Load episodes for first season
-    episodes = if length(seasons) > 0 do
+    {episodes, selected} = if length(seasons) > 0 do
       first_season = List.first(seasons)
-      StreamflixCatalog.get_episodes(first_season.id)
+      {StreamflixCatalog.get_episodes(first_season.id), first_season.season_number}
     else
-      []
+      {[], 1}
     end
 
     # Load similar content (same genre)
@@ -70,16 +70,21 @@ defmodule StreamflixWebWeb.TitleLive do
       socket
       |> assign(:seasons, seasons)
       |> assign(:episodes, episodes)
+      |> assign(:selected_season, selected)
       |> assign(:similar, similar)
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("select_season", %{"season" => season}, socket) do
-    season_num = String.to_integer(season)
-    _season_num = season_num  # Used for filtering in future
-    episodes = StreamflixCatalog.get_episodes(socket.assigns.content.id)
+  def handle_event("select_season", %{"season" => season_val}, socket) do
+    season_num = String.to_integer(season_val)
+    found = Enum.find(socket.assigns.seasons, &(&1.season_number == season_num))
+    episodes = if found do
+      StreamflixCatalog.get_episodes(found.id)
+    else
+      []
+    end
 
     socket =
       socket
@@ -260,8 +265,8 @@ defmodule StreamflixWebWeb.TitleLive do
                 class="bg-gray-800 border border-gray-600 rounded px-4 py-2 text-white"
               >
                 <%= for season <- @seasons do %>
-                  <option value={season.number} selected={season.number == @selected_season}>
-                    Temporada <%= season.number %>
+                  <option value={season.season_number} selected={season.season_number == @selected_season}>
+                    Temporada <%= season.season_number %>
                   </option>
                 <% end %>
               </select>
@@ -270,13 +275,13 @@ defmodule StreamflixWebWeb.TitleLive do
             <div class="space-y-4">
               <%= for episode <- @episodes do %>
                 <a
-                  href={"/watch/#{@content.id}?season=#{@selected_season}&episode=#{episode.number}"}
+                  href={"/watch/#{@content.id}?episode_id=#{episode.id}"}
                   class="flex gap-4 p-4 bg-gray-900/50 rounded-lg hover:bg-gray-800/50 transition group"
                 >
                   <div class="relative flex-shrink-0 w-40 h-24">
                     <img
                       src={episode.thumbnail_url || "/images/default-episode.svg"}
-                      alt={"Episodio #{episode.number}"}
+                      alt={"Episodio #{episode.episode_number}"}
                       class="w-full h-full object-cover rounded"
                     />
                     <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
@@ -289,8 +294,8 @@ defmodule StreamflixWebWeb.TitleLive do
                   </div>
                   <div class="flex-1">
                     <div class="flex justify-between items-start mb-1">
-                      <h3 class="font-semibold"><%= episode.number %>. <%= episode.title %></h3>
-                      <span class="text-sm text-gray-400"><%= format_duration(episode.duration) %></span>
+                      <h3 class="font-semibold"><%= episode.episode_number %>. <%= episode.title %></h3>
+                      <span class="text-sm text-gray-400"><%= format_duration(episode.duration_minutes) %></span>
                     </div>
                     <p class="text-sm text-gray-400 line-clamp-2"><%= episode.description %></p>
                   </div>

@@ -27,16 +27,107 @@ import topbar from "../vendor/topbar"
 // Custom hooks for LiveView components
 let Hooks = {}
 
-// Video player hook for streaming functionality
+// Video player hook: custom controls, no native UI, resume, progress save
 Hooks.VideoPlayer = {
   mounted() {
-    this.handleEvent("play", () => this.el.play())
-    this.handleEvent("pause", () => this.el.pause())
-    this.handleEvent("seek", ({time}) => this.el.currentTime = time)
-    
-    // Report playback progress
-    this.el.addEventListener("timeupdate", () => {
-      this.pushEvent("progress", {currentTime: this.el.currentTime, duration: this.el.duration})
+    const src = this.el.dataset.src
+    const resume = this.el.dataset.resume ? parseInt(this.el.dataset.resume, 10) : null
+
+    const video = document.createElement("video")
+    video.preload = "metadata"
+    video.playsInline = true
+    video.autoplay = true
+    video.muted = false
+    video.classList.add("w-full", "flex-1", "object-contain", "bg-black")
+    const source = document.createElement("source")
+    source.src = src
+    source.type = "video/mp4"
+    video.appendChild(source)
+
+    const controls = document.createElement("div")
+    controls.className = "flex items-center gap-3 px-4 py-2 bg-black/80 text-white"
+
+    const playBtn = document.createElement("button")
+    playBtn.type = "button"
+    playBtn.className = "p-2 rounded-full hover:bg-white/20 transition"
+    playBtn.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'
+    const pauseSvg = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'
+    const playSvg = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'
+
+    const progressWrap = document.createElement("div")
+    progressWrap.className = "flex-1 flex items-center gap-2"
+    const range = document.createElement("input")
+    range.type = "range"
+    range.min = 0
+    range.step = 0.1
+    range.className = "flex-1 h-2 bg-gray-600 rounded appearance-none cursor-pointer"
+    const timeLabel = document.createElement("span")
+    timeLabel.className = "text-sm tabular-nums min-w-[90px]"
+
+    progressWrap.appendChild(range)
+    progressWrap.appendChild(timeLabel)
+    controls.appendChild(playBtn)
+    controls.appendChild(progressWrap)
+
+    this.el.appendChild(video)
+    this.el.appendChild(controls)
+
+    const format = (s) => {
+      if (!Number.isFinite(s) || s < 0) return "0:00"
+      const m = Math.floor(s / 60)
+      const sec = Math.floor(s % 60)
+      return `${m}:${sec.toString().padStart(2, "0")}`
+    }
+
+    let lastPush = 0
+    const throttleMs = 10000
+    const pushProgress = () => {
+      const now = Date.now()
+      if (now - lastPush >= throttleMs && Number.isFinite(video.duration) && video.duration > 0) {
+        lastPush = now
+        this.pushEvent("progress", { currentTime: video.currentTime, duration: video.duration })
+      }
+    }
+
+    video.addEventListener("loadedmetadata", () => {
+      range.max = video.duration
+      if (resume != null && resume > 0 && resume < video.duration) {
+        video.currentTime = resume
+        range.value = resume
+      }
+      timeLabel.textContent = `${format(video.currentTime)} / ${format(video.duration)}`
+    })
+
+    video.addEventListener("timeupdate", () => {
+      if (Number.isFinite(video.duration)) range.value = video.currentTime
+      timeLabel.textContent = `${format(video.currentTime)} / ${format(video.duration)}`
+      pushProgress()
+    })
+
+    video.addEventListener("play", () => { playBtn.innerHTML = pauseSvg })
+    video.addEventListener("pause", () => {
+      playBtn.innerHTML = playSvg
+      if (Number.isFinite(video.duration) && video.duration > 0) {
+        this.pushEvent("progress", { currentTime: video.currentTime, duration: video.duration })
+      }
+    })
+
+    playBtn.addEventListener("click", () => {
+      if (video.paused) video.play()
+      else video.pause()
+    })
+
+    range.addEventListener("input", () => {
+      const t = parseFloat(range.value)
+      video.currentTime = t
+      timeLabel.textContent = `${format(t)} / ${format(video.duration)}`
+    })
+
+    this.handleEvent("play", () => video.play())
+    this.handleEvent("pause", () => video.pause())
+    this.handleEvent("seek", ({ time }) => {
+      video.currentTime = time
+      range.value = time
     })
   }
 }

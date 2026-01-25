@@ -17,9 +17,10 @@ defmodule StreamflixCatalog.Schemas.WatchHistory do
     field :last_watched_at, :utc_datetime_usec
 
     field :profile_id, :binary_id
-    field :content_id, :binary_id
-    field :episode_id, :binary_id
     field :video_id, :binary_id
+
+    belongs_to :content, StreamflixCatalog.Schemas.Content
+    belongs_to :episode, StreamflixCatalog.Schemas.Episode
 
     timestamps(type: :utc_datetime_usec)
   end

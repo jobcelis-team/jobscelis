@@ -2,6 +2,7 @@ defmodule StreamflixWebWeb.BrowseLive do
   use StreamflixWebWeb, :live_view
 
   alias StreamflixCatalog
+  alias StreamflixAccounts
 
   @impl true
   def mount(_params, _session, socket) do
@@ -18,6 +19,7 @@ defmodule StreamflixWebWeb.BrowseLive do
       |> assign(:top_rated, [])
       |> assign(:by_genre, %{})
       |> assign(:genres, [])
+      |> assign(:continue_watching, [])
 
     {:ok, socket}
   end
@@ -30,13 +32,11 @@ defmodule StreamflixWebWeb.BrowseLive do
 
   @impl true
   def handle_info(:load_content, socket) do
-    # Load all content from database
     trending = StreamflixCatalog.get_trending(limit: 10)
     new_releases = StreamflixCatalog.get_new_releases(limit: 10)
     top_rated = StreamflixCatalog.get_top_rated(limit: 10)
     genres = StreamflixCatalog.list_genres()
 
-    # Load content by genre
     by_genre =
       genres
       |> Enum.take(5)
@@ -44,6 +44,13 @@ defmodule StreamflixWebWeb.BrowseLive do
         {genre.slug, StreamflixCatalog.list_by_genre(genre.slug, per_page: 10)}
       end)
       |> Map.new()
+
+    profile = get_current_profile(socket.assigns.current_user, socket.assigns.current_profile)
+    continue_watching = if profile do
+      StreamflixCatalog.get_continue_watching(profile.id, limit: 20)
+    else
+      []
+    end
 
     socket =
       socket
@@ -53,8 +60,19 @@ defmodule StreamflixWebWeb.BrowseLive do
       |> assign(:top_rated, top_rated)
       |> assign(:genres, genres)
       |> assign(:by_genre, by_genre)
+      |> assign(:continue_watching, continue_watching)
 
     {:noreply, socket}
+  end
+
+  defp get_current_profile(nil, _), do: nil
+  defp get_current_profile(user, current_profile) do
+    if current_profile do
+      current_profile
+    else
+      profiles = StreamflixAccounts.list_profiles(user.id)
+      List.first(profiles)
+    end
   end
 
   @impl true
@@ -172,6 +190,11 @@ defmodule StreamflixWebWeb.BrowseLive do
               </a>
             </div>
           <% else %>
+            <!-- Continuar viendo -->
+            <%= if not Enum.empty?(@continue_watching) do %>
+              <.continue_watching_row items={@continue_watching} />
+            <% end %>
+
             <!-- Trending Now -->
             <%= if not Enum.empty?(@trending) do %>
               <.content_row title="Trending Now" items={@trending} />
@@ -212,6 +235,65 @@ defmodule StreamflixWebWeb.BrowseLive do
         <% end %>
       </div>
     </div>
+    """
+  end
+
+  defp continue_watching_row(assigns) do
+    ~H"""
+    <div class="container mx-auto px-4">
+      <h2 class="text-xl font-semibold mb-4">Continuar viendo</h2>
+      <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+        <%= for wh <- @items, wh.content do %>
+          <.continue_watching_card history={wh} />
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
+  defp continue_watching_card(assigns) do
+    history = assigns.history
+    content = history.content
+    watch_href = if history.episode_id do
+      "/watch/#{content.id}?episode_id=#{history.episode_id}"
+    else
+      "/watch/#{content.id}"
+    end
+    progress_pct = if history.duration_seconds && history.duration_seconds > 0 do
+      min(100, max(0, round(history.progress_seconds / history.duration_seconds * 100)))
+    else
+      0
+    end
+
+    assigns =
+      assigns
+      |> assign(:content, content)
+      |> assign(:watch_href, watch_href)
+      |> assign(:progress_pct, progress_pct)
+
+    ~H"""
+    <a href={@watch_href} class="flex-shrink-0 w-48 group">
+      <div class="relative overflow-hidden rounded-lg">
+        <img
+          src={@content.poster_url || "/images/default-poster.svg"}
+          alt={@content.title}
+          class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-700">
+          <div class="h-full bg-red-600 transition-all" style={"width: #{@progress_pct}%"}></div>
+        </div>
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+          <svg
+            class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+      </div>
+      <p class="mt-2 text-sm text-gray-300 truncate"><%= @content.title %></p>
+    </a>
     """
   end
 

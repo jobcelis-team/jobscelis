@@ -2,7 +2,9 @@ defmodule StreamflixWebWeb.PlayerLive do
   use StreamflixWebWeb, :live_view
 
   alias StreamflixCatalog
-  alias StreamflixStreaming
+  alias StreamflixCatalog.Schemas.Video
+  alias StreamflixCore.Repo
+  alias StreamflixAccounts
 
   @impl true
   def mount(%{"id" => id} = params, _session, socket) do
@@ -16,18 +18,51 @@ defmodule StreamflixWebWeb.PlayerLive do
         {:ok, socket}
 
       content ->
-        season = Map.get(params, "season", "1") |> String.to_integer()
-        episode = Map.get(params, "episode", "1") |> String.to_integer()
+        user = socket.assigns.current_user
+        profile = get_current_profile(user.id, socket.assigns.current_profile)
+
+        {episode, episode_id, season_num, episode_num} =
+          resolve_episode(content, params)
+
+        {video_url, video_record} = get_video_info(content, episode)
+        resume_from = get_resume_seconds(profile, content.id, episode_id)
 
         socket =
           socket
           |> assign(:page_title, "Viendo: #{content.title}")
           |> assign(:content, content)
-          |> assign(:season, season)
           |> assign(:episode, episode)
-          |> assign(:video_url, get_video_url(content))
+          |> assign(:episode_id, episode_id)
+          |> assign(:season_num, season_num)
+          |> assign(:episode_num, episode_num)
+          |> assign(:video_url, video_url)
+          |> assign(:video_id, video_record && video_record.id)
+          |> assign(:duration_seconds, video_record && video_record.duration_seconds)
+          |> assign(:resume_from_seconds, resume_from)
+          |> assign(:profile_id, profile && profile.id)
 
         {:ok, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("progress", %{"currentTime" => ct, "duration" => d}, socket) do
+    profile_id = socket.assigns.profile_id
+    cond do
+      is_nil(profile_id) -> {:noreply, socket}
+      d != d or d <= 0 -> {:noreply, socket}
+      true ->
+        ct_sec = trunc(ct)
+        d_sec = trunc(d)
+        attrs = %{
+          content_id: socket.assigns.content.id,
+          episode_id: socket.assigns.episode_id,
+          video_id: socket.assigns.video_id,
+          progress_seconds: ct_sec,
+          duration_seconds: d_sec
+        }
+        StreamflixCatalog.update_watch_history(profile_id, attrs)
+        {:noreply, socket}
     end
   end
 
@@ -35,70 +70,104 @@ defmodule StreamflixWebWeb.PlayerLive do
   def render(assigns) do
     ~H"""
     <div class="fixed inset-0 bg-black">
-      <div class="w-full h-full flex items-center justify-center">
-        <video
-          controls
-          autoplay
-          class="max-w-full max-h-full"
-          style="width: 100%; height: 100%;"
-        >
-          <source src={@video_url} type="video/mp4" />
-          Tu navegador no soporta el elemento de video.
-        </video>
+      <%!-- Hook builds video + progress bar + play/pause; no native controls --%>
+      <div
+        id="player-root"
+        phx-hook="VideoPlayer"
+        phx-update="ignore"
+        data-src={@video_url}
+        data-resume={@resume_from_seconds}
+        class="absolute inset-0 flex flex-col"
+      >
       </div>
 
-      <!-- Back button -->
-      <div class="absolute top-4 left-4 z-10">
-        <a
-          href={"/title/#{@content.id}"}
-          class="text-white hover:text-gray-300 flex items-center bg-black/50 px-3 py-2 rounded"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          <span class="ml-2">Volver</span>
-        </a>
-      </div>
-
-      <!-- Title overlay -->
-      <div class="absolute top-4 left-0 right-0 text-center z-10">
-        <div class="text-white text-lg font-medium bg-black/50 inline-block px-4 py-2 rounded">
-          <%= @content.title %>
-          <%= if @content.type == :series do %>
-            <span class="text-gray-400">- T<%= @season %>:E<%= @episode %></span>
-          <% end %>
+      <%!-- Overlay: Volver + title --%>
+      <div class="absolute inset-0 pointer-events-none z-10 flex flex-col">
+        <div class="flex items-center justify-between p-4 bg-gradient-to-b from-black/70 to-transparent">
+          <div class="pointer-events-auto">
+            <.link
+              navigate={~p"/title/#{@content.id}"}
+              class="text-white hover:text-gray-300 flex items-center bg-black/50 hover:bg-black/70 px-3 py-2 rounded transition"
+            >
+              <.icon name="hero-arrow-left" class="w-6 h-6" />
+              <span class="ml-2">Volver</span>
+            </.link>
+          </div>
+          <div class="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded pointer-events-none">
+            {@content.title}
+            <%= if @content.type == :series and @episode do %>
+              <span class="text-gray-400"> — T<%= @season_num %> E<%= @episode_num %></span>
+            <% end %>
+          </div>
+          <div class="w-24" />
         </div>
       </div>
     </div>
     """
   end
 
-  # Helpers
-  defp get_video_url(content) do
-    alias StreamflixCatalog.Schemas.Video
-    alias StreamflixCore.Repo
+  defp get_current_profile(user_id, current_profile) do
+    if current_profile do
+      current_profile
+    else
+      profiles = StreamflixAccounts.list_profiles(user_id)
+      List.first(profiles)
+    end
+  end
 
-    case Repo.get_by(Video, content_id: content.id) do
+  defp resolve_episode(content, params) do
+    episode_id = params["episode_id"]
+    season_num = (params["season"] || "1") |> String.to_integer()
+    episode_num = (params["episode"] || "1") |> String.to_integer()
+
+    if episode_id do
+      ep = StreamflixCatalog.get_episode(episode_id)
+      if ep do
+        season = ep.season
+        {ep, ep.id, season && season.season_number, ep.episode_number}
+      else
+        {nil, nil, season_num, episode_num}
+      end
+    else
+      ep = StreamflixCatalog.get_episode_by_position(content.id, season_num, episode_num)
+      if ep do
+        season = StreamflixCatalog.get_season(ep.season_id)
+        {ep, ep.id, season && season.season_number, ep.episode_number}
+      else
+        {nil, nil, season_num, episode_num}
+      end
+    end
+  end
+
+  defp get_video_info(content, _episode) do
+    video = Repo.get_by(Video, content_id: content.id)
+    url = video_url_from_record(video)
+    {url, video}
+  end
+
+  defp video_url_from_record(video) do
+    case video do
       %Video{original_url: url} when is_binary(url) and url != "" ->
-        # Extract blob name from original_url (e.g. .../videos/CONTENT_ID/original/video.mp4 -> CONTENT_ID/original/video.mp4)
-        blob_name =
-          url
-          |> String.split("/videos/")
-          |> List.last()
-
+        blob_name = url |> String.split("/videos/") |> List.last()
         case blob_name do
           nil -> url
           "" -> url
           name ->
-            # Use SAS from env (AZURE_VIDEOS_BASE_URL + AZURE_VIDEOS_SAS_TOKEN)
             case StreamflixCdn.video_playback_url(name) do
               playback when is_binary(playback) -> playback
               _ -> url
             end
         end
-
       _ ->
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    end
+  end
+
+  defp get_resume_seconds(nil, _cid, _eid), do: nil
+  defp get_resume_seconds(profile, content_id, episode_id) do
+    case StreamflixCatalog.get_watch_progress(profile.id, content_id, episode_id) do
+      nil -> nil
+      wh -> wh.progress_seconds
     end
   end
 end
