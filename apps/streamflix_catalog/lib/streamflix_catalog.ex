@@ -453,31 +453,32 @@ defmodule StreamflixCatalog do
   end
 
   @doc """
-  Gets the next episode after the current one.
+  Gets the next episode after the current one (same season next ep, or first ep of next season).
+  Returns nil for movies or when there is no next episode.
   """
-  def get_next_episode(content_id, current_season, current_episode) do
-    # Try next episode in same season
+  def get_next_episode(content_id, season_number, episode_number) do
     next_in_season =
       from(e in Episode,
         join: s in Season, on: s.id == e.season_id,
         where: s.content_id == ^content_id,
-        where: s.season_number == ^current_season,
-        where: e.episode_number == ^(current_episode + 1)
+        where: s.season_number == ^season_number,
+        where: e.episode_number == ^(episode_number + 1)
       )
       |> Repo.one()
 
-    if next_in_season do
+    result = if next_in_season do
       next_in_season
     else
-      # Try first episode of next season
       from(e in Episode,
         join: s in Season, on: s.id == e.season_id,
         where: s.content_id == ^content_id,
-        where: s.season_number == ^(current_season + 1),
+        where: s.season_number == ^(season_number + 1),
         where: e.episode_number == 1
       )
       |> Repo.one()
     end
+
+    if result, do: Repo.preload(result, :season), else: nil
   end
 
   # ============================================
