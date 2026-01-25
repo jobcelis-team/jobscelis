@@ -79,6 +79,11 @@ defmodule StreamflixWebWeb.AuthController do
         |> put_flash(:error, "Email o contraseña incorrectos")
         |> redirect(to: "/login")
 
+      {:error, :account_inactive} ->
+        conn
+        |> put_flash(:error, "Tu cuenta está inactiva. Contacta al soporte.")
+        |> redirect(to: "/login")
+
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Error al iniciar sesión")

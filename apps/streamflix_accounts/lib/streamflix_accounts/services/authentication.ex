@@ -19,10 +19,16 @@ defmodule StreamflixAccounts.Services.Authentication do
         {:error, :invalid_credentials}
 
       user ->
-        if Pbkdf2.verify_pass(password, user.password_hash) do
-          {:ok, user}
+        # Check if user is active
+        if user.status != "active" do
+          Pbkdf2.no_user_verify()
+          {:error, :account_inactive}
         else
-          {:error, :invalid_credentials}
+          if Pbkdf2.verify_pass(password, user.password_hash) do
+            {:ok, user}
+          else
+            {:error, :invalid_credentials}
+          end
         end
     end
   end

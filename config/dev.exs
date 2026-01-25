@@ -68,7 +68,9 @@ config :streamflix_cdn,
     thumbnails: System.get_env("AZURE_CONTAINER_THUMBNAILS") || "thumbnails",
     manifests: System.get_env("AZURE_CONTAINER_MANIFESTS") || "manifests",
     originals: System.get_env("AZURE_CONTAINER_ORIGINALS") || "originals"
-  }
+  },
+  videos_playback_base_url: System.get_env("AZURE_VIDEOS_BASE_URL"),
+  videos_playback_sas_token: System.get_env("AZURE_VIDEOS_SAS_TOKEN")
 
 # ============================================
 # CLUSTERING (Local Development)

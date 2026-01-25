@@ -25,6 +25,11 @@ config :streamflix_streaming,
   heartbeat_interval: String.to_integer(System.get_env("HEARTBEAT_INTERVAL") || "10000"),
   session_timeout: String.to_integer(System.get_env("SESSION_TIMEOUT") || "300000")
 
+# Video playback: SAS URL for reading videos (all environments)
+config :streamflix_cdn,
+  videos_playback_base_url: System.get_env("AZURE_VIDEOS_BASE_URL"),
+  videos_playback_sas_token: System.get_env("AZURE_VIDEOS_SAS_TOKEN")
+
 # ============================================
 # PRODUCTION RUNTIME CONFIG
 # ============================================

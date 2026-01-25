@@ -65,11 +65,11 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
               <div class="p-6 space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la plataforma</label>
-                  <input type="text" name="platform_name" value={@settings.platform_name} class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                  <input type="text" name="platform_name" value={@settings.platform_name} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" />
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Email de soporte</label>
-                  <input type="email" name="support_email" value={@settings.support_email} class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                  <input type="email" name="support_email" value={@settings.support_email} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" />
                 </div>
                 <div class="flex items-center justify-between">
                   <div>
@@ -92,7 +92,7 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
             <div class="p-6 space-y-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Calidad por defecto</label>
-                <select name="default_quality" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                <select name="default_quality" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white">
                   <option value="auto" selected={@settings.default_quality == "auto"}>Automática</option>
                   <option value="4k" selected={@settings.default_quality == "4k"}>4K Ultra HD</option>
                   <option value="1080p" selected={@settings.default_quality == "1080p"}>1080p Full HD</option>
@@ -102,7 +102,7 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Streams simultáneos máximos</label>
-                <input type="number" name="max_streams" value={@settings.max_streams} class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                <input type="number" name="max_streams" value={@settings.max_streams} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" />
               </div>
               <div class="flex items-center justify-between">
                 <div>
@@ -125,20 +125,20 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
             <div class="p-6 space-y-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Azure Storage Account</label>
-                <input type="text" name="azure_account" value={@settings.azure_account} class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                <input type="text" name="azure_account" value={@settings.azure_account} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">CDN Endpoint</label>
-                <input type="text" name="cdn_endpoint" value={@settings.cdn_endpoint} class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                <input type="text" name="cdn_endpoint" value={@settings.cdn_endpoint} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" />
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Container Videos</label>
-                  <input type="text" name="container_videos" value={@settings.container_videos} class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                  <input type="text" name="container_videos" value={@settings.container_videos} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" />
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Container Thumbnails</label>
-                  <input type="text" name="container_thumbnails" value={@settings.container_thumbnails} class="w-full border border-gray-300 rounded-lg px-4 py-2" />
+                  <input type="text" name="container_thumbnails" value={@settings.container_thumbnails} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" />
                 </div>
               </div>
             </div>
@@ -155,7 +155,7 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
                   <h3 class="font-medium mb-2">Básico</h3>
                   <div class="flex items-center gap-2">
                     <span>$</span>
-                    <input type="number" name="price_basic" value={Float.to_string(@pricing.basic)} step="0.01" class="w-24 border border-gray-300 rounded px-2 py-1" />
+                    <input type="number" name="price_basic" value={Float.to_string(@pricing.basic)} step="0.01" class="w-24 border border-gray-300 rounded px-2 py-1 text-gray-900 bg-white" />
                     <span>/mes</span>
                   </div>
                 </div>
@@ -163,7 +163,7 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
                   <h3 class="font-medium mb-2">Estándar</h3>
                   <div class="flex items-center gap-2">
                     <span>$</span>
-                    <input type="number" name="price_standard" value={Float.to_string(@pricing.standard)} step="0.01" class="w-24 border border-gray-300 rounded px-2 py-1" />
+                    <input type="number" name="price_standard" value={Float.to_string(@pricing.standard)} step="0.01" class="w-24 border border-gray-300 rounded px-2 py-1 text-gray-900 bg-white" />
                     <span>/mes</span>
                   </div>
                 </div>
@@ -171,7 +171,7 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
                   <h3 class="font-medium mb-2">Premium</h3>
                   <div class="flex items-center gap-2">
                     <span>$</span>
-                    <input type="number" name="price_premium" value={Float.to_string(@pricing.premium)} step="0.01" class="w-24 border border-gray-300 rounded px-2 py-1" />
+                    <input type="number" name="price_premium" value={Float.to_string(@pricing.premium)} step="0.01" class="w-24 border border-gray-300 rounded px-2 py-1 text-gray-900 bg-white" />
                     <span>/mes</span>
                   </div>
                 </div>
