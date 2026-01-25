@@ -26,6 +26,7 @@ defmodule StreamflixWebWeb.PlayerLive do
 
         {video_url, video_record} = get_video_info(content, episode)
         resume_from = get_resume_seconds(profile, content.id, episode_id)
+        {next_url, next_label} = next_episode_info(content, episode, season_num, episode_num)
 
         socket =
           socket
@@ -40,6 +41,9 @@ defmodule StreamflixWebWeb.PlayerLive do
           |> assign(:duration_seconds, video_record && video_record.duration_seconds)
           |> assign(:resume_from_seconds, resume_from)
           |> assign(:profile_id, profile && profile.id)
+          |> assign(:next_episode_url, next_url)
+          |> assign(:next_episode_label, next_label)
+          |> assign(:view_counted, false)
 
         {:ok, socket}
     end
@@ -47,60 +51,55 @@ defmodule StreamflixWebWeb.PlayerLive do
 
   @impl true
   def handle_event("progress", %{"currentTime" => ct, "duration" => d}, socket) do
-    profile_id = socket.assigns.profile_id
-    cond do
-      is_nil(profile_id) -> {:noreply, socket}
-      d != d or d <= 0 -> {:noreply, socket}
-      true ->
-        ct_sec = trunc(ct)
-        d_sec = trunc(d)
-        attrs = %{
-          content_id: socket.assigns.content.id,
-          episode_id: socket.assigns.episode_id,
-          video_id: socket.assigns.video_id,
-          progress_seconds: ct_sec,
-          duration_seconds: d_sec
-        }
-        StreamflixCatalog.update_watch_history(profile_id, attrs)
-        {:noreply, socket}
+    {:noreply, save_progress(socket, ct, d)}
+  end
+
+  @impl true
+  def handle_event("save_and_exit", %{"currentTime" => ct, "duration" => d}, socket) do
+    socket = save_progress(socket, ct, d)
+    {:noreply, push_navigate(socket, to: ~p"/title/#{socket.assigns.content.id}", replace: true)}
+  end
+
+  @impl true
+  def handle_event("save_and_next", %{"currentTime" => ct, "duration" => d}, socket) do
+    socket = save_progress(socket, ct, d)
+    url = socket.assigns.next_episode_url
+    if url do
+      {:noreply, push_navigate(socket, to: url, replace: true)}
+    else
+      {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_event("video_started", _params, socket) do
+    # Incrementar vistas solo una vez por sesión
+    socket = if not socket.assigns.view_counted do
+      StreamflixCatalog.increment_views(socket.assigns.content.id)
+      assign(socket, :view_counted, true)
+    else
+      socket
+    end
+    {:noreply, socket}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="fixed inset-0 bg-black">
-      <%!-- Hook builds video + progress bar + play/pause; no native controls --%>
+    <div class="fixed inset-0 w-full h-full bg-black">
+      <%!-- Hook: video layer (absolute fill) + UI overlay; video object-contain for all screens --%>
       <div
         id="player-root"
         phx-hook="VideoPlayer"
         phx-update="ignore"
         data-src={@video_url}
         data-resume={@resume_from_seconds}
-        class="absolute inset-0 flex flex-col"
+        data-title={@content.title}
+        data-series-info={series_info(@content, @episode, @season_num, @episode_num)}
+        data-next-episode-url={@next_episode_url}
+        data-next-episode-label={@next_episode_label}
+        class="absolute inset-0 w-full h-full flex flex-col"
       >
-      </div>
-
-      <%!-- Overlay: Volver + title --%>
-      <div class="absolute inset-0 pointer-events-none z-10 flex flex-col">
-        <div class="flex items-center justify-between p-4 bg-gradient-to-b from-black/70 to-transparent">
-          <div class="pointer-events-auto">
-            <.link
-              navigate={~p"/title/#{@content.id}"}
-              class="text-white hover:text-gray-300 flex items-center bg-black/50 hover:bg-black/70 px-3 py-2 rounded transition"
-            >
-              <.icon name="hero-arrow-left" class="w-6 h-6" />
-              <span class="ml-2">Volver</span>
-            </.link>
-          </div>
-          <div class="text-white text-lg font-medium bg-black/50 px-4 py-2 rounded pointer-events-none">
-            {@content.title}
-            <%= if @content.type == :series and @episode do %>
-              <span class="text-gray-400"> — T<%= @season_num %> E<%= @episode_num %></span>
-            <% end %>
-          </div>
-          <div class="w-24" />
-        </div>
       </div>
     </div>
     """
@@ -168,6 +167,44 @@ defmodule StreamflixWebWeb.PlayerLive do
     case StreamflixCatalog.get_watch_progress(profile.id, content_id, episode_id) do
       nil -> nil
       wh -> wh.progress_seconds
+    end
+  end
+
+  defp series_info(%{type: :series}, episode, sn, en) when not is_nil(episode), do: " — T#{sn} E#{en}"
+  defp series_info(_content, _episode, _sn, _en), do: ""
+
+  defp next_episode_info(content, episode, season_num, episode_num) do
+    if content.type in [:series, "series"] and episode do
+      next = StreamflixCatalog.get_next_episode(content.id, season_num, episode_num)
+      if next do
+        label = "Siguiente: T#{next.season.season_number} E#{next.episode_number}"
+        url = ~p"/watch/#{content.id}?episode_id=#{next.id}"
+        {url, label}
+      else
+        {nil, nil}
+      end
+    else
+      {nil, nil}
+    end
+  end
+
+  defp save_progress(socket, ct, d) do
+    profile_id = socket.assigns.profile_id
+    cond do
+      is_nil(profile_id) -> socket
+      d != d or d <= 0 -> socket
+      true ->
+        ct_sec = trunc(ct)
+        d_sec = trunc(d)
+        attrs = %{
+          content_id: socket.assigns.content.id,
+          episode_id: socket.assigns.episode_id,
+          video_id: socket.assigns.video_id,
+          progress_seconds: ct_sec,
+          duration_seconds: d_sec
+        }
+        StreamflixCatalog.update_watch_history(profile_id, attrs)
+        socket
     end
   end
 end
