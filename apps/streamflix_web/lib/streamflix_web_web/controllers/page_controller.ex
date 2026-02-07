@@ -26,6 +26,31 @@ defmodule StreamflixWebWeb.PageController do
     render(conn, :docs, base_url: base_url, current_user: current_user)
   end
 
+  def set_locale(conn, %{"locale" => locale}) do
+    locale = if locale in ["es", "en"], do: locale, else: "es"
+    referer = get_req_header(conn, "referer") |> List.first()
+    path = path_from_referer(referer, conn)
+    # Cookie para que el siguiente request tenga el idioma sin depender de sesión (más rápido)
+    conn
+    |> put_resp_cookie("locale", locale, path: "/", max_age: 365 * 24 * 60 * 60)
+    |> put_session("locale", locale)
+    |> redirect(to: path)
+  end
+
+  defp path_from_referer(nil, _conn), do: "/"
+  defp path_from_referer(referer, conn) do
+    base = build_base_url(conn)
+    if String.starts_with?(referer, base) do
+      uri = URI.parse(referer)
+      path = uri.path || "/"
+      if uri.query, do: path <> "?" <> uri.query, else: path
+    else
+      "/"
+    end
+  end
+
+  def set_locale(conn, _params), do: redirect(conn, to: "/")
+
   defp build_base_url(conn) do
     scheme = if conn.scheme == :https, do: "https", else: "http"
     port = conn.port

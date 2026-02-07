@@ -1,6 +1,12 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang={assigns[:locale] || "es"} class="scroll-smooth">
   <head>
+    <script>
+      (function(){
+        var l = localStorage.getItem("locale") || document.cookie.replace(/(?:(?:^|.*;\s*)locale\s*=\s*([^;]*).*$)|^.*$/, "$1");
+        if (l === "es" || l === "en") document.documentElement.lang = l;
+      })();
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />

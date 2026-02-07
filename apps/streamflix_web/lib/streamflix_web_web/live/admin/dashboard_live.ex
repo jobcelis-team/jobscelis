@@ -42,27 +42,27 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
       <.admin_sidebar active="dashboard" current_user_role={@current_user_role} />
 
       <div class="ml-64 p-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-8"><%= gettext("Dashboard") %></h1>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div class="bg-white rounded-lg shadow p-6">
-            <p class="text-sm text-gray-500">Usuarios</p>
+            <p class="text-sm text-gray-500"><%= gettext("Usuarios") %></p>
             <p class="text-2xl font-bold">{@stats.total_users}</p>
           </div>
           <div class="bg-white rounded-lg shadow p-6">
-            <p class="text-sm text-gray-500">Proyectos</p>
+            <p class="text-sm text-gray-500"><%= gettext("Proyectos") %></p>
             <p class="text-2xl font-bold">{@stats.total_projects}</p>
           </div>
           <div class="bg-white rounded-lg shadow p-6">
-            <p class="text-sm text-gray-500">Eventos (total)</p>
+            <p class="text-sm text-gray-500"><%= gettext("Eventos (total)") %></p>
             <p class="text-2xl font-bold">{@stats.total_events}</p>
           </div>
         </div>
 
         <div class="bg-white rounded-lg shadow">
           <div class="p-6 border-b flex justify-between items-center">
-            <h2 class="text-lg font-semibold">Usuarios recientes</h2>
-            <.link navigate="/admin/users" class="text-blue-600 hover:underline text-sm">Ver todos</.link>
+            <h2 class="text-lg font-semibold"><%= gettext("Usuarios recientes") %></h2>
+            <.link navigate="/admin/users" class="text-blue-600 hover:underline text-sm"><%= gettext("Ver todos") %></.link>
           </div>
           <div class="divide-y">
             <%= for user <- @recent_users do %>
@@ -86,28 +86,28 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     <aside class="fixed left-0 top-0 bottom-0 w-64 bg-gray-900 text-white">
       <div class="p-6">
         <.link navigate="/" class="text-red-500 text-2xl font-bold">Jobscelis</.link>
-        <p class="text-gray-500 text-sm mt-1">Panel Admin</p>
+        <p class="text-gray-500 text-sm mt-1"><%= gettext("Panel Admin") %></p>
         <%= if @current_user_role do %>
           <span class={"inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium #{if @current_user_role == "superadmin", do: "bg-amber-600 text-white", else: "bg-gray-600 text-gray-200"}"}>
-            <%= if @current_user_role == "superadmin", do: "Superadmin", else: "Admin" %>
+            <%= if @current_user_role == "superadmin", do: "Superadmin", else: gettext("Admin") %>
           </span>
         <% end %>
       </div>
       <nav class="mt-6">
         <.link navigate="/admin" class={"flex items-center px-6 py-3 #{if @active == "dashboard", do: "bg-gray-800 text-white", else: "text-gray-400 hover:bg-gray-800"}"}>
-          Dashboard
+          <%= gettext("Dashboard") %>
         </.link>
         <.link navigate="/admin/users" class={"flex items-center px-6 py-3 #{if @active == "users", do: "bg-gray-800 text-white", else: "text-gray-400 hover:bg-gray-800"}"}>
-          Usuarios
+          <%= gettext("Usuarios") %>
         </.link>
         <.link navigate="/admin/settings" class={"flex items-center px-6 py-3 #{if @active == "settings", do: "bg-gray-800 text-white", else: "text-gray-400 hover:bg-gray-800"}"}>
-          Configuración
+          <%= gettext("Configuración") %>
         </.link>
       </nav>
       <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-800">
-        <.link navigate="/platform" class="text-gray-400 hover:text-white">Ir al dashboard</.link>
+        <.link navigate="/platform" class="text-gray-400 hover:text-white"><%= gettext("Ir al dashboard") %></.link>
         <button phx-click="logout" class="block mt-2 text-gray-400 hover:text-white w-full text-left">
-          Cerrar sesión
+          <%= gettext("Cerrar sesión") %>
         </button>
       </div>
     </aside>

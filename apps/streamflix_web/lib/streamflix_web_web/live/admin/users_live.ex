@@ -52,9 +52,9 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
     case StreamflixAccounts.deactivate_user(id) do
       {:ok, _} ->
         send(self(), :load_users)
-        {:noreply, put_flash(socket, :info, "Usuario desactivado correctamente")}
+        {:noreply, put_flash(socket, :info, gettext("Usuario desactivado correctamente"))}
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Error al desactivar usuario")}
+        {:noreply, put_flash(socket, :error, gettext("Error al desactivar usuario"))}
     end
   end
 
@@ -63,9 +63,9 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
     case StreamflixAccounts.activate_user(id) do
       {:ok, _} ->
         send(self(), :load_users)
-        {:noreply, put_flash(socket, :info, "Usuario activado correctamente")}
+        {:noreply, put_flash(socket, :info, gettext("Usuario activado correctamente"))}
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Error al activar usuario")}
+        {:noreply, put_flash(socket, :error, gettext("Error al activar usuario"))}
     end
   end
 
@@ -87,8 +87,8 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
     }
 
     case StreamflixAccounts.get_user(user_id) do
-      nil ->
-        {:noreply, put_flash(socket, :error, "Usuario no encontrado")}
+        nil ->
+        {:noreply, put_flash(socket, :error, gettext("Usuario no encontrado"))}
       user ->
         case StreamflixAccounts.update_user(user, attrs) do
           {:ok, _} ->
@@ -96,11 +96,11 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
             socket =
               socket
               |> assign(:editing_user, nil)
-              |> put_flash(:info, "Usuario actualizado correctamente")
+              |> put_flash(:info, gettext("Usuario actualizado correctamente"))
             {:noreply, socket}
           {:error, changeset} ->
             errors = format_changeset_errors(changeset)
-            {:noreply, put_flash(socket, :error, "Error: #{errors}")}
+            {:noreply, put_flash(socket, :error, gettext("Error: %{details}", details: errors))}
         end
     end
   end
@@ -143,13 +143,13 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
       <.admin_sidebar active="users" current_user_role={@current_user_role} />
 
       <div class="ml-64 p-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">Usuarios</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-8"><%= gettext("Usuarios") %></h1>
 
         <!-- Search -->
         <div class="bg-white rounded-lg shadow p-4 mb-6">
           <input
             type="text"
-            placeholder="Buscar usuarios..."
+            placeholder={gettext("Buscar usuarios...")}
             class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
           />
         </div>
@@ -159,11 +159,11 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
           <table class="w-full">
             <thead class="bg-gray-50 border-b">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registrado</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Usuario") %></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Rol") %></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Registrado") %></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Estado") %></th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"><%= gettext("Acciones") %></th>
               </tr>
             </thead>
             <tbody class="divide-y">
@@ -186,7 +186,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                   <td class="px-6 py-4 text-gray-500"><%= user.registered %></td>
                   <td class="px-6 py-4">
                     <span class={"px-2 py-1 rounded text-xs #{if user.active, do: "bg-green-100 text-green-800", else: "bg-red-100 text-red-800"}"}>
-                      <%= if user.active, do: "Activo", else: "Inactivo" %>
+                      <%= if user.active, do: gettext("Activo"), else: gettext("Inactivo") %>
                     </span>
                   </td>
                   <td class="px-6 py-4 text-right">
@@ -195,7 +195,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                       phx-value-id={user.id}
                       class="text-blue-600 hover:text-blue-800 mr-2"
                     >
-                      Editar
+                      <%= gettext("Editar") %>
                     </button>
                     <%= if user.active do %>
                       <button
@@ -203,7 +203,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                         phx-value-id={user.id}
                         class="text-red-600 hover:text-red-800"
                       >
-                        Desactivar
+                        <%= gettext("Desactivar") %>
                       </button>
                     <% else %>
                       <button
@@ -211,7 +211,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                         phx-value-id={user.id}
                         class="text-green-600 hover:text-green-800"
                       >
-                        Activar
+                        <%= gettext("Activar") %>
                       </button>
                     <% end %>
                   </td>
@@ -227,7 +227,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
         <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" phx-click="close_user_modal">
           <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4" phx-click-away="close_user_modal">
             <div class="p-6 border-b flex justify-between items-center">
-              <h2 class="text-xl font-semibold text-gray-900">Editar Usuario</h2>
+              <h2 class="text-xl font-semibold text-gray-900"><%= gettext("Editar Usuario") %></h2>
               <button phx-click="close_user_modal" class="text-gray-400 hover:text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -238,7 +238,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
               <input type="hidden" name="_id" value={@editing_user.id} />
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Nombre") %></label>
                 <input
                   type="text"
                   name="name"
@@ -249,7 +249,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Email") %></label>
                 <input
                   type="email"
                   name="email"
@@ -260,25 +260,25 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Rol") %></label>
                 <select name="role" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white">
-                  <option value="user" selected={@editing_user.role == "user"}>Usuario</option>
-                  <option value="moderator" selected={@editing_user.role == "moderator"}>Moderador</option>
-                  <option value="admin" selected={@editing_user.role == "admin"}>Administrador</option>
+                  <option value="user" selected={@editing_user.role == "user"}><%= gettext("Usuario") %></option>
+                  <option value="moderator" selected={@editing_user.role == "moderator"}><%= gettext("Moderador") %></option>
+                  <option value="admin" selected={@editing_user.role == "admin"}><%= gettext("Administrador") %></option>
                   <%= if @current_user_role == "superadmin" do %>
                     <option value="superadmin" selected={@editing_user.role == "superadmin"}>Superadmin</option>
                   <% end %>
                 </select>
                 <%= if @current_user_role != "superadmin" do %>
-                  <p class="text-xs text-gray-500 mt-1">Solo un superadmin puede asignar el rol Superadmin.</p>
+                  <p class="text-xs text-gray-500 mt-1"><%= gettext("Solo un superadmin puede asignar el rol Superadmin.") %></p>
                 <% end %>
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Estado") %></label>
                 <select name="status" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white">
-                  <option value="active" selected={@editing_user.active}>Activo</option>
-                  <option value="inactive" selected={!@editing_user.active}>Inactivo</option>
+                  <option value="active" selected={@editing_user.active}><%= gettext("Activo") %></option>
+                  <option value="inactive" selected={!@editing_user.active}><%= gettext("Inactivo") %></option>
                 </select>
               </div>
 
@@ -288,13 +288,13 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                   phx-click="close_user_modal"
                   class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
                 >
-                  Cancelar
+                  <%= gettext("Cancelar") %>
                 </button>
                 <button
                   type="submit"
                   class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
                 >
-                  Guardar Cambios
+                  <%= gettext("Guardar Cambios") %>
                 </button>
               </div>
             </form>

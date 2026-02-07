@@ -5,6 +5,7 @@ defmodule StreamflixWebWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
+    plug StreamflixWebWeb.Plugs.SetLocale
     plug :put_root_layout, html: {StreamflixWebWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
@@ -12,6 +13,26 @@ defmodule StreamflixWebWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :api_auth_rate_limit do
+    plug StreamflixWebWeb.Plugs.RateLimit,
+      path_rules: [
+        {"POST", "/api/v1/auth/login", 15},
+        {"POST", "/api/v1/auth/register", 5},
+        {"POST", "/api/v1/auth/refresh", 30}
+      ],
+      window_sec: 60
+    plug StreamflixWebWeb.Plugs.ValidateAuthParams
+  end
+
+  pipeline :browser_auth_rate_limit do
+    plug StreamflixWebWeb.Plugs.RateLimit,
+      path_rules: [
+        {"POST", "/login", 5},
+        {"POST", "/signup", 3}
+      ],
+      window_sec: 60
   end
 
   pipeline :api_auth do
@@ -34,15 +55,22 @@ defmodule StreamflixWebWeb.Router do
     get "/signup", PageController, :signup
   end
 
-  # Auth routes + public docs (no redirect)
+  # Cambio de idioma (guarda en sesión y redirige)
   scope "/", StreamflixWebWeb do
     pipe_through :browser
+
+    get "/locale/:locale", PageController, :set_locale
+  end
+
+  # Auth routes + public docs (no redirect). Rate limit en login/signup.
+  scope "/", StreamflixWebWeb do
+    pipe_through [:browser, :browser_auth_rate_limit]
 
     get "/docs", PageController, :docs
     post "/login", AuthController, :login
     post "/signup", AuthController, :register
     delete "/logout", AuthController, :logout
-    get "/logout", AuthController, :logout  # Also allow GET for LiveView redirects
+    get "/logout", AuthController, :logout
   end
 
   # ============================================
@@ -50,9 +78,8 @@ defmodule StreamflixWebWeb.Router do
   # ============================================
 
   scope "/api/v1", StreamflixWebWeb.Api.V1, as: :api_v1 do
-    pipe_through :api
+    pipe_through [:api, :api_auth_rate_limit]
 
-    # Auth endpoints
     post "/auth/register", AuthController, :register
     post "/auth/login", AuthController, :login
     post "/auth/refresh", AuthController, :refresh
@@ -100,7 +127,7 @@ defmodule StreamflixWebWeb.Router do
   scope "/", StreamflixWebWeb do
     pipe_through [:browser]
 
-    live_session :default, on_mount: [{StreamflixWebWeb.LiveAuth, :mount_current_user}] do
+    live_session :default, on_mount: [{StreamflixWebWeb.LiveLocale, :set}, {StreamflixWebWeb.LiveAuth, :mount_current_user}] do
       live "/account", AccountLive, :index
       live "/platform", PlatformDashboardLive, :index
     end
@@ -113,7 +140,7 @@ defmodule StreamflixWebWeb.Router do
   scope "/admin", StreamflixWebWeb.Admin do
     pipe_through [:browser]
 
-    live_session :admin, on_mount: [{StreamflixWebWeb.LiveAuth, :mount_admin_user}] do
+    live_session :admin, on_mount: [{StreamflixWebWeb.LiveLocale, :set}, {StreamflixWebWeb.LiveAuth, :mount_admin_user}] do
       live "/", DashboardLive, :index
       live "/users", UsersLive, :index
       live "/settings", SettingsLive, :index

@@ -6,12 +6,24 @@ defmodule StreamflixWebWeb.AuthController do
   @doc """
   Handles user registration from web form.
   """
-  def register(conn, %{"email" => email, "password" => password} = params) do
+  def register(conn, params) do
+    case validate_auth_params(params) do
+      {:ok, email, password, name} ->
+        do_register(conn, email, password, name, params["plan"] || "basic")
+
+      {:error, msg} ->
+        conn
+        |> put_flash(:error, msg)
+        |> redirect(to: ~p"/signup?plan=#{params["plan"] || "basic"}")
+    end
+  end
+
+  defp do_register(conn, email, password, name, plan) do
     attrs = %{
       email: email,
       password: password,
-      name: params["name"],
-      plan: params["plan"] || "basic"
+      name: name,
+      plan: plan
     }
 
     case StreamflixAccounts.register_user(attrs) do
@@ -26,11 +38,11 @@ defmodule StreamflixWebWeb.AuthController do
 
         conn
         |> put_flash(:error, "Error al crear cuenta: #{errors}")
-        |> redirect(to: ~p"/signup?plan=#{params["plan"] || "basic"}")
+        |> redirect(to: ~p"/signup?plan=#{plan}")
 
-      {:error, reason} ->
+      {:error, _reason} ->
         conn
-        |> put_flash(:error, "Error: #{inspect(reason)}")
+        |> put_flash(:error, "Error al crear cuenta")
         |> redirect(to: ~p"/signup")
     end
   end
@@ -38,9 +50,19 @@ defmodule StreamflixWebWeb.AuthController do
   @doc """
   Handles user login from web form.
   """
-  def login(conn, %{"email" => email, "password" => password} = params) do
-    remember = Map.get(params, "remember") == "on"
+  def login(conn, params) do
+    case validate_auth_params(params) do
+      {:ok, email, password, _name} ->
+        do_login(conn, email, password, Map.get(params, "remember") == "on")
 
+      {:error, msg} ->
+        conn
+        |> put_flash(:error, msg)
+        |> redirect(to: "/login")
+    end
+  end
+
+  defp do_login(conn, email, password, remember) do
     case StreamflixAccounts.authenticate(email, password) do
       {:ok, user} ->
         {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
@@ -62,7 +84,7 @@ defmodule StreamflixWebWeb.AuthController do
           conn
         end
 
-        redirect_to = if user.role == "admin" do
+        redirect_to = if user.role in ["admin", "superadmin"] do
           "/admin"
         else
           "/platform"
@@ -78,11 +100,6 @@ defmodule StreamflixWebWeb.AuthController do
       {:error, :account_inactive} ->
         conn
         |> put_flash(:error, "Tu cuenta está inactiva. Contacta al soporte.")
-        |> redirect(to: "/login")
-
-      {:error, _reason} ->
-        conn
-        |> put_flash(:error, "Error al iniciar sesión")
         |> redirect(to: "/login")
     end
   end
@@ -106,6 +123,24 @@ defmodule StreamflixWebWeb.AuthController do
     |> put_flash(:info, "Cuenta creada. Bienvenido.")
     |> redirect(to: ~p"/platform")
   end
+
+  # Email 3-254 chars, password 8-72 chars, name opcional max 255. Sanitiza trim y downcase email.
+  defp validate_auth_params(params) when is_map(params) do
+    email = params["email"] && to_string(params["email"]) |> String.trim() |> String.downcase()
+    password = params["password"] && to_string(params["password"])
+    name = params["name"] && (params["name"] |> to_string() |> String.trim() |> String.slice(0, 255))
+
+    cond do
+      not (is_binary(email) and is_binary(password)) -> {:error, "Faltan email o contraseña"}
+      byte_size(email) > 254 -> {:error, "Email demasiado largo"}
+      byte_size(password) < 8 -> {:error, "La contraseña debe tener al menos 8 caracteres"}
+      byte_size(password) > 72 -> {:error, "Contraseña demasiado larga"}
+      not String.match?(email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) or String.length(email) < 3 -> {:error, "Email no válido"}
+      true -> {:ok, email, password, name}
+    end
+  end
+
+  defp validate_auth_params(_), do: {:error, "Datos inválidos"}
 
   defp format_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
