@@ -1,12 +1,15 @@
 <div class="min-h-screen bg-slate-50 flex flex-col">
   <nav class="bg-white border-b border-slate-200 shrink-0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-      <a href="/" class="text-lg font-bold text-slate-900">Platform</a>
+      <a href="/" class="text-lg font-bold text-slate-900">Jobscelis</a>
       <div class="flex items-center gap-4">
         <a href="/docs" class="text-indigo-600 font-medium text-sm">Documentación</a>
         <a href="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Dashboard</a>
         <%= if @current_user do %>
           <a href="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cuenta</a>
+          <%= if @current_user.role in ["admin", "superadmin"] do %>
+            <a href="/admin" class="text-amber-600 hover:text-amber-700 font-medium text-sm">Admin</a>
+          <% end %>
           <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cerrar sesión</a>
         <% else %>
           <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Iniciar sesión</a>
@@ -52,7 +55,7 @@
         <p class="text-slate-600 mb-3">La API expone dos grupos de rutas:</p>
         <ul class="list-disc list-inside text-slate-700 space-y-2 mb-3">
           <li><strong>Rutas públicas (auth):</strong> registro, login y refresh de JWT. No requieren API Key. Pensadas para tu app web o móvil.</li>
-          <li><strong>Rutas con API Key (platform):</strong> eventos, webhooks, deliveries, jobs y proyecto. Requieren el token de tu proyecto (Dashboard → API Token).</li>
+          <li><strong>Rutas con API Key (Jobscelis):</strong> eventos, webhooks, deliveries, jobs y proyecto. Requieren el token de tu proyecto (Dashboard → API Token).</li>
         </ul>
         <p class="text-slate-600">Todas las respuestas son JSON. La API acepta peticiones desde cualquier origen (CORS habilitado).</p>
       </section>
@@ -66,7 +69,7 @@
 
       <section id="auth" class="mb-12 scroll-mt-24">
         <h2 class="text-xl font-semibold text-slate-900 mb-4">Autenticación</h2>
-        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2">Rutas con API Key (Platform)</h3>
+        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2">Rutas con API Key (Jobscelis)</h3>
         <p class="text-slate-600 mb-2">Puedes enviar el token de dos maneras (una por petición):</p>
         <ol class="list-decimal list-inside text-slate-700 space-y-1 mb-3">
           <li>Header <code class="bg-slate-200 px-1 rounded text-sm">Authorization: Bearer &lt;tu_token&gt;</code></li>
