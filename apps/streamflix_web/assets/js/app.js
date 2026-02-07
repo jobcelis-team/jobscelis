@@ -464,6 +464,30 @@ Hooks.InfiniteScroll = {
   }
 }
 
+// Copy to clipboard: button with data-copy-selector="#id" copies that element's value
+Hooks.Copy = {
+  mounted() {
+    this.el.addEventListener("click", (e) => {
+      const sel = this.el.dataset.copySelector
+      if (!sel) return
+      const target = document.querySelector(sel)
+      if (!target || target.value === undefined) return
+      const value = target.value
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(() => {
+          const label = this.el.querySelector("[data-copy-label]") || this.el
+          const orig = label.textContent
+          label.textContent = "Copiado"
+          setTimeout(() => { label.textContent = orig }, 1500)
+        })
+      } else {
+        target.select()
+        document.execCommand("copy")
+      }
+    })
+  }
+}
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,

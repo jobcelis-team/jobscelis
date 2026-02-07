@@ -1,6 +1,6 @@
 defmodule StreamflixWebWeb.Plugs.RedirectIfAuthenticated do
   @moduledoc """
-  Plug que redirige a /browse si el usuario ya está autenticado.
+  Plug que redirige a /platform (o /admin) si el usuario ya está autenticado.
   Útil para páginas públicas como home, login, signup.
   """
 
@@ -18,11 +18,10 @@ defmodule StreamflixWebWeb.Plugs.RedirectIfAuthenticated do
       token ->
         case StreamflixAccounts.verify_token(token) do
           {:ok, user, _claims} ->
-            # Usuario autenticado, redirigir según su rol
             redirect_to = if user.role == "admin" do
               "/admin"
             else
-              "/browse"
+              "/platform"
             end
             conn
             |> redirect(to: redirect_to)

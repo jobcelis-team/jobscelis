@@ -29,31 +29,12 @@ defmodule StreamflixCore.MixProject do
 
   defp deps do
     [
-      # Database
       {:ecto_sql, "~> 3.13"},
       {:postgrex, "~> 0.21"},
-
-      # Distributed Systems
-      {:libcluster, "~> 3.5"},
-      {:horde, "~> 0.10"},
-      {:delta_crdt, "~> 0.6"},
-
-      # PubSub
       {:phoenix_pubsub, "~> 2.2"},
-
-      # Background Jobs
       {:oban, "~> 2.20"},
-
-      # Caching
-      {:nebulex, "~> 2.6"},
-      {:decorator, "~> 1.4"},
-      {:telemetry, "~> 1.3"},
-      {:telemetry_metrics, "~> 1.0"},
-      {:telemetry_poller, "~> 1.1"},
-
-      # Utilities
       {:jason, "~> 1.4"},
-      {:timex, "~> 3.7"},
+      {:req, "~> 0.5"},
       {:uuid, "~> 1.1"}
     ]
   end

@@ -1,65 +1,70 @@
-<div class="min-h-screen bg-black text-white flex items-center justify-center">
-  <!-- Background gradient -->
-  <div class="absolute inset-0 bg-gradient-to-br from-red-900/30 via-black to-gray-900"></div>
-  
-  <!-- Navigation -->
-  <nav class="absolute top-0 left-0 right-0 z-50 px-8 py-6">
-    <div class="max-w-7xl mx-auto">
-      <a href="/" class="text-red-600 text-4xl font-bold tracking-tight">STREAMFLIX</a>
+<div class="min-h-screen bg-slate-50 flex flex-col">
+  <nav class="bg-white border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center">
+      <a href="/" class="text-lg font-bold text-slate-900">Platform</a>
     </div>
   </nav>
-  
-  <!-- Login Form -->
-  <div class="relative z-10 w-full max-w-md mx-4">
-    <div class="bg-black/80 rounded-lg p-12">
-      <h1 class="text-3xl font-bold mb-8">Iniciar Sesión</h1>
-      
-      <form action="/login" method="post" class="space-y-6">
-        <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-        
-        <div>
-          <input 
-            type="email" 
-            name="email" 
-            placeholder="Email o número de teléfono"
-            required
-            class="w-full px-4 py-4 rounded bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-red-600"
-          />
-        </div>
-        
-        <div>
-          <input 
-            type="password" 
-            name="password" 
-            placeholder="Contraseña"
-            required
-            class="w-full px-4 py-4 rounded bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-red-600"
-          />
-        </div>
-        
-        <button 
-          type="submit" 
-          class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded font-medium text-lg transition"
-        >
-          Iniciar Sesión
-        </button>
-        
-        <div class="flex items-center justify-between text-sm text-gray-400">
-          <label class="flex items-center cursor-pointer">
-            <input type="checkbox" name="remember" class="mr-2 accent-red-600" />
-            Recuérdame
-          </label>
-          <a href="#" class="hover:underline">¿Necesitas ayuda?</a>
-        </div>
-      </form>
-      
-      <div class="mt-12 text-gray-400">
-        <p>
-          ¿Primera vez en StreamFlix? 
-          <a href="/signup" class="text-white hover:underline">Suscríbete ahora</a>
-        </p>
-        <p class="mt-4 text-sm">
-          Esta página está protegida por Google reCAPTCHA para garantizar que no eres un robot.
+
+  <div class="flex-1 flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+        <h1 class="text-2xl font-bold text-slate-900 mb-2">Iniciar sesión</h1>
+        <p class="text-slate-600 text-sm mb-6">Accede a tu cuenta de Platform</p>
+
+        <%= if msg = Phoenix.Flash.get(@flash, :error) do %>
+          <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+            {msg}
+          </div>
+        <% end %>
+        <%= if msg = Phoenix.Flash.get(@flash, :info) do %>
+          <div class="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
+            {msg}
+          </div>
+        <% end %>
+
+        <form action="/login" method="post" class="space-y-5">
+          <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              required
+              placeholder="tu@email.com"
+              class="w-full px-4 py-3 rounded-lg border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              required
+              placeholder="••••••••"
+              class="w-full px-4 py-3 rounded-lg border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+          </div>
+
+          <div class="flex items-center">
+            <input type="checkbox" name="remember" id="remember" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+            <label for="remember" class="ml-2 text-sm text-slate-600">Recuérdame</label>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <p class="mt-6 text-center text-slate-600 text-sm">
+          ¿No tienes cuenta?
+          <a href="/signup" class="text-indigo-600 hover:text-indigo-700 font-medium">Regístrate</a>
         </p>
       </div>
     </div>

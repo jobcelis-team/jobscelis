@@ -18,6 +18,10 @@ defmodule StreamflixWebWeb.Router do
     plug StreamflixWebWeb.Plugs.Auth
   end
 
+  pipeline :api_key_auth do
+    plug StreamflixWebWeb.Plugs.ApiKeyAuth
+  end
+
   # ============================================
   # PUBLIC ROUTES (redirect if authenticated)
   # ============================================
@@ -30,10 +34,11 @@ defmodule StreamflixWebWeb.Router do
     get "/signup", PageController, :signup
   end
 
-  # Auth routes (no redirect)
+  # Auth routes + public docs (no redirect)
   scope "/", StreamflixWebWeb do
     pipe_through :browser
 
+    get "/docs", PageController, :docs
     post "/login", AuthController, :login
     post "/signup", AuthController, :register
     delete "/logout", AuthController, :logout
@@ -54,74 +59,55 @@ defmodule StreamflixWebWeb.Router do
   end
 
   # ============================================
-  # API V1 - AUTHENTICATED
+  # API V1 - PLATFORM (Webhooks + Events) - API Key auth
   # ============================================
 
   scope "/api/v1", StreamflixWebWeb.Api.V1, as: :api_v1 do
-    pipe_through [:api, :api_auth]
+    pipe_through [:api, :api_key_auth]
 
-    # Catalog (implemented)
-    get "/browse", CatalogController, :browse
-    get "/browse/genre/:genre", CatalogController, :by_genre
-    get "/content/:id", CatalogController, :show
-    get "/content/:id/seasons", CatalogController, :seasons
-    get "/content/:id/seasons/:season/episodes", CatalogController, :episodes
+    post "/send", PlatformEventsController, :create
+    post "/events", PlatformEventsController, :create
+    get "/events", PlatformEventsController, :index
+    get "/events/:id", PlatformEventsController, :show
+    delete "/events/:id", PlatformEventsController, :delete
 
-    # Playback
-    post "/playback/start", PlaybackController, :start
-    put "/playback/:session_id/heartbeat", PlaybackController, :heartbeat
-    delete "/playback/:session_id", PlaybackController, :stop
-    get "/playback/:session_id/manifest", PlaybackController, :manifest
+    get "/webhooks", PlatformWebhooksController, :index
+    post "/webhooks", PlatformWebhooksController, :create
+    get "/webhooks/:id", PlatformWebhooksController, :show
+    patch "/webhooks/:id", PlatformWebhooksController, :update
+    delete "/webhooks/:id", PlatformWebhooksController, :delete
 
-    # User
-    get "/me", UserController, :me
-    put "/me", UserController, :update
+    get "/deliveries", PlatformDeliveriesController, :index
+    post "/deliveries/:id/retry", PlatformDeliveriesController, :retry
 
-    # Profiles
-    resources "/profiles", ProfileController, only: [:index, :show, :create, :update, :delete]
+    get "/jobs", PlatformJobsController, :index
+    post "/jobs", PlatformJobsController, :create
+    get "/jobs/:id", PlatformJobsController, :show
+    patch "/jobs/:id", PlatformJobsController, :update
+    delete "/jobs/:id", PlatformJobsController, :delete
+    get "/jobs/:id/runs", PlatformJobsController, :runs
 
-    # Search
-    get "/search", SearchController, :search
-    get "/search/autocomplete", SearchController, :autocomplete
-
-    # Streaming
-    get "/stream/:session_id/:quality/playlist.m3u8", StreamController, :media_playlist
-    get "/stream/:session_id/:quality/segments/:segment", StreamController, :segment
-
-    # My List
-    get "/my-list", MyListController, :index
-    post "/my-list/:content_id", MyListController, :add
-    delete "/my-list/:content_id", MyListController, :remove
-
-    # Ratings
-    post "/content/:content_id/rate", RatingController, :rate
-    delete "/content/:content_id/rate", RatingController, :unrate
-
-    # History
-    get "/history", HistoryController, :index
-    get "/continue-watching", HistoryController, :continue_watching
+    get "/project", PlatformProjectController, :show
+    patch "/project", PlatformProjectController, :update
+    get "/token", PlatformProjectController, :token
+    post "/token/regenerate", PlatformProjectController, :regenerate_token
   end
 
   # ============================================
-  # LIVE VIEWS - AUTHENTICATED
+  # LIVE VIEWS - AUTHENTICATED (solo plataforma Webhooks + Events)
   # ============================================
 
   scope "/", StreamflixWebWeb do
     pipe_through [:browser]
 
     live_session :default, on_mount: [{StreamflixWebWeb.LiveAuth, :mount_current_user}] do
-      live "/browse", BrowseLive, :index
-      live "/search", SearchLive, :index
-      live "/title/:id", TitleLive, :show
-      live "/watch/:id", PlayerLive, :show
-      live "/my-list", MyListLive, :index
-      live "/profiles", ProfilesLive, :index
       live "/account", AccountLive, :index
+      live "/platform", PlatformDashboardLive, :index
     end
   end
 
   # ============================================
-  # ADMIN PANEL
+  # ADMIN PANEL (Superadmin)
   # ============================================
 
   scope "/admin", StreamflixWebWeb.Admin do
@@ -129,11 +115,7 @@ defmodule StreamflixWebWeb.Router do
 
     live_session :admin, on_mount: [{StreamflixWebWeb.LiveAuth, :mount_admin_user}] do
       live "/", DashboardLive, :index
-      live "/content", ContentLive, :index
-      live "/content/new", ContentLive, :new
-      live "/content/:id/edit", ContentLive, :edit
       live "/users", UsersLive, :index
-      live "/analytics", AnalyticsLive, :index
       live "/settings", SettingsLive, :index
     end
   end

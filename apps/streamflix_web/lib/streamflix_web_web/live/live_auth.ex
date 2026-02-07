@@ -48,9 +48,7 @@ defmodule StreamflixWebWeb.LiveAuth do
       token ->
         case StreamflixAccounts.verify_token(token) do
           {:ok, user, _claims} ->
-            socket
-            |> assign(:current_user, user)
-            |> assign(:current_profile, get_profile_from_session(session))
+            assign(socket, :current_user, user)
 
           {:error, _reason} ->
             assign(socket, :current_user, nil)
@@ -58,15 +56,7 @@ defmodule StreamflixWebWeb.LiveAuth do
     end
   end
 
-  defp get_profile_from_session(session) do
-    case session["profile_id"] do
-      nil -> nil
-      id -> StreamflixAccounts.get_profile(id)
-    end
-  end
-
   defp check_admin(user) do
-    # Check if user has admin role
-    user.role == "admin"
+    user.role in ["admin", "superadmin"]
   end
 end

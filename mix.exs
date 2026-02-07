@@ -37,9 +37,6 @@ defmodule Streamflix.MixProject do
         applications: [
           streamflix_core: :permanent,
           streamflix_accounts: :permanent,
-          streamflix_catalog: :permanent,
-          streamflix_streaming: :permanent,
-          streamflix_cdn: :permanent,
           streamflix_web: :permanent
         ]
       ]

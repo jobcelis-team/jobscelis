@@ -19,22 +19,9 @@ config :streamflix_core, StreamflixCore.Repo,
   migration_primary_key: [type: :binary_id],
   migration_foreign_key: [type: :binary_id]
 
-# Nebulex Cache Config - values from environment or defaults
-config :streamflix_core, StreamflixCore.Cache,
-  gc_interval: :timer.hours(1),
-  max_size: 1_000_000,
-  allocated_memory: 500_000_000,
-  gc_cleanup_min_timeout: :timer.seconds(10),
-  gc_cleanup_max_timeout: :timer.minutes(10)
-
 # ============================================
 # STREAMFLIX_WEB CONFIG
 # ============================================
-
-# Configure MIME types for file uploads
-config :mime, :types, %{
-  "video/x-matroska" => ["mkv"]
-}
 
 config :streamflix_web, StreamflixWebWeb.Endpoint,
   url: [host: "localhost"],
@@ -57,43 +44,6 @@ config :streamflix_accounts, StreamflixAccounts.Guardian,
   ttl: {7, :days}
 
 # ============================================
-# STREAMFLIX_CDN CONFIG (Azure)
-# All values from environment variables
-# ============================================
-
-config :streamflix_cdn,
-  azure_account: nil,
-  azure_key: nil,
-  azure_cdn_endpoint: nil,
-  videos_playback_base_url: nil,
-  videos_playback_sas_token: nil,
-  containers: %{
-    videos: "streamflix-videos",
-    thumbnails: "streamflix-thumbnails",
-    manifests: "streamflix-manifests",
-    originals: "streamflix-originals"
-  }
-
-# ============================================
-# STREAMFLIX_STREAMING CONFIG
-# ============================================
-
-config :streamflix_streaming,
-  max_concurrent_streams_basic: 1,
-  max_concurrent_streams_standard: 2,
-  max_concurrent_streams_premium: 4,
-  heartbeat_interval: 10_000,
-  session_timeout: 300_000
-
-# ============================================
-# CLUSTERING CONFIG
-# Configured in runtime.exs based on environment
-# ============================================
-
-config :libcluster,
-  topologies: []
-
-# ============================================
 # LOGGER CONFIG
 # ============================================
 
@@ -108,8 +58,8 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 # ============================================
-# OBAN CONFIG (Background Jobs)
-# Uses PG notifier for better Supabase compatibility
+# OBAN CONFIG (Background Jobs) - estilo whisper_vtt
+# Colas: delivery (POST a webhooks), scheduled_job (jobs programados)
 # ============================================
 
 config :streamflix_core, Oban,
@@ -117,10 +67,9 @@ config :streamflix_core, Oban,
   repo: StreamflixCore.Repo,
   notifier: Oban.Notifiers.PG,
   queues: [
-    default: 10,
-    transcoding: 2,
-    notifications: 5,
-    analytics: 3
+    delivery: 10,
+    scheduled_job: 1,
+    default: 5
   ]
 
 # ============================================

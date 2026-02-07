@@ -26,18 +26,6 @@ config :streamflix_accounts, StreamflixAccounts.Guardian,
   issuer: "streamflix_test",
   secret_key: "test_guardian_secret_key_for_testing_purposes_only_minimum_64_bytes"
 
-# Azure test config - mock values
-config :streamflix_cdn,
-  azure_account: "test_account",
-  azure_key: "test_key",
-  azure_cdn_endpoint: nil,
-  containers: %{
-    videos: "test-videos",
-    thumbnails: "test-thumbnails",
-    manifests: "test-manifests",
-    originals: "test-originals"
-  }
-
 # Print only warnings and errors during test
 config :logger, level: :warning
 
@@ -47,5 +35,3 @@ config :phoenix, :plug_init_mode, :runtime
 # Oban inline mode for tests
 config :streamflix_core, Oban, testing: :inline
 
-# Disable clustering in tests
-config :libcluster, topologies: []
