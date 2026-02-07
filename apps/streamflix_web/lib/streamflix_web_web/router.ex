@@ -116,6 +116,7 @@ defmodule StreamflixWebWeb.Router do
 
     get "/project", PlatformProjectController, :show
     patch "/project", PlatformProjectController, :update
+    get "/topics", PlatformProjectController, :topics
     get "/token", PlatformProjectController, :token
     post "/token/regenerate", PlatformProjectController, :regenerate_token
   end
@@ -143,6 +144,8 @@ defmodule StreamflixWebWeb.Router do
     live_session :admin, on_mount: [{StreamflixWebWeb.LiveLocale, :set}, {StreamflixWebWeb.LiveAuth, :mount_admin_user}] do
       live "/", DashboardLive, :index
       live "/users", UsersLive, :index
+      live "/projects", ProjectsLive, :index
+      live "/projects/:id", ProjectsLive, :show
       live "/settings", SettingsLive, :index
     end
   end

@@ -100,6 +100,9 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
         <.link navigate="/admin/users" class={"flex items-center px-6 py-3 #{if @active == "users", do: "bg-gray-800 text-white", else: "text-gray-400 hover:bg-gray-800"}"}>
           <%= gettext("Usuarios") %>
         </.link>
+        <.link navigate="/admin/projects" class={"flex items-center px-6 py-3 #{if @active == "projects", do: "bg-gray-800 text-white", else: "text-gray-400 hover:bg-gray-800"}"}>
+          <%= gettext("Proyectos") %>
+        </.link>
         <.link navigate="/admin/settings" class={"flex items-center px-6 py-3 #{if @active == "settings", do: "bg-gray-800 text-white", else: "text-gray-400 hover:bg-gray-800"}"}>
           <%= gettext("Configuración") %>
         </.link>
