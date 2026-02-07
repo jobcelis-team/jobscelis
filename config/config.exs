@@ -23,6 +23,8 @@ config :streamflix_core, StreamflixCore.Repo,
 # STREAMFLIX_WEB CONFIG
 # ============================================
 
+config :streamflix_web, StreamflixWebWeb.Gettext, default_locale: "es"
+
 config :streamflix_web, StreamflixWebWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,

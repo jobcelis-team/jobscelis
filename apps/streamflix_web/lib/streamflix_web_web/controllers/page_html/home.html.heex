@@ -1,13 +1,17 @@
 <div class="min-h-screen bg-slate-50">
-  <!-- Nav -->
   <nav class="bg-white/95 border-b border-slate-200/80 backdrop-blur-sm sticky top-0 z-10">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
       <a href="/" class="text-xl font-bold text-slate-900 tracking-tight">Jobscelis</a>
       <div class="flex items-center gap-4">
-        <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm transition">Documentación</a>
-        <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm transition">Iniciar sesión</a>
+        <span class="flex items-center gap-1 text-sm">
+          <a href="/locale/es" class={["font-medium transition", (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]}>ES</a>
+          <span class="text-slate-300">|</span>
+          <a href="/locale/en" class={["font-medium transition", (@locale == "en" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]}>EN</a>
+        </span>
+        <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm transition"><%= gettext("Documentación") %></a>
+        <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm transition"><%= gettext("Iniciar sesión") %></a>
         <a href="/signup" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition shadow-sm hover:shadow">
-          Registrarse
+          <%= gettext("Registrarse") %>
         </a>
       </div>
     </div>
@@ -17,22 +21,22 @@
   <section class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-24 md:pt-24 md:pb-32">
     <div class="absolute inset-0 bg-gradient-to-b from-indigo-50/60 via-transparent to-transparent pointer-events-none" aria-hidden="true"></div>
     <div class="relative text-center max-w-3xl mx-auto">
-      <p class="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-4">Eventos, webhooks y jobs programados</p>
+      <p class="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-4"><%= gettext("Eventos, webhooks y jobs programados") %></p>
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-        Tu API de eventos en un solo lugar
+        <%= gettext("Tu API de eventos en un solo lugar") %>
       </h1>
       <p class="text-lg md:text-xl text-slate-600 mb-10 leading-relaxed">
-        Publica eventos con cualquier payload, configura webhooks con filtros y recibe POST en tiempo real. Programa tareas recurrentes (diario, semanal, mensual o cron) que emitan eventos o llamen a tus URLs. Todo con una API simple y un token.
+        <%= gettext("Publica eventos con cualquier payload, configura webhooks con filtros y recibe POST en tiempo real. Programa tareas recurrentes (diario, semanal, mensual o cron) que emitan eventos o llamen a tus URLs. Todo con una API simple y un token.") %>
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="/signup" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-base transition shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30">
-          Crear cuenta gratis
+          <%= gettext("Crear cuenta gratis") %>
           <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
         </a>
         <a href="/login" class="inline-flex items-center justify-center bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 px-8 py-4 rounded-xl font-semibold text-base transition">
-          Ya tengo cuenta
+          <%= gettext("Ya tengo cuenta") %>
         </a>
       </div>
     </div>
@@ -41,8 +45,8 @@
   <!-- Features -->
   <section class="border-t border-slate-200 bg-white py-20 md:py-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 text-center mb-4">Qué puedes hacer</h2>
-      <p class="text-slate-600 text-center max-w-xl mx-auto mb-14">Una sola API, un token, y control total sobre eventos, entregas y tareas programadas.</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 text-center mb-4"><%= gettext("Qué puedes hacer") %></h2>
+      <p class="text-slate-600 text-center max-w-xl mx-auto mb-14"><%= gettext("Una sola API, un token, y control total sobre eventos, entregas y tareas programadas.") %></p>
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="group p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
@@ -50,8 +54,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Eventos</h3>
-          <p class="text-slate-600 text-sm leading-relaxed">Publica eventos con topic y payload JSON vía API. Sin esquemas fijos: envía lo que necesites y nosotros lo enrutamos.</p>
+          <h3 class="font-semibold text-slate-900 mb-2"><%= gettext("Eventos") %></h3>
+          <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Publica eventos con topic y payload JSON vía API. Sin esquemas fijos: envía lo que necesites y nosotros lo enrutamos.") %></p>
         </div>
         <div class="group p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
@@ -59,8 +63,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Webhooks</h3>
-          <p class="text-slate-600 text-sm leading-relaxed">Configura URLs de destino, filtros por topic o por campos del payload, y recibe POST en tiempo real. Reintentos automáticos y seguimiento de entregas.</p>
+          <h3 class="font-semibold text-slate-900 mb-2"><%= gettext("Webhooks") %></h3>
+          <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Configura URLs de destino, filtros por topic o por campos del payload, y recibe POST en tiempo real. Reintentos automáticos y seguimiento de entregas.") %></p>
         </div>
         <div class="group p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
@@ -68,8 +72,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Jobs programados</h3>
-          <p class="text-slate-600 text-sm leading-relaxed">Tareas recurrentes: diario, semanal, mensual o cron. Cada ejecución puede emitir un evento o hacer POST a una URL con el payload que definas.</p>
+          <h3 class="font-semibold text-slate-900 mb-2"><%= gettext("Jobs programados") %></h3>
+          <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Tareas recurrentes: diario, semanal, mensual o cron. Cada ejecución puede emitir un evento o hacer POST a una URL con el payload que definas.") %></p>
         </div>
         <div class="group p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
@@ -77,8 +81,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">API Key</h3>
-          <p class="text-slate-600 text-sm leading-relaxed">Un solo token para toda la API: eventos, webhooks, jobs y más. Genera y regenera desde el dashboard. Bearer o X-Api-Key.</p>
+          <h3 class="font-semibold text-slate-900 mb-2"><%= gettext("API Key") %></h3>
+          <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Un solo token para toda la API: eventos, webhooks, jobs y más. Genera y regenera desde el dashboard. Bearer o X-Api-Key.") %></p>
         </div>
       </div>
     </div>
@@ -87,10 +91,10 @@
   <!-- CTA -->
   <section class="border-t border-slate-200 py-20 bg-gradient-to-b from-slate-50 to-white">
     <div class="max-w-2xl mx-auto px-4 text-center">
-      <h2 class="text-2xl font-bold text-slate-900 mb-3">¿Listo para empezar?</h2>
-      <p class="text-slate-600 mb-8">Regístrate gratis. Sin tarjeta. Crea tu proyecto, obtén tu token y empieza a enviar eventos en minutos.</p>
+      <h2 class="text-2xl font-bold text-slate-900 mb-3"><%= gettext("¿Listo para empezar?") %></h2>
+      <p class="text-slate-600 mb-8"><%= gettext("Regístrate gratis. Sin tarjeta. Crea tu proyecto, obtén tu token y empieza a enviar eventos en minutos.") %></p>
       <a href="/signup" class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold transition shadow-lg shadow-indigo-500/25">
-        Crear cuenta gratis
+        <%= gettext("Crear cuenta gratis") %>
         <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
         </svg>
@@ -100,11 +104,11 @@
 
   <footer class="border-t border-slate-200 py-8 bg-white">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <span class="text-slate-500 text-sm font-medium">Jobscelis · Eventos, webhooks y jobs</span>
+      <span class="text-slate-500 text-sm font-medium">Jobscelis · <%= gettext("Eventos, webhooks y jobs") %></span>
       <div class="flex items-center gap-6 text-sm">
-        <a href="/docs" class="text-slate-500 hover:text-slate-700 transition">Documentación</a>
-        <a href="/login" class="text-slate-500 hover:text-slate-700 transition">Iniciar sesión</a>
-        <a href="/signup" class="text-indigo-600 hover:text-indigo-700 font-medium">Registrarse</a>
+        <a href="/docs" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Documentación") %></a>
+        <a href="/login" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Iniciar sesión") %></a>
+        <a href="/signup" class="text-indigo-600 hover:text-indigo-700 font-medium"><%= gettext("Registrarse") %></a>
       </div>
     </div>
   </footer>

@@ -1,0 +1,582 @@
+## Spanish (default locale) - msgstr same as msgid
+#: layout
+msgid ""
+msgstr ""
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Saltar al contenido"
+msgstr "Saltar al contenido"
+
+msgid "Navegación principal"
+msgstr "Navegación principal"
+
+msgid "Documentación"
+msgstr "Documentación"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Cuenta"
+msgstr "Cuenta"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Cerrar sesión"
+msgstr "Cerrar sesión"
+
+msgid "We can't find the internet"
+msgstr "No hay conexión a internet"
+
+msgid "Attempting to reconnect"
+msgstr "Intentando reconectar"
+
+msgid "Something went wrong!"
+msgstr "¡Algo ha ido mal!"
+
+msgid "close"
+msgstr "cerrar"
+
+msgid "Actions"
+msgstr "Acciones"
+
+msgid "Iniciar sesión"
+msgstr "Iniciar sesión"
+
+msgid "Registrarse"
+msgstr "Registrarse"
+
+msgid "Regístrate"
+msgstr "Regístrate"
+
+msgid "Eventos, webhooks y jobs programados"
+msgstr "Eventos, webhooks y jobs programados"
+
+msgid "Tu API de eventos en un solo lugar"
+msgstr "Tu API de eventos en un solo lugar"
+
+msgid "Publica eventos con cualquier payload, configura webhooks con filtros y recibe POST en tiempo real. Programa tareas recurrentes (diario, semanal, mensual o cron) que emitan eventos o llamen a tus URLs. Todo con una API simple y un token."
+msgstr "Publica eventos con cualquier payload, configura webhooks con filtros y recibe POST en tiempo real. Programa tareas recurrentes (diario, semanal, mensual o cron) que emitan eventos o llamen a tus URLs. Todo con una API simple y un token."
+
+msgid "Crear cuenta gratis"
+msgstr "Crear cuenta gratis"
+
+msgid "Ya tengo cuenta"
+msgstr "Ya tengo cuenta"
+
+msgid "Qué puedes hacer"
+msgstr "Qué puedes hacer"
+
+msgid "Una sola API, un token, y control total sobre eventos, entregas y tareas programadas."
+msgstr "Una sola API, un token, y control total sobre eventos, entregas y tareas programadas."
+
+msgid "Eventos"
+msgstr "Eventos"
+
+msgid "Publica eventos con topic y payload JSON vía API. Sin esquemas fijos: envía lo que necesites y nosotros lo enrutamos."
+msgstr "Publica eventos con topic y payload JSON vía API. Sin esquemas fijos: envía lo que necesites y nosotros lo enrutamos."
+
+msgid "Webhooks"
+msgstr "Webhooks"
+
+msgid "Configura URLs de destino, filtros por topic o por campos del payload, y recibe POST en tiempo real. Reintentos automáticos y seguimiento de entregas."
+msgstr "Configura URLs de destino, filtros por topic o por campos del payload, y recibe POST en tiempo real. Reintentos automáticos y seguimiento de entregas."
+
+msgid "Jobs programados"
+msgstr "Jobs programados"
+
+msgid "Tareas recurrentes: diario, semanal, mensual o cron. Cada ejecución puede emitir un evento o hacer POST a una URL con el payload que definas."
+msgstr "Tareas recurrentes: diario, semanal, mensual o cron. Cada ejecución puede emitir un evento o hacer POST a una URL con el payload que definas."
+
+msgid "API Key"
+msgstr "API Key"
+
+msgid "Un solo token para toda la API: eventos, webhooks, jobs y más. Genera y regenera desde el dashboard. Bearer o X-Api-Key."
+msgstr "Un solo token para toda la API: eventos, webhooks, jobs y más. Genera y regenera desde el dashboard. Bearer o X-Api-Key."
+
+msgid "¿Listo para empezar?"
+msgstr "¿Listo para empezar?"
+
+msgid "Regístrate gratis. Sin tarjeta. Crea tu proyecto, obtén tu token y empieza a enviar eventos en minutos."
+msgstr "Regístrate gratis. Sin tarjeta. Crea tu proyecto, obtén tu token y empieza a enviar eventos en minutos."
+
+msgid "Eventos, webhooks y jobs"
+msgstr "Eventos, webhooks y jobs"
+
+msgid "Navegación"
+msgstr "Navegación"
+
+msgid "Accede a tu cuenta de Jobscelis"
+msgstr "Accede a tu cuenta de Jobscelis"
+
+msgid "Formulario de inicio de sesión"
+msgstr "Formulario de inicio de sesión"
+
+msgid "Contraseña"
+msgstr "Contraseña"
+
+msgid "Recuérdame"
+msgstr "Recuérdame"
+
+msgid "Entrar"
+msgstr "Entrar"
+
+msgid "¿No tienes cuenta?"
+msgstr "¿No tienes cuenta?"
+
+msgid "Crear cuenta"
+msgstr "Crear cuenta"
+
+msgid "Regístrate en Jobscelis para usar webhooks y eventos"
+msgstr "Regístrate en Jobscelis para usar webhooks y eventos"
+
+msgid "Nombre"
+msgstr "Nombre"
+
+msgid "¿Ya tienes cuenta?"
+msgstr "¿Ya tienes cuenta?"
+
+msgid "Inicia sesión"
+msgstr "Inicia sesión"
+
+msgid "Formulario de registro"
+msgstr "Formulario de registro"
+
+msgid "Proyecto"
+msgstr "Proyecto"
+
+msgid "Nombre del proyecto"
+msgstr "Nombre del proyecto"
+
+msgid "Guardar"
+msgstr "Guardar"
+
+msgid "Cancelar"
+msgstr "Cancelar"
+
+msgid "Editar nombre"
+msgstr "Editar nombre"
+
+msgid "No hay API key."
+msgstr "No hay API key."
+
+msgid "Generar token"
+msgstr "Generar token"
+
+msgid "Datos de tu cuenta"
+msgstr "Datos de tu cuenta"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Rol"
+msgstr "Rol"
+
+msgid "Ir al dashboard"
+msgstr "Ir al dashboard"
+
+msgid "Navegación de la documentación"
+msgstr "Navegación de la documentación"
+
+msgid "Contenido"
+msgstr "Contenido"
+
+msgid "Introducción"
+msgstr "Introducción"
+
+msgid "Base URL"
+msgstr "Base URL"
+
+msgid "Proyecto y token"
+msgstr "Proyecto y token"
+
+msgid "Formas de uso"
+msgstr "Formas de uso"
+
+msgid "Formas de usar la aplicación"
+msgstr "Formas de usar la aplicación"
+
+msgid "Códigos de respuesta"
+msgstr "Códigos de respuesta"
+
+msgid "Documentación de la API"
+msgstr "Documentación de la API"
+
+msgid "Referencia completa: rutas, autenticación, CORS, ejemplos y qué probar en cada endpoint."
+msgstr "Referencia completa: rutas, autenticación, CORS, ejemplos y qué probar en cada endpoint."
+
+msgid "La API expone dos grupos de rutas:"
+msgstr "La API expone dos grupos de rutas:"
+
+msgid "Rutas públicas (auth):"
+msgstr "Rutas públicas (auth):"
+
+msgid "registro, login y refresh de JWT. No requieren API Key. Pensadas para tu app web o móvil."
+msgstr "registro, login y refresh de JWT. No requieren API Key. Pensadas para tu app web o móvil."
+
+msgid "Rutas con API Key (Jobscelis):"
+msgstr "Rutas con API Key (Jobscelis):"
+
+msgid "eventos, webhooks, deliveries, jobs y proyecto. Requieren el token de tu proyecto (Dashboard → API Token)."
+msgstr "eventos, webhooks, deliveries, jobs y proyecto. Requieren el token de tu proyecto (Dashboard → API Token)."
+
+msgid "Todas las respuestas son JSON. La API acepta peticiones desde cualquier origen (CORS habilitado)."
+msgstr "Todas las respuestas son JSON. La API acepta peticiones desde cualquier origen (CORS habilitado)."
+
+msgid "Todos los ejemplos de esta documentación usan la base URL actual (dinámica):"
+msgstr "Todos los ejemplos de esta documentación usan la base URL actual (dinámica):"
+
+msgid "En producción la base URL será tu dominio (ej. https://api.tudominio.com). Los ejemplos curl que ves en cada ruta ya incluyen esta base."
+msgstr "En producción la base URL será tu dominio (ej. https://api.tudominio.com). Los ejemplos curl que ves en cada ruta ya incluyen esta base."
+
+msgid "Puedes enviar el token de dos maneras (una por petición):"
+msgstr "Puedes enviar el token de dos maneras (una por petición):"
+
+msgid "Header"
+msgstr "Header"
+
+msgid "El token se obtiene en el Dashboard (sección API Token), al crear o regenerar. El valor completo solo se muestra una vez; guárdalo. Si regeneras, el token anterior deja de funcionar."
+msgstr "El token se obtiene en el Dashboard (sección API Token), al crear o regenerar. El valor completo solo se muestra una vez; guárdalo. Si regeneras, el token anterior deja de funcionar."
+
+msgid "No envíes API Key. Registro y login devuelven un token (JWT) para usar en tu app web; el refresh renueva ese JWT."
+msgstr "No envíes API Key. Registro y login devuelven un token (JWT) para usar en tu app web; el refresh renueva ese JWT."
+
+msgid "La API tiene CORS habilitado para cualquier origen (Access-Control-Allow-Origin: *). Así, cualquier frontend (tu SPA, otra web, móvil con WebView, etc.) puede consumir la API desde su propia URL sin bloqueos del navegador."
+msgstr "La API tiene CORS habilitado para cualquier origen (Access-Control-Allow-Origin: *). Así, cualquier frontend (tu SPA, otra web, móvil con WebView, etc.) puede consumir la API desde su propia URL sin bloqueos del navegador."
+
+msgid "Headers permitidos en peticiones cross-origin:"
+msgstr "Headers permitidos en peticiones cross-origin:"
+
+msgid "Bearer token"
+msgstr "Bearer token"
+
+msgid "Métodos: GET, POST, PUT, PATCH, DELETE, OPTIONS. Las peticiones preflight (OPTIONS) reciben 200 con los headers CORS."
+msgstr "Métodos: GET, POST, PUT, PATCH, DELETE, OPTIONS. Las peticiones preflight (OPTIONS) reciben 200 con los headers CORS."
+
+msgid "Rutas públicas (sin API Key)"
+msgstr "Rutas públicas (sin API Key)"
+
+msgid "Registro, login y refresh de JWT. Body y respuesta en JSON."
+msgstr "Registro, login y refresh de JWT. Body y respuesta en JSON."
+
+msgid "Registra un usuario. Body: email (requerido), password (requerido), name (opcional)."
+msgstr "Registra un usuario. Body: email (requerido), password (requerido), name (opcional)."
+
+msgid "Respuesta 201: user (id, email, name), token (JWT)."
+msgstr "Respuesta 201: user (id, email, name), token (JWT)."
+
+msgid "Inicia sesión. Body: email, password."
+msgstr "Inicia sesión. Body: email, password."
+
+msgid "Respuesta 200: user, token (JWT). 401 si credenciales incorrectas."
+msgstr "Respuesta 200: user, token (JWT). 401 si credenciales incorrectas."
+
+msgid "Refresca el JWT. Body: token (JWT actual)."
+msgstr "Refresca el JWT. Body: token (JWT actual)."
+
+msgid "Respuesta 200: token (nuevo JWT). 401 si token inválido o expirado."
+msgstr "Respuesta 200: token (nuevo JWT). 401 si token inválido o expirado."
+
+msgid "Todas las rutas requieren API Key. Sustituye YOUR_API_KEY y EVENT_ID por valores reales."
+msgstr "Todas las rutas requieren API Key. Sustituye YOUR_API_KEY y EVENT_ID por valores reales."
+
+msgid "Alias para enviar un evento. Mismo body que POST /events. Respuesta 202: event_id."
+msgstr "Alias para enviar un evento. Mismo body que POST /events. Respuesta 202: event_id."
+
+msgid "Envía un evento. Body: cualquier JSON; opcional topic. Respuesta 202: event_id."
+msgstr "Envía un evento. Body: cualquier JSON; opcional topic. Respuesta 202: event_id."
+
+msgid "Lista eventos. Query: topic, limit (1-100), include=inactive. Respuesta: events (array)."
+msgstr "Lista eventos. Query: topic, limit (1-100), include=inactive. Respuesta: events (array)."
+
+msgid "Detalle de un evento y sus deliveries. Sustituye EVENT_ID por el id del evento."
+msgstr "Detalle de un evento y sus deliveries. Sustituye EVENT_ID por el id del evento."
+
+msgid "Desactiva el evento (soft delete). Respuesta 200: status: \"inactive\"."
+msgstr "Desactiva el evento (soft delete). Respuesta 200: status: \"inactive\"."
+
+msgid "Configura URLs a las que se envían los eventos. Sustituye WEBHOOK_ID por el id del webhook."
+msgstr "Configura URLs a las que se envían los eventos. Sustituye WEBHOOK_ID por el id del webhook."
+
+msgid "Lista webhooks del proyecto. Query: include=inactive. Respuesta: webhooks (array)."
+msgstr "Lista webhooks del proyecto. Query: include=inactive. Respuesta: webhooks (array)."
+
+msgid "Crea un webhook. Body: url (requerido), opcional secret, topics, filters, body_config, headers. Respuesta 201: objeto webhook."
+msgstr "Crea un webhook. Body: url (requerido), opcional secret, topics, filters, body_config, headers. Respuesta 201: objeto webhook."
+
+msgid "Detalle de un webhook (id, url, status, topics, filters, etc.)."
+msgstr "Detalle de un webhook (id, url, status, topics, filters, etc.)."
+
+msgid "Actualiza un webhook. Body: cualquiera de url, secret, topics, filters, body_config, headers, status."
+msgstr "Actualiza un webhook. Body: cualquiera de url, secret, topics, filters, body_config, headers, status."
+
+msgid "Desactiva el webhook. Respuesta 200: status: \"inactive\"."
+msgstr "Desactiva el webhook. Respuesta 200: status: \"inactive\"."
+
+msgid "Envíos de eventos a webhooks. Sustituye DELIVERY_ID por el id del delivery."
+msgstr "Envíos de eventos a webhooks. Sustituye DELIVERY_ID por el id del delivery."
+
+msgid "Lista deliveries. Query: event_id, webhook_id, status, limit (1-100). Respuesta: deliveries (array)."
+msgstr "Lista deliveries. Query: event_id, webhook_id, status, limit (1-100). Respuesta: deliveries (array)."
+
+msgid "Reencola un envío fallido. Respuesta 200: status: \"retry_queued\"."
+msgstr "Reencola un envío fallido. Respuesta 200: status: \"retry_queued\"."
+
+msgid "Jobs (tareas programadas)"
+msgstr "Jobs (tareas programadas)"
+
+msgid "Tareas que se ejecutan según una programación. Sustituye JOB_ID por el id del job."
+msgstr "Tareas que se ejecutan según una programación. Sustituye JOB_ID por el id del job."
+
+msgid "Lista jobs del proyecto. Query: include=inactive. Respuesta: jobs (array)."
+msgstr "Lista jobs del proyecto. Query: include=inactive. Respuesta: jobs (array)."
+
+msgid "Crea un job. Body: name, schedule_type (ej. daily), schedule_config, action_type (ej. emit_event), action_config. Respuesta 201: objeto job."
+msgstr "Crea un job. Body: name, schedule_type (ej. daily), schedule_config, action_type (ej. emit_event), action_config. Respuesta 201: objeto job."
+
+msgid "Detalle del job y runs recientes. Respuesta incluye recent_runs."
+msgstr "Detalle del job y runs recientes. Respuesta incluye recent_runs."
+
+msgid "Actualiza un job. Body: name, schedule_type, schedule_config, action_type, action_config, status."
+msgstr "Actualiza un job. Body: name, schedule_type, schedule_config, action_type, action_config, status."
+
+msgid "Desactiva el job. Respuesta 200: status: \"inactive\"."
+msgstr "Desactiva el job. Respuesta 200: status: \"inactive\"."
+
+msgid "Lista ejecuciones del job. Query: limit (1-100). Respuesta: runs (array)."
+msgstr "Lista ejecuciones del job. Query: limit (1-100). Respuesta: runs (array)."
+
+msgid "Consulta y actualiza el proyecto; gestiona el API Key. Todas las rutas requieren API Key."
+msgstr "Consulta y actualiza el proyecto; gestiona el API Key. Todas las rutas requieren API Key."
+
+msgid "Devuelve el proyecto: id, name, status, settings."
+msgstr "Devuelve el proyecto: id, name, status, settings."
+
+msgid "Actualiza el proyecto. Body: name, settings (objeto). Respuesta: id, name, status."
+msgstr "Actualiza el proyecto. Body: name, settings (objeto). Respuesta: id, name, status."
+
+msgid "Devuelve el prefix del token actual (no el valor completo) y un mensaje de uso."
+msgstr "Devuelve el prefix del token actual (no el valor completo) y un mensaje de uso."
+
+msgid "Regenera el API Key. El token anterior deja de funcionar. Respuesta incluye token (valor completo) y message. Guarda el token; no se vuelve a mostrar."
+msgstr "Regenera el API Key. El token anterior deja de funcionar. Respuesta incluye token (valor completo) y message. Guarda el token; no se vuelve a mostrar."
+
+msgid "Tras regenerar, usa el nuevo token en las siguientes peticiones."
+msgstr "Tras regenerar, usa el nuevo token en las siguientes peticiones."
+
+msgid "registro e inicio de sesión; Dashboard para proyecto, token, eventos y webhooks; enviar eventos de prueba desde el dashboard."
+msgstr "registro e inicio de sesión; Dashboard para proyecto, token, eventos y webhooks; enviar eventos de prueba desde el dashboard."
+
+msgid "desde cualquier backend o frontend (SPA, móvil, otro dominio gracias a CORS) usa la API Key para enviar eventos, gestionar webhooks, listar deliveries y jobs."
+msgstr "desde cualquier backend o frontend (SPA, móvil, otro dominio gracias a CORS) usa la API Key para enviar eventos, gestionar webhooks, listar deliveries y jobs."
+
+msgid "para tu app propia (móvil o SPA), usa /auth/register, /auth/login y /auth/refresh para mantener sesión con JWT."
+msgstr "para tu app propia (móvil o SPA), usa /auth/register, /auth/login y /auth/refresh para mantener sesión con JWT."
+
+msgid "Web:"
+msgstr "Web:"
+
+msgid "API con API Key:"
+msgstr "API con API Key:"
+
+msgid "API de auth (JWT):"
+msgstr "API de auth (JWT):"
+
+msgid "Created (recurso creado)"
+msgstr "Created (recurso creado)"
+
+msgid "Accepted (evento aceptado)"
+msgstr "Accepted (evento aceptado)"
+
+msgid "No autorizado (API Key o JWT inválido o faltante)"
+msgstr "No autorizado (API Key o JWT inválido o faltante)"
+
+msgid "Recurso no encontrado"
+msgstr "Recurso no encontrado"
+
+msgid "Validación fallida (body o parámetros incorrectos)"
+msgstr "Validación fallida (body o parámetros incorrectos)"
+
+msgid "Cómo funciona:"
+msgstr "Cómo funciona:"
+
+msgid "Al hacer «Regenerar token» se crea un token nuevo y se muestra solo una vez. El servidor no guarda el valor completo (por seguridad), solo un prefijo. Si recargas la página solo verás el prefijo; guarda el token cuando lo regeneres (por ejemplo en un .env o gestor de contraseñas)."
+msgstr "Al hacer «Regenerar token» se crea un token nuevo y se muestra solo una vez. El servidor no guarda el valor completo (por seguridad), solo un prefijo. Si recargas la página solo verás el prefijo; guarda el token cuando lo regeneres (por ejemplo en un .env o gestor de contraseñas)."
+
+msgid "Ocultar"
+msgstr "Ocultar"
+
+msgid "Mostrar"
+msgstr "Mostrar"
+
+msgid "Ocultar token"
+msgstr "Ocultar token"
+
+msgid "Mostrar token"
+msgstr "Mostrar token"
+
+msgid "Prefijo del token (valor completo solo al regenerar)"
+msgstr "Prefijo del token (valor completo solo al regenerar)"
+
+msgid "El token anterior ya no sirve. Solo este token es válido. Guárdalo; solo se muestra esta vez."
+msgstr "El token anterior ya no sirve. Solo este token es válido. Guárdalo; solo se muestra esta vez."
+
+msgid "Solo el token actual es válido. El valor completo solo se muestra al regenerar."
+msgstr "Solo el token actual es válido. El valor completo solo se muestra al regenerar."
+
+msgid "Enviar evento de prueba"
+msgstr "Enviar evento de prueba"
+
+msgid "Topic (opcional)"
+msgstr "Topic (opcional)"
+
+msgid "Enviar"
+msgstr "Enviar"
+
+msgid "Eventos recientes"
+msgstr "Eventos recientes"
+
+msgid "Topic"
+msgstr "Topic"
+
+msgid "Estado"
+msgstr "Estado"
+
+msgid "Fecha"
+msgstr "Fecha"
+
+msgid "Header:"
+msgstr "Header:"
+
+msgid "o"
+msgstr "o"
+
+msgid "Event sent. ID: %{id}"
+msgstr "Evento enviado. ID: %{id}"
+
+msgid "Failed to send event"
+msgstr "Error al enviar el evento"
+
+msgid "El nombre no puede estar vacío."
+msgstr "El nombre no puede estar vacío."
+
+msgid "Nombre del proyecto actualizado."
+msgstr "Nombre del proyecto actualizado."
+
+msgid "No se pudo actualizar el nombre."
+msgstr "No se pudo actualizar el nombre."
+
+msgid "Nuevo token generado. El token anterior ya no funciona. Guárdalo; solo se muestra esta vez."
+msgstr "Nuevo token generado. El token anterior ya no funciona. Guárdalo; solo se muestra esta vez."
+
+msgid "No se pudo regenerar el token."
+msgstr "No se pudo regenerar el token."
+
+msgid "No hay proyecto para tu cuenta. Contacta soporte."
+msgstr "No hay proyecto para tu cuenta. Contacta soporte."
+
+msgid "tu@email.com"
+msgstr "tu@email.com"
+
+msgid "Tu nombre"
+msgstr "Tu nombre"
+
+msgid "Mínimo 8 caracteres"
+msgstr "Mínimo 8 caracteres"
+
+msgid "Mostrar contraseña"
+msgstr "Mostrar contraseña"
+
+msgid "Enviar e iniciar sesión"
+msgstr "Enviar e iniciar sesión"
+
+msgid "Usuarios"
+msgstr "Usuarios"
+
+msgid "Proyectos"
+msgstr "Proyectos"
+
+msgid "Eventos (total)"
+msgstr "Eventos (total)"
+
+msgid "Usuarios recientes"
+msgstr "Usuarios recientes"
+
+msgid "Ver todos"
+msgstr "Ver todos"
+
+msgid "Panel Admin"
+msgstr "Panel Admin"
+
+msgid "Configuración"
+msgstr "Configuración"
+
+msgid "Buscar usuarios..."
+msgstr "Buscar usuarios..."
+
+msgid "Usuario"
+msgstr "Usuario"
+
+msgid "Registrado"
+msgstr "Registrado"
+
+msgid "Acciones"
+msgstr "Acciones"
+
+msgid "Activo"
+msgstr "Activo"
+
+msgid "Inactivo"
+msgstr "Inactivo"
+
+msgid "Editar"
+msgstr "Editar"
+
+msgid "Desactivar"
+msgstr "Desactivar"
+
+msgid "Activar"
+msgstr "Activar"
+
+msgid "Editar Usuario"
+msgstr "Editar Usuario"
+
+msgid "Moderador"
+msgstr "Moderador"
+
+msgid "Administrador"
+msgstr "Administrador"
+
+msgid "Solo un superadmin puede asignar el rol Superadmin."
+msgstr "Solo un superadmin puede asignar el rol Superadmin."
+
+msgid "Guardar Cambios"
+msgstr "Guardar Cambios"
+
+msgid "Usuario desactivado correctamente"
+msgstr "Usuario desactivado correctamente"
+
+msgid "Error al desactivar usuario"
+msgstr "Error al desactivar usuario"
+
+msgid "Usuario activado correctamente"
+msgstr "Usuario activado correctamente"
+
+msgid "Error al activar usuario"
+msgstr "Error al activar usuario"
+
+msgid "Usuario no encontrado"
+msgstr "Usuario no encontrado"
+
+msgid "Usuario actualizado correctamente"
+msgstr "Usuario actualizado correctamente"
+
+msgid "Error: %{details}"
+msgstr "Error: %{details}"
+
+msgid "La configuración de la plataforma (base de datos, Oban, etc.) se gestiona desde config/config.exs y config/runtime.exs."
+msgstr "La configuración de la plataforma (base de datos, Oban, etc.) se gestiona desde config/config.exs y config/runtime.exs."
+
+msgid "Para usuarios, proyectos, webhooks y eventos utiliza el dashboard en"
+msgstr "Para usuarios, proyectos, webhooks y eventos utiliza el dashboard en"
