@@ -37,11 +37,12 @@ defmodule StreamflixWebWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <div class="min-h-screen bg-slate-50">
+    <div class="min-h-screen bg-slate-50 relative">
+      <a href="#main-content" class="skip-link">Saltar al contenido</a>
       <header class="bg-white border-b border-slate-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <a href="/" class="text-lg font-bold text-slate-900">Platform</a>
-          <nav class="flex items-center gap-6">
+          <nav class="flex items-center gap-6" aria-label="Navegación principal">
             <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Documentación</a>
             <.link navigate="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Dashboard</.link>
             <.link navigate="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cuenta</.link>
@@ -53,7 +54,7 @@ defmodule StreamflixWebWeb.Layouts do
         </div>
       </header>
 
-      <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 py-8" role="main">
         {render_slot(@inner_block)}
       </main>
 
