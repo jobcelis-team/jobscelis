@@ -40,10 +40,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     socket = case result do
       {:ok, event} ->
         events = [event | Platform.list_events(project.id, limit: 19)]
-        put_flash(socket, :info, "Event sent. ID: #{event.id}")
+        put_flash(socket, :info, gettext("Event sent. ID: %{id}", id: event.id))
         assign(socket, :events, events)
       {:error, _} ->
-        put_flash(socket, :error, "Failed to send event")
+        put_flash(socket, :error, gettext("Failed to send event"))
         socket
     end
     {:noreply, socket}
@@ -65,17 +65,17 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     name = String.trim(name)
     socket =
       if name == "" do
-        put_flash(socket, :error, "El nombre no puede estar vacío.")
+        put_flash(socket, :error, gettext("El nombre no puede estar vacío."))
         |> assign(:editing_project_name, false)
       else
         case Platform.update_project(project, %{name: name}) do
           {:ok, updated} ->
             socket
-            |> put_flash(:info, "Nombre del proyecto actualizado.")
+            |> put_flash(:info, gettext("Nombre del proyecto actualizado."))
             |> assign(:project, updated)
             |> assign(:editing_project_name, false)
           {:error, _} ->
-            put_flash(socket, :error, "No se pudo actualizar el nombre.")
+            put_flash(socket, :error, gettext("No se pudo actualizar el nombre."))
             |> assign(:editing_project_name, false)
         end
       end
@@ -95,27 +95,27 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         api_key = Platform.get_api_key_for_project(project.id)
         socket =
           socket
-          |> put_flash(:info, "Nuevo token generado. El token anterior ya no funciona. Guárdalo; solo se muestra esta vez.")
+          |> put_flash(:info, gettext("Nuevo token generado. El token anterior ya no funciona. Guárdalo; solo se muestra esta vez."))
           |> assign(:api_key, api_key)
           |> assign(:new_token, raw_key)
           |> assign(:token_visible, true)
         {:noreply, socket}
       _ ->
-        {:noreply, put_flash(socket, :error, "No se pudo regenerar el token.")}
+        {:noreply, put_flash(socket, :error, gettext("No se pudo regenerar el token."))}
     end
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={:platform} current_user={@current_user}>
+    <Layouts.app flash={@flash} current_scope={:platform} current_user={@current_user} locale={@locale}>
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 mb-8">Dashboard</h1>
+        <h1 class="text-2xl font-bold text-slate-900 mb-8"><%= gettext("Dashboard") %></h1>
 
         <%= if @project do %>
           <div class="space-y-8">
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 class="text-lg font-semibold text-slate-900 mb-2">Proyecto</h2>
+              <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("Proyecto") %></h2>
               <%= if @editing_project_name do %>
                 <.form for={%{}} id="project-name-form" phx-submit="update_project_name" class="flex flex-wrap items-center gap-2">
                   <.input
@@ -123,20 +123,20 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                     name="name"
                     value={@project.name}
                     class="w-full max-w-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900"
-                    placeholder="Nombre del proyecto"
+                    placeholder={gettext("Nombre del proyecto")}
                   />
                   <button type="submit" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">
-                    Guardar
+                    <%= gettext("Guardar") %>
                   </button>
                   <button type="button" phx-click="cancel_edit_project_name" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-sm font-medium">
-                    Cancelar
+                    <%= gettext("Cancelar") %>
                   </button>
                 </.form>
               <% else %>
                 <p class="text-slate-600">
                   <strong>{@project.name}</strong>
                   <button type="button" phx-click="edit_project_name" class="ml-2 text-indigo-600 hover:text-indigo-700 text-sm font-medium">
-                    Editar nombre
+                    <%= gettext("Editar nombre") %>
                   </button>
                 </p>
               <% end %>
@@ -144,10 +144,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             </section>
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 class="text-lg font-semibold text-slate-900 mb-1">API Token</h2>
-              <p class="text-slate-500 text-sm mb-2">Header: <code class="bg-slate-100 px-1 rounded text-xs">Authorization: Bearer &lt;token&gt;</code> o <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
+              <h2 class="text-lg font-semibold text-slate-900 mb-1"><%= gettext("API Token") %></h2>
+              <p class="text-slate-500 text-sm mb-2"><%= gettext("Header:") %> <code class="bg-slate-100 px-1 rounded text-xs">Authorization: Bearer &lt;token&gt;</code> <%= gettext("o") %> <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
               <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 mb-4 text-slate-600 text-sm">
-                <strong class="text-slate-700">Cómo funciona:</strong> Al hacer «Regenerar token» se crea un token nuevo y se muestra <strong>solo una vez</strong>. El servidor no guarda el valor completo (por seguridad), solo un prefijo. Si recargas la página solo verás el prefijo; guarda el token cuando lo regeneres (por ejemplo en un .env o gestor de contraseñas).
+                <strong class="text-slate-700"><%= gettext("Cómo funciona:") %></strong> <%= gettext("Al hacer «Regenerar token» se crea un token nuevo y se muestra solo una vez. El servidor no guarda el valor completo (por seguridad), solo un prefijo. Si recargas la página solo verás el prefijo; guarda el token cuando lo regeneres (por ejemplo en un .env o gestor de contraseñas).") %>
               </div>
               <%= if @api_key do %>
                 <div class="rounded-lg border border-slate-200 bg-slate-50 max-w-2xl">
@@ -164,8 +164,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         type="button"
                         phx-click="toggle_token_visibility"
                         class="p-3 border-l border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition"
-                        title={if @token_visible, do: "Ocultar", else: "Mostrar"}
-                        aria-label={if @token_visible, do: "Ocultar token", else: "Mostrar token"}
+                        title={if @token_visible, do: gettext("Ocultar"), else: gettext("Mostrar")}
+                        aria-label={if @token_visible, do: gettext("Ocultar token"), else: gettext("Mostrar token")}
                       >
                         <%= if @token_visible do %>
                           <.icon name="hero-eye-slash" class="w-5 h-5" />
@@ -180,55 +180,55 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                       readonly
                       value={@api_key.prefix}
                       class="w-full font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-600 focus:ring-0"
-                      aria-label="Prefijo del token (valor completo solo al regenerar)"
+                      aria-label={gettext("Prefijo del token (valor completo solo al regenerar)")}
                     />
                   <% end %>
                 </div>
                 <%= if @new_token do %>
-                  <p class="text-amber-700 text-sm mt-2">El token anterior ya no sirve. Solo este token es válido. Guárdalo; solo se muestra esta vez.</p>
+                  <p class="text-amber-700 text-sm mt-2"><%= gettext("El token anterior ya no sirve. Solo este token es válido. Guárdalo; solo se muestra esta vez.") %></p>
                 <% else %>
-                  <p class="text-slate-500 text-sm mt-2">Solo el token actual es válido. El valor completo solo se muestra al regenerar.</p>
+                  <p class="text-slate-500 text-sm mt-2"><%= gettext("Solo el token actual es válido. El valor completo solo se muestra al regenerar.") %></p>
                 <% end %>
                 <button
                   phx-click="regenerate_token"
                   type="button"
                   class="mt-4 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition"
                 >
-                  Regenerar token
+                  <%= gettext("Regenerar token") %>
                 </button>
               <% else %>
-                <p class="text-slate-600 mb-3">No hay API key.</p>
+                <p class="text-slate-600 mb-3"><%= gettext("No hay API key.") %></p>
                 <button
                   phx-click="regenerate_token"
                   type="button"
                   class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition"
                 >
-                  Generar token
+                  <%= gettext("Generar token") %>
                 </button>
               <% end %>
             </section>
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 class="text-lg font-semibold text-slate-900 mb-4">Enviar evento de prueba</h2>
+              <h2 class="text-lg font-semibold text-slate-900 mb-4"><%= gettext("Enviar evento de prueba") %></h2>
               <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3 max-w-lg">
-                <.input type="text" name="topic" id="test-topic" value={@test_topic} placeholder="Topic (opcional)" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm" />
+                <.input type="text" name="topic" id="test-topic" value={@test_topic} placeholder={gettext("Topic (opcional)")} class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm" />
                 <.input type="textarea" name="payload" id="test-payload" value={@test_payload} class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm" />
                 <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition">
-                  Enviar
+                  <%= gettext("Enviar") %>
                 </button>
               </.form>
             </section>
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 class="text-lg font-semibold text-slate-900 mb-4">Eventos recientes</h2>
+              <h2 class="text-lg font-semibold text-slate-900 mb-4"><%= gettext("Eventos recientes") %></h2>
               <div class="overflow-x-auto rounded-lg border border-slate-200">
                 <table class="min-w-full">
                   <thead>
                     <tr class="bg-slate-50 border-b border-slate-200">
                       <th class="px-4 py-3 text-left text-sm font-medium text-slate-700">ID</th>
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700">Topic</th>
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700">Estado</th>
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700">Fecha</th>
+                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700"><%= gettext("Topic") %></th>
+                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700"><%= gettext("Estado") %></th>
+                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700"><%= gettext("Fecha") %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -246,13 +246,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             </section>
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 class="text-lg font-semibold text-slate-900 mb-4">Webhooks</h2>
+              <h2 class="text-lg font-semibold text-slate-900 mb-4"><%= gettext("Webhooks") %></h2>
               <div class="overflow-x-auto rounded-lg border border-slate-200">
                 <table class="min-w-full">
                   <thead>
                     <tr class="bg-slate-50 border-b border-slate-200">
                       <th class="px-4 py-3 text-left text-sm font-medium text-slate-700">URL</th>
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700">Estado</th>
+                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700"><%= gettext("Estado") %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -268,7 +268,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             </section>
           </div>
         <% else %>
-          <p class="text-slate-600">No hay proyecto para tu cuenta. Contacta soporte.</p>
+          <p class="text-slate-600"><%= gettext("No hay proyecto para tu cuenta. Contacta soporte.") %></p>
         <% end %>
       </div>
     </Layouts.app>

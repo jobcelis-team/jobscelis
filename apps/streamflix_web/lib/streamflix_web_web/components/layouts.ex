@@ -12,6 +12,36 @@ defmodule StreamflixWebWeb.Layouts do
   embed_templates "layouts/*"
 
   @doc """
+  Toggle de idioma: enlaces a ES / EN. El idioma actual se muestra resaltado.
+  """
+  attr :locale, :string, required: true, doc: "locale actual (es/en)"
+  attr :class, :string, default: nil
+
+  def locale_toggle(assigns) do
+    ~H"""
+    <span class={["flex items-center gap-1 text-sm", @class]}>
+      <a
+        href="/locale/es"
+        data-locale="es"
+        onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';"
+        class={["font-medium transition", @locale == "es" && "text-slate-900 underline" || "text-slate-500 hover:text-slate-700"]}
+      >
+        ES
+      </a>
+      <span class="text-slate-300" aria-hidden="true">|</span>
+      <a
+        href="/locale/en"
+        data-locale="en"
+        onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000';"
+        class={["font-medium transition", @locale == "en" && "text-slate-900 underline" || "text-slate-500 hover:text-slate-700"]}
+      >
+        EN
+      </a>
+    </span>
+    """
+  end
+
+  @doc """
   Renders your app layout.
 
   This function is typically invoked from every template,
@@ -32,24 +62,26 @@ defmodule StreamflixWebWeb.Layouts do
     doc: "current scope (:account, :platform, etc.)"
 
   attr :current_user, :any, default: nil, doc: "logged-in user (for showing Admin link if admin/superadmin)"
+  attr :locale, :string, default: "es", doc: "current locale (es/en)"
 
   slot :inner_block, required: true
 
   def app(assigns) do
     ~H"""
     <div class="min-h-screen bg-slate-50 relative">
-      <a href="#main-content" class="skip-link">Saltar al contenido</a>
+      <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
       <header class="bg-white border-b border-slate-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <a href="/" class="text-lg font-bold text-slate-900">Jobscelis</a>
-          <nav class="flex items-center gap-6" aria-label="Navegación principal">
-            <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Documentación</a>
-            <.link navigate="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Dashboard</.link>
-            <.link navigate="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cuenta</.link>
+          <nav class="flex items-center gap-6" aria-label={gettext("Navegación principal")}>
+            <.locale_toggle locale={@locale} class="flex items-center gap-1" />
+            <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Documentación") %></a>
+            <.link navigate="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Dashboard") %></.link>
+            <.link navigate="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Cuenta") %></.link>
             <%= if @current_user && @current_user.role in ["admin", "superadmin"] do %>
-              <a href="/admin" class="text-amber-600 hover:text-amber-700 font-medium text-sm">Admin</a>
+              <a href="/admin" class="text-amber-600 hover:text-amber-700 font-medium text-sm"><%= gettext("Admin") %></a>
             <% end %>
-            <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cerrar sesión</a>
+            <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Cerrar sesión") %></a>
           </nav>
         </div>
       </header>
