@@ -31,6 +31,8 @@ defmodule StreamflixWebWeb.Layouts do
     default: nil,
     doc: "current scope (:account, :platform, etc.)"
 
+  attr :current_user, :any, default: nil, doc: "logged-in user (for showing Admin link if admin/superadmin)"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -43,6 +45,9 @@ defmodule StreamflixWebWeb.Layouts do
             <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Documentación</a>
             <.link navigate="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Dashboard</.link>
             <.link navigate="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cuenta</.link>
+            <%= if @current_user && @current_user.role in ["admin", "superadmin"] do %>
+              <a href="/admin" class="text-amber-600 hover:text-amber-700 font-medium text-sm">Admin</a>
+            <% end %>
             <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cerrar sesión</a>
           </nav>
         </div>

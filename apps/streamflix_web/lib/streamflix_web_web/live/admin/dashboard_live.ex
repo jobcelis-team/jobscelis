@@ -7,9 +7,11 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    user = socket.assigns.current_user
     socket =
       socket
       |> assign(:page_title, "Admin Dashboard")
+      |> assign(:current_user_role, user.role)
       |> assign(:stats, get_stats())
       |> assign(:recent_users, get_recent_users())
 
@@ -37,7 +39,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-gray-100">
-      <.admin_sidebar active="dashboard" />
+      <.admin_sidebar active="dashboard" current_user_role={@current_user_role} />
 
       <div class="ml-64 p-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
@@ -84,7 +86,12 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     <aside class="fixed left-0 top-0 bottom-0 w-64 bg-gray-900 text-white">
       <div class="p-6">
         <.link navigate="/" class="text-red-500 text-2xl font-bold">Platform</.link>
-        <p class="text-gray-500 text-sm">Admin</p>
+        <p class="text-gray-500 text-sm mt-1">Panel Admin</p>
+        <%= if @current_user_role do %>
+          <span class={"inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium #{if @current_user_role == "superadmin", do: "bg-amber-600 text-white", else: "bg-gray-600 text-gray-200"}"}>
+            <%= if @current_user_role == "superadmin", do: "Superadmin", else: "Admin" %>
+          </span>
+        <% end %>
       </div>
       <nav class="mt-6">
         <.link navigate="/admin" class={"flex items-center px-6 py-3 #{if @active == "dashboard", do: "bg-gray-800 text-white", else: "text-gray-400 hover:bg-gray-800"}"}>
