@@ -19,6 +19,26 @@
 
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
+
+// Password visibility toggle (login/signup): accessible show/hide
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll("[data-password-toggle]").forEach(function (wrap) {
+    const input = wrap.querySelector("input[type=password], input[type=text]")
+    const btn = wrap.querySelector("[data-password-toggle-btn]")
+    if (!input || !btn) return
+    const labelShow = "Mostrar contraseña"
+    const labelHide = "Ocultar contraseña"
+    const iconShow = wrap.querySelector("[data-icon-show]")
+    const iconHide = wrap.querySelector("[data-icon-hide]")
+    btn.addEventListener("click", function () {
+      const isPass = input.type === "password"
+      input.type = isPass ? "text" : "password"
+      btn.setAttribute("aria-label", isPass ? labelHide : labelShow)
+      if (iconShow) iconShow.classList.toggle("hidden", !isPass)
+      if (iconHide) iconHide.classList.toggle("hidden", isPass)
+    })
+  })
+})
 // Establish Phoenix Socket and LiveView configuration.
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
@@ -461,30 +481,6 @@ Hooks.InfiniteScroll = {
   },
   destroyed() {
     this.observer.disconnect()
-  }
-}
-
-// Copy to clipboard: button with data-copy-selector="#id" copies that element's value
-Hooks.Copy = {
-  mounted() {
-    this.el.addEventListener("click", (e) => {
-      const sel = this.el.dataset.copySelector
-      if (!sel) return
-      const target = document.querySelector(sel)
-      if (!target || target.value === undefined) return
-      const value = target.value
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(value).then(() => {
-          const label = this.el.querySelector("[data-copy-label]") || this.el
-          const orig = label.textContent
-          label.textContent = "Copiado"
-          setTimeout(() => { label.textContent = orig }, 1500)
-        })
-      } else {
-        target.select()
-        document.execCommand("copy")
-      }
-    })
   }
 }
 
