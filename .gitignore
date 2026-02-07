@@ -208,3 +208,4 @@ azure_credentials
 config/*.local.exs
 config/dev.local.exs
 config/test.local.exs
+/whisper_vtt-main

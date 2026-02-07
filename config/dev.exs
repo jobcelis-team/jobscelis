@@ -56,41 +56,6 @@ config :streamflix_accounts, StreamflixAccounts.Guardian,
   secret_key: System.get_env("GUARDIAN_SECRET_KEY") || "dev_guardian_secret_key_change_in_production_minimum_64_bytes"
 
 # ============================================
-# AZURE CONFIG (Development)
-# ============================================
-
-config :streamflix_cdn,
-  azure_account: System.get_env("AZURE_STORAGE_ACCOUNT"),
-  azure_key: System.get_env("AZURE_STORAGE_KEY"),
-  azure_cdn_endpoint: System.get_env("AZURE_CDN_ENDPOINT"),
-  containers: %{
-    videos: System.get_env("AZURE_CONTAINER_VIDEOS") || "videos",
-    thumbnails: System.get_env("AZURE_CONTAINER_THUMBNAILS") || "thumbnails",
-    manifests: System.get_env("AZURE_CONTAINER_MANIFESTS") || "manifests",
-    originals: System.get_env("AZURE_CONTAINER_ORIGINALS") || "originals"
-  },
-  videos_playback_base_url: System.get_env("AZURE_VIDEOS_BASE_URL"),
-  videos_playback_sas_token: System.get_env("AZURE_VIDEOS_SAS_TOKEN")
-
-# ============================================
-# CLUSTERING (Local Development)
-# ============================================
-
-config :libcluster,
-  topologies: [
-    streamflix: [
-      strategy: Cluster.Strategy.Epmd,
-      config: [
-        hosts: [
-          :"node1@127.0.0.1",
-          :"node2@127.0.0.1",
-          :"node3@127.0.0.1"
-        ]
-      ]
-    ]
-  ]
-
-# ============================================
 # LOGGER
 # ============================================
 

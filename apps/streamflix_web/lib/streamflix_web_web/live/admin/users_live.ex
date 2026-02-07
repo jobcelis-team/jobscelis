@@ -107,19 +107,17 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
   end
 
   defp load_users_from_db do
-    # Load all users including inactive for admin
     User
     |> order_by([u], desc: u.inserted_at)
     |> limit(100)
     |> Repo.all()
     |> Enum.map(fn user ->
-      subscription = StreamflixAccounts.get_active_subscription(user.id)
       %{
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
-        plan: subscription && String.capitalize(subscription.plan) || "Sin Plan",
+        plan: user.role,
         registered: format_date(user.inserted_at),
         active: user.status == "active"
       }

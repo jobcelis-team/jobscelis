@@ -103,3 +103,42 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* This file is for your main application CSS */
+
+/* Base: ensure body text is readable */
+body {
+  color: #0f172a;
+}
+
+/* Form elements: always readable (background + text) */
+input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background-color: #fff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+label,
+.label,
+.fieldset .label {
+  color: #334155 !important;
+}
+select option {
+  background-color: #fff;
+  color: #0f172a;
+}
+
+/* Flash / alerts: readable text */
+.alert-info {
+  background-color: #e0f2fe;
+  color: #0c4a6e;
+  border-color: #7dd3fc;
+}
+.alert-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}

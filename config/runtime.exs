@@ -17,19 +17,6 @@ if signing_salt = System.get_env("LIVE_VIEW_SIGNING_SALT") do
     live_view: [signing_salt: signing_salt]
 end
 
-# Streaming configuration from env
-config :streamflix_streaming,
-  max_concurrent_streams_basic: String.to_integer(System.get_env("MAX_STREAMS_BASIC") || "1"),
-  max_concurrent_streams_standard: String.to_integer(System.get_env("MAX_STREAMS_STANDARD") || "2"),
-  max_concurrent_streams_premium: String.to_integer(System.get_env("MAX_STREAMS_PREMIUM") || "4"),
-  heartbeat_interval: String.to_integer(System.get_env("HEARTBEAT_INTERVAL") || "10000"),
-  session_timeout: String.to_integer(System.get_env("SESSION_TIMEOUT") || "300000")
-
-# Video playback: SAS URL for reading videos (all environments)
-config :streamflix_cdn,
-  videos_playback_base_url: System.get_env("AZURE_VIDEOS_BASE_URL"),
-  videos_playback_sas_token: System.get_env("AZURE_VIDEOS_SAS_TOKEN")
-
 # ============================================
 # PRODUCTION RUNTIME CONFIG
 # ============================================
@@ -83,60 +70,6 @@ if config_env() == :prod do
   config :streamflix_accounts, StreamflixAccounts.Guardian,
     issuer: "streamflix",
     secret_key: guardian_secret
-
-  # Azure Configuration
-  azure_account = System.get_env("AZURE_STORAGE_ACCOUNT")
-  azure_key = System.get_env("AZURE_STORAGE_KEY")
-
-  if azure_account && azure_key do
-    config :streamflix_cdn,
-      azure_account: azure_account,
-      azure_key: azure_key,
-      azure_cdn_endpoint: System.get_env("AZURE_CDN_ENDPOINT"),
-      containers: %{
-        videos: System.get_env("AZURE_CONTAINER_VIDEOS") || "videos",
-        thumbnails: System.get_env("AZURE_CONTAINER_THUMBNAILS") || "thumbnails",
-        manifests: System.get_env("AZURE_CONTAINER_MANIFESTS") || "manifests",
-        originals: System.get_env("AZURE_CONTAINER_ORIGINALS") || "originals"
-      }
-  end
-
-  # Clustering Configuration
-  cluster_strategy = System.get_env("CLUSTER_STRATEGY") || "kubernetes"
-
-  cluster_config =
-    case cluster_strategy do
-      "kubernetes" ->
-        [
-          streamflix: [
-            strategy: Cluster.Strategy.Kubernetes,
-            config: [
-              mode: :dns,
-              kubernetes_node_basename: System.get_env("KUBERNETES_NODE_BASENAME") || "streamflix",
-              kubernetes_selector: System.get_env("KUBERNETES_SELECTOR") || "app=streamflix",
-              kubernetes_namespace: System.get_env("KUBERNETES_NAMESPACE") || "production",
-              polling_interval: 5_000
-            ]
-          ]
-        ]
-
-      "dns" ->
-        [
-          streamflix: [
-            strategy: Cluster.Strategy.DNSPoll,
-            config: [
-              polling_interval: 5_000,
-              query: System.get_env("DNS_QUERY") || "streamflix.local",
-              node_basename: System.get_env("NODE_NAME") || "streamflix"
-            ]
-          ]
-        ]
-
-      _ ->
-        []
-    end
-
-  config :libcluster, topologies: cluster_config
 
   # Erlang Distribution Cookie
   if cookie = System.get_env("NODE_COOKIE") do

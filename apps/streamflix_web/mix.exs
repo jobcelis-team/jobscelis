@@ -32,9 +32,6 @@ defmodule StreamflixWeb.MixProject do
       # Internal dependencies
       {:streamflix_core, in_umbrella: true},
       {:streamflix_accounts, in_umbrella: true},
-      {:streamflix_catalog, in_umbrella: true},
-      {:streamflix_streaming, in_umbrella: true},
-      {:streamflix_cdn, in_umbrella: true},
 
       # Phoenix
       {:phoenix, "~> 1.8"},

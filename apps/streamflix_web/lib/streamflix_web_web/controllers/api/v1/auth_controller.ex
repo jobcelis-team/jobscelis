@@ -16,6 +16,22 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
     }
 
     case StreamflixAccounts.register_user(attrs) do
+      {:ok, user, opts} ->
+        {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
+        api_key = Keyword.get(opts, :api_key)
+
+        conn
+        |> put_status(:created)
+        |> json(%{
+          user: %{
+            id: user.id,
+            email: user.email,
+            name: user.name
+          },
+          token: token,
+          api_key: api_key
+        })
+
       {:ok, user} ->
         {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
 
