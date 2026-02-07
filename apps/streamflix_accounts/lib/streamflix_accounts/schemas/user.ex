@@ -97,7 +97,15 @@ defmodule StreamflixAccounts.Schemas.User do
     from u in query, where: u.role == "admin"
   end
 
+  def superadmin(query \\ __MODULE__) do
+    from u in query, where: u.role == "superadmin"
+  end
+
   def is_admin?(%__MODULE__{} = user) do
-    user.role == "admin"
+    user.role in ["admin", "superadmin"]
+  end
+
+  def is_superadmin?(%__MODULE__{} = user) do
+    user.role == "superadmin"
   end
 end

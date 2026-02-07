@@ -108,7 +108,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={:platform}>
+    <Layouts.app flash={@flash} current_scope={:platform} current_user={@current_user}>
       <div>
         <h1 class="text-2xl font-bold text-slate-900 mb-8">Dashboard</h1>
 
