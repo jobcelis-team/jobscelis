@@ -41,7 +41,7 @@ defmodule StreamflixWebWeb.Layouts do
       <a href="#main-content" class="skip-link">Saltar al contenido</a>
       <header class="bg-white border-b border-slate-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-          <a href="/" class="text-lg font-bold text-slate-900">Platform</a>
+          <a href="/" class="text-lg font-bold text-slate-900">Jobscelis</a>
           <nav class="flex items-center gap-6" aria-label="Navegación principal">
             <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Documentación</a>
             <.link navigate="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Dashboard</.link>

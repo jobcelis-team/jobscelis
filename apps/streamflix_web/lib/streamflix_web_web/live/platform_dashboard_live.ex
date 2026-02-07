@@ -22,7 +22,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:new_token, nil)
       |> assign(:token_visible, true)
       |> assign(:editing_project_name, false)
-      |> assign(:page_title, "Platform Dashboard")
+      |> assign(:page_title, "Jobscelis Dashboard")
 
     {:ok, socket}
   end
