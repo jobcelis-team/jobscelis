@@ -16,17 +16,14 @@ defmodule StreamflixWebWeb.AuthController do
 
     case StreamflixAccounts.register_user(attrs) do
       {:ok, user} ->
-        {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
+        do_register_success(conn, user)
 
-        conn
-        |> put_session(:user_token, token)
-        |> put_session(:user_id, user.id)
-        |> put_flash(:info, "¡Cuenta creada exitosamente! Bienvenido a StreamFlix.")
-        |> redirect(to: ~p"/browse")
+      {:ok, user, _opts} ->
+        do_register_success(conn, user)
 
       {:error, %Ecto.Changeset{} = changeset} ->
         errors = format_errors(changeset)
-        
+
         conn
         |> put_flash(:error, "Error al crear cuenta: #{errors}")
         |> redirect(to: ~p"/signup?plan=#{params["plan"] || "basic"}")
@@ -43,7 +40,7 @@ defmodule StreamflixWebWeb.AuthController do
   """
   def login(conn, %{"email" => email, "password" => password} = params) do
     remember = Map.get(params, "remember") == "on"
-    
+
     case StreamflixAccounts.authenticate(email, password) do
       {:ok, user} ->
         {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
@@ -55,7 +52,7 @@ defmodule StreamflixWebWeb.AuthController do
           conn
           |> put_session(:user_token, token)
           |> put_session(:user_id, user.id)
-          |> put_flash(:info, "¡Bienvenido de vuelta, #{user.name}!")
+          |> put_flash(:info, "Bienvenido, #{user.name}.")
 
         # If "remember me" is checked, set longer session expiration
         conn = if remember do
@@ -65,11 +62,10 @@ defmodule StreamflixWebWeb.AuthController do
           conn
         end
 
-        # Redirect based on role
         redirect_to = if user.role == "admin" do
           "/admin"
         else
-          "/browse"
+          "/platform"
         end
 
         redirect(conn, to: redirect_to)
@@ -99,6 +95,16 @@ defmodule StreamflixWebWeb.AuthController do
     |> clear_session()
     |> put_flash(:info, "Has cerrado sesión correctamente")
     |> redirect(to: "/")
+  end
+
+  defp do_register_success(conn, user) do
+    {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
+
+    conn
+    |> put_session(:user_token, token)
+    |> put_session(:user_id, user.id)
+    |> put_flash(:info, "Cuenta creada. Bienvenido.")
+    |> redirect(to: ~p"/platform")
   end
 
   defp format_errors(changeset) do

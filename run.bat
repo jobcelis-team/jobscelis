@@ -38,6 +38,7 @@ if "%1"=="" (
     echo   server     - Start Phoenix server
     echo   setup      - Get deps, migrate, seed
     echo   seed       - Run seeds
+    echo   admin      - Create admin user (scripts/create_admin.exs)
     echo   console    - Start IEx console
     echo.
 ) else if "%1"=="migrate" (
@@ -50,6 +51,8 @@ if "%1"=="" (
     mix run apps/streamflix_core/priv/repo/seeds.exs
 ) else if "%1"=="seed" (
     mix run apps/streamflix_core/priv/repo/seeds.exs
+) else if "%1"=="admin" (
+    mix run scripts/create_admin.exs
 ) else if "%1"=="console" (
     iex -S mix
 ) else (

@@ -1,0 +1,349 @@
+<div class="min-h-screen bg-slate-50 flex flex-col">
+  <nav class="bg-white border-b border-slate-200 shrink-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+      <a href="/" class="text-lg font-bold text-slate-900">Platform</a>
+      <div class="flex items-center gap-4">
+        <a href="/docs" class="text-indigo-600 font-medium text-sm">Documentación</a>
+        <a href="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Dashboard</a>
+        <%= if @current_user do %>
+          <a href="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cuenta</a>
+          <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Cerrar sesión</a>
+        <% else %>
+          <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm">Iniciar sesión</a>
+          <a href="/signup" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition">Registrarse</a>
+        <% end %>
+      </div>
+    </div>
+  </nav>
+
+  <div class="flex flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
+    <%!-- Sidebar: cada enlace apunta a un id existente en el contenido --%>
+    <aside class="hidden lg:block w-56 shrink-0 pr-8" aria-label="Navegación de la documentación">
+      <nav class="sticky top-6 space-y-0 text-sm">
+        <p class="font-semibold text-slate-500 uppercase tracking-wider mb-3 px-1">Contenido</p>
+        <a href="#intro" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Introducción</a>
+        <a href="#base-url" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Base URL</a>
+        <a href="#auth" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Autenticación</a>
+        <a href="#cors" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">CORS</a>
+        <div class="pt-1 pb-1">
+          <a href="#public-routes" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100 font-medium">Rutas públicas (Auth)</a>
+          <div class="pl-3 mt-0.5 border-l border-slate-200 space-y-0.5">
+            <a href="#auth-register" class="block py-1.5 px-2 rounded-md text-slate-500 hover:text-indigo-600 text-xs">Register</a>
+            <a href="#auth-login" class="block py-1.5 px-2 rounded-md text-slate-500 hover:text-indigo-600 text-xs">Login</a>
+            <a href="#auth-refresh" class="block py-1.5 px-2 rounded-md text-slate-500 hover:text-indigo-600 text-xs">Refresh</a>
+          </div>
+        </div>
+        <a href="#events" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Eventos</a>
+        <a href="#webhooks" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Webhooks</a>
+        <a href="#deliveries" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Deliveries</a>
+        <a href="#jobs" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Jobs</a>
+        <a href="#project-token" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Proyecto y token</a>
+        <a href="#usage" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Formas de uso</a>
+        <a href="#status-codes" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100">Códigos de respuesta</a>
+      </nav>
+    </aside>
+
+    <main class="min-w-0 flex-1 max-w-3xl">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Documentación de la API</h1>
+      <p class="text-slate-600 mb-10">Referencia completa: rutas, autenticación, CORS, ejemplos y qué probar en cada endpoint.</p>
+
+      <section id="intro" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Introducción</h2>
+        <p class="text-slate-600 mb-3">La API expone dos grupos de rutas:</p>
+        <ul class="list-disc list-inside text-slate-700 space-y-2 mb-3">
+          <li><strong>Rutas públicas (auth):</strong> registro, login y refresh de JWT. No requieren API Key. Pensadas para tu app web o móvil.</li>
+          <li><strong>Rutas con API Key (platform):</strong> eventos, webhooks, deliveries, jobs y proyecto. Requieren el token de tu proyecto (Dashboard → API Token).</li>
+        </ul>
+        <p class="text-slate-600">Todas las respuestas son JSON. La API acepta peticiones desde cualquier origen (CORS habilitado).</p>
+      </section>
+
+      <section id="base-url" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Base URL</h2>
+        <p class="text-slate-600 mb-2">Todos los ejemplos de esta documentación usan la base URL actual (dinámica):</p>
+        <code class="block bg-slate-800 text-slate-100 px-4 py-3 rounded-lg font-mono text-sm break-all"><%= @base_url %></code>
+        <p class="text-slate-500 text-sm mt-2">En producción la base URL será tu dominio (ej. <code class="bg-slate-100 px-1 rounded">https://api.tudominio.com</code>). Los ejemplos curl que ves en cada ruta ya incluyen esta base.</p>
+      </section>
+
+      <section id="auth" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Autenticación</h2>
+        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2">Rutas con API Key (Platform)</h3>
+        <p class="text-slate-600 mb-2">Puedes enviar el token de dos maneras (una por petición):</p>
+        <ol class="list-decimal list-inside text-slate-700 space-y-1 mb-3">
+          <li>Header <code class="bg-slate-200 px-1 rounded text-sm">Authorization: Bearer &lt;tu_token&gt;</code></li>
+          <li>Header <code class="bg-slate-200 px-1 rounded text-sm">X-Api-Key: &lt;tu_token&gt;</code></li>
+        </ol>
+        <p class="text-slate-600 text-sm">El token se obtiene en el Dashboard (sección API Token), al crear o regenerar. El valor completo solo se muestra una vez; guárdalo. Si regeneras, el token anterior deja de funcionar.</p>
+        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2">Rutas públicas (Auth)</h3>
+        <p class="text-slate-600 text-sm">No envíes API Key. Registro y login devuelven un <code class="bg-slate-100 px-1 rounded">token</code> (JWT) para usar en tu app web; el refresh renueva ese JWT.</p>
+      </section>
+
+      <section id="cors" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">CORS</h2>
+        <p class="text-slate-600 mb-3">La API tiene CORS habilitado para <strong>cualquier origen</strong> (<code class="bg-slate-200 px-1 rounded">Access-Control-Allow-Origin: *</code>). Así, cualquier frontend (tu SPA, otra web, móvil con WebView, etc.) puede consumir la API desde su propia URL sin bloqueos del navegador.</p>
+        <p class="text-slate-600 mb-2">Headers permitidos en peticiones cross-origin:</p>
+        <ul class="text-slate-700 text-sm space-y-1 list-disc list-inside">
+          <li><code class="bg-slate-100 px-0.5">Authorization</code> (Bearer token)</li>
+          <li><code class="bg-slate-100 px-0.5">X-Api-Key</code></li>
+          <li><code class="bg-slate-100 px-0.5">Content-Type</code>, <code class="bg-slate-100 px-0.5">Accept</code></li>
+        </ul>
+        <p class="text-slate-500 text-sm mt-2">Métodos: GET, POST, PUT, PATCH, DELETE, OPTIONS. Las peticiones preflight (OPTIONS) reciben 200 con los headers CORS.</p>
+      </section>
+
+      <section id="public-routes" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Rutas públicas (sin API Key)</h2>
+        <p class="text-slate-600 mb-4">Registro, login y refresh de JWT. Body y respuesta en JSON.</p>
+
+        <div class="space-y-6">
+          <div id="auth-register" class="border border-slate-200 rounded-xl p-5 bg-white scroll-mt-24">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/auth/register</h3>
+            <p class="text-slate-600 text-sm mb-2">Registra un usuario. Body: <code class="bg-slate-100 px-1 rounded">email</code> (requerido), <code class="bg-slate-100 px-1 rounded">password</code> (requerido), <code class="bg-slate-100 px-1 rounded">name</code> (opcional).</p>
+            <p class="text-slate-500 text-xs mb-2">Respuesta 201: <code class="bg-slate-100 px-0.5">user</code> (id, email, name), <code class="bg-slate-100 px-0.5">token</code> (JWT).</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"secret123","name":"User"}'</pre>
+          </div>
+
+          <div id="auth-login" class="border border-slate-200 rounded-xl p-5 bg-white scroll-mt-24">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/auth/login</h3>
+            <p class="text-slate-600 text-sm mb-2">Inicia sesión. Body: <code class="bg-slate-100 px-1 rounded">email</code>, <code class="bg-slate-100 px-1 rounded">password</code>.</p>
+            <p class="text-slate-500 text-xs mb-2">Respuesta 200: <code class="bg-slate-100 px-0.5">user</code>, <code class="bg-slate-100 px-0.5">token</code> (JWT). 401 si credenciales incorrectas.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"secret123"}'</pre>
+          </div>
+
+          <div id="auth-refresh" class="border border-slate-200 rounded-xl p-5 bg-white scroll-mt-24">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/auth/refresh</h3>
+            <p class="text-slate-600 text-sm mb-2">Refresca el JWT. Body: <code class="bg-slate-100 px-1 rounded">token</code> (JWT actual).</p>
+            <p class="text-slate-500 text-xs mb-2">Respuesta 200: <code class="bg-slate-100 px-0.5">token</code> (nuevo JWT). 401 si token inválido o expirado.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/refresh" \
+  -H "Content-Type: application/json" \
+  -d '{"token":"TU_JWT_AQUI"}'</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="events" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Eventos</h2>
+        <p class="text-slate-600 mb-4">Todas las rutas requieren API Key. Sustituye <code class="bg-slate-200 px-1 rounded">YOUR_API_KEY</code> y <code class="bg-slate-200 px-1 rounded">EVENT_ID</code> por valores reales.</p>
+
+        <div class="space-y-6">
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/send</h3>
+            <p class="text-slate-600 text-sm mb-2">Alias para enviar un evento. Mismo body que POST /events. Respuesta 202: <code class="bg-slate-100 px-0.5">event_id</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/send" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"topic":"payment.completed","amount":99}'</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/events</h3>
+            <p class="text-slate-600 text-sm mb-2">Envía un evento. Body: cualquier JSON; opcional <code class="bg-slate-100 px-0.5">topic</code>. Respuesta 202: <code class="bg-slate-100 px-0.5">event_id</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/events" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"topic":"order.created","order_id":123,"customer":"acme"}'</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/events</h3>
+            <p class="text-slate-600 text-sm mb-2">Lista eventos. Query: <code class="bg-slate-100 px-0.5">topic</code>, <code class="bg-slate-100 px-0.5">limit</code> (1-100), <code class="bg-slate-100 px-0.5">include=inactive</code>. Respuesta: <code class="bg-slate-100 px-0.5">events</code> (array).</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events?limit=10" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events?topic=order.created&amp;limit=20" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/events/:id</h3>
+            <p class="text-slate-600 text-sm mb-2">Detalle de un evento y sus deliveries. Sustituye <code class="bg-slate-100 px-0.5">EVENT_ID</code> por el id del evento.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events/EVENT_ID" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">DELETE /api/v1/events/:id</h3>
+            <p class="text-slate-600 text-sm mb-2">Desactiva el evento (soft delete). Respuesta 200: <code class="bg-slate-100 px-0.5">status: "inactive"</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/events/EVENT_ID" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="webhooks" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Webhooks</h2>
+        <p class="text-slate-600 mb-4">Configura URLs a las que se envían los eventos. Sustituye <code class="bg-slate-200 px-1 rounded">WEBHOOK_ID</code> por el id del webhook.</p>
+
+        <div class="space-y-6">
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/webhooks</h3>
+            <p class="text-slate-600 text-sm mb-2">Lista webhooks del proyecto. Query: <code class="bg-slate-100 px-0.5">include=inactive</code>. Respuesta: <code class="bg-slate-100 px-0.5">webhooks</code> (array).</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks?include=inactive" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/webhooks</h3>
+            <p class="text-slate-600 text-sm mb-2">Crea un webhook. Body: <code class="bg-slate-100 px-0.5">url</code> (requerido), opcional <code class="bg-slate-100 px-0.5">secret</code>, <code class="bg-slate-100 px-0.5">topics</code>, <code class="bg-slate-100 px-0.5">filters</code>, <code class="bg-slate-100 px-0.5">body_config</code>, <code class="bg-slate-100 px-0.5">headers</code>. Respuesta 201: objeto webhook.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/webhooks" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"url":"https://your-server.com/webhook","topics":["order.created","payment.completed"]}'</pre>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/webhooks" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{"url":"https://example.com/hook","secret":"my_secret","topics":["*"]}'</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/webhooks/:id</h3>
+            <p class="text-slate-600 text-sm mb-2">Detalle de un webhook (id, url, status, topics, filters, etc.).</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">PATCH /api/v1/webhooks/:id</h3>
+            <p class="text-slate-600 text-sm mb-2">Actualiza un webhook. Body: cualquiera de <code class="bg-slate-100 px-0.5">url</code>, <code class="bg-slate-100 px-0.5">secret</code>, <code class="bg-slate-100 px-0.5">topics</code>, <code class="bg-slate-100 px-0.5">filters</code>, <code class="bg-slate-100 px-0.5">body_config</code>, <code class="bg-slate-100 px-0.5">headers</code>, <code class="bg-slate-100 px-0.5">status</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"url":"https://new-url.com/webhook","status":"active"}'</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">DELETE /api/v1/webhooks/:id</h3>
+            <p class="text-slate-600 text-sm mb-2">Desactiva el webhook. Respuesta 200: <code class="bg-slate-100 px-0.5">status: "inactive"</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="deliveries" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Deliveries</h2>
+        <p class="text-slate-600 mb-4">Envíos de eventos a webhooks. Sustituye <code class="bg-slate-200 px-1 rounded">DELIVERY_ID</code> por el id del delivery.</p>
+
+        <div class="space-y-6">
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/deliveries</h3>
+            <p class="text-slate-600 text-sm mb-2">Lista deliveries. Query: <code class="bg-slate-100 px-0.5">event_id</code>, <code class="bg-slate-100 px-0.5">webhook_id</code>, <code class="bg-slate-100 px-0.5">status</code>, <code class="bg-slate-100 px-0.5">limit</code> (1-100). Respuesta: <code class="bg-slate-100 px-0.5">deliveries</code> (array).</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/deliveries" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/deliveries?event_id=EVENT_ID&amp;status=failed&amp;limit=20" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/deliveries/:id/retry</h3>
+            <p class="text-slate-600 text-sm mb-2">Reencola un envío fallido. Respuesta 200: <code class="bg-slate-100 px-0.5">status: "retry_queued"</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/deliveries/DELIVERY_ID/retry" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="jobs" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Jobs (tareas programadas)</h2>
+        <p class="text-slate-600 mb-4">Tareas que se ejecutan según una programación. Sustituye <code class="bg-slate-200 px-1 rounded">JOB_ID</code> por el id del job.</p>
+
+        <div class="space-y-6">
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/jobs</h3>
+            <p class="text-slate-600 text-sm mb-2">Lista jobs del proyecto. Query: <code class="bg-slate-100 px-0.5">include=inactive</code>. Respuesta: <code class="bg-slate-100 px-0.5">jobs</code> (array).</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs?include=inactive" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/jobs</h3>
+            <p class="text-slate-600 text-sm mb-2">Crea un job. Body: <code class="bg-slate-100 px-0.5">name</code>, <code class="bg-slate-100 px-0.5">schedule_type</code> (ej. daily), <code class="bg-slate-100 px-0.5">schedule_config</code>, <code class="bg-slate-100 px-0.5">action_type</code> (ej. emit_event), <code class="bg-slate-100 px-0.5">action_config</code>. Respuesta 201: objeto job.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/jobs" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"name":"Daily report","schedule_type":"daily","schedule_config":{},"action_type":"emit_event","action_config":{"topic":"daily.report"}}'</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/jobs/:id</h3>
+            <p class="text-slate-600 text-sm mb-2">Detalle del job y runs recientes. Respuesta incluye <code class="bg-slate-100 px-0.5">recent_runs</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">PATCH /api/v1/jobs/:id</h3>
+            <p class="text-slate-600 text-sm mb-2">Actualiza un job. Body: <code class="bg-slate-100 px-0.5">name</code>, <code class="bg-slate-100 px-0.5">schedule_type</code>, <code class="bg-slate-100 px-0.5">schedule_config</code>, <code class="bg-slate-100 px-0.5">action_type</code>, <code class="bg-slate-100 px-0.5">action_config</code>, <code class="bg-slate-100 px-0.5">status</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/jobs/JOB_ID" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"name":"Updated job name","status":"active"}'</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">DELETE /api/v1/jobs/:id</h3>
+            <p class="text-slate-600 text-sm mb-2">Desactiva el job. Respuesta 200: <code class="bg-slate-100 px-0.5">status: "inactive"</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/jobs/JOB_ID" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/jobs/:id/runs</h3>
+            <p class="text-slate-600 text-sm mb-2">Lista ejecuciones del job. Query: <code class="bg-slate-100 px-0.5">limit</code> (1-100). Respuesta: <code class="bg-slate-100 px-0.5">runs</code> (array).</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID/runs" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID/runs?limit=50" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="project-token" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Proyecto y token</h2>
+        <p class="text-slate-600 mb-4">Consulta y actualiza el proyecto; gestiona el API Key. Todas las rutas requieren API Key.</p>
+
+        <div class="space-y-6">
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/project</h3>
+            <p class="text-slate-600 text-sm mb-2">Devuelve el proyecto: <code class="bg-slate-100 px-0.5">id</code>, <code class="bg-slate-100 px-0.5">name</code>, <code class="bg-slate-100 px-0.5">status</code>, <code class="bg-slate-100 px-0.5">settings</code>.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/project" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">PATCH /api/v1/project</h3>
+            <p class="text-slate-600 text-sm mb-2">Actualiza el proyecto. Body: <code class="bg-slate-100 px-0.5">name</code>, <code class="bg-slate-100 px-0.5">settings</code> (objeto). Respuesta: id, name, status.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/project" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"name":"Mi Proyecto","settings":{"timezone":"Europe/Madrid"}}'</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/token</h3>
+            <p class="text-slate-600 text-sm mb-2">Devuelve el <code class="bg-slate-100 px-0.5">prefix</code> del token actual (no el valor completo) y un mensaje de uso.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/token" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white">
+            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/token/regenerate</h3>
+            <p class="text-slate-600 text-sm mb-2">Regenera el API Key. El token anterior deja de funcionar. Respuesta incluye <code class="bg-slate-100 px-0.5">token</code> (valor completo) y <code class="bg-slate-100 px-0.5">message</code>. Guarda el token; no se vuelve a mostrar.</p>
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/token/regenerate" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            <p class="text-amber-700 text-xs mt-2">Tras regenerar, usa el nuevo token en las siguientes peticiones.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="usage" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Formas de usar la aplicación</h2>
+        <ul class="list-disc list-inside text-slate-700 space-y-2">
+          <li><strong>Web:</strong> registro e inicio de sesión; Dashboard para proyecto, token, eventos y webhooks; enviar eventos de prueba desde el dashboard.</li>
+          <li><strong>API con API Key:</strong> desde cualquier backend o frontend (SPA, móvil, otro dominio gracias a CORS) usa la API Key para enviar eventos, gestionar webhooks, listar deliveries y jobs.</li>
+          <li><strong>API de auth (JWT):</strong> para tu app propia (móvil o SPA), usa /auth/register, /auth/login y /auth/refresh para mantener sesión con JWT.</li>
+        </ul>
+      </section>
+
+      <section id="status-codes" class="mb-8 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4">Códigos de respuesta</h2>
+        <ul class="text-slate-700 text-sm space-y-1">
+          <li><strong>200</strong> OK</li>
+          <li><strong>201</strong> Created (recurso creado)</li>
+          <li><strong>202</strong> Accepted (evento aceptado)</li>
+          <li><strong>401</strong> No autorizado (API Key o JWT inválido o faltante)</li>
+          <li><strong>404</strong> Recurso no encontrado</li>
+          <li><strong>422</strong> Validación fallida (body o parámetros incorrectos)</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</div>

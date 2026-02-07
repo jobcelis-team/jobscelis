@@ -20,9 +20,6 @@ defmodule StreamflixAccounts.Schemas.User do
     field :email_verified_at, :utc_datetime
     field :last_login_at, :utc_datetime
 
-    has_many :profiles, StreamflixAccounts.Schemas.Profile
-    has_one :subscription, StreamflixAccounts.Schemas.Subscription
-
     timestamps()
   end
 
@@ -34,7 +31,7 @@ defmodule StreamflixAccounts.Schemas.User do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> validate_email()
-    |> validate_inclusion(:role, ["user", "admin", "moderator"])
+    |> validate_inclusion(:role, ["user", "admin", "moderator", "superadmin"])
     |> unique_constraint(:email)
   end
 
