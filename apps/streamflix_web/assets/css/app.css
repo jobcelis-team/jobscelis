@@ -142,3 +142,32 @@ select option {
   color: #991b1b;
   border-color: #fca5a5;
 }
+
+/* Skip link: visible on focus for keyboard/screen reader (AAA) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.5rem;
+  z-index: 9999;
+  padding: 0.75rem 1rem;
+  background: #0f172a;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.375rem;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Focus visible: high-contrast outline for keyboard users (AAA) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

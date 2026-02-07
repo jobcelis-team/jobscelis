@@ -145,56 +145,43 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
               <h2 class="text-lg font-semibold text-slate-900 mb-1">API Token</h2>
-              <p class="text-slate-500 text-sm mb-4">Header: <code class="bg-slate-100 px-1 rounded text-xs">Authorization: Bearer &lt;token&gt;</code> o <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
+              <p class="text-slate-500 text-sm mb-2">Header: <code class="bg-slate-100 px-1 rounded text-xs">Authorization: Bearer &lt;token&gt;</code> o <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
+              <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 mb-4 text-slate-600 text-sm">
+                <strong class="text-slate-700">Cómo funciona:</strong> Al hacer «Regenerar token» se crea un token nuevo y se muestra <strong>solo una vez</strong>. El servidor no guarda el valor completo (por seguridad), solo un prefijo. Si recargas la página solo verás el prefijo; guarda el token cuando lo regeneres (por ejemplo en un .env o gestor de contraseñas).
+              </div>
               <%= if @api_key do %>
-                <div class="flex items-stretch gap-0 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden max-w-2xl">
+                <div class="rounded-lg border border-slate-200 bg-slate-50 max-w-2xl">
                   <%= if @new_token do %>
-                    <input type="hidden" id="api-token-value" value={@new_token} />
-                    <input
-                      type="text"
-                      readonly
-                      value={if @token_visible, do: @new_token, else: "••••••••••••••••••••••••••••••••••••••"}
-                      class="flex-1 min-w-0 font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-900 focus:ring-0"
-                      phx-no-feedback
-                    />
-                    <button
-                      type="button"
-                      phx-click="toggle_token_visibility"
-                      class="p-3 border-l border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition"
-                      title={if @token_visible, do: "Ocultar", else: "Mostrar"}
-                    >
-                      <%= if @token_visible do %>
-                        <.icon name="hero-eye-slash" class="w-5 h-5" />
-                      <% else %>
-                        <.icon name="hero-eye" class="w-5 h-5" />
-                      <% end %>
-                    </button>
-                    <button
-                      type="button"
-                      id="copy-api-token-btn"
-                      phx-hook="Copy"
-                      data-copy-selector="#api-token-value"
-                      class="px-4 py-3 border-l border-slate-200 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
-                    >
-                      <span data-copy-label>Copiar</span>
-                    </button>
+                    <div class="flex items-stretch gap-0 overflow-hidden">
+                      <input
+                        type="text"
+                        readonly
+                        value={if @token_visible, do: @new_token, else: "••••••••••••••••••••••••••••••••••••••"}
+                        class="flex-1 min-w-0 font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-900 focus:ring-0"
+                        phx-no-feedback
+                      />
+                      <button
+                        type="button"
+                        phx-click="toggle_token_visibility"
+                        class="p-3 border-l border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition"
+                        title={if @token_visible, do: "Ocultar", else: "Mostrar"}
+                        aria-label={if @token_visible, do: "Ocultar token", else: "Mostrar token"}
+                      >
+                        <%= if @token_visible do %>
+                          <.icon name="hero-eye-slash" class="w-5 h-5" />
+                        <% else %>
+                          <.icon name="hero-eye" class="w-5 h-5" />
+                        <% end %>
+                      </button>
+                    </div>
                   <% else %>
-                    <input type="hidden" id="api-token-prefix" value={@api_key.prefix} />
                     <input
                       type="text"
                       readonly
                       value={@api_key.prefix}
-                      class="flex-1 min-w-0 font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-600"
+                      class="w-full font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-600 focus:ring-0"
+                      aria-label="Prefijo del token (valor completo solo al regenerar)"
                     />
-                    <button
-                      type="button"
-                      id="copy-api-token-prefix-btn"
-                      phx-hook="Copy"
-                      data-copy-selector="#api-token-prefix"
-                      class="px-4 py-3 border-l border-slate-200 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
-                    >
-                      <span data-copy-label>Copiar</span>
-                    </button>
                   <% end %>
                 </div>
                 <%= if @new_token do %>
