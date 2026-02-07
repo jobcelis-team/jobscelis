@@ -238,10 +238,21 @@ defmodule StreamflixCore.Platform do
       "lt" -> compare(actual, value, :lt)
       "in" when is_list(value) -> actual in value
       "not_in" when is_list(value) -> actual not in value
+      "exists" -> exists?(actual, value)
+      "contains" -> contains?(actual, value)
       _ -> true
     end
   end
   defp filter_condition_holds?(_, _), do: true
+
+  defp exists?(actual, expect_true) do
+    present = actual != nil && actual != ""
+    if expect_true == true or expect_true == "true", do: present, else: not present
+  end
+
+  defp contains?(actual, value) when is_binary(actual) and is_binary(value), do: String.contains?(actual, value)
+  defp contains?(actual, value) when is_list(actual), do: value in actual
+  defp contains?(_, _), do: false
 
   defp compare(a, b, op) when is_number(a) and is_number(b) do
     case op do
@@ -273,6 +284,15 @@ defmodule StreamflixCore.Platform do
 
   def get_event(id), do: Repo.get(WebhookEvent, id)
   def get_event!(id), do: Repo.get!(WebhookEvent, id)
+
+  def list_topics_used(project_id) do
+    WebhookEvent
+    |> where([e], e.project_id == ^project_id and e.status == "active" and not is_nil(e.topic) and e.topic != "")
+    |> distinct(true)
+    |> select([e], e.topic)
+    |> order_by([e], asc: e.topic)
+    |> Repo.all()
+  end
 
   def set_event_inactive(%WebhookEvent{} = event) do
     event
@@ -329,6 +349,21 @@ defmodule StreamflixCore.Platform do
       next_retry_at: nil
     })
     |> Repo.update()
+  end
+
+  def retry_delivery(project_id, delivery_id) do
+    case get_delivery(delivery_id) do
+      nil -> {:error, :not_found}
+      d ->
+        event = d.event || get_event(d.event_id)
+        if is_nil(event) or event.project_id != project_id do
+          {:error, :not_found}
+        else
+          {:ok, updated} = update_delivery_to_pending(d)
+          Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: updated.id}))
+          {:ok, updated}
+        end
+    end
   end
 
   def build_webhook_body(webhook, event) do
@@ -394,9 +429,14 @@ defmodule StreamflixCore.Platform do
   end
 
   def list_jobs_to_run_now do
-    # Simple: daily at hour:minute. TODO: weekly, monthly, cron
     now = DateTime.utc_now()
     today_sec = now.hour * 3600 + now.minute * 60 + now.second
+    date = DateTime.to_date(now)
+    day_of_week = Date.day_of_week(date)
+    day_of_month = date.day
+    month = date.month
+    minute = now.minute
+    hour = now.hour
 
     Job
     |> where([j], j.status == "active")
@@ -410,10 +450,52 @@ defmodule StreamflixCore.Platform do
           m = Map.get(cfg, "minute", 0)
           target_sec = h * 3600 + m * 60
           target_sec == today_sec or abs(target_sec - today_sec) < 60
+        "weekly" ->
+          dow = Map.get(cfg, "day_of_week")
+          h = Map.get(cfg, "hour", 0)
+          min_cfg = Map.get(cfg, "minute", 0)
+          # day_of_week: 1=Mon..7=Sun (Calendar.ISO). Config can use 0-6 (Sun=0) or 1-7
+          dow_ok = dow == nil or dow == day_of_week or (dow == 0 and day_of_week == 7)
+          time_ok = h == hour and min_cfg == minute
+          dow_ok and time_ok
+        "monthly" ->
+          dom = Map.get(cfg, "day_of_month")
+          h = Map.get(cfg, "hour", 0)
+          min_cfg = Map.get(cfg, "minute", 0)
+          dom_ok = dom == nil or dom == day_of_month
+          time_ok = h == hour and min_cfg == minute
+          dom_ok and time_ok
+        "cron" ->
+          expr = Map.get(cfg, "expr") || Map.get(cfg, "expression")
+          cron_matches?(expr, minute, hour, day_of_month, month, day_of_week)
         _ ->
           false
       end
     end)
+  end
+
+  defp cron_matches?(nil, _min, _h, _dom, _mon, _dow), do: false
+  defp cron_matches?(expr, min, hour, day_of_month, month, day_of_week) when is_binary(expr) do
+    parts = String.split(expr, ~r/\s+/, trim: true)
+    if length(parts) >= 5 do
+      [min_s, hour_s, dom_s, mon_s, dow_s] = Enum.take(parts, 5)
+      cron_field_match?(min_s, min, 0, 59) and
+        cron_field_match?(hour_s, hour, 0, 23) and
+        cron_field_match?(dom_s, day_of_month, 1, 31) and
+        cron_field_match?(mon_s, month, 1, 12) and
+        cron_field_match?(dow_s, day_of_week, 1, 7)
+    else
+      false
+    end
+  end
+  defp cron_matches?(_, _min, _h, _dom, _mon, _dow), do: false
+
+  defp cron_field_match?("*", _val, _lo, _hi), do: true
+  defp cron_field_match?(str, val, _lo, _hi) do
+    case Integer.parse(str) do
+      {n, _} -> n == val
+      _ -> false
+    end
   end
 
   def list_job_runs(job_id, opts \\ []) do

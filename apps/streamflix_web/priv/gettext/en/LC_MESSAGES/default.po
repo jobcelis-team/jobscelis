@@ -579,3 +579,222 @@ msgstr "Platform configuration (database, Oban, etc.) is managed from config/con
 
 msgid "Para usuarios, proyectos, webhooks y eventos utiliza el dashboard en"
 msgstr "For users, projects, webhooks and events use the dashboard at"
+
+msgid "Jobs"
+msgstr "Jobs"
+
+msgid "Nuevo job"
+msgstr "New job"
+
+msgid "Programación"
+msgstr "Schedule"
+
+msgid "Acción"
+msgstr "Action"
+
+msgid "Entregas"
+msgstr "Deliveries"
+
+msgid "Evento / Topic"
+msgstr "Event / Topic"
+
+msgid "Webhook"
+msgstr "Webhook"
+
+msgid "Intento"
+msgstr "Attempt"
+
+msgid "HTTP"
+msgstr "HTTP"
+
+msgid "Diario"
+msgstr "Daily"
+
+msgid "Semanal"
+msgstr "Weekly"
+
+msgid "Mensual"
+msgstr "Monthly"
+
+msgid "Cron"
+msgstr "Cron"
+
+msgid "Hora (0-23)"
+msgstr "Hour (0-23)"
+
+msgid "Minuto"
+msgstr "Minute"
+
+msgid "Día semana (1-7, 1=Lun)"
+msgstr "Day of week (1-7, 1=Mon)"
+
+msgid "Día del mes (1-31)"
+msgstr "Day of month (1-31)"
+
+msgid "Expresión cron"
+msgstr "Cron expression"
+
+msgid "Emitir evento"
+msgstr "Emit event"
+
+msgid "POST URL"
+msgstr "POST URL"
+
+msgid "Topic (emit_event)"
+msgstr "Topic (emit_event)"
+
+msgid "Payload JSON (emit_event)"
+msgstr "Payload JSON (emit_event)"
+
+msgid "URL (post_url)"
+msgstr "URL (post_url)"
+
+msgid "Método HTTP"
+msgstr "HTTP method"
+
+msgid "Tipo de acción"
+msgstr "Action type"
+
+msgid "Tipo"
+msgstr "Type"
+
+msgid "Cerrar"
+msgstr "Close"
+
+msgid "Ej: Reporte diario"
+msgstr "E.g.: Daily report"
+
+msgid "Editar job"
+msgstr "Edit job"
+
+msgid "Runs"
+msgstr "Runs"
+
+msgid "Reintentar"
+msgstr "Retry"
+
+msgid "Sin ejecuciones aún."
+msgstr "No runs yet."
+
+msgid "Ejecutado"
+msgstr "Executed"
+
+msgid "Resultado"
+msgstr "Result"
+
+msgid "Runs: %{name}"
+msgstr "Runs: %{name}"
+
+msgid "Jobscelis es una plataforma de eventos y webhooks 100%% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
+msgstr "Jobscelis is a 100%% configurable events and webhooks platform. Send any JSON from your code; we route, filter, transform and deliver to your URLs. No fixed schemas: you define topics, payloads and rules."
+
+msgid "configura URLs de destino, filtros (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra)."
+msgstr "configure destination URLs, filters (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra)."
+
+msgid "cada evento activo crea deliveries; reintentos automáticos con backoff 1 min → 5 min → 15 min → 1 h."
+msgstr "each active event creates deliveries; automatic retries with backoff 1 min → 5 min → 15 min → 1 h."
+
+msgid "daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL."
+msgstr "daily, weekly, monthly or cron. Action: emit internal event or POST to a URL."
+
+msgid "lista de topics usados por tu proyecto para ayudar a configurar filtros."
+msgstr "list of topics used by your project to help configure filters."
+
+msgid "eventos, webhooks, deliveries, jobs y proyecto. Requieren el token (Dashboard → API Token)."
+msgstr "events, webhooks, deliveries, jobs and project. Require the token (Dashboard → API Token)."
+
+msgid "Todas las respuestas son JSON. CORS habilitado. Payload máximo 256 KB."
+msgstr "All responses are JSON. CORS enabled. Max payload 256 KB."
+
+msgid "op: eq, neq, gte, lte, gt, lt, in, not_in, exists, contains. Ejemplo:"
+msgstr "op: eq, neq, gte, lte, gt, lt, in, not_in, exists, contains. Example:"
+
+msgid "body_mode: full o pick. body_pick: array de campos. body_rename: {old: new}. body_extra: campos añadidos."
+msgstr "body_mode: full or pick. body_pick: array of fields. body_rename: {old: new}. body_extra: extra fields."
+
+msgid "Tareas que se ejecutan según una programación: daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL."
+msgstr "Tasks that run on a schedule: daily, weekly, monthly or cron. Action: emit internal event or POST to a URL."
+
+msgid "Lista los topics usados por tu proyecto (eventos activos). Útil para configurar filtros de webhooks. Respuesta: topics (array)."
+msgstr "Lists topics used by your project (active events). Useful for configuring webhook filters. Response: topics (array)."
+
+msgid "Proyecto, topics y token"
+msgstr "Project, topics and token"
+
+msgid "CORS"
+msgstr "CORS"
+
+msgid "envía JSON con topic opcional vía POST. Sin esquemas fijos."
+msgstr "send JSON with optional topic via POST. No fixed schemas."
+
+msgid "Autenticación"
+msgstr "Authentication"
+
+msgid "Qué puedes hacer:"
+msgstr "What you can do:"
+
+msgid "registro, login y refresh de JWT. No requieren API Key."
+msgstr "register, login and JWT refresh. No API Key required."
+
+msgid "Rutas con API Key:"
+msgstr "API Key routes:"
+
+msgid "Configura URLs de destino. Opcional: topics (array), filters (path, op, value), body_config (body_mode, body_pick, body_rename, body_extra), headers."
+msgstr "Configure destination URLs. Optional: topics (array), filters (path, op, value), body_config (body_mode, body_pick, body_rename, body_extra), headers."
+
+msgid "Filtros:"
+msgstr "Filters:"
+
+msgid "body_config:"
+msgstr "body_config:"
+
+msgid "Sustituye WEBHOOK_ID por el id del webhook."
+msgstr "Replace WEBHOOK_ID with the webhook id."
+
+msgid "Crea un job. Body: name, schedule_type, schedule_config, action_type, action_config. Respuesta 201: objeto job."
+msgstr "Create a job. Body: name, schedule_type, schedule_config, action_type, action_config. Response 201: job object."
+
+msgid "tu_token"
+msgstr "your_token"
+
+msgid "Rutas públicas (Auth)"
+msgstr "Public routes (Auth)"
+
+msgid "Rutas con API Key (Jobscelis)"
+msgstr "API Key routes (Jobscelis)"
+
+msgid "Eventos:"
+msgstr "Events:"
+
+msgid "Entregas:"
+msgstr "Deliveries:"
+
+msgid "Jobs programados:"
+msgstr "Scheduled jobs:"
+
+msgid "Topics:"
+msgstr "Topics:"
+
+msgid "Regenerar token"
+msgstr "Regenerate token"
+
+msgid "Creado"
+msgstr "Created"
+
+msgid "Ver"
+msgstr "View"
+
+msgid "Cargando..."
+msgstr "Loading..."
+
+msgid "No hay proyectos."
+msgstr "No projects."
+
+msgid "Volver a proyectos"
+msgstr "Back to projects"
+
+msgid "Proyecto no encontrado"
+msgstr "Project not found"
+
+msgid "Proyecto no encontrado."
+msgstr "Project not found."

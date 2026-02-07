@@ -42,7 +42,8 @@ defmodule StreamflixWebWeb.Endpoint do
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Phoenix.json_library(),
-    length: 1_000_000
+    length: 256_000
+  # 256 KB max body (spec §11); for larger uploads use multipart
   plug StreamflixWebWeb.Plugs.SecurityHeaders
 
   plug Plug.MethodOverride

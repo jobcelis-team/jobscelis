@@ -580,3 +580,150 @@ msgstr "La configuración de la plataforma (base de datos, Oban, etc.) se gestio
 
 msgid "Para usuarios, proyectos, webhooks y eventos utiliza el dashboard en"
 msgstr "Para usuarios, proyectos, webhooks y eventos utiliza el dashboard en"
+
+msgid "Jobs"
+msgstr "Jobs"
+
+msgid "Nuevo job"
+msgstr "Nuevo job"
+
+msgid "Programación"
+msgstr "Programación"
+
+msgid "Acción"
+msgstr "Acción"
+
+msgid "Entregas"
+msgstr "Entregas"
+
+msgid "Evento / Topic"
+msgstr "Evento / Topic"
+
+msgid "Webhook"
+msgstr "Webhook"
+
+msgid "Intento"
+msgstr "Intento"
+
+msgid "HTTP"
+msgstr "HTTP"
+
+msgid "Diario"
+msgstr "Diario"
+
+msgid "Semanal"
+msgstr "Semanal"
+
+msgid "Mensual"
+msgstr "Mensual"
+
+msgid "Cron"
+msgstr "Cron"
+
+msgid "Hora (0-23)"
+msgstr "Hora (0-23)"
+
+msgid "Minuto"
+msgstr "Minuto"
+
+msgid "Día semana (1-7, 1=Lun)"
+msgstr "Día semana (1-7, 1=Lun)"
+
+msgid "Día del mes (1-31)"
+msgstr "Día del mes (1-31)"
+
+msgid "Expresión cron"
+msgstr "Expresión cron"
+
+msgid "Emitir evento"
+msgstr "Emitir evento"
+
+msgid "POST URL"
+msgstr "POST URL"
+
+msgid "Topic (emit_event)"
+msgstr "Topic (emit_event)"
+
+msgid "Payload JSON (emit_event)"
+msgstr "Payload JSON (emit_event)"
+
+msgid "URL (post_url)"
+msgstr "URL (post_url)"
+
+msgid "Método HTTP"
+msgstr "Método HTTP"
+
+msgid "Tipo de acción"
+msgstr "Tipo de acción"
+
+msgid "Tipo"
+msgstr "Tipo"
+
+msgid "Cerrar"
+msgstr "Cerrar"
+
+msgid "Ej: Reporte diario"
+msgstr "Ej: Reporte diario"
+
+msgid "Editar job"
+msgstr "Editar job"
+
+msgid "Runs"
+msgstr "Runs"
+
+msgid "Reintentar"
+msgstr "Reintentar"
+
+msgid "Sin ejecuciones aún."
+msgstr "Sin ejecuciones aún."
+
+msgid "Ejecutado"
+msgstr "Ejecutado"
+
+msgid "Resultado"
+msgstr "Resultado"
+
+msgid "Runs: %{name}"
+msgstr "Runs: %{name}"
+
+msgid "Jobscelis es una plataforma de eventos y webhooks 100%% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
+msgstr "Jobscelis es una plataforma de eventos y webhooks 100%% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
+
+msgid "configura URLs de destino, filtros (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra)."
+msgstr "configura URLs de destino, filtros (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra)."
+
+msgid "cada evento activo crea deliveries; reintentos automáticos con backoff 1 min → 5 min → 15 min → 1 h."
+msgstr "cada evento activo crea deliveries; reintentos automáticos con backoff 1 min → 5 min → 15 min → 1 h."
+
+msgid "daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL."
+msgstr "daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL."
+
+msgid "lista de topics usados por tu proyecto para ayudar a configurar filtros."
+msgstr "lista de topics usados por tu proyecto para ayudar a configurar filtros."
+
+msgid "eventos, webhooks, deliveries, jobs y proyecto. Requieren el token (Dashboard → API Token)."
+msgstr "eventos, webhooks, deliveries, jobs y proyecto. Requieren el token (Dashboard → API Token)."
+
+msgid "Todas las respuestas son JSON. CORS habilitado. Payload máximo 256 KB."
+msgstr "Todas las respuestas son JSON. CORS habilitado. Payload máximo 256 KB."
+
+msgid "op: eq, neq, gte, lte, gt, lt, in, not_in, exists, contains. Ejemplo:"
+msgstr "op: eq, neq, gte, lte, gt, lt, in, not_in, exists, contains. Ejemplo:"
+
+msgid "body_mode: full o pick. body_pick: array de campos. body_rename: {old: new}. body_extra: campos añadidos."
+msgstr "body_mode: full o pick. body_pick: array de campos. body_rename: {old: new}. body_extra: campos añadidos."
+
+msgid "Tareas que se ejecutan según una programación: daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL."
+msgstr "Tareas que se ejecutan según una programación: daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL."
+
+msgid "Lista los topics usados por tu proyecto (eventos activos). Útil para configurar filtros de webhooks. Respuesta: topics (array)."
+msgstr "Lista los topics usados por tu proyecto (eventos activos). Útil para configurar filtros de webhooks. Respuesta: topics (array)."
+
+msgid "Proyecto, topics y token"
+msgstr "Proyecto, topics y token"
+
+msgid "CORS"
+msgstr "CORS"
+
+msgid "envía JSON con topic opcional vía POST. Sin esquemas fijos."
+msgstr "envía JSON con topic opcional vía POST. Sin esquemas fijos."
