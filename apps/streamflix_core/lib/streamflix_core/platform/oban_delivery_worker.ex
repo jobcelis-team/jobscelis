@@ -1,9 +1,16 @@
 defmodule StreamflixCore.Platform.ObanDeliveryWorker do
   @moduledoc """
   Oban worker for webhook deliveries. Queue: :delivery.
-  Enqueue with: Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: id}))
+  Backoff: 1 min → 5 min → 15 min → 1 h (spec).
   """
   use Oban.Worker, queue: :delivery, max_attempts: 5
+
+  @backoff_seconds [60, 300, 900, 3600]
+
+  @impl true
+  def backoff(%Oban.Job{attempt: attempt}) do
+    Enum.at(@backoff_seconds, attempt - 1, 3600)
+  end
 
   @impl true
   def perform(%Oban.Job{args: args}) do

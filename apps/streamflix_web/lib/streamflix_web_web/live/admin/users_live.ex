@@ -222,10 +222,11 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
         </div>
       </div>
 
-      <!-- User Edit Modal -->
+      <!-- User Edit Modal: backdrop and modal are siblings so clicking inside modal doesn't close -->
       <%= if @editing_user do %>
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" phx-click="close_user_modal">
-          <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4" phx-click-away="close_user_modal">
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="user-modal-container">
+          <div class="absolute inset-0 bg-black/50" phx-click="close_user_modal" id="user-modal-backdrop" aria-hidden="true"></div>
+          <div class="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-md mx-4" id="user-modal-content" role="dialog" aria-modal="true">
             <div class="p-6 border-b flex justify-between items-center">
               <h2 class="text-xl font-semibold text-gray-900"><%= gettext("Editar Usuario") %></h2>
               <button phx-click="close_user_modal" class="text-gray-400 hover:text-gray-600">

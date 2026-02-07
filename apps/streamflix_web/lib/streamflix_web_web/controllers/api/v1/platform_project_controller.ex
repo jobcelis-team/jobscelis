@@ -23,6 +23,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
     end
   end
 
+  def topics(conn, _params) do
+    project = conn.assigns.current_project
+    topics = Platform.list_topics_used(project.id)
+    json(conn, %{topics: topics})
+  end
+
   def token(conn, _params) do
     project = conn.assigns.current_project
     api_key = Platform.get_api_key_for_project(project.id)
