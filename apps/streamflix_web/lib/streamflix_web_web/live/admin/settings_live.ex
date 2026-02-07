@@ -3,9 +3,11 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    user = socket.assigns.current_user
     socket =
       socket
       |> assign(:page_title, "Configuración")
+      |> assign(:current_user_role, user.role)
 
     {:ok, socket}
   end
@@ -14,7 +16,7 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-gray-100">
-      <.admin_sidebar active="settings" />
+      <.admin_sidebar active="settings" current_user_role={@current_user_role} />
 
       <div class="ml-64 p-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Configuración</h1>
@@ -35,8 +37,5 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
     """
   end
 
-  defp admin_sidebar(assigns) do
-    assigns = assign(assigns, :active, "settings")
-    StreamflixWebWeb.Admin.DashboardLive.admin_sidebar(assigns)
-  end
+  defp admin_sidebar(assigns), do: StreamflixWebWeb.Admin.DashboardLive.admin_sidebar(assigns)
 end

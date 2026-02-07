@@ -20,7 +20,7 @@ defmodule StreamflixWebWeb.AccountLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={:account}>
+    <Layouts.app flash={@flash} current_scope={:account} current_user={@current_user}>
       <div class="max-w-2xl">
         <h1 class="text-2xl font-bold text-slate-900 mb-6">Cuenta</h1>
         <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
