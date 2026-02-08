@@ -29,7 +29,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:job_modal, nil)
       |> assign(:job_runs_modal, nil)
       |> assign(:job_form, nil)
-      |> assign(:page_title, "Jobscelis Dashboard")
+      |> assign(:page_title, "Jobcelis Dashboard")
 
     {:ok, socket}
   end
