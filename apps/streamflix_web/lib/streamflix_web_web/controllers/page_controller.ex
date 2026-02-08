@@ -2,12 +2,13 @@ defmodule StreamflixWebWeb.PageController do
   use StreamflixWebWeb, :controller
 
   def home(conn, _params) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
     pricing = %{
       basic: 0,
       standard: 0,
       premium: 0
     }
-    render(conn, :home, pricing: pricing)
+    render(conn, :home, pricing: pricing, legal: legal)
   end
 
   def login(conn, _params) do
@@ -24,6 +25,18 @@ defmodule StreamflixWebWeb.PageController do
     base_url = build_base_url(conn)
     current_user = current_user_from_session(conn)
     render(conn, :docs, base_url: base_url, current_user: current_user)
+  end
+
+  def terms(conn, _params) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
+    locale = get_session(conn, :locale) || "es"
+    render(conn, :terms, legal: legal, locale: locale)
+  end
+
+  def privacy(conn, _params) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
+    locale = get_session(conn, :locale) || "es"
+    render(conn, :privacy, legal: legal, locale: locale)
   end
 
   def set_locale(conn, %{"locale" => locale}) do

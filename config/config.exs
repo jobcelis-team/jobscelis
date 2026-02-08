@@ -25,6 +25,13 @@ config :streamflix_core, StreamflixCore.Repo,
 
 config :streamflix_web, StreamflixWebWeb.Gettext, default_locale: "es"
 
+# Marca y titular legal (copyright, términos). Servicio de Vladimir Celi.
+config :streamflix_web, :legal,
+  product_name: "Jobscelis",
+  owner: "Vladimir Celi",
+  contact_url: "https://github.com/vladimirCeli",
+  profile_url: "https://vladimirceli.github.io/perfil/"
+
 config :streamflix_web, StreamflixWebWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,

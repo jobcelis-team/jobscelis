@@ -727,3 +727,161 @@ msgstr "CORS"
 
 msgid "envía JSON con topic opcional vía POST. Sin esquemas fijos."
 msgstr "envía JSON con topic opcional vía POST. Sin esquemas fijos."
+
+# Legal (Términos y Privacidad)
+msgid "Inicio"
+msgstr "Inicio"
+
+msgid "Privacidad"
+msgstr "Privacidad"
+
+msgid "Términos"
+msgstr "Términos"
+
+msgid "Términos de uso"
+msgstr "Términos de uso"
+
+msgid "Última actualización"
+msgstr "Última actualización"
+
+msgid "Aceptación"
+msgstr "Aceptación"
+
+msgid "Propiedad intelectual y uso del Servicio"
+msgstr "Propiedad intelectual y uso del Servicio"
+
+msgid "Originalidad y no afiliación"
+msgstr "Originalidad y no afiliación"
+
+msgid "Uso aceptable"
+msgstr "Uso aceptable"
+
+msgid "Datos y privacidad"
+msgstr "Datos y privacidad"
+
+msgid "Política de privacidad"
+msgstr "Política de privacidad"
+
+msgid "Sin garantía"
+msgstr "Sin garantía"
+
+msgid "Cambios"
+msgstr "Cambios"
+
+msgid "Contacto"
+msgstr "Contacto"
+
+msgid "Todos los derechos reservados."
+msgstr "Todos los derechos reservados."
+
+msgid "Responsable"
+msgstr "Responsable"
+
+msgid "Datos que recogemos"
+msgstr "Datos que recogemos"
+
+msgid "Finalidad y legitimación"
+msgstr "Finalidad y legitimación"
+
+msgid "Conservación y seguridad"
+msgstr "Conservación y seguridad"
+
+msgid "Tus derechos"
+msgstr "Tus derechos"
+
+msgid "Cookies y similares"
+msgstr "Cookies y similares"
+
+# Términos y Privacidad (cuerpo)
+msgid "Al utilizar el servicio"
+msgstr "Al utilizar el servicio"
+
+msgid "(«el Servicio»), aceptas estos Términos de uso. El Servicio es ofrecido por"
+msgstr "(«el Servicio»), aceptas estos Términos de uso. El Servicio es ofrecido por"
+
+msgid "Es un servicio gratuito; no se cobra por su uso."
+msgstr "Es un servicio gratuito; no se cobra por su uso."
+
+msgid "El Servicio, su marca, diseño, código y documentación son propiedad de"
+msgstr "El Servicio, su marca, diseño, código y documentación son propiedad de"
+
+msgid "No está permitido copiar, clonar, revender ni hacer pasar el Servicio como propio."
+msgstr "No está permitido copiar, clonar, revender ni hacer pasar el Servicio como propio."
+
+msgid "Puedes usar el Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación."
+msgstr "Puedes usar el Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación."
+
+msgid "es un proyecto original desarrollado por"
+msgstr "es un proyecto original desarrollado por"
+
+msgid "No estamos afiliados, asociados ni respaldados por ninguna otra empresa, marca o servicio con nombre o funcionalidad similar."
+msgstr "No estamos afiliados, asociados ni respaldados por ninguna otra empresa, marca o servicio con nombre o funcionalidad similar."
+
+msgid "Cualquier parecido con otros nombres o productos es puramente casual y no intencional. Si consideras que existe un conflicto con derechos de terceros, contacta con nosotros para resolverlo."
+msgstr "Cualquier parecido con otros nombres o productos es puramente casual y no intencional. Si consideras que existe un conflicto con derechos de terceros, contacta con nosotros para resolverlo."
+
+msgid "Te comprometes a no usar el Servicio para actividades ilegales, spam, abuso de recursos ni para atacar a terceros."
+msgstr "Te comprometes a no usar el Servicio para actividades ilegales, spam, abuso de recursos ni para atacar a terceros."
+
+msgid "Nos reservamos el derecho de suspender o dar de baja cuentas que incumplan estos términos."
+msgstr "Nos reservamos el derecho de suspender o dar de baja cuentas que incumplan estos términos."
+
+msgid "El tratamiento de tus datos personales se describe en nuestra"
+msgstr "El tratamiento de tus datos personales se describe en nuestra"
+
+msgid "El Servicio se ofrece «tal cual». No garantizamos disponibilidad ininterrumpida ni ausencia de errores."
+msgstr "El Servicio se ofrece «tal cual». No garantizamos disponibilidad ininterrumpida ni ausencia de errores."
+
+msgid "En la medida permitida por la ley, no seremos responsables por daños indirectos derivados del uso del Servicio."
+msgstr "En la medida permitida por la ley, no seremos responsables por daños indirectos derivados del uso del Servicio."
+
+msgid "Podemos modificar estos Términos. Los cambios se publicarán en esta página con una nueva fecha de «Última actualización»."
+msgstr "Podemos modificar estos Términos. Los cambios se publicarán en esta página con una nueva fecha de «Última actualización»."
+
+msgid "El uso continuado del Servicio tras los cambios implica la aceptación de los nuevos términos."
+msgstr "El uso continuado del Servicio tras los cambios implica la aceptación de los nuevos términos."
+
+msgid "Para dudas sobre estos Términos, contacta al titular del Servicio:"
+msgstr "Para dudas sobre estos Términos, contacta al titular del Servicio:"
+
+msgid "Puedes contactarme por"
+msgstr "Puedes contactarme por"
+
+msgid "mi perfil"
+msgstr "mi perfil"
+
+msgid "El responsable del tratamiento de los datos personales que recogemos a través del servicio"
+msgstr "El responsable del tratamiento de los datos personales que recogemos a través del servicio"
+
+msgid "es"
+msgstr "es"
+
+msgid "Recogemos los datos que nos facilitas al registrarte (correo electrónico, nombre si lo indicas y contraseña cifrada), así como los datos de uso del Servicio (eventos, webhooks, jobs que configuras) necesarios para prestar el servicio."
+msgstr "Recogemos los datos que nos facilitas al registrarte (correo electrónico, nombre si lo indicas y contraseña cifrada), así como los datos de uso del Servicio (eventos, webhooks, jobs que configuras) necesarios para prestar el servicio."
+
+msgid "No vendemos ni compartimos tus datos con terceros con fines comerciales."
+msgstr "No vendemos ni compartimos tus datos con terceros con fines comerciales."
+
+msgid "Usamos tus datos para gestionar tu cuenta, prestar el Servicio (API, webhooks, entregas) y, en su caso, enviarte comunicaciones sobre el Servicio. La base legal es la ejecución del contrato (uso del Servicio) y tu consentimiento al registrarte."
+msgstr "Usamos tus datos para gestionar tu cuenta, prestar el Servicio (API, webhooks, entregas) y, en su caso, enviarte comunicaciones sobre el Servicio. La base legal es la ejecución del contrato (uso del Servicio) y tu consentimiento al registrarte."
+
+msgid "Conservamos los datos mientras mantengas la cuenta activa. Puedes solicitar la baja y el borrado de tus datos."
+msgstr "Conservamos los datos mientras mantengas la cuenta activa. Puedes solicitar la baja y el borrado de tus datos."
+
+msgid "Aplicamos medidas técnicas y organizativas para proteger tu información."
+msgstr "Aplicamos medidas técnicas y organizativas para proteger tu información."
+
+msgid "Puedes acceder, rectificar, suprimir tus datos, oponerte a determinados tratamientos o solicitar la portabilidad, según la normativa aplicable (p. ej. RGPD en la UE). Para ejercerlos, contacta a"
+msgstr "Puedes acceder, rectificar, suprimir tus datos, oponerte a determinados tratamientos o solicitar la portabilidad, según la normativa aplicable (p. ej. RGPD en la UE). Para ejercerlos, contacta a"
+
+msgid "perfil"
+msgstr "perfil"
+
+msgid "Utilizamos cookies técnicas necesarias para la sesión, el idioma y el correcto funcionamiento del Servicio."
+msgstr "Utilizamos cookies técnicas necesarias para la sesión, el idioma y el correcto funcionamiento del Servicio."
+
+msgid "No usamos cookies publicitarias ni de terceros con fines de seguimiento."
+msgstr "No usamos cookies publicitarias ni de terceros con fines de seguimiento."
+
+msgid "Podemos actualizar esta Política de privacidad. Los cambios se publicarán en esta página con la nueva fecha de «Última actualización». Te recomendamos revisarla de vez en cuando."
+msgstr "Podemos actualizar esta Política de privacidad. Los cambios se publicarán en esta página con la nueva fecha de «Última actualización». Te recomendamos revisarla de vez en cuando."

@@ -1,0 +1,107 @@
+<div class="min-h-screen bg-slate-50">
+  <nav class="bg-white/95 border-b border-slate-200/80 backdrop-blur-sm sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+      <a href="/" class="text-xl font-bold text-slate-900 tracking-tight"><%= Map.get(@legal, :product_name, "Jobscelis") %></a>
+      <div class="flex items-center gap-4">
+        <a href="/locale/es" class={[@locale == "es" && "text-slate-900 font-medium" || "text-slate-500 hover:text-slate-700"]}>ES</a>
+        <span class="text-slate-300">|</span>
+        <a href="/locale/en" class={[@locale == "en" && "text-slate-900 font-medium" || "text-slate-500 hover:text-slate-700"]}>EN</a>
+        <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Documentación") %></a>
+        <a href="/" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Inicio") %></a>
+        <a href="/privacy" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Privacidad") %></a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Términos de uso") %></h1>
+    <p class="text-slate-500 text-sm mb-8">
+      <%= gettext("Última actualización") %>: <%= Date.utc_today() |> Calendar.strftime("%d/%m/%Y") %>
+    </p>
+
+    <div class="prose prose-slate max-w-none text-slate-700 space-y-6">
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">1. <%= gettext("Aceptación") %></h2>
+        <p>
+          <%= gettext("Al utilizar el servicio") %> <strong><%= Map.get(@legal, :product_name, "Jobscelis") %></strong> <%= gettext("(«el Servicio»), aceptas estos Términos de uso. El Servicio es ofrecido por") %> <strong><%= Map.get(@legal, :owner, "Jobscelis") %></strong>.
+          <%= gettext("Es un servicio gratuito; no se cobra por su uso.") %>
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">2. <%= gettext("Propiedad intelectual y uso del Servicio") %></h2>
+        <p>
+          <%= gettext("El Servicio, su marca, diseño, código y documentación son propiedad de") %> <strong><%= Map.get(@legal, :owner, "Jobscelis") %></strong>.
+          <%= gettext("No está permitido copiar, clonar, revender ni hacer pasar el Servicio como propio.") %>
+          <%= gettext("Puedes usar el Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación.") %>
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">2.1. <%= gettext("Originalidad y no afiliación") %></h2>
+        <p>
+          <strong><%= Map.get(@legal, :product_name, "Jobscelis") %></strong> <%= gettext("es un proyecto original desarrollado por") %> <strong><%= Map.get(@legal, :owner, "Jobscelis") %></strong>.
+          <%= gettext("No estamos afiliados, asociados ni respaldados por ninguna otra empresa, marca o servicio con nombre o funcionalidad similar.") %>
+          <%= gettext("Cualquier parecido con otros nombres o productos es puramente casual y no intencional. Si consideras que existe un conflicto con derechos de terceros, contacta con nosotros para resolverlo.") %>
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">3. <%= gettext("Uso aceptable") %></h2>
+        <p>
+          <%= gettext("Te comprometes a no usar el Servicio para actividades ilegales, spam, abuso de recursos ni para atacar a terceros.") %>
+          <%= gettext("Nos reservamos el derecho de suspender o dar de baja cuentas que incumplan estos términos.") %>
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">4. <%= gettext("Datos y privacidad") %></h2>
+        <p>
+          <%= gettext("El tratamiento de tus datos personales se describe en nuestra") %> <a href="/privacy" class="text-indigo-600 hover:underline"><%= gettext("Política de privacidad") %></a>.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">5. <%= gettext("Sin garantía") %></h2>
+        <p>
+          <%= gettext("El Servicio se ofrece «tal cual». No garantizamos disponibilidad ininterrumpida ni ausencia de errores.") %>
+          <%= gettext("En la medida permitida por la ley, no seremos responsables por daños indirectos derivados del uso del Servicio.") %>
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">6. <%= gettext("Cambios") %></h2>
+        <p>
+          <%= gettext("Podemos modificar estos Términos. Los cambios se publicarán en esta página con una nueva fecha de «Última actualización».") %>
+          <%= gettext("El uso continuado del Servicio tras los cambios implica la aceptación de los nuevos términos.") %>
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">7. <%= gettext("Contacto") %></h2>
+        <p>
+          <%= gettext("Para dudas sobre estos Términos, contacta al titular del Servicio:") %> <strong><%= Map.get(@legal, :owner, "Jobscelis") %></strong>.
+          <%= if Map.get(@legal, :contact_url) || Map.get(@legal, :profile_url) do %>
+            <%= gettext("Puedes contactarme por") %>
+            <%= if url = Map.get(@legal, :contact_url) do %>
+              <a href={url} target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">GitHub</a><%= if Map.get(@legal, :profile_url), do: " " <> gettext("o") <> " ", else: "." %>
+            <% end %><%= if url = Map.get(@legal, :profile_url) do %>
+              <a href={url} target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline"><%= gettext("mi perfil") %></a>.
+            <% end %>
+          <% end %>
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 py-6 mt-12 bg-white">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="text-slate-500 text-sm">© <%= Date.utc_today().year %> <%= Map.get(@legal, :owner, "Jobscelis") %>. <%= gettext("Todos los derechos reservados.") %></span>
+      <div class="flex items-center gap-6 text-sm">
+        <a href="/terms" class="text-slate-500 hover:text-slate-700"><%= gettext("Términos") %></a>
+        <a href="/privacy" class="text-slate-500 hover:text-slate-700"><%= gettext("Privacidad") %></a>
+        <a href="/" class="text-slate-500 hover:text-slate-700"><%= gettext("Inicio") %></a>
+      </div>
+    </div>
+  </footer>
+</div>
