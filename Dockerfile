@@ -70,13 +70,14 @@ RUN mix release
 # ============================================
 # PRODUCTION RUNTIME
 # ============================================
+# Usar la MISMA base que el build (elixir:...-alpine) para que OpenSSL y las
+# libs con las que se compiló Erlang coincidan. Con alpine:3.20 suelto sale:
+# "EVP_MD_CTX_get_size_ex: symbol not found" (incompatibilidad crypto/OpenSSL).
 
-FROM alpine:3.20 AS prod
+FROM elixir:1.17-otp-27-alpine AS prod
 
 RUN apk add --no-cache \
     libstdc++ \
-    openssl \
-    ncurses-libs \
     postgresql-client \
     curl
 
