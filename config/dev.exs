@@ -6,21 +6,33 @@ import Config
 # ============================================
 
 # ============================================
-# DATABASE CONFIG (Supabase Pooler)
+# DATABASE CONFIG (Supabase o local)
+# Si DATABASE_URL está definida (ej. Supabase), se usa; si no, DB_* (local o compose con servicio db)
 # ============================================
 
+database_config =
+  if url = System.get_env("DATABASE_URL") do
+    [url: url, ssl: [verify: :verify_none], prepare: :unnamed]
+  else
+    [
+      username: System.get_env("DB_USERNAME") || "postgres",
+      password: System.get_env("DB_PASSWORD") || "postgres",
+      hostname: System.get_env("DB_HOSTNAME") || "localhost",
+      port: String.to_integer(System.get_env("DB_PORT") || "5432"),
+      database: System.get_env("DB_DATABASE") || "postgres",
+      ssl: [verify: :verify_none],
+      prepare: :unnamed
+    ]
+  end
+
 config :streamflix_core, StreamflixCore.Repo,
-  username: System.get_env("DB_USERNAME") || "postgres",
-  password: System.get_env("DB_PASSWORD") || "postgres",
-  hostname: System.get_env("DB_HOSTNAME") || "localhost",
-  port: String.to_integer(System.get_env("DB_PORT") || "5432"),
-  database: System.get_env("DB_DATABASE") || "postgres",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "5"),
-  ssl: [verify: :verify_none],
-  prepare: :unnamed,
-  log: :debug
+  database_config
+  |> Keyword.merge(
+    stacktrace: true,
+    show_sensitive_data_on_connection_error: true,
+    pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "5"),
+    log: :debug
+  )
 
 # ============================================
 # WEB ENDPOINT CONFIG

@@ -212,3 +212,8 @@ config/test.local.exs
 
 # Examples (test projects - may contain local .env with API keys)
 /examples/
+env copy.md
+AZURE-PASO-A-PASO.md
+azure.md
+
+DEPLOY.md
