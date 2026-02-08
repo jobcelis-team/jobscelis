@@ -33,16 +33,21 @@ defmodule StreamflixWebWeb.AuthController do
       {:ok, user, _opts} ->
         do_register_success(conn, user)
 
+      {:error, :email_already_registered} ->
+        conn
+        |> put_flash(:error, gettext("Este correo ya está registrado. Usa otro o inicia sesión."))
+        |> redirect(to: ~p"/signup?plan=#{plan}")
+
       {:error, %Ecto.Changeset{} = changeset} ->
         errors = format_errors(changeset)
 
         conn
-        |> put_flash(:error, "Error al crear cuenta: #{errors}")
+        |> put_flash(:error, gettext("Error al crear cuenta: %{details}", details: errors))
         |> redirect(to: ~p"/signup?plan=#{plan}")
 
       {:error, _reason} ->
         conn
-        |> put_flash(:error, "Error al crear cuenta")
+        |> put_flash(:error, gettext("Error al crear cuenta"))
         |> redirect(to: ~p"/signup")
     end
   end
@@ -74,7 +79,7 @@ defmodule StreamflixWebWeb.AuthController do
           conn
           |> put_session(:user_token, token)
           |> put_session(:user_id, user.id)
-          |> put_flash(:info, "Bienvenido, #{user.name}.")
+          |> put_flash(:info, gettext("Bienvenido, %{name}.", name: user.name || user.email))
 
         # If "remember me" is checked, set longer session expiration
         conn = if remember do
@@ -94,12 +99,12 @@ defmodule StreamflixWebWeb.AuthController do
 
       {:error, :invalid_credentials} ->
         conn
-        |> put_flash(:error, "Email o contraseña incorrectos")
+        |> put_flash(:error, gettext("Email o contraseña incorrectos"))
         |> redirect(to: "/login")
 
       {:error, :account_inactive} ->
         conn
-        |> put_flash(:error, "Tu cuenta está inactiva. Contacta al soporte.")
+        |> put_flash(:error, gettext("Tu cuenta está inactiva. Contacta al soporte."))
         |> redirect(to: "/login")
     end
   end
@@ -110,7 +115,7 @@ defmodule StreamflixWebWeb.AuthController do
   def logout(conn, _params) do
     conn
     |> clear_session()
-    |> put_flash(:info, "Has cerrado sesión correctamente")
+    |> put_flash(:info, gettext("Has cerrado sesión correctamente"))
     |> redirect(to: "/")
   end
 
@@ -120,7 +125,7 @@ defmodule StreamflixWebWeb.AuthController do
     conn
     |> put_session(:user_token, token)
     |> put_session(:user_id, user.id)
-    |> put_flash(:info, "Cuenta creada. Bienvenido.")
+    |> put_flash(:info, gettext("Cuenta creada. Bienvenido."))
     |> redirect(to: ~p"/platform")
   end
 
@@ -131,16 +136,16 @@ defmodule StreamflixWebWeb.AuthController do
     name = params["name"] && (params["name"] |> to_string() |> String.trim() |> String.slice(0, 255))
 
     cond do
-      not (is_binary(email) and is_binary(password)) -> {:error, "Faltan email o contraseña"}
-      byte_size(email) > 254 -> {:error, "Email demasiado largo"}
-      byte_size(password) < 8 -> {:error, "La contraseña debe tener al menos 8 caracteres"}
-      byte_size(password) > 72 -> {:error, "Contraseña demasiado larga"}
-      not String.match?(email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) or String.length(email) < 3 -> {:error, "Email no válido"}
+      not (is_binary(email) and is_binary(password)) -> {:error, gettext("Faltan email o contraseña")}
+      byte_size(email) > 254 -> {:error, gettext("Email demasiado largo")}
+      byte_size(password) < 8 -> {:error, gettext("La contraseña debe tener al menos 8 caracteres")}
+      byte_size(password) > 72 -> {:error, gettext("Contraseña demasiado larga")}
+      not String.match?(email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) or String.length(email) < 3 -> {:error, gettext("Email no válido")}
       true -> {:ok, email, password, name}
     end
   end
 
-  defp validate_auth_params(_), do: {:error, "Datos inválidos"}
+  defp validate_auth_params(_), do: {:error, gettext("Datos inválidos")}
 
   defp format_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
