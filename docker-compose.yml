@@ -1,6 +1,7 @@
 # ============================================
 # JOBSCELIS - Docker Compose
-# Desarrollo: app + PostgreSQL. Cargar .env
+# Desarrollo: app + PostgreSQL local, o solo app con DATABASE_URL (ej. Supabase)
+# Si usas solo DATABASE_URL en .env: docker-compose run --no-deps jobscelis
 # ============================================
 
 services:
@@ -23,7 +24,13 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - GUARDIAN_SECRET_KEY=${GUARDIAN_SECRET_KEY}
       - LIVE_VIEW_SIGNING_SALT=${LIVE_VIEW_SIGNING_SALT}
-      - DATABASE_URL=ecto://${DB_USERNAME:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_DATABASE:-jobscelis_dev}
+      # Si .env tiene DATABASE_URL (ej. Supabase), se usa; si no, BD local en servicio db
+      - DATABASE_URL=${DATABASE_URL:-}
+      - DB_HOSTNAME=${DB_HOSTNAME:-db}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_DATABASE=${DB_DATABASE:-jobscelis_dev}
+      - DB_PORT=5432
       - LOG_LEVEL=${LOG_LEVEL:-debug}
     ports:
       - "${PORT:-4000}:4000"
