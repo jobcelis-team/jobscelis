@@ -1,0 +1,70 @@
+<div class="min-h-screen bg-slate-50">
+  <nav class="bg-white/95 border-b border-slate-200/80 backdrop-blur-sm sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+      <a href="/" class="text-xl font-bold text-slate-900 tracking-tight"><%= Map.get(@legal, :product_name, "Jobcelis") %></a>
+      <div class="flex items-center gap-4">
+        <a href="/locale/es" class={[@locale == "es" && "text-slate-900 font-medium" || "text-slate-500 hover:text-slate-700"]}>ES</a>
+        <span class="text-slate-300">|</span>
+        <a href="/locale/en" class={[@locale == "en" && "text-slate-900 font-medium" || "text-slate-500 hover:text-slate-700"]}>EN</a>
+        <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Documentación") %></a>
+        <a href="/faq" class="text-indigo-600 font-medium text-sm"><%= gettext("FAQ") %></a>
+        <a href="/" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Inicio") %></a>
+        <a href="/terms" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Términos") %></a>
+        <a href="/privacy" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Privacidad") %></a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Preguntas frecuentes") %></h1>
+    <p class="text-slate-600 mb-10"><%= gettext("Respuestas rápidas a las dudas más habituales sobre Jobcelis.") %></p>
+
+    <div class="space-y-8">
+      <section class="border-b border-slate-200 pb-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("¿Qué es Jobcelis?") %></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Jobcelis es una plataforma de eventos y webhooks: envías datos (eventos) desde tu aplicación con un simple POST, y Jobcelis los entrega a las URLs que configures (webhooks), con filtros y reintentos automáticos. Además puedes programar tareas (jobs) que se ejecuten cada día, semana, mes o con expresión cron.") %></p>
+      </section>
+
+      <section class="border-b border-slate-200 pb-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("¿Dónde obtengo mi API Token?") %></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Tras iniciar sesión, entra en el Dashboard. En la sección API Token verás el token (o su prefijo). Si acabas de registrarte, el token completo se mostró una vez al crear el proyecto; guárdalo. Puedes regenerar el token desde el Dashboard; el anterior dejará de funcionar.") %></p>
+      </section>
+
+      <section class="border-b border-slate-200 pb-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("¿Cómo envío un evento desde mi código?") %></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Haz un POST a /api/v1/events (o /api/v1/send) con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN y Content-Type: application/json. El body puede ser cualquier JSON; opcionalmente incluye un campo \"topic\" para clasificar el evento. La documentación en /docs tiene ejemplos con curl.") %></p>
+      </section>
+
+      <section class="border-b border-slate-200 pb-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("¿Qué es un webhook y para qué sirve?") %></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Un webhook es una URL que tú configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos. Así tu servidor o otro sistema recibe la información en tiempo real sin tener que consultar la API. Puedes configurar varios webhooks y filtrar por topic o por campos del payload.") %></p>
+      </section>
+
+      <section class="border-b border-slate-200 pb-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("¿Qué pasa si una entrega falla?") %></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Jobcelis reintenta automáticamente con pausas (1 min, 5 min, 15 min, 1 h). Puedes ver el estado de cada entrega en el Dashboard y usar \"Reintentar\" manualmente para una entrega fallida. Asegúrate de que la URL del webhook sea accesible (HTTPS en producción) y responda en un tiempo razonable.") %></p>
+      </section>
+
+      <section class="border-b border-slate-200 pb-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("¿Cómo configuro un job que se ejecute cada día a una hora?") %></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En el Dashboard, Jobs → Crear. Elige tipo \"Diario\" y configura la hora y el minuto. Como acción puedes \"Emitir evento\" (con topic y payload) o \"POST a URL\". Para horarios más complejos (cada 15 min, solo lunes, etc.) elige tipo \"Cron\" y escribe una expresión; en la Documentación, sección \"Configurar jobs y cron\", tienes la tabla de campos y ejemplos.") %></p>
+      </section>
+
+      <section class="border-b border-slate-200 pb-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("¿Es gratuito?") %></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("Sí. Jobcelis es un servicio gratuito. No hay planes de pago ni facturación.") %></p>
+      </section>
+
+      <section class="pb-2">
+        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("¿Dónde encuentro más ayuda?") %></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En la web: Documentación (/docs) tiene conceptos, primeros pasos, referencia de la API y la guía de cron. Los Términos y la Política de privacidad incluyen datos de contacto del titular del servicio.") %></p>
+      </section>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-slate-200 flex gap-4 text-sm">
+      <a href="/docs" class="text-indigo-600 hover:text-indigo-700 font-medium"><%= gettext("Documentación") %></a>
+      <a href="/terms" class="text-slate-500 hover:text-slate-700"><%= gettext("Términos") %></a>
+      <a href="/privacy" class="text-slate-500 hover:text-slate-700"><%= gettext("Privacidad") %></a>
+    </div>
+  </main>
+</div>

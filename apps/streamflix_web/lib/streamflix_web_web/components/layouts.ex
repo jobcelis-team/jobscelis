@@ -98,6 +98,8 @@ defmodule StreamflixWebWeb.Layouts do
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
           <span>© <%= Date.utc_today().year %> <%= Map.get(@legal, :owner, "Jobcelis") %>. <%= gettext("Todos los derechos reservados.") %></span>
           <div class="flex items-center gap-4">
+            <a href="/docs" class="hover:text-slate-700"><%= gettext("Documentación") %></a>
+            <a href="/faq" class="hover:text-slate-700"><%= gettext("FAQ") %></a>
             <a href="/terms" class="hover:text-slate-700"><%= gettext("Términos") %></a>
             <a href="/privacy" class="hover:text-slate-700"><%= gettext("Privacidad") %></a>
           </div>
