@@ -18,7 +18,7 @@ En `config/config.exs`:
 
 ```elixir
 config :streamflix_web, :legal,
-  product_name: "Jobscelis",
+  product_name: "Jobcelis",
   owner: "Vladimir Celi",
   contact_url: "https://github.com/vladimirCeli",
   profile_url: "https://vladimirceli.github.io/perfil/"
@@ -31,7 +31,7 @@ Así el copyright y los Términos/Privacidad muestran tu nombre y enlaces a GitH
 Sin tocar código, en Azure (o donde despliegues) añade en **Configuration → Application settings**:
 
 - `LEGAL_OWNER` = `Tu Nombre o Empresa S.L.`
-- `LEGAL_PRODUCT_NAME` = `Jobscelis` (o el nombre que uses)
+- `LEGAL_PRODUCT_NAME` = `Jobcelis` (o el nombre que uses)
 
 Así el copyright y las páginas legales mostrarán tu nombre en producción.
 
@@ -66,8 +66,8 @@ Así evitas depender solo de un subdominio de Azure y refuerzas que el servicio 
 
 Para reducir el riesgo de que alguien alegue que “les copias” la marca o el nombre:
 
-- **Busca en Google** “Jobscelis” y variantes (Jobscelis API, Jobscelis webhooks, etc.). Comprueba si existe otro producto o marca con nombre muy similar.
-- **Bases de datos de marcas** (según tu país): en España, [OEPM](https://www.oepm.es); en Latinoamérica, la oficina de propiedad industrial de tu país. Busca “Jobscelis” o nombres parecidos en la misma clase (software, servicios en línea).
+- **Busca en Google** “Jobcelis” y variantes (Jobcelis API, Jobcelis webhooks, etc.). Comprueba si existe otro producto o marca con nombre muy similar.
+- **Bases de datos de marcas** (según tu país): en España, [OEPM](https://www.oepm.es); en Latinoamérica, la oficina de propiedad industrial de tu país. Busca “Jobcelis” o nombres parecidos en la misma clase (software, servicios en línea).
 - Si encuentras algo muy similar en tu mismo sector, valorar **cambiar el nombre** del producto o **consultar a un abogado** antes de crecer o monetizar.
 
 ### 3. Lo que ya tienes en los Términos
@@ -76,7 +76,7 @@ En la web ya está:
 
 - **Copyright** con tu nombre (Vladimir Celi) en footer y páginas legales.
 - **Propiedad intelectual**: el Servicio, marca y código son del titular; no se puede copiar ni hacer pasar por propio.
-- **Sección “Originalidad y no afiliación”**: deja claro que Jobscelis es un proyecto original, que no estás afiliado a nadie con nombre o servicio parecido, y que cualquier similitud es casual. Si alguien cree que hay conflicto, puede contactarte.
+- **Sección “Originalidad y no afiliación”**: deja claro que Jobcelis es un proyecto original, que no estás afiliado a nadie con nombre o servicio parecido, y que cualquier similitud es casual. Si alguien cree que hay conflicto, puede contactarte.
 
 Eso no evita al 100 % una reclamación, pero **demuestra buena fe** y deja claro que no intentas imitar a nadie.
 
@@ -85,7 +85,7 @@ Eso no evita al 100 % una reclamación, pero **demuestra buena fe** y deja claro
 | Paso | Acción |
 |------|--------|
 | Dominio | Registrar un dominio (ej. jobcelis.com) y usarlo en Azure como dominio personalizado. |
-| Nombre | Buscar “Jobscelis” (y similares) en Google y en la oficina de marcas de tu país. |
+| Nombre | Buscar “Jobcelis” (y similares) en Google y en la oficina de marcas de tu país. |
 | Términos | Ya indican que es servicio original y no afiliado; enlace a GitHub/perfil para contacto. |
 | Dudas | Si el proyecto crece o quieres monetizar, consultar a un abogado (propiedad intelectual / marcas). |
 
