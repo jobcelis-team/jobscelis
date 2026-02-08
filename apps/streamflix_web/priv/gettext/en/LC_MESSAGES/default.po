@@ -700,8 +700,8 @@ msgstr "Result"
 msgid "Runs: %{name}"
 msgstr "Runs: %{name}"
 
-msgid "Jobscelis es una plataforma de eventos y webhooks 100%% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
-msgstr "Jobscelis is a 100%% configurable events and webhooks platform. Send any JSON from your code; we route, filter, transform and deliver to your URLs. No fixed schemas: you define topics, payloads and rules."
+msgid "Jobscelis es una plataforma de eventos y webhooks 100% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
+msgstr "Jobscelis is a 100% configurable events and webhooks platform. Send any JSON from your code; we route, filter, transform and deliver to your URLs. No fixed schemas: you define topics, payloads and rules."
 
 msgid "configura URLs de destino, filtros (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra)."
 msgstr "configure destination URLs, filters (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra)."
