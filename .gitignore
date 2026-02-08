@@ -223,3 +223,7 @@ AZURE-PASO-A-PASO.md
 azure.md
 
 DEPLOY.md
+create_superadmin.ps1
+truncate_db.bat
+truncate_all.ex
+run-with-env.ps1

@@ -1093,3 +1093,165 @@ msgstr "Invalid data"
 
 msgid "Acceso denegado. Se requieren permisos de administrador."
 msgstr "Access denied. Administrator permissions required."
+
+msgid "Conceptos básicos"
+msgstr "Basic concepts"
+
+msgid "Primeros pasos"
+msgstr "First steps"
+
+msgid "Configurar jobs y cron"
+msgstr "Configuring jobs and cron"
+
+msgid "Estos son los conceptos que necesitas para usar Jobcelis. No hace falta ser experto: con entender qué es cada cosa puedes configurar eventos, webhooks y jobs en pocos minutos."
+msgstr "These are the concepts you need to use Jobcelis. You don't need to be an expert: understanding what each one is will let you set up events, webhooks and jobs in minutes."
+
+msgid "¿Qué es un evento?"
+msgstr "What is an event?"
+
+msgid "Un evento es un mensaje que tú envías a Jobcelis desde tu aplicación (con un POST). Puede ser cualquier JSON: un pedido, un pago, un clic, un registro, etc. Opcionalmente le pones un \"topic\" (etiqueta) para clasificarlo, por ejemplo \"order.created\" o \"payment.completed\". Jobcelis guarda el evento y, según los webhooks que tengas configurados, envía esa información a las URLs que tú indiques."
+msgstr "An event is a message you send to Jobcelis from your app (via POST). It can be any JSON: an order, a payment, a click, a signup, etc. You can optionally add a \"topic\" (label) to classify it, e.g. \"order.created\" or \"payment.completed\". Jobcelis stores the event and, based on your webhook configuration, sends that data to the URLs you specify."
+
+msgid "Ejemplo: tu tienda hace POST con { \"topic\": \"order.created\", \"order_id\": 123, \"total\": 99.99 }. Eso es un evento."
+msgstr "Example: your store sends POST with { \"topic\": \"order.created\", \"order_id\": 123, \"total\": 99.99 }. That is an event."
+
+msgid "¿Qué es un webhook?"
+msgstr "What is a webhook?"
+
+msgid "Un webhook es una URL de destino que tú configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos que tú eliges (completos, solo ciertos campos, renombrados, etc.). Así tu servidor, tu otro sistema o un servicio externo recibe la información en tiempo real sin que tengas que consultar nada."
+msgstr "A webhook is a destination URL you configure. When an event arrives that matches your conditions (topic, filters), Jobcelis sends a POST to that URL with the data you choose (full payload, selected fields, renamed, etc.). So your server, another system or a third-party service receives the data in real time without you having to poll."
+
+msgid "Ejemplo: webhook a https://mi-app.com/recibir-pedidos solo cuando topic sea \"order.created\" y amount sea mayor que 50."
+msgstr "Example: webhook to https://my-app.com/receive-orders only when topic is \"order.created\" and amount is greater than 50."
+
+msgid "¿Qué es una entrega (delivery)?"
+msgstr "What is a delivery?"
+
+msgid "Cada vez que Jobcelis intenta enviar un evento a una URL de webhook, se crea una \"entrega\" (delivery). Esa entrega tiene un estado: pendiente, éxito o fallo. Si falla (por ejemplo la URL no responde), Jobcelis reintenta automáticamente varias veces con pausas (1 min, 5 min, 15 min, 1 h). En el dashboard puedes ver el historial de entregas y reintentar manualmente una que haya fallado."
+msgstr "Every time Jobcelis tries to send an event to a webhook URL, a \"delivery\" is created. That delivery has a status: pending, success or failed. If it fails (e.g. the URL doesn't respond), Jobcelis retries automatically several times with backoff (1 min, 5 min, 15 min, 1 h). In the dashboard you can see delivery history and manually retry a failed one."
+
+msgid "Resumen: 1 evento puede generar varias entregas (una por webhook que coincida); cada entrega es un intento de POST a una URL."
+msgstr "Summary: 1 event can create several deliveries (one per matching webhook); each delivery is one POST attempt to a URL."
+
+msgid "¿Qué es un job (tarea programada)?"
+msgstr "What is a job (scheduled task)?"
+
+msgid "Un job es una tarea que se ejecuta automáticamente en un horario que tú defines: cada día a una hora, cada semana un día concreto, cada mes, o con una expresión cron (por ejemplo \"cada 15 minutos\" o \"todos los lunes a las 9:00\"). Cuando se ejecuta, el job puede hacer una de dos cosas: emitir un evento interno (que luego pasa por tus webhooks) o hacer un POST a una URL que tú indiques. Así no necesitas tener un cron en tu servidor: Jobcelis hace la llamada por ti."
+msgstr "A job is a task that runs automatically on a schedule you define: daily at a time, weekly on a given day, monthly, or with a cron expression (e.g. \"every 15 minutes\" or \"every Monday at 9:00\"). When it runs, the job can either emit an internal event (which then goes through your webhooks) or POST to a URL you specify. So you don't need a cron on your server: Jobcelis makes the call for you."
+
+msgid "Ejemplo: job \"Resumen diario\" que cada día a las 00:00 emite un evento con topic \"report.daily\"; tus webhooks lo reciben y tu sistema genera el informe."
+msgstr "Example: job \"Daily report\" that every day at 00:00 emits an event with topic \"report.daily\"; your webhooks receive it and your system generates the report."
+
+msgid "¿Qué es un topic?"
+msgstr "What is a topic?"
+
+msgid "El topic es una etiqueta opcional que pones al enviar un evento (por ejemplo \"order.created\", \"payment.completed\"). Sirve para filtrar: en un webhook puedes decir \"solo quiero recibir eventos con topic X\" o combinar topic con filtros (por ejemplo amount mayor que 100). Tú inventas los nombres; no hay lista fija."
+msgstr "The topic is an optional label you add when sending an event (e.g. \"order.created\", \"payment.completed\"). It's used to filter: in a webhook you can say \"only receive events with topic X\" or combine topic with filters (e.g. amount greater than 100). You choose the names; there is no fixed list."
+
+msgid "Sigue estos pasos para tener todo funcionando en pocos minutos."
+msgstr "Follow these steps to get everything working in a few minutes."
+
+msgid "En la web, regístrate con tu email y contraseña. Entra al Dashboard."
+msgstr "On the web, sign up with your email and password. Go to the Dashboard."
+
+msgid "En el Dashboard, sección API Token, verás el token (o prefix). Si acabas de registrarte, el token se habrá mostrado al crear el proyecto. Guárdalo; lo usarás en todas las peticiones con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN."
+msgstr "In the Dashboard, API Token section, you'll see the token (or prefix). If you just signed up, the token was shown when the project was created. Save it; you'll use it in all requests with header Authorization: Bearer YOUR_TOKEN or X-Api-Key: YOUR_TOKEN."
+
+msgid "Desde tu código o con curl: POST /api/v1/events con body JSON (por ejemplo {\"topic\":\"test\",\"message\":\"Hola\"}). En el Dashboard podrás ver el evento en la lista."
+msgstr "From your code or with curl: POST /api/v1/events with JSON body (e.g. {\"topic\":\"test\",\"message\":\"Hello\"}). In the Dashboard you'll see the event in the list."
+
+msgid "En el Dashboard, Webhooks → Crear. Pon una URL que pueda recibir POST (puedes usar webhook.site). Opcional: elige un topic (ej. test) para que solo los eventos con ese topic lleguen a esa URL. Guarda y envía otro evento de prueba."
+msgstr "In the Dashboard, Webhooks → Create. Enter a URL that can receive POST (you can use webhook.site). Optional: set a topic (e.g. test) so only events with that topic go to that URL. Save and send another test event."
+
+msgid "En el Dashboard, Jobs → Crear. Elige programación (por ejemplo Diario a las 12:00) y acción (emitir evento o POST a URL). Guarda; el job se ejecutará a la hora indicada. En \"Configurar jobs y cron\" más abajo tienes la guía de cron y ejemplos."
+msgstr "In the Dashboard, Jobs → Create. Choose schedule (e.g. Daily at 12:00) and action (emit event or POST to URL). Save; the job will run at the set time. In \"Configuring jobs and cron\" below you have the cron guide and examples."
+
+msgid "Regístrate e inicia sesión"
+msgstr "Sign up and log in"
+
+msgid "Copia tu API Token"
+msgstr "Copy your API Token"
+
+msgid "Envía tu primer evento"
+msgstr "Send your first event"
+
+msgid "Crea un webhook"
+msgstr "Create a webhook"
+
+msgid "Crea un job (opcional)"
+msgstr "Create a job (optional)"
+
+msgid "Si algo falla, revisa que el token esté bien en el header y que la URL del webhook sea accesible (HTTPS en producción). Las entregas fallidas se pueden reintentar desde el Dashboard."
+msgstr "If something fails, check that the token is correct in the header and that the webhook URL is reachable (HTTPS in production). Failed deliveries can be retried from the Dashboard."
+
+msgid "Los jobs se programan de cuatro formas: diario, semanal, mensual o con una expresión cron. Aquí te explicamos cada una y cómo escribir expresiones cron si eliges esa opción."
+msgstr "Jobs can be scheduled in four ways: daily, weekly, monthly, or with a cron expression. Here we explain each and how to write cron expressions if you choose that option."
+
+msgid "Tipos de programación (schedule_type)"
+msgstr "Schedule types (schedule_type)"
+
+msgid "Cada día a la misma hora. Configuración: hour (0-23), minute (0-59). Ejemplo: 14:30 → {\"hour\": 14, \"minute\": 30}."
+msgstr "Every day at the same time. Config: hour (0-23), minute (0-59). Example: 14:30 → {\"hour\": 14, \"minute\": 30}."
+
+msgid "Un día de la semana a una hora. day_of_week: 1 = Lunes, 7 = Domingo. Ejemplo: Lunes 09:00 → {\"day_of_week\": 1, \"hour\": 9, \"minute\": 0}."
+msgstr "One day of the week at a time. day_of_week: 1 = Monday, 7 = Sunday. Example: Monday 09:00 → {\"day_of_week\": 1, \"hour\": 9, \"minute\": 0}."
+
+msgid "Un día del mes a una hora. day_of_month: 1-31. Ejemplo: Día 1 a las 00:00 → {\"day_of_month\": 1, \"hour\": 0, \"minute\": 0}."
+msgstr "One day of the month at a time. day_of_month: 1-31. Example: 1st at 00:00 → {\"day_of_month\": 1, \"hour\": 0, \"minute\": 0}."
+
+msgid "Expresión de 5 campos para máxima flexibilidad. Formato: minuto hora día_mes mes día_semana. Ver tabla abajo."
+msgstr "Five-field expression for maximum flexibility. Format: minute hour day_of_month month day_of_week. See table below."
+
+msgid "Expresiones cron: qué significa cada campo"
+msgstr "Cron expressions: what each field means"
+
+msgid "Una expresión cron tiene 5 campos separados por espacio, en este orden:"
+msgstr "A cron expression has 5 space-separated fields, in this order:"
+
+msgid "Campo"
+msgstr "Field"
+
+msgid "Significado"
+msgstr "Meaning"
+
+msgid "Valores"
+msgstr "Values"
+
+msgid "Hora"
+msgstr "Hour"
+
+msgid "Día del mes"
+msgstr "Day of month"
+
+msgid "Mes"
+msgstr "Month"
+
+msgid "Día de la semana"
+msgstr "Day of week"
+
+msgid "1-7 (1=Lun, 7=Dom)"
+msgstr "1-7 (1=Mon, 7=Sun)"
+
+msgid "Puedes usar un número concreto, un asterisco (*) para \"cualquier valor\", o rangos (ej. 1-5 para lunes a viernes). Ejemplos:"
+msgstr "You can use a specific number, an asterisk (*) for \"any value\", or ranges (e.g. 1-5 for Monday to Friday). Examples:"
+
+msgid "Todos los días a medianoche (00:00)."
+msgstr "Every day at midnight (00:00)."
+
+msgid "Todos los días a las 09:00."
+msgstr "Every day at 09:00."
+
+msgid "Solo los lunes a las 09:00."
+msgstr "Mondays only at 09:00."
+
+msgid "Días laborables (Lun–Vie) a las 09:00."
+msgstr "Weekdays (Mon–Fri) at 09:00."
+
+msgid "Cada 15 minutos."
+msgstr "Every 15 minutes."
+
+msgid "El día 1 de cada mes a las 00:00."
+msgstr "1st day of every month at 00:00."
+
+msgid "En el Dashboard, al crear o editar un job, elige \"Cron\" como tipo y escribe la expresión en el campo (ej. 0 0 * * *). La hora se interpreta en el servidor; si necesitas otra zona horaria, configúrala en tu proyecto cuando esté disponible."
+msgstr "In the Dashboard, when creating or editing a job, choose \"Cron\" as the type and enter the expression in the field (e.g. 0 0 * * *). Time is interpreted on the server; if you need another timezone, configure it in your project when available."
