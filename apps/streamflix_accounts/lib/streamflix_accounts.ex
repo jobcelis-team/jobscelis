@@ -14,6 +14,16 @@ defmodule StreamflixAccounts do
 
   def register_user(attrs) do
     attrs = Map.put_new(attrs, :role, "user")
+    email = attrs[:email] && String.downcase(attrs[:email])
+
+    if email && get_user_by_email(email) do
+      {:error, :email_already_registered}
+    else
+      do_register_user(attrs)
+    end
+  end
+
+  defp do_register_user(attrs) do
     changeset = User.registration_changeset(%User{}, attrs)
 
     case Repo.insert(changeset) do
@@ -39,6 +49,58 @@ defmodule StreamflixAccounts do
         {:error, changeset}
     end
   end
+
+  @doc """
+  Actualiza el email del usuario. Requiere la contraseña actual para autorizar.
+  El nuevo email debe ser único en el sistema y distinto al actual.
+  """
+  def update_email(%User{} = user, new_email, current_password)
+      when is_binary(new_email) and is_binary(current_password) do
+    case Authentication.authenticate(user.email, current_password) do
+      {:ok, _} ->
+        new_email = String.downcase(new_email)
+
+        cond do
+          new_email == user.email ->
+            {:error, :same_email}
+
+          true ->
+            case get_user_by_email(new_email) do
+              nil ->
+                user |> User.email_changeset(%{email: new_email}) |> Repo.update()
+
+              other when other.id == user.id ->
+                {:error, :same_email}
+
+              _other ->
+                {:error, :email_taken}
+            end
+        end
+
+      {:error, _} ->
+        {:error, :wrong_password}
+    end
+  end
+
+  def update_email(_, _, _), do: {:error, :invalid}
+
+  @doc """
+  Cambia la contraseña del usuario. Requiere la contraseña actual para autorizar.
+  """
+  def update_password(%User{} = user, current_password, new_password)
+      when is_binary(current_password) and is_binary(new_password) do
+    case Authentication.authenticate(user.email, current_password) do
+      {:ok, _} ->
+        user
+        |> User.password_changeset(%{password: new_password})
+        |> Repo.update()
+
+      {:error, _} ->
+        {:error, :wrong_password}
+    end
+  end
+
+  def update_password(_, _, _), do: {:error, :invalid}
 
   def create_admin(attrs) do
     attrs =
