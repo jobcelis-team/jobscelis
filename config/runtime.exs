@@ -84,13 +84,22 @@ if config_env() == :prod do
     Enum.filter(
       [
         product_name: System.get_env("LEGAL_PRODUCT_NAME"),
-        owner: System.get_env("LEGAL_OWNER")
+        owner: System.get_env("LEGAL_OWNER"),
+        contact_email: System.get_env("LEGAL_CONTACT_EMAIL"),
+        donation_paypal_url: System.get_env("DONATION_PAYPAL_URL"),
+        donation_payoneer_url: System.get_env("DONATION_PAYONEER_URL")
       ],
       fn {_, v} -> is_binary(v) and v != "" end
     )
 
   legal =
-    Application.get_env(:streamflix_web, :legal, [product_name: "Jobcelis", owner: "Jobcelis"])
+    Application.get_env(:streamflix_web, :legal, [
+      product_name: "Jobcelis",
+      owner: "Jobcelis",
+      contact_email: "",
+      donation_paypal_url: "",
+      donation_payoneer_url: ""
+    ])
     |> Keyword.merge(env_legal)
 
   config :streamflix_web, :legal, legal

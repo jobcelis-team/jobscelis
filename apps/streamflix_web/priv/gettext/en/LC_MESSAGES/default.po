@@ -1312,3 +1312,213 @@ msgstr "Where can I find more help?"
 
 msgid "En la web: Documentación (/docs) tiene conceptos, primeros pasos, referencia de la API y la guía de cron. Los Términos y la Política de privacidad incluyen datos de contacto del titular del servicio."
 msgstr "On the web: Documentation (/docs) has concepts, first steps, API reference and the cron guide. The Terms and Privacy Policy include contact details for the service owner."
+
+msgid "Sobre nosotros"
+msgstr "About us"
+
+msgid "%{product} es un servicio gratuito de eventos y webhooks creado y mantenido por una sola persona. Sin empresa: proyecto personal."
+msgstr "%{product} is a free events and webhooks service created and maintained by one person. No company: personal project."
+
+msgid "Titular del servicio"
+msgstr "Service owner"
+
+msgid "Desarrollador y responsable de %{product}. Puedes contactarme o conocerme mejor en los enlaces siguientes."
+msgstr "Developer and responsible for %{product}. You can contact me or find out more in the links below."
+
+msgid "GitHub"
+msgstr "GitHub"
+
+msgid "Mi perfil"
+msgstr "My profile"
+
+msgid "Para dudas legales, uso del servicio o privacidad, consulta los"
+msgstr "For legal questions, use of the service or privacy, see the"
+
+msgid "y la"
+msgstr "and the"
+
+msgid "Ahí encontrarás también la forma de contactar al titular."
+msgstr "You will also find how to contact the owner there."
+
+msgid "Puedes escribirme para dudas sobre el servicio, soporte técnico o cualquier consulta."
+msgstr "You can write to me for questions about the service, technical support or any enquiry."
+
+msgid "Respondo lo antes posible. Para temas legales o privacidad, ver también Términos y Política de privacidad."
+msgstr "I reply as soon as possible. For legal or privacy matters, see also Terms and Privacy Policy."
+
+msgid "Consulta los Términos de uso y la Política de privacidad para datos de contacto del titular."
+msgstr "See the Terms of use and Privacy Policy for the owner's contact details."
+
+msgid "Planes"
+msgstr "Plans"
+
+msgid "Planes y precios"
+msgstr "Plans and pricing"
+
+msgid "%{product} es un servicio gratuito. No hay planes de pago ni facturación."
+msgstr "%{product} is a free service. There are no paid plans or billing."
+
+msgid "Uso gratuito"
+msgstr "Free to use"
+
+msgid "Puedes registrarte, usar eventos, webhooks y jobs programados sin coste. No hay límites de pago ni suscripciones. El servicio se ofrece tal cual, sin garantías comerciales."
+msgstr "You can sign up, use events, webhooks and scheduled jobs at no cost. There are no payment limits or subscriptions. The service is provided as is, without commercial warranties."
+
+msgid "Los detalles de uso aceptable figuran en los Términos de uso."
+msgstr "Acceptable use details are in the Terms of use."
+
+msgid "Apoyar el proyecto"
+msgstr "Support the project"
+
+msgid "Si %{product} te resulta útil y quieres apoyar su desarrollo, puedes hacer una donación voluntaria a través de los siguientes enlaces. No es obligatorio ni afecta al uso del servicio."
+msgstr "If %{product} is useful to you and you want to support its development, you can make a voluntary donation through the links below. It is not required and does not affect your use of the service."
+
+msgid "Los enlaces de donación estarán disponibles próximamente. Si deseas donar ya, escríbeme a"
+msgstr "Donation links will be available soon. If you want to donate now, write to me at"
+
+msgid "la dirección de contacto"
+msgstr "the contact address"
+
+msgid "Política de cookies"
+msgstr "Cookie policy"
+
+msgid "Qué son las cookies"
+msgstr "What are cookies"
+
+msgid "Las cookies son pequeños archivos de texto que el sitio web guarda en tu dispositivo (ordenador, tablet o móvil) cuando lo visitas. Se usan para recordar preferencias o mantener tu sesión."
+msgstr "Cookies are small text files that the website stores on your device (computer, tablet or phone) when you visit. They are used to remember preferences or keep you signed in."
+
+msgid "Cookies que usa este sitio"
+msgstr "Cookies used on this site"
+
+msgid "Este sitio utiliza únicamente cookies técnicas necesarias para el funcionamiento del servicio. No usamos cookies publicitarias ni de terceros para seguimiento."
+msgstr "This site only uses technical cookies necessary for the service to work. We do not use advertising or third-party tracking cookies."
+
+msgid "Finalidad"
+msgstr "Purpose"
+
+msgid "Duración"
+msgstr "Duration"
+
+msgid "Sesión de usuario: mantiene que hayas iniciado sesión. Contenido firmado y necesario para el Servicio."
+msgstr "User session: keeps you signed in. Signed content required for the Service."
+
+msgid "30 días"
+msgstr "30 days"
+
+msgid "Idioma elegido (es/en) para mostrar la web en español o inglés."
+msgstr "Chosen language (es/en) to display the site in Spanish or English."
+
+msgid "1 año"
+msgstr "1 year"
+
+msgid "Cómo gestionar o eliminar cookies"
+msgstr "How to manage or delete cookies"
+
+msgid "Puedes configurar tu navegador para bloquear o eliminar cookies. Ten en cuenta que si bloqueas las cookies técnicas, es posible que no puedas iniciar sesión o que se pierda tu preferencia de idioma. La opción de cookies suele estar en Ajustes o Preferencias del navegador, en la sección de privacidad o seguridad."
+msgstr "You can set your browser to block or delete cookies. Note that blocking technical cookies may prevent you from signing in or may reset your language preference. The cookie option is usually under Settings or Preferences, in the privacy or security section."
+
+msgid "Más información"
+msgstr "More information"
+
+msgid "Si tienes dudas, contacta a"
+msgstr "If you have questions, contact"
+
+msgid "en la página de"
+msgstr "on the"
+
+msgid "Cookies"
+msgstr "Cookies"
+
+msgid "Changelog"
+msgstr "Changelog"
+
+msgid "Historial de cambios y novedades del proyecto. El contenido corresponde al archivo CHANGELOG.md del repositorio."
+msgstr "Project change history and updates. The content matches the CHANGELOG.md file in the repository."
+
+msgid "Añadido"
+msgstr "Added"
+
+msgid "Cambiado"
+msgstr "Changed"
+
+msgid "Corregido"
+msgstr "Fixed"
+
+msgid "Fecha inicial"
+msgstr "Initial release"
+
+msgid "Formato basado en"
+msgstr "Format based on"
+
+msgid "Documentación ampliada: conceptos básicos (eventos, webhooks, entregas, jobs, topics), primeros pasos y guía de configuración de jobs y cron."
+msgstr "Extended documentation: basic concepts (events, webhooks, deliveries, jobs, topics), getting started and job/cron configuration guide."
+
+msgid "Página FAQ con preguntas frecuentes (ES/EN)."
+msgstr "FAQ page with frequently asked questions (ES/EN)."
+
+msgid "Manual de usuario en docs/MANUAL-USUARIO.md."
+msgstr "User manual in docs/MANUAL-USUARIO.md."
+
+msgid "Índice de documentación en docs/INDICE-DOCUMENTACION.md."
+msgstr "Documentation index in docs/INDICE-DOCUMENTACION.md."
+
+msgid "CHANGELOG.md para historial de versiones."
+msgstr "CHANGELOG.md for version history."
+
+msgid "Enlaces en footer a FAQ y documentación/guía."
+msgstr "Footer links to FAQ and documentation/guide."
+
+msgid "Página Contacto (/contact): email de contacto, GitHub y perfil."
+msgstr "Contact page (/contact): contact email, GitHub and profile."
+
+msgid "Página Planes y precios (/pricing): servicio gratuito; sección donaciones (PayPal, Payoneer opcionales)."
+msgstr "Plans and pricing page (/pricing): free service; donations section (PayPal, Payoneer optional)."
+
+msgid "Config :legal: contact_email, donation_paypal_url, donation_payoneer_url; en producción se pueden sobrescribir con variables de entorno."
+msgstr "Config :legal: contact_email, donation_paypal_url, donation_payoneer_url; in production they can be overridden with environment variables."
+
+msgid "Página Sobre nosotros (/about)."
+msgstr "About us page (/about)."
+
+msgid "Política de cookies (/cookies) y página Changelog (/changelog)."
+msgstr "Cookie policy (/cookies) and Changelog page (/changelog)."
+
+msgid "Nombre de producto unificado a Jobcelis (dominio jobcelis.com) en toda la aplicación."
+msgstr "Product name unified to Jobcelis (domain jobcelis.com) across the application."
+
+msgid "Traducciones completas en la tabla de cron (EN)."
+msgstr "Full translations in the cron table (EN)."
+
+msgid "Alias no usado en DeliveryWorker (Webhook)."
+msgstr "Unused alias in DeliveryWorker (Webhook)."
+
+msgid "Duplicados en archivos gettext (.po) que provocaban error de compilación."
+msgstr "Duplicate entries in gettext (.po) files that caused compilation errors."
+
+msgid "Eventos, webhooks, entregas y jobs programados (diario, semanal, mensual, cron)."
+msgstr "Events, webhooks, deliveries and scheduled jobs (daily, weekly, monthly, cron)."
+
+msgid "API con autenticación por API Key (Bearer / X-Api-Key)."
+msgstr "API with API Key authentication (Bearer / X-Api-Key)."
+
+msgid "Registro e inicio de sesión (JWT para API de auth)."
+msgstr "Registration and login (JWT for auth API)."
+
+msgid "Dashboard: proyecto, token, eventos, webhooks, jobs, entregas."
+msgstr "Dashboard: project, token, events, webhooks, jobs, deliveries."
+
+msgid "Panel de administración (superadmin): usuarios, proyectos, métricas."
+msgstr "Admin panel (superadmin): users, projects, metrics."
+
+msgid "Términos de uso y política de privacidad."
+msgstr "Terms of use and privacy policy."
+
+msgid "Documentación API en /docs."
+msgstr "API documentation at /docs."
+
+msgid "Despliegue con GitHub Actions a Azure (ACR + Web App)."
+msgstr "Deploy with GitHub Actions to Azure (ACR + Web App)."
+
+msgid "Soporte multidioma (ES/EN) en la interfaz."
+msgstr "Multilingual support (ES/EN) in the interface."
