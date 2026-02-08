@@ -32,7 +32,19 @@ defmodule StreamflixAccounts.Schemas.User do
     |> validate_required(@required_fields)
     |> validate_email()
     |> validate_inclusion(:role, ["user", "admin", "moderator", "superadmin"])
-    |> unique_constraint(:email)
+    |> unique_constraint(:email, message: "already registered")
+  end
+
+  @doc """
+  Changeset solo para cambiar el email. No toca contraseña ni rol.
+  La unicidad se valida en la BD; en el contexto se comprueba antes que no sea el mismo correo ni esté en uso por otro usuario.
+  """
+  def email_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email])
+    |> validate_required([:email])
+    |> validate_email()
+    |> unique_constraint(:email, message: "already registered")
   end
 
   def registration_changeset(user, attrs) do

@@ -885,3 +885,125 @@ msgstr "No usamos cookies publicitarias ni de terceros con fines de seguimiento.
 
 msgid "Podemos actualizar esta Política de privacidad. Los cambios se publicarán en esta página con la nueva fecha de «Última actualización». Te recomendamos revisarla de vez en cuando."
 msgstr "Podemos actualizar esta Política de privacidad. Los cambios se publicarán en esta página con la nueva fecha de «Última actualización». Te recomendamos revisarla de vez en cuando."
+
+# Cuenta - cambiar email y contraseña
+msgid "Gestiona tu perfil y preferencias de seguridad."
+msgstr "Gestiona tu perfil y preferencias de seguridad."
+
+msgid "Información de tu perfil."
+msgstr "Información de tu perfil."
+
+msgid "Cambiar correo"
+msgstr "Cambiar correo"
+
+msgid "El correo debe ser único en el sistema. Necesitas tu contraseña actual."
+msgstr "El correo debe ser único en el sistema. Necesitas tu contraseña actual."
+
+msgid "Nuevo correo"
+msgstr "Nuevo correo"
+
+msgid "Contraseña actual"
+msgstr "Contraseña actual"
+
+msgid "El nuevo correo es obligatorio."
+msgstr "El nuevo correo es obligatorio."
+
+msgid "La contraseña actual es obligatoria para cambiar el correo."
+msgstr "La contraseña actual es obligatoria para cambiar el correo."
+
+msgid "Correo actualizado correctamente."
+msgstr "Correo actualizado correctamente."
+
+msgid "La contraseña actual no es correcta."
+msgstr "La contraseña actual no es correcta."
+
+msgid "El nuevo correo no puede ser igual al actual."
+msgstr "El nuevo correo no puede ser igual al actual."
+
+msgid "Ese correo ya está en uso por otra cuenta."
+msgstr "Ese correo ya está en uso por otra cuenta."
+
+msgid "Actualizar correo"
+msgstr "Actualizar correo"
+
+msgid "Cambiar contraseña"
+msgstr "Cambiar contraseña"
+
+msgid "Mínimo 8 caracteres, con mayúsculas, minúsculas y números."
+msgstr "Mínimo 8 caracteres, con mayúsculas, minúsculas y números."
+
+msgid "Nueva contraseña"
+msgstr "Nueva contraseña"
+
+msgid "Confirmar nueva contraseña"
+msgstr "Confirmar nueva contraseña"
+
+msgid "La contraseña actual es obligatoria."
+msgstr "La contraseña actual es obligatoria."
+
+msgid "La nueva contraseña y la confirmación no coinciden."
+msgstr "La nueva contraseña y la confirmación no coinciden."
+
+msgid "La nueva contraseña debe tener al menos 8 caracteres."
+msgstr "La nueva contraseña debe tener al menos 8 caracteres."
+
+msgid "Contraseña actualizada correctamente."
+msgstr "Contraseña actualizada correctamente."
+
+msgid "Actualizar contraseña"
+msgstr "Actualizar contraseña"
+
+msgid "El correo no tiene un formato válido."
+msgstr "El correo no tiene un formato válido."
+
+msgid "La nueva contraseña es obligatoria."
+msgstr "La nueva contraseña es obligatoria."
+
+msgid "La confirmación no coincide."
+msgstr "La confirmación no coincide."
+
+# Auth: registro, login, logout y validaciones
+msgid "Este correo ya está registrado. Usa otro o inicia sesión."
+msgstr "Este correo ya está registrado. Usa otro o inicia sesión."
+
+msgid "Error al crear cuenta: %{details}"
+msgstr "Error al crear cuenta: %{details}"
+
+msgid "Error al crear cuenta"
+msgstr "Error al crear cuenta"
+
+msgid "Bienvenido, %{name}."
+msgstr "Bienvenido, %{name}."
+
+msgid "Email o contraseña incorrectos"
+msgstr "Email o contraseña incorrectos"
+
+msgid "Tu cuenta está inactiva. Contacta al soporte."
+msgstr "Tu cuenta está inactiva. Contacta al soporte."
+
+msgid "Has cerrado sesión correctamente"
+msgstr "Has cerrado sesión correctamente"
+
+msgid "Cuenta creada. Bienvenido."
+msgstr "Cuenta creada. Bienvenido."
+
+msgid "Faltan email o contraseña"
+msgstr "Faltan email o contraseña"
+
+msgid "Email demasiado largo"
+msgstr "Email demasiado largo"
+
+msgid "La contraseña debe tener al menos 8 caracteres"
+msgstr "La contraseña debe tener al menos 8 caracteres"
+
+msgid "Contraseña demasiado larga"
+msgstr "Contraseña demasiado larga"
+
+msgid "Email no válido"
+msgstr "Email no válido"
+
+msgid "Datos inválidos"
+msgstr "Datos inválidos"
+
+msgid "Acceso denegado. Se requieren permisos de administrador."
+msgstr "Acceso denegado. Se requieren permisos de administrador."

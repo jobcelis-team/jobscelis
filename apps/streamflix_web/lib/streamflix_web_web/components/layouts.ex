@@ -63,6 +63,7 @@ defmodule StreamflixWebWeb.Layouts do
 
   attr :current_user, :any, default: nil, doc: "logged-in user (for showing Admin link if admin/superadmin)"
   attr :locale, :string, default: "es", doc: "current locale (es/en)"
+  attr :main_class, :string, default: nil, doc: "optional class for main (e.g. wider max-width for account page)"
 
   slot :inner_block, required: true
 
@@ -89,7 +90,7 @@ defmodule StreamflixWebWeb.Layouts do
         </div>
       </header>
 
-      <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1" role="main">
+      <main id="main-content" class={@main_class || "max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1"} role="main">
         {render_slot(@inner_block)}
       </main>
 
