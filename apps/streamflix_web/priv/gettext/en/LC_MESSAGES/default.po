@@ -595,6 +595,21 @@ msgstr "Action"
 msgid "Entregas"
 msgstr "Deliveries"
 
+msgid "Entregas recientes"
+msgstr "Recent deliveries"
+
+msgid "Sin entregas"
+msgstr "No deliveries"
+
+msgid "Sin eventos"
+msgstr "No events"
+
+msgid "Sin webhooks"
+msgstr "No webhooks"
+
+msgid "Sin jobs"
+msgstr "No jobs"
+
 msgid "Evento / Topic"
 msgstr "Event / Topic"
 

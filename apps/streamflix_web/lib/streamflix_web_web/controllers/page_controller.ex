@@ -37,6 +37,8 @@ defmodule StreamflixWebWeb.PageController do
     |> redirect(to: path)
   end
 
+  def set_locale(conn, _params), do: redirect(conn, to: "/")
+
   defp path_from_referer(nil, _conn), do: "/"
   defp path_from_referer(referer, conn) do
     base = build_base_url(conn)
@@ -48,8 +50,6 @@ defmodule StreamflixWebWeb.PageController do
       "/"
     end
   end
-
-  def set_locale(conn, _params), do: redirect(conn, to: "/")
 
   defp build_base_url(conn) do
     scheme = if conn.scheme == :https, do: "https", else: "http"
