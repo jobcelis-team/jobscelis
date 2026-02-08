@@ -971,3 +971,125 @@ msgstr "We do not use advertising or third-party cookies for tracking."
 
 msgid "Podemos actualizar esta Política de privacidad. Los cambios se publicarán en esta página con la nueva fecha de «Última actualización». Te recomendamos revisarla de vez en cuando."
 msgstr "We may update this Privacy policy. Changes will be published on this page with a new \"Last updated\" date. We recommend reviewing it from time to time."
+
+# Account - change email and password
+msgid "Gestiona tu perfil y preferencias de seguridad."
+msgstr "Manage your profile and security preferences."
+
+msgid "Información de tu perfil."
+msgstr "Your profile information."
+
+msgid "Cambiar correo"
+msgstr "Change email"
+
+msgid "El correo debe ser único en el sistema. Necesitas tu contraseña actual."
+msgstr "Email must be unique in the system. You need your current password."
+
+msgid "Nuevo correo"
+msgstr "New email"
+
+msgid "Contraseña actual"
+msgstr "Current password"
+
+msgid "El nuevo correo es obligatorio."
+msgstr "The new email is required."
+
+msgid "La contraseña actual es obligatoria para cambiar el correo."
+msgstr "Current password is required to change your email."
+
+msgid "Correo actualizado correctamente."
+msgstr "Email updated successfully."
+
+msgid "La contraseña actual no es correcta."
+msgstr "The current password is incorrect."
+
+msgid "El nuevo correo no puede ser igual al actual."
+msgstr "The new email cannot be the same as the current one."
+
+msgid "Ese correo ya está en uso por otra cuenta."
+msgstr "That email is already in use by another account."
+
+msgid "Actualizar correo"
+msgstr "Update email"
+
+msgid "Cambiar contraseña"
+msgstr "Change password"
+
+msgid "Mínimo 8 caracteres, con mayúsculas, minúsculas y números."
+msgstr "At least 8 characters, with uppercase, lowercase and numbers."
+
+msgid "Nueva contraseña"
+msgstr "New password"
+
+msgid "Confirmar nueva contraseña"
+msgstr "Confirm new password"
+
+msgid "La contraseña actual es obligatoria."
+msgstr "Current password is required."
+
+msgid "La nueva contraseña y la confirmación no coinciden."
+msgstr "The new password and confirmation do not match."
+
+msgid "La nueva contraseña debe tener al menos 8 caracteres."
+msgstr "The new password must be at least 8 characters."
+
+msgid "Contraseña actualizada correctamente."
+msgstr "Password updated successfully."
+
+msgid "Actualizar contraseña"
+msgstr "Update password"
+
+msgid "El correo no tiene un formato válido."
+msgstr "The email format is not valid."
+
+msgid "La nueva contraseña es obligatoria."
+msgstr "The new password is required."
+
+msgid "La confirmación no coincide."
+msgstr "The confirmation does not match."
+
+# Auth: register, login, logout and validations
+msgid "Este correo ya está registrado. Usa otro o inicia sesión."
+msgstr "This email is already registered. Use another one or sign in."
+
+msgid "Error al crear cuenta: %{details}"
+msgstr "Error creating account: %{details}"
+
+msgid "Error al crear cuenta"
+msgstr "Error creating account"
+
+msgid "Bienvenido, %{name}."
+msgstr "Welcome, %{name}."
+
+msgid "Email o contraseña incorrectos"
+msgstr "Incorrect email or password"
+
+msgid "Tu cuenta está inactiva. Contacta al soporte."
+msgstr "Your account is inactive. Contact support."
+
+msgid "Has cerrado sesión correctamente"
+msgstr "You have signed out successfully"
+
+msgid "Cuenta creada. Bienvenido."
+msgstr "Account created. Welcome."
+
+msgid "Faltan email o contraseña"
+msgstr "Email or password is missing"
+
+msgid "Email demasiado largo"
+msgstr "Email is too long"
+
+msgid "La contraseña debe tener al menos 8 caracteres"
+msgstr "Password must be at least 8 characters"
+
+msgid "Contraseña demasiado larga"
+msgstr "Password is too long"
+
+msgid "Email no válido"
+msgstr "Invalid email"
+
+msgid "Datos inválidos"
+msgstr "Invalid data"
+
+msgid "Acceso denegado. Se requieren permisos de administrador."
+msgstr "Access denied. Administrator permissions required."
