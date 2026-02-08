@@ -76,7 +76,7 @@ defmodule StreamflixWebWeb.Layouts do
       <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
       <header class="bg-white border-b border-slate-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-          <a href="/" class="text-lg font-bold text-slate-900">Jobscelis</a>
+          <a href="/" class="text-lg font-bold text-slate-900">Jobcelis</a>
           <nav class="flex items-center gap-6" aria-label={gettext("Navegación principal")}>
             <.locale_toggle locale={@locale} class="flex items-center gap-1" />
             <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Documentación") %></a>
@@ -96,7 +96,7 @@ defmodule StreamflixWebWeb.Layouts do
 
       <footer class="border-t border-slate-200 py-4 bg-white mt-auto">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
-          <span>© <%= Date.utc_today().year %> <%= Map.get(@legal, :owner, "Jobscelis") %>. <%= gettext("Todos los derechos reservados.") %></span>
+          <span>© <%= Date.utc_today().year %> <%= Map.get(@legal, :owner, "Jobcelis") %>. <%= gettext("Todos los derechos reservados.") %></span>
           <div class="flex items-center gap-4">
             <a href="/terms" class="hover:text-slate-700"><%= gettext("Términos") %></a>
             <a href="/privacy" class="hover:text-slate-700"><%= gettext("Privacidad") %></a>

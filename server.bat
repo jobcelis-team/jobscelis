@@ -17,7 +17,7 @@ for /f "usebackq eol=# tokens=1,* delims==" %%a in (".env") do (
     )
 )
 
-echo Starting Jobscelis server...
+echo Starting Jobcelis server...
 mix phx.server
 
 endlocal

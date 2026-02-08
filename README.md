@@ -1,4 +1,4 @@
-# Jobscelis
+# Jobcelis
 
 **Eventos, webhooks y jobs programados** en una sola API. Publica eventos con cualquier payload, configura webhooks con filtros y recibe POST en tiempo real. Programa tareas recurrentes (diario, semanal, mensual o cron) que emitan eventos o llamen a tus URLs.
 
