@@ -110,9 +110,12 @@
         <span class="text-slate-400 text-xs">© <%= Date.utc_today().year %> <%= Map.get(@legal || %{}, :owner, "Jobcelis") %>. <%= gettext("Todos los derechos reservados.") %></span>
       </div>
       <div class="flex items-center gap-6 text-sm">
+        <a href="/docs" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Documentación") %></a>
+        <a href="/faq" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("FAQ") %></a>
+        <a href="/contact" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Contacto") %></a>
+        <a href="/pricing" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Planes") %></a>
         <a href="/terms" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Términos") %></a>
         <a href="/privacy" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Privacidad") %></a>
-        <a href="/docs" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Documentación") %></a>
         <a href="/login" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Iniciar sesión") %></a>
         <a href="/signup" class="text-indigo-600 hover:text-indigo-700 font-medium"><%= gettext("Registrarse") %></a>
       </div>
