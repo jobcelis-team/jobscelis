@@ -107,8 +107,8 @@ msgstr "Eventos, webhooks y jobs"
 msgid "Navegación"
 msgstr "Navegación"
 
-msgid "Accede a tu cuenta de Jobscelis"
-msgstr "Accede a tu cuenta de Jobscelis"
+msgid "Accede a tu cuenta de Jobcelis"
+msgstr "Accede a tu cuenta de Jobcelis"
 
 msgid "Formulario de inicio de sesión"
 msgstr "Formulario de inicio de sesión"
@@ -128,8 +128,8 @@ msgstr "¿No tienes cuenta?"
 msgid "Crear cuenta"
 msgstr "Crear cuenta"
 
-msgid "Regístrate en Jobscelis para usar webhooks y eventos"
-msgstr "Regístrate en Jobscelis para usar webhooks y eventos"
+msgid "Regístrate en Jobcelis para usar webhooks y eventos"
+msgstr "Regístrate en Jobcelis para usar webhooks y eventos"
 
 msgid "Nombre"
 msgstr "Nombre"
@@ -215,8 +215,8 @@ msgstr "Rutas públicas (auth):"
 msgid "registro, login y refresh de JWT. No requieren API Key. Pensadas para tu app web o móvil."
 msgstr "registro, login y refresh de JWT. No requieren API Key. Pensadas para tu app web o móvil."
 
-msgid "Rutas con API Key (Jobscelis):"
-msgstr "Rutas con API Key (Jobscelis):"
+msgid "Rutas con API Key (Jobcelis):"
+msgstr "Rutas con API Key (Jobcelis):"
 
 msgid "eventos, webhooks, deliveries, jobs y proyecto. Requieren el token de tu proyecto (Dashboard → API Token)."
 msgstr "eventos, webhooks, deliveries, jobs y proyecto. Requieren el token de tu proyecto (Dashboard → API Token)."
@@ -686,8 +686,8 @@ msgstr "Resultado"
 msgid "Runs: %{name}"
 msgstr "Runs: %{name}"
 
-msgid "Jobscelis es una plataforma de eventos y webhooks 100% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
-msgstr "Jobscelis es una plataforma de eventos y webhooks 100% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
+msgid "Jobcelis es una plataforma de eventos y webhooks 100% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
+msgstr "Jobcelis es una plataforma de eventos y webhooks 100% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
 
 msgid "configura URLs de destino, filtros (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra)."
 msgstr "configura URLs de destino, filtros (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra)."

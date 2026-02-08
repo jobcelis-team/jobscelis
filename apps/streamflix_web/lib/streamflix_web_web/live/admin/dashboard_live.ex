@@ -85,7 +85,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     ~H"""
     <aside class="fixed left-0 top-0 bottom-0 w-64 bg-gray-900 text-white">
       <div class="p-6">
-        <.link navigate="/" class="text-red-500 text-2xl font-bold">Jobscelis</.link>
+        <.link navigate="/" class="text-red-500 text-2xl font-bold">Jobcelis</.link>
         <p class="text-gray-500 text-sm mt-1"><%= gettext("Panel Admin") %></p>
         <%= if @current_user_role do %>
           <span class={"inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium #{if @current_user_role == "superadmin", do: "bg-amber-600 text-white", else: "bg-gray-600 text-gray-200"}"}>

@@ -90,7 +90,7 @@ if config_env() == :prod do
     )
 
   legal =
-    Application.get_env(:streamflix_web, :legal, [product_name: "Jobscelis", owner: "Jobscelis"])
+    Application.get_env(:streamflix_web, :legal, [product_name: "Jobcelis", owner: "Jobcelis"])
     |> Keyword.merge(env_legal)
 
   config :streamflix_web, :legal, legal

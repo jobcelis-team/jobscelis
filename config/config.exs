@@ -27,7 +27,7 @@ config :streamflix_web, StreamflixWebWeb.Gettext, default_locale: "es"
 
 # Marca y titular legal (copyright, términos). Servicio de Vladimir Celi.
 config :streamflix_web, :legal,
-  product_name: "Jobscelis",
+  product_name: "Jobcelis",
   owner: "Vladimir Celi",
   contact_url: "https://github.com/vladimirCeli",
   profile_url: "https://vladimirceli.github.io/perfil/"
