@@ -10,7 +10,7 @@ on:
     branches: [main]
 
 env:
-  ACR_NAME: jobcelisacr
+  ACR_NAME: jobscelisacr
   IMAGE_NAME: jobscelis:latest
   WEBAPP_NAME: jobcelis
   RESOURCE_GROUP: jobscelis-rg
