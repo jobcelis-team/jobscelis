@@ -10,7 +10,7 @@ on:
     branches: [main]
 
 env:
-  ACR_NAME: jobcelisacr
+  ACR_NAME: ${{ secrets.AZURE_ACR_NAME }}
   IMAGE_NAME: jobscelis:latest
   WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_PRODUCTION }}
   RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
