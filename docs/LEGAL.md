@@ -53,7 +53,7 @@ Con esto dejas claro que el servicio es tuyo, es gratuito pero no libre para que
 
 ### 1. Dominio propio
 
-Ahora el servicio puede estar en `jobcelis.azurewebsites.net`. Para que sea **claramente tuyo** y más profesional:
+El servicio está en **https://jobcelis.com**. Para que siga siendo **claramente tuyo** y profesional:
 
 - **Registra un dominio** (ej. `jobcelis.com`, `jobcelis.io` o uno que combine tu nombre + servicio).
 - Registradores habituales: [Cloudflare](https://www.cloudflare.com/products/registrar/), [Namecheap](https://www.namecheap.com), [Google Domains](https://domains.google), etc.
