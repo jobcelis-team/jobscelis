@@ -2,6 +2,7 @@ defmodule StreamflixWebWeb.LiveAuth do
   @moduledoc """
   LiveView authentication hooks.
   """
+  use Gettext, backend: StreamflixWebWeb.Gettext
 
   import Phoenix.Component
   import Phoenix.LiveView
@@ -35,7 +36,7 @@ defmodule StreamflixWebWeb.LiveAuth do
       if is_admin do
         {:cont, socket}
       else
-        {:halt, redirect(socket, to: "/") |> put_flash(:error, "Acceso denegado. Se requieren permisos de administrador.")}
+        {:halt, redirect(socket, to: "/") |> put_flash(:error, gettext("Acceso denegado. Se requieren permisos de administrador."))}
       end
     end
   end
