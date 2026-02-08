@@ -13,9 +13,11 @@ Este documento enumera **toda la documentación y elementos** que tiene el proye
 | **FAQ (preguntas frecuentes)** | ✅ Añadido | `/faq` | Preguntas frecuentes con respuestas cortas. |
 | **Términos de uso** | ✅ Hecho | `/terms` | Página legal. |
 | **Política de privacidad** | ✅ Hecho | `/privacy` | Página legal. |
-| **Contacto** | ⚠️ Parcial | Términos/Privacidad | "Contacta al titular" con enlace a GitHub/perfil. Opcional: página `/contact` con formulario o email. |
-| **Sobre nosotros / About** | ❌ Opcional | — | Página "Qué es Jobcelis" / "Quiénes somos". Puede cubrirse en la home. |
-| **Precios / Planes** | ❌ Opcional | — | Servicio gratuito; si quieres, una página "Planes" o "Es gratis" da imagen seria. |
+| **Contacto** | ✅ Hecho | `/contact` | Email (vladimir.celi@proton.me por config), GitHub y perfil. |
+| **Sobre nosotros / About** | ✅ Hecho | `/about` | Titular (owner), enlaces a GitHub y perfil desde `config :legal`. |
+| **Precios / Planes** | ✅ Hecho | `/pricing` | "Es gratis", sin facturación; sección donaciones con enlaces opcionales PayPal y Payoneer (config o env). |
+| **Política de cookies** | ✅ Hecho | `/cookies` | Cookies que usa el sitio (sesión `_streamflix_web_key`, idioma `locale`); sin cookies publicitarias ni de terceros. |
+| **Changelog (página web)** | ✅ Hecho | `/changelog` | Mismo contenido que `CHANGELOG.md` del repositorio; historial de versiones en la web. |
 
 ---
 
@@ -47,7 +49,7 @@ Este documento enumera **toda la documentación y elementos** que tiene el proye
 | Política de privacidad | ✅ | `/privacy` |
 | Copyright en footer | ✅ | Año + titular (config :legal) |
 | Enlace a contacto (GitHub/perfil) | ✅ | En términos y privacidad |
-| Política de cookies | ❌ Opcional | Si usas cookies no esenciales, conviene página o aviso. Sesión = cookie; si solo sesión, suele mencionarse en privacidad. |
+| Política de cookies | ✅ | Página `/cookies` con cookies reales del proyecto (sesión, idioma). |
 
 ---
 
@@ -58,6 +60,8 @@ Este documento enumera **toda la documentación y elementos** que tiene el proye
 | Enlace a Documentación | ✅ | Nav y footer |
 | Enlace a Términos | ✅ | Footer |
 | Enlace a Privacidad | ✅ | Footer |
+| Enlace a Cookies | ✅ | Footer |
+| Enlace a Changelog | ✅ | Footer |
 | Enlace a FAQ | ✅ | Footer / nav |
 | Enlace a Guía / Manual | ✅ | Footer (a `/docs` o sección primeros pasos) |
 | Cambio de idioma (ES/EN) | ✅ | Nav en docs y páginas públicas |
@@ -88,14 +92,14 @@ Este documento enumera **toda la documentación y elementos** que tiene el proye
 
 ---
 
-## 7. Opcionales para más adelante
+## 7. Opcionales y repositorio privado
 
-- **Página /contact** — Formulario o email de contacto.
-- **Página /about** — "Qué es Jobcelis" / "Quiénes somos".
-- **Página /pricing** o "Es gratis" — Dejar claro que no hay cobros.
-- **Política de cookies** — Página o sección si amplías uso de cookies.
-- **Changelog público** — Versión resumida en la web (enlazando a CHANGELOG.md o copiando).
-- **LICENSE** — Si el código es abierto (MIT, Apache, etc.).
-- **CONTRIBUTING.md / CODE_OF_CONDUCT** — Si aceptas contribuciones.
+- **Política de cookies** — ✅ Hecho: página `/cookies` con las cookies reales del proyecto (sesión, idioma).
+- **Changelog en la web** — ✅ Hecho: página `/changelog` con el mismo contenido que `CHANGELOG.md`.
+- **LICENSE / CONTRIBUTING / CODE_OF_CONDUCT** — No aplican: el **repositorio es privado**. Solo serían necesarios si el repo fuera público y aceptaras contribuciones.
 
-Con lo que tienes ahora (docs API, manual, FAQ, términos, privacidad, changelog, índice) la aplicación queda **más formal y completa** para usuarios y para ti como mantenedor.
+**Configuración pendiente (cuando tengas los datos):**
+
+- **Enlaces de donación** — En `config/config.exs` (o con env `DONATION_PAYPAL_URL`, `DONATION_PAYONEER_URL`) pon tus URLs de PayPal y Payoneer para que en `/pricing` aparezcan los botones de donar.
+
+Con lo que tienes ahora, la aplicación está **completa** a nivel documentación, legal, contacto, planes y donaciones.
