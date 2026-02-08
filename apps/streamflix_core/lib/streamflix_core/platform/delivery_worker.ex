@@ -1,94 +1,137 @@
 defmodule StreamflixCore.Platform.DeliveryWorker do
   @moduledoc """
-  Performs a single delivery: build body from webhook config, sign with HMAC, POST to URL.
+  Ejecuta la entrega de un webhook: POST a la URL con el payload.
+  Usa Req con timeouts explícitos para evitar bloqueos.
   """
+  require Logger
+
   alias StreamflixCore.Repo
-  alias StreamflixCore.Schemas.Delivery
+  alias StreamflixCore.Schemas.{Delivery, Webhook}
   alias StreamflixCore.Platform
 
-  @timeout_ms 10_000
-  @max_response_body 64 * 1024
+  @connect_timeout 5_000
+  @receive_timeout 15_000
+
+  @doc """
+  Ejecuta la entrega: POST al webhook, actualiza status success/failed.
+  Retorna {:ok, delivery} o {:error, reason}.
+  """
+  def run(nil), do: {:error, :not_found}
+  def run(delivery_id) when not is_binary(delivery_id), do: {:error, :invalid_id}
 
   def run(delivery_id) do
-    delivery = Repo.get(Delivery, delivery_id) |> Repo.preload([:event, :webhook])
-    if delivery && delivery.status == "pending" do
-      do_deliver(delivery)
-    else
-      {:error, :not_found_or_not_pending}
+    delivery =
+      Repo.get(Delivery, delivery_id)
+      |> Repo.preload([:event, :webhook])
+
+    case delivery do
+      nil ->
+        Logger.warning("[DeliveryWorker] Delivery not found: #{delivery_id}")
+        {:error, :not_found}
+
+      %{status: "success"} ->
+        {:ok, delivery}
+
+      %{event: nil} ->
+        Logger.warning("[DeliveryWorker] Delivery #{delivery_id} has no event")
+        mark_failed(delivery, nil, "missing event")
+
+      %{webhook: nil} ->
+        Logger.warning("[DeliveryWorker] Delivery #{delivery_id} has no webhook")
+        mark_failed(delivery, nil, "missing webhook")
+
+      %{webhook: %{status: "inactive"}} ->
+        Logger.info("[DeliveryWorker] Webhook inactive for delivery #{delivery_id}, skipping")
+        {:ok, delivery}
+
+      d ->
+        do_deliver(d)
     end
   end
 
   defp do_deliver(%Delivery{} = delivery) do
-    body = Platform.build_webhook_body(delivery.webhook, delivery.event)
-    body_json = Jason.encode!(body)
-    secret = delivery.webhook.secret_encrypted || ""
-    signature = sign_hmac(body_json, secret)
-    url = delivery.webhook.url
-    headers = build_headers(delivery, signature)
+    %{event: event, webhook: webhook} = delivery
+    url = webhook.url
 
-    case Req.post(url,
-           body: body_json,
-           headers: headers,
-           receive_timeout: @timeout_ms,
-           max_body: @max_response_body
-         ) do
+    body = Platform.build_webhook_body(webhook, event)
+    body_json = Jason.encode!(body)
+
+    headers = build_headers(webhook, body_json)
+
+    Logger.info("[DeliveryWorker] Starting POST to #{url} for delivery #{delivery.id}")
+
+    # receive_timeout a nivel superior (como ScheduledJobRunner) - connect_options no aplicaba
+    opts = [
+      json: body,
+      headers: headers,
+      receive_timeout: @receive_timeout,
+      connect_options: [timeout: @connect_timeout]
+    ]
+
+    case Req.post(url, opts) do
       {:ok, %{status: status} = resp} when status >= 200 and status < 300 ->
-        update_delivery_success(delivery, status, resp)
-        {:ok, status}
+        Logger.info("[DeliveryWorker] Success #{status} for delivery #{delivery.id}")
+        mark_success(delivery, status, resp)
 
       {:ok, %{status: status} = resp} ->
-        resp_body = resp_body_truncated(resp)
-        update_delivery_failed(delivery, status, resp_body)
-        {:error, {:http, status}}
+        Logger.warning("[DeliveryWorker] Non-2xx #{status} for delivery #{delivery.id}")
+        resp_body = format_response_body(resp)
+        mark_failed(delivery, status, resp_body)
 
       {:error, reason} ->
-        update_delivery_failed(delivery, nil, inspect(reason))
-        {:error, reason}
+        Logger.error("[DeliveryWorker] Error for delivery #{delivery.id}: #{inspect(reason)}")
+        mark_failed(delivery, nil, inspect(reason))
     end
   end
 
-  defp build_headers(delivery, signature) do
-    [
-      {"content-type", "application/json"},
-      {"x-event-id", delivery.event_id},
-      {"x-delivery-id", delivery.id},
-      {"x-signature", "sha256=" <> signature}
+  defp build_headers(webhook, body_json) do
+    base = [
+      {"content-type", "application/json"}
     ]
-    |> add_custom_headers(delivery.webhook.headers)
+
+    # X-Signature HMAC-SHA256 si hay secret
+    with secret when is_binary(secret) and secret != "" <- webhook.secret_encrypted,
+         sig <- compute_signature(secret, body_json) do
+      [{"x-signature", "sha256=" <> sig} | base]
+    else
+      _ -> base
+    end
   end
 
-  defp add_custom_headers(list, nil), do: list
-  defp add_custom_headers(list, headers) when is_map(headers) do
-    extra = Enum.map(headers, fn {k, v} -> {to_string(k), to_string(v)} end)
-    list ++ extra
-  end
-  defp add_custom_headers(list, _), do: list
-
-  defp sign_hmac(body, secret) do
-    Base.encode64(:crypto.mac(:hmac, :sha256, secret, body), padding: false)
+  defp compute_signature(secret, body) do
+    :crypto.mac(:hmac, :sha256, secret, body) |> Base.encode64(padding: false)
   end
 
-  defp resp_body_truncated(%{body: body}) when is_binary(body) do
-    String.slice(body, 0, @max_response_body)
+  defp format_response_body(%{body: body}) when is_binary(body) do
+    if String.length(body) > 500, do: String.slice(body, 0, 500) <> "...", else: body
   end
-  defp resp_body_truncated(_), do: nil
+  defp format_response_body(%{body: body}), do: inspect(body)
 
-  defp update_delivery_success(delivery, status, _resp) do
-    attrs = %{
+  defp mark_success(delivery, status, _resp) do
+    delivery
+    |> Delivery.changeset(%{
       status: "success",
       attempt_number: delivery.attempt_number + 1,
-      response_status: status
-    }
-    delivery |> Delivery.changeset(attrs) |> Repo.update()
+      response_status: status,
+      response_body: nil,
+      next_retry_at: nil
+    })
+    |> Repo.update()
   end
 
-  defp update_delivery_failed(delivery, status, response_body) do
-    attrs = %{
+  defp mark_failed(delivery, status, reason) do
+    delivery
+    |> Delivery.changeset(%{
       status: "failed",
       attempt_number: delivery.attempt_number + 1,
       response_status: status,
-      response_body: response_body
-    }
-    delivery |> Delivery.changeset(attrs) |> Repo.update()
+      response_body: reason,
+      next_retry_at: nil
+    })
+    |> Repo.update()
+    |> case do
+      {:ok, d} -> {:error, {:failed, d}}
+      err -> err
+    end
   end
 end
