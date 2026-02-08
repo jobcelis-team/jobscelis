@@ -17,6 +17,12 @@
 # Keep .env.example as reference
 !.env.example
 
+# Local file for pasting secrets before copying to GitHub (never commit)
+.github/SECRETS-GITHUB.local.md
+.github/*.local.md
+DEPLOY-AZURE-ACTIONS.md
+SECRETS-GITHUB.md
+
 # ============================================
 # ELIXIR/ERLANG BUILD ARTIFACTS
 # ============================================
