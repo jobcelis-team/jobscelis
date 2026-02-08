@@ -30,6 +30,8 @@
       <nav class="sticky top-6 space-y-0 text-sm">
         <p class="font-semibold text-slate-500 uppercase tracking-wider mb-3 px-1"><%= gettext("Contenido") %></p>
         <a href="#intro" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Introducción") %></a>
+        <a href="#conceptos" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Conceptos básicos") %></a>
+        <a href="#primeros-pasos" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Primeros pasos") %></a>
         <a href="#base-url" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Base URL") %></a>
         <a href="#auth" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Autenticación") %></a>
         <a href="#cors" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("CORS") %></a>
@@ -45,6 +47,7 @@
         <a href="#webhooks" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Webhooks") %></a>
         <a href="#deliveries" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Entregas") %></a>
         <a href="#jobs" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Jobs") %></a>
+        <a href="#configurar-jobs-cron" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Configurar jobs y cron") %></a>
         <a href="#project-token" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Proyecto, topics y token") %></a>
         <a href="#usage" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Formas de uso") %></a>
         <a href="#status-codes" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Códigos de respuesta") %></a>
@@ -72,6 +75,55 @@
           <li><strong><%= gettext("Rutas con API Key:") %></strong> <%= gettext("eventos, webhooks, deliveries, jobs y proyecto. Requieren el token (Dashboard → API Token).") %></li>
         </ul>
         <p class="text-slate-600"><%= gettext("Todas las respuestas son JSON. CORS habilitado. Payload máximo 256 KB.") %></p>
+      </section>
+
+      <section id="conceptos" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Conceptos básicos") %></h2>
+        <p class="text-slate-600 mb-4"><%= gettext("Estos son los conceptos que necesitas para usar Jobcelis. No hace falta ser experto: con entender qué es cada cosa puedes configurar eventos, webhooks y jobs en pocos minutos.") %></p>
+
+        <div class="space-y-6">
+          <div class="border-l-4 border-indigo-500 pl-4">
+            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es un evento?") %></h3>
+            <p class="text-slate-600 text-sm mb-2"><%= gettext("Un evento es un mensaje que tú envías a Jobcelis desde tu aplicación (con un POST). Puede ser cualquier JSON: un pedido, un pago, un clic, un registro, etc. Opcionalmente le pones un \"topic\" (etiqueta) para clasificarlo, por ejemplo \"order.created\" o \"payment.completed\". Jobcelis guarda el evento y, según los webhooks que tengas configurados, envía esa información a las URLs que tú indiques.") %></p>
+            <p class="text-slate-500 text-xs"><%= gettext("Ejemplo: tu tienda hace POST con { \"topic\": \"order.created\", \"order_id\": 123, \"total\": 99.99 }. Eso es un evento.") %></p>
+          </div>
+
+          <div class="border-l-4 border-indigo-500 pl-4">
+            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es un webhook?") %></h3>
+            <p class="text-slate-600 text-sm mb-2"><%= gettext("Un webhook es una URL de destino que tú configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos que tú eliges (completos, solo ciertos campos, renombrados, etc.). Así tu servidor, tu otro sistema o un servicio externo recibe la información en tiempo real sin que tengas que consultar nada.") %></p>
+            <p class="text-slate-500 text-xs"><%= gettext("Ejemplo: webhook a https://mi-app.com/recibir-pedidos solo cuando topic sea \"order.created\" y amount sea mayor que 50.") %></p>
+          </div>
+
+          <div class="border-l-4 border-indigo-500 pl-4">
+            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es una entrega (delivery)?") %></h3>
+            <p class="text-slate-600 text-sm mb-2"><%= gettext("Cada vez que Jobcelis intenta enviar un evento a una URL de webhook, se crea una \"entrega\" (delivery). Esa entrega tiene un estado: pendiente, éxito o fallo. Si falla (por ejemplo la URL no responde), Jobcelis reintenta automáticamente varias veces con pausas (1 min, 5 min, 15 min, 1 h). En el dashboard puedes ver el historial de entregas y reintentar manualmente una que haya fallado.") %></p>
+            <p class="text-slate-500 text-xs"><%= gettext("Resumen: 1 evento puede generar varias entregas (una por webhook que coincida); cada entrega es un intento de POST a una URL.") %></p>
+          </div>
+
+          <div class="border-l-4 border-indigo-500 pl-4">
+            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es un job (tarea programada)?") %></h3>
+            <p class="text-slate-600 text-sm mb-2"><%= gettext("Un job es una tarea que se ejecuta automáticamente en un horario que tú defines: cada día a una hora, cada semana un día concreto, cada mes, o con una expresión cron (por ejemplo \"cada 15 minutos\" o \"todos los lunes a las 9:00\"). Cuando se ejecuta, el job puede hacer una de dos cosas: emitir un evento interno (que luego pasa por tus webhooks) o hacer un POST a una URL que tú indiques. Así no necesitas tener un cron en tu servidor: Jobcelis hace la llamada por ti.") %></p>
+            <p class="text-slate-500 text-xs"><%= gettext("Ejemplo: job \"Resumen diario\" que cada día a las 00:00 emite un evento con topic \"report.daily\"; tus webhooks lo reciben y tu sistema genera el informe.") %></p>
+          </div>
+
+          <div class="border-l-4 border-indigo-500 pl-4">
+            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es un topic?") %></h3>
+            <p class="text-slate-600 text-sm mb-2"><%= gettext("El topic es una etiqueta opcional que pones al enviar un evento (por ejemplo \"order.created\", \"payment.completed\"). Sirve para filtrar: en un webhook puedes decir \"solo quiero recibir eventos con topic X\" o combinar topic con filtros (por ejemplo amount mayor que 100). Tú inventas los nombres; no hay lista fija.") %></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="primeros-pasos" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Primeros pasos") %></h2>
+        <p class="text-slate-600 mb-4"><%= gettext("Sigue estos pasos para tener todo funcionando en pocos minutos.") %></p>
+        <ol class="list-decimal list-inside text-slate-700 space-y-3 mb-4">
+          <li><strong><%= gettext("Regístrate e inicia sesión") %></strong> — <%= gettext("En la web, regístrate con tu email y contraseña. Entra al Dashboard.") %></li>
+          <li><strong><%= gettext("Copia tu API Token") %></strong> — <%= gettext("En el Dashboard, sección API Token, verás el token (o prefix). Si acabas de registrarte, el token se habrá mostrado al crear el proyecto. Guárdalo; lo usarás en todas las peticiones con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN.") %></li>
+          <li><strong><%= gettext("Envía tu primer evento") %></strong> — <%= gettext("Desde tu código o con curl: POST /api/v1/events con body JSON (por ejemplo {\"topic\":\"test\",\"message\":\"Hola\"}). En el Dashboard podrás ver el evento en la lista.") %></li>
+          <li><strong><%= gettext("Crea un webhook") %></strong> — <%= gettext("En el Dashboard, Webhooks → Crear. Pon una URL que pueda recibir POST (puedes usar webhook.site). Opcional: elige un topic (ej. test) para que solo los eventos con ese topic lleguen a esa URL. Guarda y envía otro evento de prueba.") %></li>
+          <li><strong><%= gettext("Crea un job (opcional)") %></strong> — <%= gettext("En el Dashboard, Jobs → Crear. Elige programación (por ejemplo Diario a las 12:00) y acción (emitir evento o POST a URL). Guarda; el job se ejecutará a la hora indicada. En \"Configurar jobs y cron\" más abajo tienes la guía de cron y ejemplos.") %></li>
+        </ol>
+        <p class="text-slate-500 text-sm"><%= gettext("Si algo falla, revisa que el token esté bien en el header y que la URL del webhook sea accesible (HTTPS en producción). Las entregas fallidas se pueden reintentar desde el Dashboard.") %></p>
       </section>
 
       <section id="base-url" class="mb-12 scroll-mt-24">
@@ -328,6 +380,50 @@
   -H "X-Api-Key: YOUR_API_KEY"</pre>
           </div>
         </div>
+      </section>
+
+      <section id="configurar-jobs-cron" class="mb-12 scroll-mt-24">
+        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Configurar jobs y cron") %></h2>
+        <p class="text-slate-600 mb-4"><%= gettext("Los jobs se programan de cuatro formas: diario, semanal, mensual o con una expresión cron. Aquí te explicamos cada una y cómo escribir expresiones cron si eliges esa opción.") %></p>
+
+        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2"><%= gettext("Tipos de programación (schedule_type)") %></h3>
+        <ul class="text-slate-700 text-sm space-y-2 mb-4 list-disc list-inside">
+          <li><strong>daily</strong> — <%= gettext("Cada día a la misma hora. Configuración: hour (0-23), minute (0-59). Ejemplo: 14:30 → {\"hour\": 14, \"minute\": 30}.") %></li>
+          <li><strong>weekly</strong> — <%= gettext("Un día de la semana a una hora. day_of_week: 1 = Lunes, 7 = Domingo. Ejemplo: Lunes 09:00 → {\"day_of_week\": 1, \"hour\": 9, \"minute\": 0}.") %></li>
+          <li><strong>monthly</strong> — <%= gettext("Un día del mes a una hora. day_of_month: 1-31. Ejemplo: Día 1 a las 00:00 → {\"day_of_month\": 1, \"hour\": 0, \"minute\": 0}.") %></li>
+          <li><strong>cron</strong> — <%= gettext("Expresión de 5 campos para máxima flexibilidad. Formato: minuto hora día_mes mes día_semana. Ver tabla abajo.") %></li>
+        </ul>
+
+        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2"><%= gettext("Expresiones cron: qué significa cada campo") %></h3>
+        <p class="text-slate-600 text-sm mb-2"><%= gettext("Una expresión cron tiene 5 campos separados por espacio, en este orden:") %></p>
+        <div class="overflow-x-auto mb-4">
+          <table class="min-w-full border border-slate-200 rounded-lg text-sm">
+            <thead class="bg-slate-100">
+              <tr>
+                <th class="px-3 py-2 text-left font-medium text-slate-700"><%= gettext("Campo") %></th>
+                <th class="px-3 py-2 text-left font-medium text-slate-700"><%= gettext("Significado") %></th>
+                <th class="px-3 py-2 text-left font-medium text-slate-700"><%= gettext("Valores") %></th>
+              </tr>
+            </thead>
+            <tbody class="text-slate-600">
+              <tr class="border-t border-slate-200"><td class="px-3 py-2 font-mono">1º</td><td class="px-3 py-2"><%= gettext("Minuto") %></td><td class="px-3 py-2">0-59</td></tr>
+              <tr class="border-t border-slate-200"><td class="px-3 py-2 font-mono">2º</td><td class="px-3 py-2"><%= gettext("Hora") %></td><td class="px-3 py-2">0-23</td></tr>
+              <tr class="border-t border-slate-200"><td class="px-3 py-2 font-mono">3º</td><td class="px-3 py-2"><%= gettext("Día del mes") %></td><td class="px-3 py-2">1-31</td></tr>
+              <tr class="border-t border-slate-200"><td class="px-3 py-2 font-mono">4º</td><td class="px-3 py-2"><%= gettext("Mes") %></td><td class="px-3 py-2">1-12</td></tr>
+              <tr class="border-t border-slate-200"><td class="px-3 py-2 font-mono">5º</td><td class="px-3 py-2"><%= gettext("Día de la semana") %></td><td class="px-3 py-2"><%= gettext("1-7 (1=Lun, 7=Dom)") %></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-slate-600 text-sm mb-2"><%= gettext("Puedes usar un número concreto, un asterisco (*) para \"cualquier valor\", o rangos (ej. 1-5 para lunes a viernes). Ejemplos:") %></p>
+        <ul class="text-slate-700 text-sm space-y-1 mb-4 list-disc list-inside" phx-no-curly-interpolation>
+          <li><code class="bg-slate-100 px-0.5 rounded">0 0 * * *</code> — <%= gettext("Todos los días a medianoche (00:00).") %></li>
+          <li><code class="bg-slate-100 px-0.5 rounded">0 9 * * *</code> — <%= gettext("Todos los días a las 09:00.") %></li>
+          <li><code class="bg-slate-100 px-0.5 rounded">0 9 * * 1</code> — <%= gettext("Solo los lunes a las 09:00.") %></li>
+          <li><code class="bg-slate-100 px-0.5 rounded">0 9 * * 1-5</code> — <%= gettext("Días laborables (Lun–Vie) a las 09:00.") %></li>
+          <li><code class="bg-slate-100 px-0.5 rounded">*/15 * * * *</code> — <%= gettext("Cada 15 minutos.") %></li>
+          <li><code class="bg-slate-100 px-0.5 rounded">0 0 1 * *</code> — <%= gettext("El día 1 de cada mes a las 00:00.") %></li>
+        </ul>
+        <p class="text-slate-500 text-sm"><%= gettext("En el Dashboard, al crear o editar un job, elige \"Cron\" como tipo y escribe la expresión en el campo (ej. 0 0 * * *). La hora se interpreta en el servidor; si necesitas otra zona horaria, configúrala en tu proyecto cuando esté disponible.") %></p>
       </section>
 
       <section id="project-token" class="mb-12 scroll-mt-24">

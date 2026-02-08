@@ -6,7 +6,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
   require Logger
 
   alias StreamflixCore.Repo
-  alias StreamflixCore.Schemas.{Delivery, Webhook}
+  alias StreamflixCore.Schemas.Delivery
   alias StreamflixCore.Platform
 
   @connect_timeout 5_000
