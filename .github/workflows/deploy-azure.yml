@@ -1,0 +1,45 @@
+# ============================================
+# Deploy to Azure: build image in ACR and restart Web App
+# Runs on: push to main (e.g. when a PR is merged)
+# ============================================
+
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+
+env:
+  ACR_NAME: jobcelisacr
+  IMAGE_NAME: jobscelis:latest
+  WEBAPP_NAME: jobcelis
+  RESOURCE_GROUP: jobscelis-rg
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and push image to ACR
+        run: |
+          az acr build --registry ${{ env.ACR_NAME }} --image ${{ env.IMAGE_NAME }} .
+        id: acr-build
+
+      - name: Restart Web App
+        run: |
+          az webapp restart --name ${{ env.WEBAPP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
+
+      - name: Logout Azure
+        if: always()
+        run: az logout
