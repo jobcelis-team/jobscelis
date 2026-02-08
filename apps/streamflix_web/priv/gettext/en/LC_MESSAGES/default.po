@@ -813,3 +813,161 @@ msgstr "Project not found"
 
 msgid "Proyecto no encontrado."
 msgstr "Project not found."
+
+# Legal (Terms & Privacy)
+msgid "Inicio"
+msgstr "Home"
+
+msgid "Privacidad"
+msgstr "Privacy"
+
+msgid "Términos"
+msgstr "Terms"
+
+msgid "Términos de uso"
+msgstr "Terms of use"
+
+msgid "Última actualización"
+msgstr "Last updated"
+
+msgid "Aceptación"
+msgstr "Acceptance"
+
+msgid "Propiedad intelectual y uso del Servicio"
+msgstr "Intellectual property and use of the Service"
+
+msgid "Originalidad y no afiliación"
+msgstr "Originality and no affiliation"
+
+msgid "Uso aceptable"
+msgstr "Acceptable use"
+
+msgid "Datos y privacidad"
+msgstr "Data and privacy"
+
+msgid "Política de privacidad"
+msgstr "Privacy policy"
+
+msgid "Sin garantía"
+msgstr "No warranty"
+
+msgid "Cambios"
+msgstr "Changes"
+
+msgid "Contacto"
+msgstr "Contact"
+
+msgid "Todos los derechos reservados."
+msgstr "All rights reserved."
+
+msgid "Responsable"
+msgstr "Data controller"
+
+msgid "Datos que recogemos"
+msgstr "Data we collect"
+
+msgid "Finalidad y legitimación"
+msgstr "Purpose and legal basis"
+
+msgid "Conservación y seguridad"
+msgstr "Retention and security"
+
+msgid "Tus derechos"
+msgstr "Your rights"
+
+msgid "Cookies y similares"
+msgstr "Cookies and similar"
+
+# Terms & Privacy body (Spanish msgid -> English msgstr)
+msgid "Al utilizar el servicio"
+msgstr "When you use the service"
+
+msgid "(«el Servicio»), aceptas estos Términos de uso. El Servicio es ofrecido por"
+msgstr "(\"the Service\"), you accept these Terms of use. The Service is provided by"
+
+msgid "Es un servicio gratuito; no se cobra por su uso."
+msgstr "It is a free service; no charge for its use."
+
+msgid "El Servicio, su marca, diseño, código y documentación son propiedad de"
+msgstr "The Service, its brand, design, code and documentation are owned by"
+
+msgid "No está permitido copiar, clonar, revender ni hacer pasar el Servicio como propio."
+msgstr "You may not copy, clone, resell or present the Service as your own."
+
+msgid "Puedes usar el Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación."
+msgstr "You may use the Service legitimately (send events, configure webhooks, use the API) as per the documentation."
+
+msgid "es un proyecto original desarrollado por"
+msgstr "is an original project developed by"
+
+msgid "No estamos afiliados, asociados ni respaldados por ninguna otra empresa, marca o servicio con nombre o funcionalidad similar."
+msgstr "We are not affiliated with, endorsed by or connected to any other company, brand or service with a similar name or functionality."
+
+msgid "Cualquier parecido con otros nombres o productos es puramente casual y no intencional. Si consideras que existe un conflicto con derechos de terceros, contacta con nosotros para resolverlo."
+msgstr "Any similarity to other names or products is purely coincidental and unintentional. If you believe there is a conflict with third-party rights, contact us to resolve it."
+
+msgid "Te comprometes a no usar el Servicio para actividades ilegales, spam, abuso de recursos ni para atacar a terceros."
+msgstr "You agree not to use the Service for illegal activities, spam, resource abuse or to attack third parties."
+
+msgid "Nos reservamos el derecho de suspender o dar de baja cuentas que incumplan estos términos."
+msgstr "We reserve the right to suspend or close accounts that breach these terms."
+
+msgid "El tratamiento de tus datos personales se describe en nuestra"
+msgstr "How we process your personal data is described in our"
+
+msgid "El Servicio se ofrece «tal cual». No garantizamos disponibilidad ininterrumpida ni ausencia de errores."
+msgstr "The Service is provided \"as is\". We do not guarantee uninterrupted availability or absence of errors."
+
+msgid "En la medida permitida por la ley, no seremos responsables por daños indirectos derivados del uso del Servicio."
+msgstr "To the extent permitted by law, we shall not be liable for indirect damages arising from use of the Service."
+
+msgid "Podemos modificar estos Términos. Los cambios se publicarán en esta página con una nueva fecha de «Última actualización»."
+msgstr "We may change these Terms. Changes will be published on this page with a new \"Last updated\" date."
+
+msgid "El uso continuado del Servicio tras los cambios implica la aceptación de los nuevos términos."
+msgstr "Continued use of the Service after changes constitutes acceptance of the new terms."
+
+msgid "Para dudas sobre estos Términos, contacta al titular del Servicio:"
+msgstr "For questions about these Terms, contact the Service owner:"
+
+msgid "Puedes contactarme por"
+msgstr "You can reach me via"
+
+msgid "mi perfil"
+msgstr "my profile"
+
+msgid "El responsable del tratamiento de los datos personales que recogemos a través del servicio"
+msgstr "The data controller for the personal data we collect through the service"
+
+msgid "es"
+msgstr "is"
+
+msgid "Recogemos los datos que nos facilitas al registrarte (correo electrónico, nombre si lo indicas y contraseña cifrada), así como los datos de uso del Servicio (eventos, webhooks, jobs que configuras) necesarios para prestar el servicio."
+msgstr "We collect the data you provide when registering (email, name if you give it, and encrypted password), as well as Service usage data (events, webhooks, jobs you configure) needed to provide the service."
+
+msgid "No vendemos ni compartimos tus datos con terceros con fines comerciales."
+msgstr "We do not sell or share your data with third parties for commercial purposes."
+
+msgid "Usamos tus datos para gestionar tu cuenta, prestar el Servicio (API, webhooks, entregas) y, en su caso, enviarte comunicaciones sobre el Servicio. La base legal es la ejecución del contrato (uso del Servicio) y tu consentimiento al registrarte."
+msgstr "We use your data to manage your account, provide the Service (API, webhooks, deliveries) and, where applicable, send you communications about the Service. The legal basis is performance of the contract (use of the Service) and your consent when registering."
+
+msgid "Conservamos los datos mientras mantengas la cuenta activa. Puedes solicitar la baja y el borrado de tus datos."
+msgstr "We keep the data while your account is active. You may request account closure and deletion of your data."
+
+msgid "Aplicamos medidas técnicas y organizativas para proteger tu información."
+msgstr "We apply technical and organisational measures to protect your information."
+
+msgid "Puedes acceder, rectificar, suprimir tus datos, oponerte a determinados tratamientos o solicitar la portabilidad, según la normativa aplicable (p. ej. RGPD en la UE). Para ejercerlos, contacta a"
+msgstr "You may access, rectify, delete your data, object to certain processing or request portability, as per applicable law (e.g. GDPR in the EU). To exercise these rights, contact"
+
+msgid "perfil"
+msgstr "profile"
+
+msgid "Utilizamos cookies técnicas necesarias para la sesión, el idioma y el correcto funcionamiento del Servicio."
+msgstr "We use technical cookies necessary for the session, language and proper operation of the Service."
+
+msgid "No usamos cookies publicitarias ni de terceros con fines de seguimiento."
+msgstr "We do not use advertising or third-party cookies for tracking."
+
+msgid "Podemos actualizar esta Política de privacidad. Los cambios se publicarán en esta página con la nueva fecha de «Última actualización». Te recomendamos revisarla de vez en cuando."
+msgstr "We may update this Privacy policy. Changes will be published on this page with a new \"Last updated\" date. We recommend reviewing it from time to time."

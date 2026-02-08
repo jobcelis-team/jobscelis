@@ -62,11 +62,13 @@ defmodule StreamflixWebWeb.Router do
     get "/locale/:locale", PageController, :set_locale
   end
 
-  # Auth routes + public docs (no redirect). Rate limit en login/signup.
+  # Auth routes + public docs + términos/privacidad (accesibles siempre, con o sin login)
   scope "/", StreamflixWebWeb do
     pipe_through [:browser, :browser_auth_rate_limit]
 
     get "/docs", PageController, :docs
+    get "/terms", PageController, :terms
+    get "/privacy", PageController, :privacy
     post "/login", AuthController, :login
     post "/signup", AuthController, :register
     delete "/logout", AuthController, :logout

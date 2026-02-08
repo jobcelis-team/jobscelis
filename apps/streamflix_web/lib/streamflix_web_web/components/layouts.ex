@@ -67,8 +67,11 @@ defmodule StreamflixWebWeb.Layouts do
   slot :inner_block, required: true
 
   def app(assigns) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
+    assigns = assign(assigns, :legal, legal)
+
     ~H"""
-    <div class="min-h-screen bg-slate-50 relative">
+    <div class="min-h-screen bg-slate-50 relative flex flex-col">
       <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
       <header class="bg-white border-b border-slate-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
@@ -86,9 +89,19 @@ defmodule StreamflixWebWeb.Layouts do
         </div>
       </header>
 
-      <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 py-8" role="main">
+      <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1" role="main">
         {render_slot(@inner_block)}
       </main>
+
+      <footer class="border-t border-slate-200 py-4 bg-white mt-auto">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
+          <span>© <%= Date.utc_today().year %> <%= Map.get(@legal, :owner, "Jobscelis") %>. <%= gettext("Todos los derechos reservados.") %></span>
+          <div class="flex items-center gap-4">
+            <a href="/terms" class="hover:text-slate-700"><%= gettext("Términos") %></a>
+            <a href="/privacy" class="hover:text-slate-700"><%= gettext("Privacidad") %></a>
+          </div>
+        </div>
+      </footer>
 
       <.flash_group flash={@flash} />
     </div>

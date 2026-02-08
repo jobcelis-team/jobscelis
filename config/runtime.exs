@@ -78,4 +78,20 @@ if config_env() == :prod do
   if cookie = System.get_env("NODE_COOKIE") do
     Node.set_cookie(String.to_atom(cookie))
   end
+
+  # Marca y titular legal (por defecto los de config.exs; en producción puedes sobrescribir con env)
+  env_legal =
+    Enum.filter(
+      [
+        product_name: System.get_env("LEGAL_PRODUCT_NAME"),
+        owner: System.get_env("LEGAL_OWNER")
+      ],
+      fn {_, v} -> is_binary(v) and v != "" end
+    )
+
+  legal =
+    Application.get_env(:streamflix_web, :legal, [product_name: "Jobscelis", owner: "Jobscelis"])
+    |> Keyword.merge(env_legal)
+
+  config :streamflix_web, :legal, legal
 end
