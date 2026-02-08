@@ -1,0 +1,62 @@
+<div class="min-h-screen bg-slate-50">
+  <nav class="bg-white/95 border-b border-slate-200/80 backdrop-blur-sm sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+      <a href="/" class="text-xl font-bold text-slate-900 tracking-tight"><%= Map.get(@legal, :product_name, "Jobcelis") %></a>
+      <div class="flex items-center gap-4">
+        <a href="/locale/es" class={[@locale == "es" && "text-slate-900 font-medium" || "text-slate-500 hover:text-slate-700"]}>ES</a>
+        <span class="text-slate-300">|</span>
+        <a href="/locale/en" class={[@locale == "en" && "text-slate-900 font-medium" || "text-slate-500 hover:text-slate-700"]}>EN</a>
+        <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Documentación") %></a>
+        <a href="/faq" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("FAQ") %></a>
+        <a href="/about" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Sobre nosotros") %></a>
+        <a href="/contact" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Contacto") %></a>
+        <a href="/pricing" class="text-indigo-600 font-medium text-sm"><%= gettext("Planes") %></a>
+        <a href="/" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Inicio") %></a>
+        <a href="/terms" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Términos") %></a>
+        <a href="/privacy" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Privacidad") %></a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Planes y precios") %></h1>
+    <p class="text-slate-600 mb-10"><%= gettext("%{product} es un servicio gratuito. No hay planes de pago ni facturación.", product: Map.get(@legal, :product_name, "Jobcelis")) %></p>
+
+    <div class="space-y-8">
+      <section class="bg-white rounded-xl border border-slate-200 p-6">
+        <h2 class="text-xl font-semibold text-slate-900 mb-2"><%= gettext("Uso gratuito") %></h2>
+        <p class="text-slate-600 mb-4"><%= gettext("Puedes registrarte, usar eventos, webhooks y jobs programados sin coste. No hay límites de pago ni suscripciones. El servicio se ofrece tal cual, sin garantías comerciales.") %></p>
+        <p class="text-slate-500 text-sm"><%= gettext("Los detalles de uso aceptable figuran en los Términos de uso.") %></p>
+      </section>
+
+      <section class="bg-white rounded-xl border border-indigo-100 p-6 border-indigo-200">
+        <h2 class="text-xl font-semibold text-slate-900 mb-2"><%= gettext("Apoyar el proyecto") %></h2>
+        <p class="text-slate-600 mb-4"><%= gettext("Si %{product} te resulta útil y quieres apoyar su desarrollo, puedes hacer una donación voluntaria a través de los siguientes enlaces. No es obligatorio ni afecta al uso del servicio.", product: Map.get(@legal, :product_name, "Jobcelis")) %></p>
+        <div class="flex flex-wrap gap-4">
+          <%= if url = Map.get(@legal, :donation_paypal_url) && Map.get(@legal, :donation_paypal_url) != "" do %>
+            <a href={url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#0070ba] text-white font-medium text-sm hover:opacity-90 transition">
+              <.icon name="hero-currency-dollar" class="w-5 h-5" />
+              PayPal
+            </a>
+          <% end %>
+          <%= if url = Map.get(@legal, :donation_payoneer_url) && Map.get(@legal, :donation_payoneer_url) != "" do %>
+            <a href={url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#ff6200] text-white font-medium text-sm hover:opacity-90 transition">
+              <.icon name="hero-currency-dollar" class="w-5 h-5" />
+              Payoneer
+            </a>
+          <% end %>
+        </div>
+        <%= if (Map.get(@legal, :donation_paypal_url) || "") == "" and (Map.get(@legal, :donation_payoneer_url) || "") == "" do %>
+          <p class="text-slate-500 text-sm mt-4"><%= gettext("Los enlaces de donación estarán disponibles próximamente. Si deseas donar ya, escríbeme a") %> <%= if email = Map.get(@legal, :contact_email) && Map.get(@legal, :contact_email) != "" do %><a href={"mailto:#{email}"} class="text-indigo-600 hover:underline"><%= email %></a><% else %><%= gettext("la dirección de contacto") %><% end %>.</p>
+        <% end %>
+      </section>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-slate-200 flex gap-4 text-sm">
+      <a href="/contact" class="text-indigo-600 hover:text-indigo-700 font-medium"><%= gettext("Contacto") %></a>
+      <a href="/about" class="text-slate-500 hover:text-slate-700"><%= gettext("Sobre nosotros") %></a>
+      <a href="/terms" class="text-slate-500 hover:text-slate-700"><%= gettext("Términos") %></a>
+      <a href="/privacy" class="text-slate-500 hover:text-slate-700"><%= gettext("Privacidad") %></a>
+    </div>
+  </main>
+</div>

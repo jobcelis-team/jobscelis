@@ -25,12 +25,16 @@ config :streamflix_core, StreamflixCore.Repo,
 
 config :streamflix_web, StreamflixWebWeb.Gettext, default_locale: "es"
 
-# Marca y titular legal (copyright, términos). Servicio de Vladimir Celi.
+# Marca y titular legal (copyright, términos, contacto, donaciones). Servicio de Vladimir Celi.
 config :streamflix_web, :legal,
   product_name: "Jobcelis",
   owner: "Vladimir Celi",
   contact_url: "https://github.com/vladimirCeli",
-  profile_url: "https://vladimirceli.github.io/perfil/"
+  profile_url: "https://vladimirceli.github.io/perfil/",
+  contact_email: "vladimir.celi@proton.me",
+  # Opcional: enlaces para donaciones. Dejar "" si no usas; en producción puedes usar env DONATION_PAYPAL_URL, DONATION_PAYONEER_URL
+  donation_paypal_url: "",
+  donation_payoneer_url: ""
 
 config :streamflix_web, StreamflixWebWeb.Endpoint,
   url: [host: "localhost"],

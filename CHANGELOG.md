@@ -16,6 +16,9 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - Índice de documentación en `docs/INDICE-DOCUMENTACION.md`.
 - CHANGELOG.md para historial de versiones.
 - Enlaces en footer a FAQ y documentación/guía.
+- Página **Contacto** (`/contact`): email de contacto (config `contact_email`), GitHub y perfil.
+- Página **Planes y precios** (`/pricing`): servicio gratuito; sección "Apoyar el proyecto" con enlaces opcionales a PayPal y Payoneer (config `donation_paypal_url`, `donation_payoneer_url` o env `DONATION_PAYPAL_URL`, `DONATION_PAYONEER_URL`).
+- Config `:legal`: `contact_email`, `donation_paypal_url`, `donation_payoneer_url`; en producción se pueden sobrescribir con variables de entorno.
 
 ### Cambiado
 
