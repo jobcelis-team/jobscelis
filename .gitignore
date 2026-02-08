@@ -209,3 +209,6 @@ config/*.local.exs
 config/dev.local.exs
 config/test.local.exs
 /whisper_vtt-main
+
+# Examples (test projects - may contain local .env with API keys)
+/examples/
