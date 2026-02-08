@@ -45,6 +45,36 @@ defmodule StreamflixWebWeb.PageController do
     render(conn, :faq, legal: legal, locale: locale)
   end
 
+  def about(conn, _params) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
+    locale = get_session(conn, :locale) || "es"
+    render(conn, :about, legal: legal, locale: locale)
+  end
+
+  def contact(conn, _params) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
+    locale = get_session(conn, :locale) || "es"
+    render(conn, :contact, legal: legal, locale: locale)
+  end
+
+  def pricing(conn, _params) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
+    locale = get_session(conn, :locale) || "es"
+    render(conn, :pricing, legal: legal, locale: locale)
+  end
+
+  def cookies(conn, _params) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
+    locale = get_session(conn, :locale) || "es"
+    render(conn, :cookies, legal: legal, locale: locale)
+  end
+
+  def changelog(conn, _params) do
+    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
+    locale = get_session(conn, :locale) || "es"
+    render(conn, :changelog, legal: legal, locale: locale)
+  end
+
   def set_locale(conn, %{"locale" => locale}) do
     locale = if locale in ["es", "en"], do: locale, else: "es"
     referer = get_req_header(conn, "referer") |> List.first()

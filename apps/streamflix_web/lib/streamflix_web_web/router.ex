@@ -68,8 +68,13 @@ defmodule StreamflixWebWeb.Router do
 
     get "/docs", PageController, :docs
     get "/faq", PageController, :faq
+    get "/about", PageController, :about
+    get "/contact", PageController, :contact
+    get "/pricing", PageController, :pricing
     get "/terms", PageController, :terms
     get "/privacy", PageController, :privacy
+    get "/cookies", PageController, :cookies
+    get "/changelog", PageController, :changelog
     post "/login", AuthController, :login
     post "/signup", AuthController, :register
     delete "/logout", AuthController, :logout

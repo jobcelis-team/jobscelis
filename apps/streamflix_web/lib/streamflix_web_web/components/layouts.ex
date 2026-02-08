@@ -100,8 +100,13 @@ defmodule StreamflixWebWeb.Layouts do
           <div class="flex items-center gap-4">
             <a href="/docs" class="hover:text-slate-700"><%= gettext("Documentación") %></a>
             <a href="/faq" class="hover:text-slate-700"><%= gettext("FAQ") %></a>
+            <a href="/about" class="hover:text-slate-700"><%= gettext("Sobre nosotros") %></a>
+            <a href="/contact" class="hover:text-slate-700"><%= gettext("Contacto") %></a>
+            <a href="/pricing" class="hover:text-slate-700"><%= gettext("Planes") %></a>
             <a href="/terms" class="hover:text-slate-700"><%= gettext("Términos") %></a>
             <a href="/privacy" class="hover:text-slate-700"><%= gettext("Privacidad") %></a>
+            <a href="/cookies" class="hover:text-slate-700"><%= gettext("Cookies") %></a>
+            <a href="/changelog" class="hover:text-slate-700"><%= gettext("Changelog") %></a>
           </div>
         </div>
       </footer>
