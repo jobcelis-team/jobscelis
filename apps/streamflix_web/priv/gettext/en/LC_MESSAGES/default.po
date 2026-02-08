@@ -1255,3 +1255,60 @@ msgstr "1st day of every month at 00:00."
 
 msgid "En el Dashboard, al crear o editar un job, elige \"Cron\" como tipo y escribe la expresión en el campo (ej. 0 0 * * *). La hora se interpreta en el servidor; si necesitas otra zona horaria, configúrala en tu proyecto cuando esté disponible."
 msgstr "In the Dashboard, when creating or editing a job, choose \"Cron\" as the type and enter the expression in the field (e.g. 0 0 * * *). Time is interpreted on the server; if you need another timezone, configure it in your project when available."
+
+msgid "FAQ"
+msgstr "FAQ"
+
+msgid "Preguntas frecuentes"
+msgstr "Frequently asked questions"
+
+msgid "Respuestas rápidas a las dudas más habituales sobre Jobcelis."
+msgstr "Quick answers to the most common questions about Jobcelis."
+
+msgid "¿Qué es Jobcelis?"
+msgstr "What is Jobcelis?"
+
+msgid "Jobcelis es una plataforma de eventos y webhooks: envías datos (eventos) desde tu aplicación con un simple POST, y Jobcelis los entrega a las URLs que configures (webhooks), con filtros y reintentos automáticos. Además puedes programar tareas (jobs) que se ejecuten cada día, semana, mes o con expresión cron."
+msgstr "Jobcelis is an events and webhooks platform: you send data (events) from your app with a simple POST, and Jobcelis delivers them to the URLs you configure (webhooks), with filters and automatic retries. You can also schedule tasks (jobs) to run daily, weekly, monthly, or with a cron expression."
+
+msgid "¿Dónde obtengo mi API Token?"
+msgstr "Where do I get my API Token?"
+
+msgid "Tras iniciar sesión, entra en el Dashboard. En la sección API Token verás el token (o su prefijo). Si acabas de registrarte, el token completo se mostró una vez al crear el proyecto; guárdalo. Puedes regenerar el token desde el Dashboard; el anterior dejará de funcionar."
+msgstr "After logging in, go to the Dashboard. In the API Token section you'll see the token (or its prefix). If you just signed up, the full token was shown once when the project was created; save it. You can regenerate the token from the Dashboard; the previous one will stop working."
+
+msgid "¿Cómo envío un evento desde mi código?"
+msgstr "How do I send an event from my code?"
+
+msgid "Haz un POST a /api/v1/events (o /api/v1/send) con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN y Content-Type: application/json. El body puede ser cualquier JSON; opcionalmente incluye un campo \"topic\" para clasificar el evento. La documentación en /docs tiene ejemplos con curl."
+msgstr "Send a POST to /api/v1/events (or /api/v1/send) with header Authorization: Bearer YOUR_TOKEN or X-Api-Key: YOUR_TOKEN and Content-Type: application/json. The body can be any JSON; optionally include a \"topic\" field to classify the event. The documentation at /docs has curl examples."
+
+msgid "¿Qué es un webhook y para qué sirve?"
+msgstr "What is a webhook and what is it for?"
+
+msgid "Un webhook es una URL que tú configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos. Así tu servidor o otro sistema recibe la información en tiempo real sin tener que consultar la API. Puedes configurar varios webhooks y filtrar por topic o por campos del payload."
+msgstr "A webhook is a URL you configure. When an event arrives that meets the conditions (topic, filters), Jobcelis sends a POST to that URL with the data. So your server or another system receives the information in real time without polling the API. You can configure multiple webhooks and filter by topic or payload fields."
+
+msgid "¿Qué pasa si una entrega falla?"
+msgstr "What happens if a delivery fails?"
+
+msgid "Jobcelis reintenta automáticamente con pausas (1 min, 5 min, 15 min, 1 h). Puedes ver el estado de cada entrega en el Dashboard y usar \"Reintentar\" manualmente para una entrega fallida. Asegúrate de que la URL del webhook sea accesible (HTTPS en producción) y responda en un tiempo razonable."
+msgstr "Jobcelis retries automatically with backoff (1 min, 5 min, 15 min, 1 h). You can see each delivery's status in the Dashboard and use \"Retry\" manually for a failed delivery. Make sure the webhook URL is reachable (HTTPS in production) and responds within a reasonable time."
+
+msgid "¿Cómo configuro un job que se ejecute cada día a una hora?"
+msgstr "How do I set up a job to run every day at a certain time?"
+
+msgid "En el Dashboard, Jobs → Crear. Elige tipo \"Diario\" y configura la hora y el minuto. Como acción puedes \"Emitir evento\" (con topic y payload) o \"POST a URL\". Para horarios más complejos (cada 15 min, solo lunes, etc.) elige tipo \"Cron\" y escribe una expresión; en la Documentación, sección \"Configurar jobs y cron\", tienes la tabla de campos y ejemplos."
+msgstr "In the Dashboard, Jobs → Create. Choose type \"Daily\" and set the hour and minute. For the action you can \"Emit event\" (with topic and payload) or \"POST to URL\". For more complex schedules (every 15 min, Mondays only, etc.) choose type \"Cron\" and enter an expression; in the Documentation, \"Configuring jobs and cron\" section, you have the field table and examples."
+
+msgid "¿Es gratuito?"
+msgstr "Is it free?"
+
+msgid "Sí. Jobcelis es un servicio gratuito. No hay planes de pago ni facturación."
+msgstr "Yes. Jobcelis is a free service. There are no paid plans or billing."
+
+msgid "¿Dónde encuentro más ayuda?"
+msgstr "Where can I find more help?"
+
+msgid "En la web: Documentación (/docs) tiene conceptos, primeros pasos, referencia de la API y la guía de cron. Los Términos y la Política de privacidad incluyen datos de contacto del titular del servicio."
+msgstr "On the web: Documentation (/docs) has concepts, first steps, API reference and the cron guide. The Terms and Privacy Policy include contact details for the service owner."

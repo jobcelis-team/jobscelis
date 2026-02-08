@@ -67,6 +67,7 @@ defmodule StreamflixWebWeb.Router do
     pipe_through [:browser, :browser_auth_rate_limit]
 
     get "/docs", PageController, :docs
+    get "/faq", PageController, :faq
     get "/terms", PageController, :terms
     get "/privacy", PageController, :privacy
     post "/login", AuthController, :login
