@@ -33,8 +33,7 @@ if config_env() == :prod do
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
   # prepare: :unnamed necesario con Supabase pooler (PgBouncer); si no, "prepared statement does not exist"
-  # ssl: verify_none suficiente si el canal ya está protegido (túnel, red interna).
-  # Para cumplimiento estricto (p. ej. auditoría): usar verify_peer y CA, ej. ssl: [verify: :verify_peer, cacertfile: System.get_env("DB_CA_CERT")], con el certificado CA en ese path.
+  # ssl: opciones en :ssl (ssl_opts está deprecado)
   config :streamflix_core, StreamflixCore.Repo,
     url: database_url,
     pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "10"),
@@ -53,9 +52,6 @@ if config_env() == :prod do
   host = System.get_env("PHX_HOST") || "jobcelis.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
-  # Session signing salt (recomendado en prod para rotación sin recompilar)
-  session_signing_salt = System.get_env("SESSION_SIGNING_SALT")
-
   config :streamflix_web, StreamflixWebWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [
@@ -64,8 +60,7 @@ if config_env() == :prod do
       port: port
     ],
     secret_key_base: secret_key_base,
-    server: true,
-    session_signing_salt: session_signing_salt
+    server: true
 
   # Guardian Secret Key
   guardian_secret =
