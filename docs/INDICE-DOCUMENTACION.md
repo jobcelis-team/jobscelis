@@ -38,6 +38,7 @@ Este documento enumera **toda la documentación y elementos** que tiene el proye
 | **.github/workflows/** | ✅ Hecho | .github/ | CI/CD (deploy a Azure). |
 | **.github/SECRETS-GITHUB.md** | ✅ Hecho | .github/ | Cómo configurar secrets para el deploy. |
 | **.github/DEPLOY-AZURE-ACTIONS.md** | ✅ Hecho | .github/ | Documentación del workflow de deploy. |
+| **docs/AUDITORIA-CALIDAD-SEGURIDAD.md** | ✅ Añadido | docs/ | Auditoría de calidad, seguridad y estándares (sin cambios en código). |
 
 ---
 

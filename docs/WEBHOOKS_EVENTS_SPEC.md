@@ -65,6 +65,16 @@ Así el cliente no mantiene lógica de routing ni de formato ni de cron: solo no
 
 ---
 
+### 3.1 Seguridad: URLs de webhook y riesgo SSRF
+
+El sistema hace **POST a la URL que el cliente configura** en cada webhook (y en jobs programados con URL). Por tanto:
+
+- **Usa solo URLs que controlas o en las que confías.** No configures como destino URLs de terceros que no sean de tu propiedad o de servicios que hayas autorizado (ej. tu propio backend, un webhook de Zapier/Make que sea tuyo).
+- **Riesgo SSRF (Server-Side Request Forgery):** Si una URL apunta a una dirección interna (p. ej. `http://127.0.0.1`, `http://169.254.x.x`, IPs de red interna), el servidor podría enviar peticiones a recursos internos. Por buenas prácticas, configura únicamente URLs públicas o de tu infraestructura que estén pensadas para recibir estos POST.
+- La URL debe ser `http://` o `https://` (validación en el esquema). El resto de la seguridad depende de que el cliente use destinos propios o autorizados.
+
+---
+
 ## 4. Cómo lo usa el cliente en su código (tipo “extensión”)
 
 Solo necesita nuestro endpoint y su API key. **Envía lo que quiera.**
