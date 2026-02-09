@@ -62,6 +62,13 @@ defmodule StreamflixWebWeb.Router do
     get "/locale/:locale", PageController, :set_locale
   end
 
+  # Sitemap para SEO (Google Search Console)
+  scope "/", StreamflixWebWeb do
+    pipe_through :browser
+
+    get "/sitemap.xml", SitemapController, :index
+  end
+
   # Auth routes + public docs + términos/privacidad (accesibles siempre, con o sin login)
   scope "/", StreamflixWebWeb do
     pipe_through [:browser, :browser_auth_rate_limit]
