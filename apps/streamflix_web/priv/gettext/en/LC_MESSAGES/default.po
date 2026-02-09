@@ -1582,3 +1582,42 @@ msgstr "Using the API from the browser or other origins."
 
 msgid "Códigos HTTP que devuelve la API."
 msgstr "HTTP status codes returned by the API."
+
+msgid "URLs de destino, filtros (topic, amount, status), body_config (full, pick, rename, extra)."
+msgstr "Destination URLs, filters (topic, amount, status), body_config (full, pick, rename, extra)."
+
+msgid "reintentos automáticos 1 min → 5 min → 15 min → 1 h."
+msgstr "automatic retries 1 min → 5 min → 15 min → 1 h."
+
+msgid "daily, weekly, monthly o cron. Emitir evento o POST a URL."
+msgstr "daily, weekly, monthly or cron. Emit event or POST to URL."
+
+msgid "etiquetas para filtrar y organizar eventos."
+msgstr "labels to filter and organize events."
+
+msgid "Rutas públicas:"
+msgstr "Public routes:"
+
+msgid "registro, login, refresh JWT. Sin API Key."
+msgstr "register, login, refresh JWT. No API Key."
+
+msgid "eventos, webhooks, deliveries, jobs, proyecto. Token en Dashboard."
+msgstr "events, webhooks, deliveries, jobs, project. Token in Dashboard."
+
+msgid "Respuestas en JSON. CORS habilitado. Payload máximo 256 KB."
+msgstr "Responses in JSON. CORS enabled. Max payload 256 KB."
+
+msgid "Webhook a https://mi-app.com/recibir-pedidos solo cuando topic sea \"order.created\" y amount sea mayor que 50."
+msgstr "Webhook to https://mi-app.com/receive-orders only when topic is \"order.created\" and amount is greater than 50."
+
+msgid "Job \"Resumen diario\" que cada día a las 00:00 emite un evento con topic \"report.daily\"; tus webhooks lo reciben y tu sistema genera el informe."
+msgstr "Job \"Daily summary\" that every day at 00:00 emits an event with topic \"report.daily\"; your webhooks receive it and your system generates the report."
+
+msgid "Hello"
+msgstr "Hello"
+
+msgid "YOUR_JWT_HERE"
+msgstr "YOUR_JWT_HERE"
+
+msgid "My Project"
+msgstr "My Project"

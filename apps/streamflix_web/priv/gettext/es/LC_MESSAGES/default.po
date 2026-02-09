@@ -1487,3 +1487,12 @@ msgstr "Uso de la API desde el navegador u otros orígenes."
 
 msgid "Códigos HTTP que devuelve la API."
 msgstr "Códigos HTTP que devuelve la API."
+
+msgid "Hello"
+msgstr "Hola"
+
+msgid "YOUR_JWT_HERE"
+msgstr "TU_JWT_AQUI"
+
+msgid "My Project"
+msgstr "Mi Proyecto"
