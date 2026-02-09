@@ -293,7 +293,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                     class="w-full max-w-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900"
                     placeholder={gettext("Nombre del proyecto")}
                   />
-                  <button type="submit" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">
+                  <button type="submit" phx-disable-with={gettext("Guardando...")} class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed">
                     <%= gettext("Guardar") %>
                   </button>
                   <button type="button" phx-click="cancel_edit_project_name" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-sm font-medium">
@@ -359,8 +359,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 <% end %>
                 <button
                   phx-click="regenerate_token"
+                  phx-disable-with={gettext("Regenerando...")}
                   type="button"
-                  class="mt-4 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition"
+                  class="mt-4 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Regenerar token") %>
                 </button>
@@ -368,8 +369,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 <p class="text-slate-600 mb-3"><%= gettext("No hay API key.") %></p>
                 <button
                   phx-click="regenerate_token"
+                  phx-disable-with={gettext("Regenerando...")}
                   type="button"
-                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition"
+                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Generar token") %>
                 </button>
@@ -381,7 +383,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3 max-w-lg">
                 <.input type="text" name="topic" id="test-topic" value={@test_topic} placeholder={gettext("Topic (opcional)")} class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm" />
                 <.input type="textarea" name="payload" id="test-payload" value={@test_payload} class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm" />
-                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition">
+                <button type="submit" phx-disable-with={gettext("Enviando...")} class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed">
                   <%= gettext("Enviar") %>
                 </button>
               </.form>
@@ -441,7 +443,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 <button
                   type="button"
                   phx-click="new_job"
-                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
+                  phx-disable-with={gettext("Cargando...")}
+                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <.icon name="hero-plus" class="w-4 h-4" />
                   <%= gettext("Nuevo job") %>
@@ -471,10 +474,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         </td>
                         <td class="px-5 py-4 text-right">
                           <div class="inline-flex gap-2">
-                            <button phx-click="edit_job" phx-value-id={j.id} class="text-indigo-600 hover:text-indigo-700 font-medium text-sm"><%= gettext("Editar") %></button>
-                            <button phx-click="show_job_runs" phx-value-id={j.id} class="text-slate-600 hover:text-slate-700 font-medium text-sm"><%= gettext("Runs") %></button>
+                            <button phx-click="edit_job" phx-value-id={j.id} phx-disable-with={gettext("Cargando...")} class="text-indigo-600 hover:text-indigo-700 font-medium text-sm disabled:opacity-70"><%= gettext("Editar") %></button>
+                            <button phx-click="show_job_runs" phx-value-id={j.id} phx-disable-with={gettext("Cargando...")} class="text-slate-600 hover:text-slate-700 font-medium text-sm disabled:opacity-70"><%= gettext("Runs") %></button>
                             <%= if j.status == "active" do %>
-                              <button phx-click="deactivate_job" phx-value-id={j.id} class="text-red-600 hover:text-red-700 font-medium text-sm"><%= gettext("Desactivar") %></button>
+                              <button phx-click="deactivate_job" phx-value-id={j.id} phx-disable-with={gettext("Desactivando...")} class="text-red-600 hover:text-red-700 font-medium text-sm disabled:opacity-70"><%= gettext("Desactivar") %></button>
                             <% end %>
                           </div>
                         </td>
@@ -511,7 +514,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         <td class="px-5 py-4 text-sm text-slate-600">{format_dt(d.inserted_at)}</td>
                         <td class="px-5 py-4 text-right">
                           <%= if d.status != "success" and d.status != "pending" do %>
-                            <button phx-click="retry_delivery" phx-value-id={d.id} class="text-indigo-600 hover:text-indigo-700 font-medium text-sm"><%= gettext("Reintentar") %></button>
+                            <button phx-click="retry_delivery" phx-value-id={d.id} phx-disable-with={gettext("Reintentando...")} class="text-indigo-600 hover:text-indigo-700 font-medium text-sm disabled:opacity-70"><%= gettext("Reintentar") %></button>
                           <% end %>
                         </td>
                       </tr>
@@ -623,7 +626,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
                       <div class="flex flex-wrap justify-end gap-3 pt-4 border-t border-slate-200">
                         <button type="button" phx-click="close_job_modal" class="px-5 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 font-medium transition"><%= gettext("Cancelar") %></button>
-                        <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium shadow-sm transition"><%= gettext("Guardar") %></button>
+                        <button type="submit" phx-disable-with={gettext("Guardando...")} class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed"><%= gettext("Guardar") %></button>
                       </div>
                     </div>
                   </.form>

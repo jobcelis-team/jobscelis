@@ -20,6 +20,21 @@
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
 
+// Disable submit button and show loading text on form submit (login/signup and any form with data-submit-loading)
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll("form[data-submit-loading]").forEach(function (form) {
+    form.addEventListener("submit", function () {
+      const btn = form.querySelector('button[type="submit"]')
+      if (btn && !btn.disabled) {
+        btn.disabled = true
+        const loadingText = btn.getAttribute("data-loading-text") || "Loading..."
+        btn.dataset.originalText = btn.textContent
+        btn.textContent = loadingText
+      }
+    })
+  })
+})
+
 // Password visibility toggle (login/signup): accessible show/hide
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll("[data-password-toggle]").forEach(function (wrap) {
