@@ -183,7 +183,7 @@
               <div>
                 <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Envía tu primer evento") %></h3>
                 <p class="text-slate-600 text-sm leading-relaxed mb-3"><%= gettext("Desde tu código o con curl: POST /api/v1/events con body JSON (por ejemplo {\"topic\":\"test\",\"message\":\"Hola\"}). En el Dashboard podrás ver el evento en la lista.") %></p>
-                <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "BASE_URL/api/v1/events" -H "Authorization: Bearer TU_TOKEN" -H "Content-Type: application/json" -d '{"topic":"test","message":"Hola"}'</pre>
+                <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto font-mono">curl -X POST "BASE_URL/api/v1/events" -H "Authorization: Bearer TU_TOKEN" -H "Content-Type: application/json" -d '<%= "{\"topic\":\"test\",\"message\":\"" %><%= gettext("Hello") %><%= "\"}" %>'</pre>
               </div>
             </div>
             <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
@@ -304,9 +304,9 @@
               <p class="text-slate-700 text-sm mb-2"><%= gettext("Refresca el JWT. Body: token (JWT actual).") %></p>
               <p class="text-slate-500 text-xs mb-3"><%= gettext("Respuesta 200: token (nuevo JWT). 401 si token inválido o expirado.") %></p>
               <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
-              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/refresh" \
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono">curl -X POST "<%= @base_url %>/api/v1/auth/refresh" \
   -H "Content-Type: application/json" \
-  -d '{"token":"TU_JWT_AQUI"}'</pre>
+  -d '<%= "{\"token\":\"" %><%= gettext("YOUR_JWT_HERE") %><%= "\"}" %>'</pre>
             </div>
           </div>
         </div>
@@ -656,10 +656,10 @@
                 <code class="font-mono text-slate-800 font-medium">/api/v1/project</code>
               </div>
               <p class="text-slate-700 text-sm mb-3"><%= gettext("Actualiza el proyecto. Body: name, settings (objeto). Respuesta: id, name, status.") %></p>
-              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/project" \
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono">curl -X PATCH "<%= @base_url %>/api/v1/project" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{"name":"Mi Proyecto","settings":{"timezone":"Europe/Madrid"}}'</pre>
+  -d '<%= "{\"name\":\"" %><%= gettext("My Project") %><%= "\",\"settings\":{\"timezone\":\"Europe/Madrid\"}}" %>'</pre>
             </div>
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <div class="flex flex-wrap items-center gap-2 mb-3">
