@@ -1460,3 +1460,30 @@ msgstr "Reintentando..."
 
 msgid "Activando..."
 msgstr "Activando..."
+
+msgid "Visión general"
+msgstr "Visión general"
+
+msgid "Referencia API"
+msgstr "Referencia API"
+
+msgid "Qué es Jobcelis y qué puedes hacer con la API."
+msgstr "Qué es Jobcelis y qué puedes hacer con la API."
+
+msgid "Capacidades principales"
+msgstr "Capacidades principales"
+
+msgid "Grupos de rutas"
+msgstr "Grupos de rutas"
+
+msgid "Ejemplo"
+msgstr "Ejemplo"
+
+msgid "Cómo enviar el API Key o usar JWT en las peticiones."
+msgstr "Cómo enviar el API Key o usar JWT en las peticiones."
+
+msgid "Uso de la API desde el navegador u otros orígenes."
+msgstr "Uso de la API desde el navegador u otros orígenes."
+
+msgid "Códigos HTTP que devuelve la API."
+msgstr "Códigos HTTP que devuelve la API."

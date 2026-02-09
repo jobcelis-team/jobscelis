@@ -1,5 +1,5 @@
-<div class="min-h-screen bg-slate-50 flex flex-col">
-  <nav class="bg-white border-b border-slate-200 shrink-0">
+<div class="min-h-screen bg-slate-100 flex flex-col">
+  <nav class="bg-white border-b border-slate-200 shrink-0 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
       <a href="/" class="text-lg font-bold text-slate-900">Jobcelis</a>
       <div class="flex items-center gap-4">
@@ -24,369 +24,575 @@
     </div>
   </nav>
 
-  <div class="flex flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
-    <%!-- Sidebar: cada enlace apunta a un id existente en el contenido --%>
-    <aside class="hidden lg:block w-56 shrink-0 pr-8" aria-label={gettext("Navegación de la documentación")}>
-      <nav class="sticky top-6 space-y-0 text-sm">
-        <p class="font-semibold text-slate-500 uppercase tracking-wider mb-3 px-1"><%= gettext("Contenido") %></p>
-        <a href="#intro" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Introducción") %></a>
-        <a href="#concepts" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Conceptos básicos") %></a>
-        <a href="#getting-started" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Primeros pasos") %></a>
-        <a href="#base-url" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Base URL") %></a>
-        <a href="#auth" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Autenticación") %></a>
-        <a href="#cors" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("CORS") %></a>
-        <div class="pt-1 pb-1">
-          <a href="#public-routes" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100 font-medium"><%= gettext("Rutas públicas (Auth)") %></a>
-          <div class="pl-3 mt-0.5 border-l border-slate-200 space-y-0.5">
-            <a href="#auth-register" class="block py-1.5 px-2 rounded-md text-slate-500 hover:text-indigo-600 text-xs">Register</a>
-            <a href="#auth-login" class="block py-1.5 px-2 rounded-md text-slate-500 hover:text-indigo-600 text-xs">Login</a>
-            <a href="#auth-refresh" class="block py-1.5 px-2 rounded-md text-slate-500 hover:text-indigo-600 text-xs">Refresh</a>
+  <div class="flex flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-10">
+    <%!-- Sidebar con grupos claros --%>
+    <aside class="hidden lg:block w-64 shrink-0" aria-label={gettext("Navegación de la documentación")}>
+      <nav class="sticky top-8 space-y-6 text-sm bg-white/80 backdrop-blur rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div>
+          <p class="font-bold text-slate-700 uppercase tracking-wider mb-2 px-2 text-xs"><%= gettext("Visión general") %></p>
+          <div class="space-y-0.5">
+            <a href="#intro" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Introducción") %></a>
+            <a href="#concepts" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Conceptos básicos") %></a>
+            <a href="#getting-started" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Primeros pasos") %></a>
           </div>
         </div>
-        <a href="#events" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Eventos") %></a>
-        <a href="#webhooks" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Webhooks") %></a>
-        <a href="#deliveries" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Entregas") %></a>
-        <a href="#jobs" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Jobs") %></a>
-        <a href="#jobs-cron" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Configurar jobs y cron") %></a>
-        <a href="#project-token" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Proyecto, topics y token") %></a>
-        <a href="#usage" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Formas de uso") %></a>
-        <a href="#status-codes" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Códigos de respuesta") %></a>
+        <div class="border-t border-slate-200 pt-4">
+          <p class="font-bold text-slate-700 uppercase tracking-wider mb-2 px-2 text-xs"><%= gettext("Configuración") %></p>
+          <div class="space-y-0.5">
+            <a href="#base-url" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Base URL") %></a>
+            <a href="#auth" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Autenticación") %></a>
+            <a href="#cors" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("CORS") %></a>
+          </div>
+        </div>
+        <div class="border-t border-slate-200 pt-4">
+          <p class="font-bold text-slate-700 uppercase tracking-wider mb-2 px-2 text-xs"><%= gettext("Rutas públicas (Auth)") %></p>
+          <div class="space-y-0.5 pl-1">
+            <a href="#auth-register" class="block py-1.5 px-3 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition text-xs font-mono">POST /auth/register</a>
+            <a href="#auth-login" class="block py-1.5 px-3 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition text-xs font-mono">POST /auth/login</a>
+            <a href="#auth-refresh" class="block py-1.5 px-3 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition text-xs font-mono">POST /auth/refresh</a>
+          </div>
+        </div>
+        <div class="border-t border-slate-200 pt-4">
+          <p class="font-bold text-slate-700 uppercase tracking-wider mb-2 px-2 text-xs"><%= gettext("Referencia API") %></p>
+          <div class="space-y-0.5">
+            <a href="#events" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Eventos") %></a>
+            <a href="#webhooks" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Webhooks") %></a>
+            <a href="#deliveries" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Entregas") %></a>
+            <a href="#jobs" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Jobs") %></a>
+            <a href="#jobs-cron" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Configurar jobs y cron") %></a>
+            <a href="#project-token" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Proyecto y token") %></a>
+          </div>
+        </div>
+        <div class="border-t border-slate-200 pt-4">
+          <div class="space-y-0.5">
+            <a href="#usage" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Formas de uso") %></a>
+            <a href="#status-codes" class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"><%= gettext("Códigos de respuesta") %></a>
+          </div>
+        </div>
       </nav>
     </aside>
 
-    <main class="min-w-0 flex-1 max-w-3xl">
-      <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Documentación de la API") %></h1>
-      <p class="text-slate-600 mb-10"><%= gettext("Referencia completa: rutas, autenticación, CORS, ejemplos y qué probar en cada endpoint.") %></p>
+    <main class="min-w-0 flex-1 max-w-4xl">
+      <header class="mb-10">
+        <h1 class="text-4xl font-bold text-slate-900 tracking-tight mb-3"><%= gettext("Documentación de la API") %></h1>
+        <p class="text-lg text-slate-600 leading-relaxed max-w-2xl"><%= gettext("Referencia completa: rutas, autenticación, CORS, ejemplos y qué probar en cada endpoint.") %></p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="#getting-started" class="inline-flex items-center px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition"><%= gettext("Primeros pasos") %></a>
+          <a href="#events" class="inline-flex items-center px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"><%= gettext("Eventos") %></a>
+          <a href="#webhooks" class="inline-flex items-center px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"><%= gettext("Webhooks") %></a>
+        </div>
+      </header>
 
-      <section id="intro" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Introducción") %></h2>
-        <p class="text-slate-600 mb-3"><%= gettext("Jobcelis es una plataforma de eventos y webhooks 100% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas.") %></p>
-        <p class="text-slate-600 mb-3"><%= gettext("Qué puedes hacer:") %></p>
-        <ul class="list-disc list-inside text-slate-700 space-y-2 mb-3">
-          <li><strong><%= gettext("Eventos:") %></strong> <%= gettext("envía JSON con topic opcional vía POST. Sin esquemas fijos.") %></li>
-          <li><strong><%= gettext("Webhooks:") %></strong> <%= gettext("configura URLs de destino, filtros (topic, amount > 100, status in [\"paid\"]), body_config (full, pick, rename, extra).") %></li>
-          <li><strong><%= gettext("Entregas:") %></strong> <%= gettext("cada evento activo crea deliveries; reintentos automáticos con backoff 1 min → 5 min → 15 min → 1 h.") %></li>
-          <li><strong><%= gettext("Jobs programados:") %></strong> <%= gettext("daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL.") %></li>
-          <li><strong><%= gettext("Topics:") %></strong> <%= gettext("lista de topics usados por tu proyecto para ayudar a configurar filtros.") %></li>
-        </ul>
-        <p class="text-slate-600 mb-3"><%= gettext("La API expone dos grupos de rutas:") %></p>
-        <ul class="list-disc list-inside text-slate-700 space-y-2 mb-3">
-          <li><strong><%= gettext("Rutas públicas (auth):") %></strong> <%= gettext("registro, login y refresh de JWT. No requieren API Key.") %></li>
-          <li><strong><%= gettext("Rutas con API Key:") %></strong> <%= gettext("eventos, webhooks, deliveries, jobs y proyecto. Requieren el token (Dashboard → API Token).") %></li>
-        </ul>
-        <p class="text-slate-600"><%= gettext("Todas las respuestas son JSON. CORS habilitado. Payload máximo 256 KB.") %></p>
-      </section>
-
-      <section id="concepts" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Conceptos básicos") %></h2>
-        <p class="text-slate-600 mb-4"><%= gettext("Estos son los conceptos que necesitas para usar Jobcelis. No hace falta ser experto: con entender qué es cada cosa puedes configurar eventos, webhooks y jobs en pocos minutos.") %></p>
-
-        <div class="space-y-6">
-          <div class="border-l-4 border-indigo-500 pl-4">
-            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es un evento?") %></h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Un evento es un mensaje que tú envías a Jobcelis desde tu aplicación (con un POST). Puede ser cualquier JSON: un pedido, un pago, un clic, un registro, etc. Opcionalmente le pones un \"topic\" (etiqueta) para clasificarlo, por ejemplo \"order.created\" o \"payment.completed\". Jobcelis guarda el evento y, según los webhooks que tengas configurados, envía esa información a las URLs que tú indiques.") %></p>
-            <p class="text-slate-500 text-xs"><%= gettext("Ejemplo: tu tienda hace POST con { \"topic\": \"order.created\", \"order_id\": 123, \"total\": 99.99 }. Eso es un evento.") %></p>
+      <section id="intro" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Introducción") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Qué es Jobcelis y qué puedes hacer con la API.") %></p>
           </div>
-
-          <div class="border-l-4 border-indigo-500 pl-4">
-            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es un webhook?") %></h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Un webhook es una URL de destino que tú configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos que tú eliges (completos, solo ciertos campos, renombrados, etc.). Así tu servidor, tu otro sistema o un servicio externo recibe la información en tiempo real sin que tengas que consultar nada.") %></p>
-            <p class="text-slate-500 text-xs"><%= gettext("Ejemplo: webhook a https://mi-app.com/recibir-pedidos solo cuando topic sea \"order.created\" y amount sea mayor que 50.") %></p>
-          </div>
-
-          <div class="border-l-4 border-indigo-500 pl-4">
-            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es una entrega (delivery)?") %></h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Cada vez que Jobcelis intenta enviar un evento a una URL de webhook, se crea una \"entrega\" (delivery). Esa entrega tiene un estado: pendiente, éxito o fallo. Si falla (por ejemplo la URL no responde), Jobcelis reintenta automáticamente varias veces con pausas (1 min, 5 min, 15 min, 1 h). En el dashboard puedes ver el historial de entregas y reintentar manualmente una que haya fallado.") %></p>
-            <p class="text-slate-500 text-xs"><%= gettext("Resumen: 1 evento puede generar varias entregas (una por webhook que coincida); cada entrega es un intento de POST a una URL.") %></p>
-          </div>
-
-          <div class="border-l-4 border-indigo-500 pl-4">
-            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es un job (tarea programada)?") %></h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Un job es una tarea que se ejecuta automáticamente en un horario que tú defines: cada día a una hora, cada semana un día concreto, cada mes, o con una expresión cron (por ejemplo \"cada 15 minutos\" o \"todos los lunes a las 9:00\"). Cuando se ejecuta, el job puede hacer una de dos cosas: emitir un evento interno (que luego pasa por tus webhooks) o hacer un POST a una URL que tú indiques. Así no necesitas tener un cron en tu servidor: Jobcelis hace la llamada por ti.") %></p>
-            <p class="text-slate-500 text-xs"><%= gettext("Ejemplo: job \"Resumen diario\" que cada día a las 00:00 emite un evento con topic \"report.daily\"; tus webhooks lo reciben y tu sistema genera el informe.") %></p>
-          </div>
-
-          <div class="border-l-4 border-indigo-500 pl-4">
-            <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("¿Qué es un topic?") %></h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("El topic es una etiqueta opcional que pones al enviar un evento (por ejemplo \"order.created\", \"payment.completed\"). Sirve para filtrar: en un webhook puedes decir \"solo quiero recibir eventos con topic X\" o combinar topic con filtros (por ejemplo amount mayor que 100). Tú inventas los nombres; no hay lista fija.") %></p>
+          <div class="p-8 space-y-5">
+            <p class="text-slate-700 leading-relaxed"><%= gettext("Jobcelis es una plataforma de eventos y webhooks 100% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas.") %></p>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+                <h3 class="font-semibold text-slate-900 mb-2 text-sm"><%= gettext("Capacidades principales") %></h3>
+                <ul class="text-slate-600 text-sm space-y-1.5">
+                  <li><strong><%= gettext("Eventos:") %></strong> <%= gettext("envía JSON con topic opcional vía POST. Sin esquemas fijos.") %></li>
+                  <li><strong><%= gettext("Webhooks:") %></strong> <%= gettext("URLs de destino, filtros (topic, amount, status), body_config (full, pick, rename, extra).") %></li>
+                  <li><strong><%= gettext("Entregas:") %></strong> <%= gettext("reintentos automáticos 1 min → 5 min → 15 min → 1 h.") %></li>
+                  <li><strong><%= gettext("Jobs:") %></strong> <%= gettext("daily, weekly, monthly o cron. Emitir evento o POST a URL.") %></li>
+                  <li><strong><%= gettext("Topics:") %></strong> <%= gettext("etiquetas para filtrar y organizar eventos.") %></li>
+                </ul>
+              </div>
+              <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+                <h3 class="font-semibold text-slate-900 mb-2 text-sm"><%= gettext("Grupos de rutas") %></h3>
+                <ul class="text-slate-600 text-sm space-y-1.5">
+                  <li><strong><%= gettext("Rutas públicas:") %></strong> <%= gettext("registro, login, refresh JWT. Sin API Key.") %></li>
+                  <li><strong><%= gettext("Rutas con API Key:") %></strong> <%= gettext("eventos, webhooks, deliveries, jobs, proyecto. Token en Dashboard.") %></li>
+                </ul>
+                <p class="text-slate-500 text-xs mt-3"><%= gettext("Respuestas en JSON. CORS habilitado. Payload máximo 256 KB.") %></p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="getting-started" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Primeros pasos") %></h2>
-        <p class="text-slate-600 mb-4"><%= gettext("Sigue estos pasos para tener todo funcionando en pocos minutos.") %></p>
-        <ol class="list-decimal list-inside text-slate-700 space-y-3 mb-4">
-          <li><strong><%= gettext("Regístrate e inicia sesión") %></strong> — <%= gettext("En la web, regístrate con tu email y contraseña. Entra al Dashboard.") %></li>
-          <li><strong><%= gettext("Copia tu API Token") %></strong> — <%= gettext("En el Dashboard, sección API Token, verás el token (o prefix). Si acabas de registrarte, el token se habrá mostrado al crear el proyecto. Guárdalo; lo usarás en todas las peticiones con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN.") %></li>
-          <li><strong><%= gettext("Envía tu primer evento") %></strong> — <%= gettext("Desde tu código o con curl: POST /api/v1/events con body JSON (por ejemplo {\"topic\":\"test\",\"message\":\"Hola\"}). En el Dashboard podrás ver el evento en la lista.") %></li>
-          <li><strong><%= gettext("Crea un webhook") %></strong> — <%= gettext("En el Dashboard, Webhooks → Crear. Pon una URL que pueda recibir POST (puedes usar webhook.site). Opcional: elige un topic (ej. test) para que solo los eventos con ese topic lleguen a esa URL. Guarda y envía otro evento de prueba.") %></li>
-          <li><strong><%= gettext("Crea un job (opcional)") %></strong> — <%= gettext("En el Dashboard, Jobs → Crear. Elige programación (por ejemplo Diario a las 12:00) y acción (emitir evento o POST a URL). Guarda; el job se ejecutará a la hora indicada. En \"Configurar jobs y cron\" más abajo tienes la guía de cron y ejemplos.") %></li>
-        </ol>
-        <p class="text-slate-500 text-sm"><%= gettext("Si algo falla, revisa que el token esté bien en el header y que la URL del webhook sea accesible (HTTPS en producción). Las entregas fallidas se pueden reintentar desde el Dashboard.") %></p>
+      <section id="concepts" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Conceptos básicos") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Estos son los conceptos que necesitas para usar Jobcelis. No hace falta ser experto: con entender qué es cada cosa puedes configurar eventos, webhooks y jobs en pocos minutos.") %></p>
+          </div>
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3"><%= gettext("¿Qué es un evento?") %></h3>
+              <p class="text-slate-700 leading-relaxed mb-4"><%= gettext("Un evento es un mensaje que tú envías a Jobcelis desde tu aplicación (con un POST). Puede ser cualquier JSON: un pedido, un pago, un clic, un registro, etc. Opcionalmente le pones un \"topic\" (etiqueta) para clasificarlo, por ejemplo \"order.created\" o \"payment.completed\". Jobcelis guarda el evento y, según los webhooks que tengas configurados, envía esa información a las URLs que tú indiques.") %></p>
+              <p class="text-slate-500 text-xs font-medium uppercase tracking-wider mb-2"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>{"topic": "order.created", "order_id": 123, "total": 99.99}</pre>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3"><%= gettext("¿Qué es un webhook?") %></h3>
+              <p class="text-slate-700 leading-relaxed mb-4"><%= gettext("Un webhook es una URL de destino que tú configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos que tú eliges (completos, solo ciertos campos, renombrados, etc.). Así tu servidor, tu otro sistema o un servicio externo recibe la información en tiempo real sin que tengas que consultar nada.") %></p>
+              <p class="text-slate-500 text-xs font-medium uppercase tracking-wider mb-2"><%= gettext("Ejemplo") %></p>
+              <p class="text-slate-600 text-sm"><%= gettext("Webhook a https://mi-app.com/recibir-pedidos solo cuando topic sea \"order.created\" y amount sea mayor que 50.") %></p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3"><%= gettext("¿Qué es una entrega (delivery)?") %></h3>
+              <p class="text-slate-700 leading-relaxed mb-2"><%= gettext("Cada vez que Jobcelis intenta enviar un evento a una URL de webhook, se crea una \"entrega\" (delivery). Esa entrega tiene un estado: pendiente, éxito o fallo. Si falla (por ejemplo la URL no responde), Jobcelis reintenta automáticamente varias veces con pausas (1 min, 5 min, 15 min, 1 h). En el dashboard puedes ver el historial de entregas y reintentar manualmente una que haya fallado.") %></p>
+              <p class="text-slate-500 text-sm italic"><%= gettext("Resumen: 1 evento puede generar varias entregas (una por webhook que coincida); cada entrega es un intento de POST a una URL.") %></p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3"><%= gettext("¿Qué es un job (tarea programada)?") %></h3>
+              <p class="text-slate-700 leading-relaxed mb-4"><%= gettext("Un job es una tarea que se ejecuta automáticamente en un horario que tú defines: cada día a una hora, cada semana un día concreto, cada mes, o con una expresión cron (por ejemplo \"cada 15 minutos\" o \"todos los lunes a las 9:00\"). Cuando se ejecuta, el job puede hacer una de dos cosas: emitir un evento interno (que luego pasa por tus webhooks) o hacer un POST a una URL que tú indiques. Así no necesitas tener un cron en tu servidor: Jobcelis hace la llamada por ti.") %></p>
+              <p class="text-slate-500 text-xs font-medium uppercase tracking-wider mb-2"><%= gettext("Ejemplo") %></p>
+              <p class="text-slate-600 text-sm"><%= gettext("Job \"Resumen diario\" que cada día a las 00:00 emite un evento con topic \"report.daily\"; tus webhooks lo reciben y tu sistema genera el informe.") %></p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3"><%= gettext("¿Qué es un topic?") %></h3>
+              <p class="text-slate-700 leading-relaxed"><%= gettext("El topic es una etiqueta opcional que pones al enviar un evento (por ejemplo \"order.created\", \"payment.completed\"). Sirve para filtrar: en un webhook puedes decir \"solo quiero recibir eventos con topic X\" o combinar topic con filtros (por ejemplo amount mayor que 100). Tú inventas los nombres; no hay lista fija.") %></p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section id="base-url" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Base URL") %></h2>
-        <p class="text-slate-600 mb-2"><%= gettext("Todos los ejemplos de esta documentación usan la base URL actual (dinámica):") %></p>
-        <code class="block bg-slate-800 text-slate-100 px-4 py-3 rounded-lg font-mono text-sm break-all"><%= @base_url %></code>
-        <p class="text-slate-500 text-sm mt-2"><%= gettext("En producción la base URL será tu dominio (ej. https://api.tudominio.com). Los ejemplos curl que ves en cada ruta ya incluyen esta base.") %></p>
+      <section id="getting-started" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Primeros pasos") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Sigue estos pasos para tener todo funcionando en pocos minutos.") %></p>
+          </div>
+          <div class="p-8 space-y-6">
+            <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
+              <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">1</span>
+              <div>
+                <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Regístrate e inicia sesión") %></h3>
+                <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En la web, regístrate con tu email y contraseña. Entra al Dashboard.") %></p>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
+              <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">2</span>
+              <div>
+                <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Copia tu API Token") %></h3>
+                <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En el Dashboard, sección API Token, verás el token (o prefix). Si acabas de registrarte, el token se habrá mostrado al crear el proyecto. Guárdalo; lo usarás en todas las peticiones con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN.") %></p>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
+              <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">3</span>
+              <div>
+                <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Envía tu primer evento") %></h3>
+                <p class="text-slate-600 text-sm leading-relaxed mb-3"><%= gettext("Desde tu código o con curl: POST /api/v1/events con body JSON (por ejemplo {\"topic\":\"test\",\"message\":\"Hola\"}). En el Dashboard podrás ver el evento en la lista.") %></p>
+                <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "BASE_URL/api/v1/events" -H "Authorization: Bearer TU_TOKEN" -H "Content-Type: application/json" -d '{"topic":"test","message":"Hola"}'</pre>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
+              <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">4</span>
+              <div>
+                <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Crea un webhook") %></h3>
+                <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En el Dashboard, Webhooks → Crear. Pon una URL que pueda recibir POST (puedes usar webhook.site). Opcional: elige un topic (ej. test) para que solo los eventos con ese topic lleguen a esa URL. Guarda y envía otro evento de prueba.") %></p>
+              </div>
+            </div>
+            <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
+              <span class="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 text-slate-600 font-bold flex items-center justify-center text-lg">5</span>
+              <div>
+                <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Crea un job (opcional)") %></h3>
+                <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En el Dashboard, Jobs → Crear. Elige programación (por ejemplo Diario a las 12:00) y acción (emitir evento o POST a URL). Guarda; el job se ejecutará a la hora indicada. En \"Configurar jobs y cron\" más abajo tienes la guía de cron y ejemplos.") %></p>
+              </div>
+            </div>
+            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800"><%= gettext("Si algo falla, revisa que el token esté bien en el header y que la URL del webhook sea accesible (HTTPS en producción). Las entregas fallidas se pueden reintentar desde el Dashboard.") %></div>
+          </div>
+        </div>
       </section>
 
-      <section id="auth" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Autenticación") %></h2>
-        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2"><%= gettext("Rutas con API Key (Jobcelis)") %></h3>
-        <p class="text-slate-600 mb-2"><%= gettext("Puedes enviar el token de dos maneras (una por petición):") %></p>
-        <ol class="list-decimal list-inside text-slate-700 space-y-1 mb-3">
-          <li><%= gettext("Header") %> <code class="bg-slate-200 px-1 rounded text-sm">Authorization: Bearer &lt;<%= gettext("tu_token") %>&gt;</code></li>
-          <li><%= gettext("Header") %> <code class="bg-slate-200 px-1 rounded text-sm">X-Api-Key: &lt;<%= gettext("tu_token") %>&gt;</code></li>
-        </ol>
-        <p class="text-slate-600 text-sm"><%= gettext("El token se obtiene en el Dashboard (sección API Token), al crear o regenerar. El valor completo solo se muestra una vez; guárdalo. Si regeneras, el token anterior deja de funcionar.") %></p>
-        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2"><%= gettext("Rutas públicas (Auth)") %></h3>
-        <p class="text-slate-600 text-sm"><%= gettext("No envíes API Key. Registro y login devuelven un token (JWT) para usar en tu app web; el refresh renueva ese JWT.") %></p>
+      <section id="base-url" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Base URL") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Todos los ejemplos de esta documentación usan la base URL actual (dinámica):") %></p>
+          </div>
+          <div class="p-8">
+            <code class="block bg-slate-800 text-slate-100 px-5 py-4 rounded-xl font-mono text-sm break-all border border-slate-700"><%= @base_url %></code>
+            <p class="text-slate-600 text-sm mt-4"><%= gettext("En producción la base URL será tu dominio (ej. https://api.tudominio.com). Los ejemplos curl que ves en cada ruta ya incluyen esta base.") %></p>
+          </div>
+        </div>
       </section>
 
-      <section id="cors" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("CORS") %></h2>
-        <p class="text-slate-600 mb-3"><%= gettext("La API tiene CORS habilitado para cualquier origen (Access-Control-Allow-Origin: *). Así, cualquier frontend (tu SPA, otra web, móvil con WebView, etc.) puede consumir la API desde su propia URL sin bloqueos del navegador.") %></p>
-        <p class="text-slate-600 mb-2"><%= gettext("Headers permitidos en peticiones cross-origin:") %></p>
-        <ul class="text-slate-700 text-sm space-y-1 list-disc list-inside">
-          <li><code class="bg-slate-100 px-0.5">Authorization</code> (<%= gettext("Bearer token") %>)</li>
-          <li><code class="bg-slate-100 px-0.5">X-Api-Key</code></li>
-          <li><code class="bg-slate-100 px-0.5">Content-Type</code>, <code class="bg-slate-100 px-0.5">Accept</code></li>
-        </ul>
-        <p class="text-slate-500 text-sm mt-2"><%= gettext("Métodos: GET, POST, PUT, PATCH, DELETE, OPTIONS. Las peticiones preflight (OPTIONS) reciben 200 con los headers CORS.") %></p>
+      <section id="auth" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Autenticación") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Cómo enviar el API Key o usar JWT en las peticiones.") %></p>
+          </div>
+          <div class="p-8 space-y-8">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 mb-3"><%= gettext("Rutas con API Key (Jobcelis)") %></h3>
+              <p class="text-slate-600 mb-3"><%= gettext("Puedes enviar el token de dos maneras (una por petición):") %></p>
+              <ol class="list-decimal list-inside text-slate-700 space-y-2 mb-3">
+                <li><%= gettext("Header") %> <code class="bg-slate-100 px-2 py-1 rounded font-mono text-sm">Authorization: Bearer &lt;<%= gettext("tu_token") %>&gt;</code></li>
+                <li><%= gettext("Header") %> <code class="bg-slate-100 px-2 py-1 rounded font-mono text-sm">X-Api-Key: &lt;<%= gettext("tu_token") %>&gt;</code></li>
+              </ol>
+              <p class="text-slate-600 text-sm"><%= gettext("El token se obtiene en el Dashboard (sección API Token), al crear o regenerar. El valor completo solo se muestra una vez; guárdalo. Si regeneras, el token anterior deja de funcionar.") %></p>
+            </div>
+            <div class="border-t border-slate-200 pt-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3"><%= gettext("Rutas públicas (Auth)") %></h3>
+              <p class="text-slate-600 text-sm"><%= gettext("No envíes API Key. Registro y login devuelven un token (JWT) para usar en tu app web; el refresh renueva ese JWT.") %></p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section id="public-routes" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Rutas públicas (sin API Key)") %></h2>
-        <p class="text-slate-600 mb-4"><%= gettext("Registro, login y refresh de JWT. Body y respuesta en JSON.") %></p>
+      <section id="cors" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("CORS") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Uso de la API desde el navegador u otros orígenes.") %></p>
+          </div>
+          <div class="p-8 space-y-4">
+            <p class="text-slate-700 leading-relaxed"><%= gettext("La API tiene CORS habilitado para cualquier origen (Access-Control-Allow-Origin: *). Así, cualquier frontend (tu SPA, otra web, móvil con WebView, etc.) puede consumir la API desde su propia URL sin bloqueos del navegador.") %></p>
+            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+              <p class="font-medium text-slate-800 mb-2 text-sm"><%= gettext("Headers permitidos en peticiones cross-origin:") %></p>
+              <ul class="text-slate-600 text-sm space-y-1">
+                <li><code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono">Authorization</code> (<%= gettext("Bearer token") %>)</li>
+                <li><code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono">X-Api-Key</code></li>
+                <li><code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono">Content-Type</code>, <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono">Accept</code></li>
+              </ul>
+            </div>
+            <p class="text-slate-500 text-sm"><%= gettext("Métodos: GET, POST, PUT, PATCH, DELETE, OPTIONS. Las peticiones preflight (OPTIONS) reciben 200 con los headers CORS.") %></p>
+          </div>
+        </div>
+      </section>
 
-        <div class="space-y-6">
-          <div id="auth-register" class="border border-slate-200 rounded-xl p-5 bg-white scroll-mt-24">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/auth/register</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Registra un usuario. Body: email (requerido), password (requerido), name (opcional).") %></p>
-            <p class="text-slate-500 text-xs mb-2"><%= gettext("Respuesta 201: user (id, email, name), token (JWT).") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/register" \
+      <section id="public-routes" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Rutas públicas (sin API Key)") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Registro, login y refresh de JWT. Body y respuesta en JSON.") %></p>
+          </div>
+          <div class="p-8 space-y-8">
+            <div id="auth-register" class="rounded-xl border border-slate-200 bg-slate-50/50 p-6 scroll-mt-24">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/auth/register</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-2"><%= gettext("Registra un usuario. Body: email (requerido), password (requerido), name (opcional).") %></p>
+              <p class="text-slate-500 text-xs mb-3"><%= gettext("Respuesta 201: user (id, email, name), token (JWT).") %></p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/register" \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"secret123","name":"User"}'</pre>
-          </div>
+            </div>
 
-          <div id="auth-login" class="border border-slate-200 rounded-xl p-5 bg-white scroll-mt-24">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/auth/login</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Inicia sesión. Body: email, password.") %></p>
-            <p class="text-slate-500 text-xs mb-2"><%= gettext("Respuesta 200: user, token (JWT). 401 si credenciales incorrectas.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/login" \
+            <div id="auth-login" class="rounded-xl border border-slate-200 bg-slate-50/50 p-6 scroll-mt-24">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/auth/login</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-2"><%= gettext("Inicia sesión. Body: email, password.") %></p>
+              <p class="text-slate-500 text-xs mb-3"><%= gettext("Respuesta 200: user, token (JWT). 401 si credenciales incorrectas.") %></p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"secret123"}'</pre>
-          </div>
+            </div>
 
-          <div id="auth-refresh" class="border border-slate-200 rounded-xl p-5 bg-white scroll-mt-24">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/auth/refresh</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Refresca el JWT. Body: token (JWT actual).") %></p>
-            <p class="text-slate-500 text-xs mb-2"><%= gettext("Respuesta 200: token (nuevo JWT). 401 si token inválido o expirado.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/refresh" \
+            <div id="auth-refresh" class="rounded-xl border border-slate-200 bg-slate-50/50 p-6 scroll-mt-24">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/auth/refresh</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-2"><%= gettext("Refresca el JWT. Body: token (JWT actual).") %></p>
+              <p class="text-slate-500 text-xs mb-3"><%= gettext("Respuesta 200: token (nuevo JWT). 401 si token inválido o expirado.") %></p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/auth/refresh" \
   -H "Content-Type: application/json" \
   -d '{"token":"TU_JWT_AQUI"}'</pre>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="events" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Eventos") %></h2>
-        <p class="text-slate-600 mb-4"><%= gettext("Todas las rutas requieren API Key. Sustituye YOUR_API_KEY y EVENT_ID por valores reales.") %></p>
-
-        <div class="space-y-6">
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/send</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Alias para enviar un evento. Mismo body que POST /events. Respuesta 202: event_id.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/send" \
+      <section id="events" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Eventos") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Todas las rutas requieren API Key. Sustituye YOUR_API_KEY y EVENT_ID por valores reales.") %></p>
+          </div>
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/send</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Alias para enviar un evento. Mismo body que POST /events. Respuesta 202: event_id.") %></p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/send" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"topic":"payment.completed","amount":99}'</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/events</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Envía un evento. Body: cualquier JSON; opcional topic. Respuesta 202: event_id.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/events" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/events</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Envía un evento. Body: cualquier JSON; opcional topic. Respuesta 202: event_id.") %></p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/events" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"topic":"order.created","order_id":123,"customer":"acme"}'</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/events</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Lista eventos. Query: topic, limit (1-100), include=inactive. Respuesta: events (array).") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events?limit=10" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/events</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Lista eventos. Query: topic, limit (1-100), include=inactive. Respuesta: events (array).") %></p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events?limit=10" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events?topic=order.created&amp;limit=20" \
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2 font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events?topic=order.created&amp;limit=20" \
   -H "X-Api-Key: YOUR_API_KEY"</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/events/:id</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Detalle de un evento y sus deliveries. Sustituye EVENT_ID por el id del evento.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events/EVENT_ID" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/events/:id</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Detalle de un evento y sus deliveries. Sustituye EVENT_ID por el id del evento.") %></p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/events/EVENT_ID" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">DELETE /api/v1/events/:id</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Desactiva el evento (soft delete). Respuesta 200: status: \"inactive\".") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/events/EVENT_ID" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">DELETE</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/events/:id</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Desactiva el evento (soft delete). Respuesta 200: status: \"inactive\".") %></p>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"><%= gettext("Ejemplo") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/events/EVENT_ID" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="webhooks" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Webhooks") %></h2>
-        <p class="text-slate-600 mb-3"><%= gettext("Configura URLs de destino. Opcional: topics (array), filters (path, op, value), body_config (body_mode, body_pick, body_rename, body_extra), headers.") %></p>
-        <p class="text-slate-600 mb-2 text-sm"><strong><%= gettext("Filtros:") %></strong> <%= gettext("op: eq, neq, gte, lte, gt, lt, in, not_in, exists, contains. Ejemplo:") %></p>
-        <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto mb-3" phx-no-curly-interpolation>{"filters":[{"path":"topic","op":"eq","value":"orders"},{"path":"payload.amount","op":"gte","value":100}]}</pre>
-        <p class="text-slate-600 mb-2 text-sm"><strong><%= gettext("body_config:") %></strong> <%= gettext("body_mode: full o pick. body_pick: array de campos. body_rename: {old: new}. body_extra: campos añadidos.") %></p>
-        <p class="text-slate-600 mb-4"><%= gettext("Sustituye WEBHOOK_ID por el id del webhook.") %></p>
-
-        <div class="space-y-6">
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/webhooks</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Lista webhooks del proyecto. Query: include=inactive. Respuesta: webhooks (array).") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks" \
-  -H "Authorization: Bearer YOUR_API_KEY"</pre>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks?include=inactive" \
-  -H "X-Api-Key: YOUR_API_KEY"</pre>
+      <section id="webhooks" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Webhooks") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Configura URLs de destino. Opcional: topics (array), filters (path, op, value), body_config (body_mode, body_pick, body_rename, body_extra), headers.") %></p>
           </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/webhooks</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Crea un webhook. Body: url (requerido), opcional secret, topics, filters, body_config, headers. Respuesta 201: objeto webhook.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/webhooks" \
+          <div class="p-8 space-y-6">
+            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm">
+              <p class="font-medium text-slate-800 mb-1"><%= gettext("Filtros:") %></p>
+              <p class="text-slate-600 mb-2"><%= gettext("op: eq, neq, gte, lte, gt, lt, in, not_in, exists, contains. Ejemplo:") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto font-mono" phx-no-curly-interpolation>{"filters":[{"path":"topic","op":"eq","value":"orders"},{"path":"payload.amount","op":"gte","value":100}]}</pre>
+              <p class="font-medium text-slate-800 mt-3 mb-1"><%= gettext("body_config:") %></p>
+              <p class="text-slate-600"><%= gettext("body_mode: full o pick. body_pick: array de campos. body_rename: {old: new}. body_extra: campos añadidos.") %></p>
+            </div>
+            <p class="text-slate-500 text-sm -mt-2"><%= gettext("Sustituye WEBHOOK_ID por el id del webhook.") %></p>
+
+            <div class="space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Lista webhooks del proyecto. Query: include=inactive. Respuesta: webhooks (array).") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2 font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks?include=inactive" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Crea un webhook. Body: url (requerido), opcional secret, topics, filters, body_config, headers. Respuesta 201: objeto webhook.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/webhooks" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"url":"https://your-server.com/webhook","topics":["order.created","payment.completed"]}'</pre>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/webhooks" \
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2 font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/webhooks" \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: YOUR_API_KEY" \
   -d '{"url":"https://example.com/hook","secret":"my_secret","topics":["*"]}'</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/webhooks/:id</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Detalle de un webhook (id, url, status, topics, filters, etc.).") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks/:id</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Detalle de un webhook (id, url, status, topics, filters, etc.).") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">PATCH /api/v1/webhooks/:id</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Actualiza un webhook. Body: cualquiera de url, secret, topics, filters, body_config, headers, status.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">PATCH</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks/:id</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Actualiza un webhook. Body: cualquiera de url, secret, topics, filters, body_config, headers, status.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"url":"https://new-url.com/webhook","status":"active"}'</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">DELETE /api/v1/webhooks/:id</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Desactiva el webhook. Respuesta 200: status: \"inactive\".") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">DELETE</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks/:id</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Desactiva el webhook. Respuesta 200: status: \"inactive\".") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="deliveries" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Entregas") %></h2>
-        <p class="text-slate-600 mb-4"><%= gettext("Envíos de eventos a webhooks. Sustituye DELIVERY_ID por el id del delivery.") %></p>
-
-        <div class="space-y-6">
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/deliveries</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Lista deliveries. Query: event_id, webhook_id, status, limit (1-100). Respuesta: deliveries (array).") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/deliveries" \
-  -H "Authorization: Bearer YOUR_API_KEY"</pre>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/deliveries?event_id=EVENT_ID&amp;status=failed&amp;limit=20" \
-  -H "X-Api-Key: YOUR_API_KEY"</pre>
+      <section id="deliveries" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Entregas") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Envíos de eventos a webhooks. Sustituye DELIVERY_ID por el id del delivery.") %></p>
           </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/deliveries/:id/retry</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Reencola un envío fallido. Respuesta 200: status: \"retry_queued\".") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/deliveries/DELIVERY_ID/retry" \
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/deliveries</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Lista deliveries. Query: event_id, webhook_id, status, limit (1-100). Respuesta: deliveries (array).") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/deliveries" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2 font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/deliveries?event_id=EVENT_ID&amp;status=failed&amp;limit=20" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/deliveries/:id/retry</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Reencola un envío fallido. Respuesta 200: status: \"retry_queued\".") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/deliveries/DELIVERY_ID/retry" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="jobs" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Jobs (tareas programadas)") %></h2>
-        <p class="text-slate-600 mb-3"><%= gettext("Tareas que se ejecutan según una programación: daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL.") %></p>
-        <p class="text-slate-600 mb-2 text-sm"><strong>schedule_type + schedule_config:</strong></p>
-        <ul class="text-slate-600 text-sm space-y-1 mb-3 list-disc list-inside" phx-no-curly-interpolation>
-          <li><strong>daily:</strong> {"hour": 14, "minute": 30}</li>
-          <li><strong>weekly:</strong> {"day_of_week": 1, "hour": 9, "minute": 0} (1=Lun, 7=Dom)</li>
-          <li><strong>monthly:</strong> {"day_of_month": 1, "hour": 0, "minute": 0}</li>
-          <li><strong>cron:</strong> {"expr": "0 0 * * *"} (min hour day month dow)</li>
-        </ul>
-        <p class="text-slate-600 mb-2 text-sm"><strong>action_type + action_config:</strong></p>
-        <ul class="text-slate-600 text-sm space-y-1 mb-4 list-disc list-inside" phx-no-curly-interpolation>
-          <li><strong>emit_event:</strong> {"topic": "report.daily", "payload": {}}</li>
-          <li><strong>post_url:</strong> {"url": "https://...", "method": "POST"}</li>
-        </ul>
-
-        <div class="space-y-6">
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/jobs</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Lista jobs del proyecto. Query: include=inactive. Respuesta: jobs (array).") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs" \
-  -H "Authorization: Bearer YOUR_API_KEY"</pre>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs?include=inactive" \
-  -H "X-Api-Key: YOUR_API_KEY"</pre>
+      <section id="jobs" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Jobs (tareas programadas)") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Tareas que se ejecutan según una programación: daily, weekly, monthly o cron. Acción: emitir evento interno o POST a una URL.") %></p>
           </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/jobs</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Crea un job. Body: name, schedule_type, schedule_config, action_type, action_config. Respuesta 201: objeto job.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/jobs" \
+          <div class="p-8 space-y-6">
+            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm">
+              <p class="font-medium text-slate-800 mb-2">schedule_type + schedule_config</p>
+              <ul class="text-slate-600 space-y-1 list-disc list-inside" phx-no-curly-interpolation>
+                <li><strong>daily:</strong> {"hour": 14, "minute": 30}</li>
+                <li><strong>weekly:</strong> {"day_of_week": 1, "hour": 9, "minute": 0} (1=Lun, 7=Dom)</li>
+                <li><strong>monthly:</strong> {"day_of_month": 1, "hour": 0, "minute": 0}</li>
+                <li><strong>cron:</strong> {"expr": "0 0 * * *"} (min hour day month dow)</li>
+              </ul>
+              <p class="font-medium text-slate-800 mt-3 mb-2">action_type + action_config</p>
+              <ul class="text-slate-600 space-y-1 list-disc list-inside" phx-no-curly-interpolation>
+                <li><strong>emit_event:</strong> {"topic": "report.daily", "payload": {}}</li>
+                <li><strong>post_url:</strong> {"url": "https://...", "method": "POST"}</li>
+              </ul>
+            </div>
+
+            <div class="space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/jobs</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Lista jobs del proyecto. Query: include=inactive. Respuesta: jobs (array).") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2 font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs?include=inactive" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/jobs</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Crea un job. Body: name, schedule_type, schedule_config, action_type, action_config. Respuesta 201: objeto job.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/jobs" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"name":"Daily report","schedule_type":"daily","schedule_config":{"hour":14,"minute":30},"action_type":"emit_event","action_config":{"topic":"report.daily","payload":{}}}'</pre>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/jobs" \
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2 font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/jobs" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"name":"Weekly sync","schedule_type":"weekly","schedule_config":{"day_of_week":1,"hour":9,"minute":0},"action_type":"post_url","action_config":{"url":"https://api.example.com/sync","method":"POST"}}'</pre>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/jobs" \
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2 font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/jobs" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"name":"Cron job","schedule_type":"cron","schedule_config":{"expr":"0 0 * * *"},"action_type":"emit_event","action_config":{"topic":"daily.cleanup"}}'</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/jobs/:id</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Detalle del job y runs recientes. Respuesta incluye recent_runs.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/jobs/:id</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Detalle del job y runs recientes. Respuesta incluye recent_runs.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">PATCH /api/v1/jobs/:id</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Actualiza un job. Body: name, schedule_type, schedule_config, action_type, action_config, status.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/jobs/JOB_ID" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">PATCH</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/jobs/:id</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Actualiza un job. Body: name, schedule_type, schedule_config, action_type, action_config, status.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/jobs/JOB_ID" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"name":"Updated job name","status":"active"}'</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">DELETE /api/v1/jobs/:id</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Desactiva el job. Respuesta 200: status: \"inactive\".") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/jobs/JOB_ID" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">DELETE</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/jobs/:id</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Desactiva el job. Respuesta 200: status: \"inactive\".") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X DELETE "<%= @base_url %>/api/v1/jobs/JOB_ID" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/jobs/:id/runs</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Lista ejecuciones del job. Query: limit (1-100). Respuesta: runs (array).") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID/runs" \
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/jobs/:id/runs</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Lista ejecuciones del job. Query: limit (1-100). Respuesta: runs (array).") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID/runs" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID/runs?limit=50" \
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-2 font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/jobs/JOB_ID/runs?limit=50" \
   -H "X-Api-Key: YOUR_API_KEY"</pre>
+            </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="jobs-cron" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Configurar jobs y cron") %></h2>
-        <p class="text-slate-600 mb-4"><%= gettext("Los jobs se programan de cuatro formas: diario, semanal, mensual o con una expresión cron. Aquí te explicamos cada una y cómo escribir expresiones cron si eliges esa opción.") %></p>
-
-        <h3 class="text-lg font-medium text-slate-800 mt-4 mb-2"><%= gettext("Tipos de programación (schedule_type)") %></h3>
+      <section id="jobs-cron" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Configurar jobs y cron") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Los jobs se programan de cuatro formas: diario, semanal, mensual o con una expresión cron. Aquí te explicamos cada una y cómo escribir expresiones cron si eliges esa opción.") %></p>
+          </div>
+          <div class="p-8 space-y-6">
+            <h3 class="text-lg font-semibold text-slate-800"><%= gettext("Tipos de programación (schedule_type)") %></h3>
         <ul class="text-slate-700 text-sm space-y-2 mb-4 list-disc list-inside">
           <li><strong>daily</strong> — <%= gettext("Cada día a la misma hora. Configuración: hour (0-23), minute (0-59). Ejemplo: 14:30 → {\"hour\": 14, \"minute\": 30}.") %></li>
           <li><strong>weekly</strong> — <%= gettext("Un día de la semana a una hora. day_of_week: 1 = Lunes, 7 = Domingo. Ejemplo: Lunes 09:00 → {\"day_of_week\": 1, \"hour\": 9, \"minute\": 0}.") %></li>
@@ -423,69 +629,102 @@
           <li><code class="bg-slate-100 px-0.5 rounded">*/15 * * * *</code> — <%= gettext("Cada 15 minutos.") %></li>
           <li><code class="bg-slate-100 px-0.5 rounded">0 0 1 * *</code> — <%= gettext("El día 1 de cada mes a las 00:00.") %></li>
         </ul>
-        <p class="text-slate-500 text-sm"><%= gettext("En el Dashboard, al crear o editar un job, elige \"Cron\" como tipo y escribe la expresión en el campo (ej. 0 0 * * *). La hora se interpreta en el servidor; si necesitas otra zona horaria, configúrala en tu proyecto cuando esté disponible.") %></p>
-      </section>
-
-      <section id="project-token" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Proyecto, topics y token") %></h2>
-        <p class="text-slate-600 mb-4"><%= gettext("Consulta y actualiza el proyecto; gestiona el API Key. Todas las rutas requieren API Key.") %></p>
-
-        <div class="space-y-6">
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/project</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Devuelve el proyecto: id, name, status, settings.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/project" \
-  -H "Authorization: Bearer YOUR_API_KEY"</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">PATCH /api/v1/project</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Actualiza el proyecto. Body: name, settings (objeto). Respuesta: id, name, status.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/project" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{"name":"Mi Proyecto","settings":{"timezone":"Europe/Madrid"}}'</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/topics</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Lista los topics usados por tu proyecto (eventos activos). Útil para configurar filtros de webhooks. Respuesta: topics (array).") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/topics" \
-  -H "Authorization: Bearer YOUR_API_KEY"</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">GET /api/v1/token</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Devuelve el prefix del token actual (no el valor completo) y un mensaje de uso.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/token" \
-  -H "Authorization: Bearer YOUR_API_KEY"</pre>
-          </div>
-          <div class="border border-slate-200 rounded-xl p-5 bg-white">
-            <h3 class="font-mono text-indigo-700 font-medium mb-2">POST /api/v1/token/regenerate</h3>
-            <p class="text-slate-600 text-sm mb-2"><%= gettext("Regenera el API Key. El token anterior deja de funcionar. Respuesta incluye token (valor completo) y message. Guarda el token; no se vuelve a mostrar.") %></p>
-            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/token/regenerate" \
-  -H "Authorization: Bearer YOUR_API_KEY"</pre>
-            <p class="text-amber-700 text-xs mt-2"><%= gettext("Tras regenerar, usa el nuevo token en las siguientes peticiones.") %></p>
+            <p class="text-slate-500 text-sm"><%= gettext("En el Dashboard, al crear o editar un job, elige \"Cron\" como tipo y escribe la expresión en el campo (ej. 0 0 * * *). La hora se interpreta en el servidor; si necesitas otra zona horaria, configúrala en tu proyecto cuando esté disponible.") %></p>
           </div>
         </div>
       </section>
 
-      <section id="usage" class="mb-12 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Formas de usar la aplicación") %></h2>
-        <ul class="list-disc list-inside text-slate-700 space-y-2">
-          <li><strong><%= gettext("Web:") %></strong> <%= gettext("registro e inicio de sesión; Dashboard para proyecto, token, eventos y webhooks; enviar eventos de prueba desde el dashboard.") %></li>
-          <li><strong><%= gettext("API con API Key:") %></strong> <%= gettext("desde cualquier backend o frontend (SPA, móvil, otro dominio gracias a CORS) usa la API Key para enviar eventos, gestionar webhooks, listar deliveries y jobs.") %></li>
-          <li><strong><%= gettext("API de auth (JWT):") %></strong> <%= gettext("para tu app propia (móvil o SPA), usa /auth/register, /auth/login y /auth/refresh para mantener sesión con JWT.") %></li>
-        </ul>
+      <section id="project-token" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Proyecto, topics y token") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Consulta y actualiza el proyecto; gestiona el API Key. Todas las rutas requieren API Key.") %></p>
+          </div>
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/project</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Devuelve el proyecto: id, name, status, settings.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/project" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">PATCH</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/project</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Actualiza el proyecto. Body: name, settings (objeto). Respuesta: id, name, status.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X PATCH "<%= @base_url %>/api/v1/project" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"name":"Mi Proyecto","settings":{"timezone":"Europe/Madrid"}}'</pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/topics</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Lista los topics usados por tu proyecto (eventos activos). Útil para configurar filtros de webhooks. Respuesta: topics (array).") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/topics" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">GET</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/token</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Devuelve el prefix del token actual (no el valor completo) y un mensaje de uso.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X GET "<%= @base_url %>/api/v1/token" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">POST</span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/token/regenerate</code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3"><%= gettext("Regenera el API Key. El token anterior deja de funcionar. Respuesta incluye token (valor completo) y message. Guarda el token; no se vuelve a mostrar.") %></p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono" phx-no-curly-interpolation>curl -X POST "<%= @base_url %>/api/v1/token/regenerate" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+              <p class="text-amber-700 text-xs mt-3"><%= gettext("Tras regenerar, usa el nuevo token en las siguientes peticiones.") %></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="usage" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Formas de usar la aplicación") %></h2>
+          </div>
+          <div class="p-8">
+            <ul class="text-slate-700 space-y-4">
+              <li class="flex gap-3"><span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">1</span><span><strong><%= gettext("Web:") %></strong> <%= gettext("registro e inicio de sesión; Dashboard para proyecto, token, eventos y webhooks; enviar eventos de prueba desde el dashboard.") %></span></li>
+              <li class="flex gap-3"><span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">2</span><span><strong><%= gettext("API con API Key:") %></strong> <%= gettext("desde cualquier backend o frontend (SPA, móvil, otro dominio gracias a CORS) usa la API Key para enviar eventos, gestionar webhooks, listar deliveries y jobs.") %></span></li>
+              <li class="flex gap-3"><span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">3</span><span><strong><%= gettext("API de auth (JWT):") %></strong> <%= gettext("para tu app propia (móvil o SPA), usa /auth/register, /auth/login y /auth/refresh para mantener sesión con JWT.") %></span></li>
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section id="status-codes" class="mb-8 scroll-mt-24">
-        <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Códigos de respuesta") %></h2>
-        <ul class="text-slate-700 text-sm space-y-1">
-          <li><strong>200</strong> OK</li>
-          <li><strong>201</strong> <%= gettext("Created (recurso creado)") %></li>
-          <li><strong>202</strong> <%= gettext("Accepted (evento aceptado)") %></li>
-          <li><strong>401</strong> <%= gettext("No autorizado (API Key o JWT inválido o faltante)") %></li>
-          <li><strong>404</strong> <%= gettext("Recurso no encontrado") %></li>
-          <li><strong>422</strong> <%= gettext("Validación fallida (body o parámetros incorrectos)") %></li>
-        </ul>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900"><%= gettext("Códigos de respuesta") %></h2>
+            <p class="text-slate-600 mt-1 text-sm"><%= gettext("Códigos HTTP que devuelve la API.") %></p>
+          </div>
+          <div class="p-8">
+            <ul class="text-slate-700 space-y-2">
+              <li><strong>200</strong> OK</li>
+              <li><strong>201</strong> <%= gettext("Created (recurso creado)") %></li>
+              <li><strong>202</strong> <%= gettext("Accepted (evento aceptado)") %></li>
+              <li><strong>401</strong> <%= gettext("No autorizado (API Key o JWT inválido o faltante)") %></li>
+              <li><strong>404</strong> <%= gettext("Recurso no encontrado") %></li>
+              <li><strong>422</strong> <%= gettext("Validación fallida (body o parámetros incorrectos)") %></li>
+            </ul>
+          </div>
+        </div>
       </section>
     </main>
   </div>
