@@ -1,7 +1,10 @@
 <div class="min-h-screen bg-slate-100 flex flex-col">
   <nav class="bg-white border-b border-slate-200 shrink-0 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-      <a href="/" class="text-lg font-bold text-slate-900">Jobcelis</a>
+      <a href="/" class="flex items-center gap-2 text-lg font-bold text-slate-900" aria-label={gettext("Jobcelis - Ir al inicio")}>
+        <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" />
+        Jobcelis
+      </a>
       <div class="flex items-center gap-4">
         <span class="flex items-center gap-1 text-sm">
           <a href="/locale/es" onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';" class={["font-medium", (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]}>ES</a>
