@@ -109,7 +109,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
       </nav>
       <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-800">
         <.link navigate="/platform" class="text-gray-400 hover:text-white"><%= gettext("Ir al dashboard") %></.link>
-        <button phx-click="logout" class="block mt-2 text-gray-400 hover:text-white w-full text-left">
+        <button phx-click="logout" phx-disable-with={gettext("Cargando...")} class="block mt-2 text-gray-400 hover:text-white w-full text-left disabled:opacity-70">
           <%= gettext("Cerrar sesión") %>
         </button>
       </div>

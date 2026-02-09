@@ -1534,3 +1534,24 @@ msgstr "Jobcelis - Go to home"
 
 msgid "Presentación"
 msgstr "Introduction"
+
+msgid "Actualizando..."
+msgstr "Updating..."
+
+msgid "Guardando..."
+msgstr "Saving..."
+
+msgid "Regenerando..."
+msgstr "Regenerating..."
+
+msgid "Enviando..."
+msgstr "Sending..."
+
+msgid "Desactivando..."
+msgstr "Deactivating..."
+
+msgid "Reintentando..."
+msgstr "Retrying..."
+
+msgid "Activando..."
+msgstr "Activating..."

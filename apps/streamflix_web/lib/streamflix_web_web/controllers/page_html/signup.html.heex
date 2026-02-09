@@ -33,7 +33,7 @@
           </div>
         <% end %>
 
-        <form action="/signup" method="post" class="space-y-5" aria-label={gettext("Formulario de registro")}>
+        <form action="/signup" method="post" class="space-y-5" aria-label={gettext("Formulario de registro")} data-submit-loading>
           <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
           <input type="hidden" name="plan" value={@plan || "standard"} />
 
@@ -82,8 +82,9 @@
 
           <button
             type="submit"
-            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition disabled:opacity-70 disabled:cursor-not-allowed"
             aria-label={gettext("Crear cuenta")}
+            data-loading-text={gettext("Cargando...")}
           >
             <%= gettext("Crear cuenta") %>
           </button>
