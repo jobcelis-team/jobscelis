@@ -48,7 +48,7 @@ defmodule StreamflixWebWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
-  plug Plug.Session, @session_options
+  plug StreamflixWebWeb.Plugs.SessionWithConfig
   plug StreamflixWebWeb.Plugs.CORS
   plug StreamflixWebWeb.Router
 end
