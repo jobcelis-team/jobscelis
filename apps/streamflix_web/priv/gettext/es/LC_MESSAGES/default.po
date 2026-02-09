@@ -1424,3 +1424,15 @@ msgstr "Despliegue con GitHub Actions a Azure (ACR + Web App)."
 
 msgid "Soporte multidioma (ES/EN) en la interfaz."
 msgstr "Soporte multidioma (ES/EN) en la interfaz."
+
+msgid "Selección de idioma"
+msgstr "Selección de idioma"
+
+msgid "Enlaces legales y de ayuda"
+msgstr "Enlaces legales y de ayuda"
+
+msgid "Jobcelis - Ir al inicio"
+msgstr "Jobcelis - Ir al inicio"
+
+msgid "Presentación"
+msgstr "Presentación"
