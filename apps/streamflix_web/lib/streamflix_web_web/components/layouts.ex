@@ -80,6 +80,7 @@ defmodule StreamflixWebWeb.Layouts do
           <nav class="flex items-center gap-6" aria-label={gettext("Navegación principal")}>
             <.locale_toggle locale={@locale} class="flex items-center gap-1" />
             <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Documentación") %></a>
+            <a href="/pricing" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm"><%= gettext("Apoyar el proyecto") %></a>
             <.link navigate="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Dashboard") %></.link>
             <.link navigate="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Cuenta") %></.link>
             <%= if @current_user && @current_user.role in ["admin", "superadmin"] do %>
