@@ -1,7 +1,7 @@
 defmodule StreamflixWebWeb.Plugs.SetLocale do
   @moduledoc """
-  Lee el idioma: primero cookie (más rápido, va en cada request), luego sesión.
-  Pone Gettext y asigna conn.assigns.locale. Valores: "es", "en". Por defecto "es".
+  Reads locale from cookie or session. Sets Gettext and conn.assigns.locale.
+  Values: "en", "es". Default: "en".
   """
   import Plug.Conn
 
@@ -39,8 +39,8 @@ defmodule StreamflixWebWeb.Plugs.SetLocale do
     end)
   end
 
-  defp validate_locale(nil), do: "es"
+  defp validate_locale(nil), do: "en"
   defp validate_locale("en"), do: "en"
   defp validate_locale("es"), do: "es"
-  defp validate_locale(_), do: "es"
+  defp validate_locale(_), do: "en"
 end

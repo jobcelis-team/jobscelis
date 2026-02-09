@@ -5,8 +5,8 @@ defmodule StreamflixWebWeb.LiveLocale do
   import Phoenix.Component
 
   def on_mount(:set, _params, session, socket) do
-    locale = session["locale"] || "es"
-    locale = if locale in ["es", "en"], do: locale, else: "es"
+    locale = session["locale"] || "en"
+    locale = if locale in ["es", "en"], do: locale, else: "en"
     Gettext.put_locale(StreamflixWebWeb.Gettext, locale)
     {:cont, assign(socket, :locale, locale)}
   end
