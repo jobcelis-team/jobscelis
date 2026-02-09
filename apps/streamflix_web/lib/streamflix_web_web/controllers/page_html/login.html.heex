@@ -4,6 +4,7 @@
     <div class="max-w-6xl mx-auto px-4 h-14 flex items-center">
       <a href="/" class="text-lg font-bold text-slate-900">Jobcelis</a>
       <div class="ml-auto flex items-center gap-4">
+        <a href="/pricing" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm"><%= gettext("Apoyar el proyecto") %></a>
         <span class="flex items-center gap-1 text-sm">
           <a href="/locale/es" onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';" class={["font-medium", (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]}>ES</a>
           <span class="text-slate-300">|</span>

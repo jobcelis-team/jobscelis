@@ -32,9 +32,10 @@ config :streamflix_web, :legal,
   contact_url: "https://github.com/vladimirCeli",
   profile_url: "https://vladimirceli.github.io/perfil/",
   contact_email: "vladimir.celi@proton.me",
-  # Opcional: enlaces para donaciones. Dejar "" si no usas; en producción puedes usar env DONATION_PAYPAL_URL, DONATION_PAYONEER_URL
+  # Opcional: enlaces para donaciones. Dejar "" si no usas; en producción puedes usar env DONATION_*_URL
   donation_paypal_url: "",
-  donation_payoneer_url: ""
+  donation_payoneer_url: "",
+  donation_payphone_url: "https://ppls.me/A72iyEwG1gOY5d4TKYfEg"
 
 config :streamflix_web, StreamflixWebWeb.Endpoint,
   url: [host: "localhost"],
