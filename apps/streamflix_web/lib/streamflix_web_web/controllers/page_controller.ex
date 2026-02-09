@@ -29,54 +29,54 @@ defmodule StreamflixWebWeb.PageController do
 
   def terms(conn, _params) do
     legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "es"
+    locale = get_session(conn, :locale) || "en"
     render(conn, :terms, legal: legal, locale: locale)
   end
 
   def privacy(conn, _params) do
     legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "es"
+    locale = get_session(conn, :locale) || "en"
     render(conn, :privacy, legal: legal, locale: locale)
   end
 
   def faq(conn, _params) do
     legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "es"
+    locale = get_session(conn, :locale) || "en"
     render(conn, :faq, legal: legal, locale: locale)
   end
 
   def about(conn, _params) do
     legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "es"
+    locale = get_session(conn, :locale) || "en"
     render(conn, :about, legal: legal, locale: locale)
   end
 
   def contact(conn, _params) do
     legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "es"
+    locale = get_session(conn, :locale) || "en"
     render(conn, :contact, legal: legal, locale: locale)
   end
 
   def pricing(conn, _params) do
     legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "es"
+    locale = get_session(conn, :locale) || "en"
     render(conn, :pricing, legal: legal, locale: locale)
   end
 
   def cookies(conn, _params) do
     legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "es"
+    locale = get_session(conn, :locale) || "en"
     render(conn, :cookies, legal: legal, locale: locale)
   end
 
   def changelog(conn, _params) do
     legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "es"
+    locale = get_session(conn, :locale) || "en"
     render(conn, :changelog, legal: legal, locale: locale)
   end
 
   def set_locale(conn, %{"locale" => locale}) do
-    locale = if locale in ["es", "en"], do: locale, else: "es"
+    locale = if locale in ["es", "en"], do: locale, else: "en"
     referer = get_req_header(conn, "referer") |> List.first()
     path = path_from_referer(referer, conn)
     # Cookie para que el siguiente request tenga el idioma sin depender de sesión (más rápido)
