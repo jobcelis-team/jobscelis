@@ -25,7 +25,7 @@
     <div class="space-y-6">
       <section class="bg-white rounded-xl border border-slate-200 p-6">
         <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("Email") %></h2>
-        <%= if email = Map.get(@legal, :contact_email) && Map.get(@legal, :contact_email) != "" do %>
+        <%= if (email = Map.get(@legal, :contact_email)) && email != "" do %>
           <a href={"mailto:#{email}"} class="text-indigo-600 hover:text-indigo-700 font-medium text-lg break-all"><%= email %></a>
           <p class="text-slate-500 text-sm mt-1"><%= gettext("Respondo lo antes posible. Para temas legales o privacidad, ver también Términos y Política de privacidad.") %></p>
         <% else %>
