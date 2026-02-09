@@ -1436,3 +1436,27 @@ msgstr "Jobcelis - Ir al inicio"
 
 msgid "Presentación"
 msgstr "Presentación"
+
+msgid "Cargando..."
+msgstr "Cargando..."
+
+msgid "Actualizando..."
+msgstr "Actualizando..."
+
+msgid "Guardando..."
+msgstr "Guardando..."
+
+msgid "Regenerando..."
+msgstr "Regenerando..."
+
+msgid "Enviando..."
+msgstr "Enviando..."
+
+msgid "Desactivando..."
+msgstr "Desactivando..."
+
+msgid "Reintentando..."
+msgstr "Reintentando..."
+
+msgid "Activando..."
+msgstr "Activando..."

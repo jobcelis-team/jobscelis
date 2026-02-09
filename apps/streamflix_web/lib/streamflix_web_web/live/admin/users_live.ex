@@ -193,7 +193,8 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                     <button
                       phx-click="edit_user"
                       phx-value-id={user.id}
-                      class="text-blue-600 hover:text-blue-800 mr-2"
+                      phx-disable-with={gettext("Cargando...")}
+                      class="text-blue-600 hover:text-blue-800 mr-2 disabled:opacity-70"
                     >
                       <%= gettext("Editar") %>
                     </button>
@@ -201,7 +202,8 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                       <button
                         phx-click="deactivate_user"
                         phx-value-id={user.id}
-                        class="text-red-600 hover:text-red-800"
+                        phx-disable-with={gettext("Desactivando...")}
+                        class="text-red-600 hover:text-red-800 disabled:opacity-70"
                       >
                         <%= gettext("Desactivar") %>
                       </button>
@@ -209,7 +211,8 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                       <button
                         phx-click="activate_user"
                         phx-value-id={user.id}
-                        class="text-green-600 hover:text-green-800"
+                        phx-disable-with={gettext("Activando...")}
+                        class="text-green-600 hover:text-green-800 disabled:opacity-70"
                       >
                         <%= gettext("Activar") %>
                       </button>
@@ -293,7 +296,8 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                 </button>
                 <button
                   type="submit"
-                  class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                  phx-disable-with={gettext("Guardando...")}
+                  class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Guardar Cambios") %>
                 </button>
