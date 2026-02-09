@@ -315,7 +315,8 @@ defmodule StreamflixWebWeb.AccountLive do
                 <% end %>
                 <button
                   type="submit"
-                  class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium transition"
+                  phx-disable-with={gettext("Actualizando...")}
+                  class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Actualizar correo") %>
                 </button>
@@ -369,7 +370,8 @@ defmodule StreamflixWebWeb.AccountLive do
                 <% end %>
                 <button
                   type="submit"
-                  class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium transition"
+                  phx-disable-with={gettext("Actualizando...")}
+                  class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Actualizar contraseña") %>
                 </button>
