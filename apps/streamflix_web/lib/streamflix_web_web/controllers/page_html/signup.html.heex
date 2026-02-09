@@ -1,21 +1,22 @@
 <div class="min-h-screen bg-slate-50 flex flex-col relative">
   <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
-  <nav class="bg-white border-b border-slate-200" aria-label={gettext("Navegación")}>
-    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center">
-      <a href="/" class="text-lg font-bold text-slate-900">Jobcelis</a>
+  <header class="bg-white border-b border-slate-200">
+    <nav class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-4" aria-label={gettext("Navegación principal")}>
+      <a href="/" class="text-lg font-bold text-slate-900 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label={gettext("Jobcelis - Ir al inicio")}>Jobcelis</a>
       <div class="ml-auto flex items-center gap-4">
-        <a href="/pricing" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm"><%= gettext("Apoyar el proyecto") %></a>
-        <span class="flex items-center gap-1 text-sm">
-          <a href="/locale/es" onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';" class={["font-medium", (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]}>ES</a>
-          <span class="text-slate-300">|</span>
-          <a href="/locale/en" onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000';" class={["font-medium", (@locale == "en" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]}>EN</a>
+        <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Documentación") %></a>
+        <a href="/pricing" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Apoyar el proyecto") %></a>
+        <span class="flex items-center gap-1 text-sm" role="group" aria-label={gettext("Selección de idioma")}>
+          <a href="/locale/es" onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';" class={["font-medium rounded px-1", (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]} aria-current={@locale == "es" && "page"}>ES</a>
+          <span class="text-slate-300" aria-hidden="true">|</span>
+          <a href="/locale/en" onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000';" class={["font-medium rounded px-1", (@locale == "en" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]} aria-current={@locale == "en" && "page"}>EN</a>
         </span>
-        <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Iniciar sesión") %></a>
+        <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Iniciar sesión") %></a>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </header>
 
-  <div id="main-content" class="flex-1 flex items-center justify-center p-4 py-10" role="main">
+  <main id="main-content" class="flex-1 flex items-center justify-center p-4 py-10" role="main" tabindex="-1">
     <div class="w-full max-w-md">
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
         <h1 class="text-2xl font-bold text-slate-900 mb-2"><%= gettext("Crear cuenta") %></h1>
@@ -94,5 +95,5 @@
         </p>
       </div>
     </div>
-  </div>
+  </main>
 </div>

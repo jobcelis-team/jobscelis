@@ -19,12 +19,13 @@ defmodule StreamflixWebWeb.Layouts do
 
   def locale_toggle(assigns) do
     ~H"""
-    <span class={["flex items-center gap-1 text-sm", @class]}>
+    <span class={["flex items-center gap-1 text-sm", @class]} role="group" aria-label={gettext("Selección de idioma")}>
       <a
         href="/locale/es"
         data-locale="es"
         onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';"
-        class={["font-medium transition", @locale == "es" && "text-slate-900 underline" || "text-slate-500 hover:text-slate-700"]}
+        class={["font-medium transition rounded px-1", @locale == "es" && "text-slate-900 underline" || "text-slate-500 hover:text-slate-700"]}
+        aria-current={@locale == "es" && "page"}
       >
         ES
       </a>
@@ -33,7 +34,8 @@ defmodule StreamflixWebWeb.Layouts do
         href="/locale/en"
         data-locale="en"
         onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000';"
-        class={["font-medium transition", @locale == "en" && "text-slate-900 underline" || "text-slate-500 hover:text-slate-700"]}
+        class={["font-medium transition rounded px-1", @locale == "en" && "text-slate-900 underline" || "text-slate-500 hover:text-slate-700"]}
+        aria-current={@locale == "en" && "page"}
       >
         EN
       </a>
@@ -76,17 +78,17 @@ defmodule StreamflixWebWeb.Layouts do
       <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
       <header class="bg-white border-b border-slate-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-          <a href="/" class="text-lg font-bold text-slate-900">Jobcelis</a>
+          <a href="/" class="text-lg font-bold text-slate-900 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label={gettext("Jobcelis - Ir al inicio")}>Jobcelis</a>
           <nav class="flex items-center gap-6" aria-label={gettext("Navegación principal")}>
             <.locale_toggle locale={@locale} class="flex items-center gap-1" />
-            <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Documentación") %></a>
-            <a href="/pricing" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm"><%= gettext("Apoyar el proyecto") %></a>
-            <.link navigate="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Dashboard") %></.link>
-            <.link navigate="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Cuenta") %></.link>
+            <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Documentación") %></a>
+            <a href="/pricing" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Apoyar el proyecto") %></a>
+            <.link navigate="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Dashboard") %></.link>
+            <.link navigate="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Cuenta") %></.link>
             <%= if @current_user && @current_user.role in ["admin", "superadmin"] do %>
-              <a href="/admin" class="text-amber-600 hover:text-amber-700 font-medium text-sm"><%= gettext("Admin") %></a>
+              <a href="/admin" class="text-amber-600 hover:text-amber-700 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Admin") %></a>
             <% end %>
-            <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Cerrar sesión") %></a>
+            <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Cerrar sesión") %></a>
           </nav>
         </div>
       </header>
@@ -95,20 +97,20 @@ defmodule StreamflixWebWeb.Layouts do
         {render_slot(@inner_block)}
       </main>
 
-      <footer class="border-t border-slate-200 py-4 bg-white mt-auto">
+      <footer class="border-t border-slate-200 py-4 bg-white mt-auto" role="contentinfo">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-500">
           <span>© <%= Date.utc_today().year %> <%= Map.get(@legal, :owner, "Jobcelis") %>. <%= gettext("Todos los derechos reservados.") %></span>
-          <div class="flex items-center gap-4">
-            <a href="/docs" class="hover:text-slate-700"><%= gettext("Documentación") %></a>
-            <a href="/faq" class="hover:text-slate-700"><%= gettext("FAQ") %></a>
-            <a href="/about" class="hover:text-slate-700"><%= gettext("Sobre nosotros") %></a>
-            <a href="/contact" class="hover:text-slate-700"><%= gettext("Contacto") %></a>
-            <a href="/pricing" class="hover:text-slate-700"><%= gettext("Planes") %></a>
-            <a href="/terms" class="hover:text-slate-700"><%= gettext("Términos") %></a>
-            <a href="/privacy" class="hover:text-slate-700"><%= gettext("Privacidad") %></a>
-            <a href="/cookies" class="hover:text-slate-700"><%= gettext("Cookies") %></a>
-            <a href="/changelog" class="hover:text-slate-700"><%= gettext("Changelog") %></a>
-          </div>
+          <nav class="flex items-center gap-4 flex-wrap justify-center sm:justify-end" aria-label={gettext("Enlaces legales y de ayuda")}>
+            <a href="/docs" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Documentación") %></a>
+            <a href="/faq" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("FAQ") %></a>
+            <a href="/about" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Sobre nosotros") %></a>
+            <a href="/contact" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Contacto") %></a>
+            <a href="/pricing" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Planes") %></a>
+            <a href="/terms" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Términos") %></a>
+            <a href="/privacy" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Privacidad") %></a>
+            <a href="/cookies" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Cookies") %></a>
+            <a href="/changelog" class="hover:text-slate-700 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Changelog") %></a>
+          </nav>
         </div>
       </footer>
 
