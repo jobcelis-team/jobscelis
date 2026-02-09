@@ -87,7 +87,8 @@ if config_env() == :prod do
         owner: System.get_env("LEGAL_OWNER"),
         contact_email: System.get_env("LEGAL_CONTACT_EMAIL"),
         donation_paypal_url: System.get_env("DONATION_PAYPAL_URL"),
-        donation_payoneer_url: System.get_env("DONATION_PAYONEER_URL")
+        donation_payoneer_url: System.get_env("DONATION_PAYONEER_URL"),
+        donation_payphone_url: System.get_env("DONATION_PAYPHONE_URL")
       ],
       fn {_, v} -> is_binary(v) and v != "" end
     )
@@ -98,7 +99,8 @@ if config_env() == :prod do
       owner: "Jobcelis",
       contact_email: "",
       donation_paypal_url: "",
-      donation_payoneer_url: ""
+      donation_payoneer_url: "",
+      donation_payphone_url: ""
     ])
     |> Keyword.merge(env_legal)
 
