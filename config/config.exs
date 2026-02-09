@@ -23,7 +23,7 @@ config :streamflix_core, StreamflixCore.Repo,
 # STREAMFLIX_WEB CONFIG
 # ============================================
 
-config :streamflix_web, StreamflixWebWeb.Gettext, default_locale: "es"
+config :streamflix_web, StreamflixWebWeb.Gettext, default_locale: "en"
 
 # Marca y titular legal (copyright, términos, contacto, donaciones). Servicio de Vladimir Celi.
 config :streamflix_web, :legal,
