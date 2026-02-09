@@ -78,7 +78,10 @@ defmodule StreamflixWebWeb.Layouts do
       <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
       <header class="bg-white border-b border-slate-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-          <a href="/" class="text-lg font-bold text-slate-900 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label={gettext("Jobcelis - Ir al inicio")}>Jobcelis</a>
+          <a href="/" class="flex items-center gap-2 text-lg font-bold text-slate-900 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label={gettext("Jobcelis - Ir al inicio")}>
+            <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" />
+            Jobcelis
+          </a>
           <nav class="flex items-center gap-6" aria-label={gettext("Navegación principal")}>
             <.locale_toggle locale={@locale} class="flex items-center gap-1" />
             <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Documentación") %></a>
