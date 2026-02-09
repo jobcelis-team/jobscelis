@@ -1,5 +1,9 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-#
-# To ban all spiders from the entire site uncomment the next two lines:
-# User-agent: *
-# Disallow: /
+# https://www.robotstxt.org/robotstxt.html
+# Allow all crawlers (Google, Bing, etc.) / Permitir todos los rastreadores (Google, Bing, etc.)
+User-agent: *
+Allow: /
+
+# Sitemap so search engines find all pages / Sitemap para que los buscadores encuentren todas las páginas
+# If you use www, change to: https://www.jobcelis.com/sitemap.xml
+# Si usas www, cambia a: https://www.jobcelis.com/sitemap.xml
+Sitemap: https://jobcelis.com/sitemap.xml
