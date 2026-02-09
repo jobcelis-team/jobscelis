@@ -2,7 +2,10 @@
   <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
   <header class="bg-white/95 border-b border-slate-200/80 backdrop-blur-sm sticky top-0 z-10">
     <nav class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16" aria-label={gettext("Navegación principal")}>
-      <a href="/" class="text-xl font-bold text-slate-900 tracking-tight rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label={gettext("Jobcelis - Ir al inicio")}>Jobcelis</a>
+      <a href="/" class="flex items-center gap-2 text-xl font-bold text-slate-900 tracking-tight rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label={gettext("Jobcelis - Ir al inicio")}>
+        <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" />
+        Jobcelis
+      </a>
       <div class="flex items-center gap-4">
         <span class="flex items-center gap-1 text-sm" role="group" aria-label={gettext("Selección de idioma")}>
           <a href="/locale/es" class={["font-medium transition rounded px-1", (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]} aria-current={@locale == "es" && "page"}>ES</a>
