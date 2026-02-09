@@ -30,8 +30,8 @@
       <nav class="sticky top-6 space-y-0 text-sm">
         <p class="font-semibold text-slate-500 uppercase tracking-wider mb-3 px-1"><%= gettext("Contenido") %></p>
         <a href="#intro" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Introducción") %></a>
-        <a href="#conceptos" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Conceptos básicos") %></a>
-        <a href="#primeros-pasos" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Primeros pasos") %></a>
+        <a href="#concepts" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Conceptos básicos") %></a>
+        <a href="#getting-started" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Primeros pasos") %></a>
         <a href="#base-url" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Base URL") %></a>
         <a href="#auth" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Autenticación") %></a>
         <a href="#cors" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("CORS") %></a>
@@ -47,7 +47,7 @@
         <a href="#webhooks" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Webhooks") %></a>
         <a href="#deliveries" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Entregas") %></a>
         <a href="#jobs" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Jobs") %></a>
-        <a href="#configurar-jobs-cron" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Configurar jobs y cron") %></a>
+        <a href="#jobs-cron" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Configurar jobs y cron") %></a>
         <a href="#project-token" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Proyecto, topics y token") %></a>
         <a href="#usage" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Formas de uso") %></a>
         <a href="#status-codes" class="block py-2 px-2 rounded-md text-slate-600 hover:text-indigo-600 hover:bg-slate-100"><%= gettext("Códigos de respuesta") %></a>
@@ -77,7 +77,7 @@
         <p class="text-slate-600"><%= gettext("Todas las respuestas son JSON. CORS habilitado. Payload máximo 256 KB.") %></p>
       </section>
 
-      <section id="conceptos" class="mb-12 scroll-mt-24">
+      <section id="concepts" class="mb-12 scroll-mt-24">
         <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Conceptos básicos") %></h2>
         <p class="text-slate-600 mb-4"><%= gettext("Estos son los conceptos que necesitas para usar Jobcelis. No hace falta ser experto: con entender qué es cada cosa puedes configurar eventos, webhooks y jobs en pocos minutos.") %></p>
 
@@ -113,7 +113,7 @@
         </div>
       </section>
 
-      <section id="primeros-pasos" class="mb-12 scroll-mt-24">
+      <section id="getting-started" class="mb-12 scroll-mt-24">
         <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Primeros pasos") %></h2>
         <p class="text-slate-600 mb-4"><%= gettext("Sigue estos pasos para tener todo funcionando en pocos minutos.") %></p>
         <ol class="list-decimal list-inside text-slate-700 space-y-3 mb-4">
@@ -382,7 +382,7 @@
         </div>
       </section>
 
-      <section id="configurar-jobs-cron" class="mb-12 scroll-mt-24">
+      <section id="jobs-cron" class="mb-12 scroll-mt-24">
         <h2 class="text-xl font-semibold text-slate-900 mb-4"><%= gettext("Configurar jobs y cron") %></h2>
         <p class="text-slate-600 mb-4"><%= gettext("Los jobs se programan de cuatro formas: diario, semanal, mensual o con una expresión cron. Aquí te explicamos cada una y cómo escribir expresiones cron si eliges esa opción.") %></p>
 
