@@ -1496,3 +1496,31 @@ msgstr "TU_JWT_AQUI"
 
 msgid "My Project"
 msgstr "Mi Proyecto"
+
+# Errores de validación al crear cuenta (cambioset)
+msgid "can't be blank"
+msgstr "no puede estar en blanco"
+
+msgid "already registered"
+msgstr "ya está registrado"
+
+msgid "must be a valid email"
+msgstr "debe ser un correo válido"
+
+msgid "must have at least one lowercase letter"
+msgstr "debe tener al menos una letra minúscula"
+
+msgid "must have at least one uppercase letter"
+msgstr "debe tener al menos una letra mayúscula"
+
+msgid "must have at least one digit"
+msgstr "debe tener al menos un número"
+
+msgid "email"
+msgstr "correo electrónico"
+
+msgid "password"
+msgstr "contraseña"
+
+msgid "name"
+msgstr "nombre"

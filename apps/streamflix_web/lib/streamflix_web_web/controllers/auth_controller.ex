@@ -149,11 +149,20 @@ defmodule StreamflixWebWeb.AuthController do
 
   defp format_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
+      translated = Gettext.gettext(StreamflixWebWeb.Gettext, msg)
+      Regex.replace(~r"%{(\w+)}", translated, fn _, key ->
         opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
       end)
     end)
-    |> Enum.map(fn {field, errors} -> "#{field}: #{Enum.join(errors, ", ")}" end)
+    |> Enum.map(fn {field, errors} ->
+      field_label = translate_field(field)
+      "#{field_label}: #{Enum.join(errors, ", ")}"
+    end)
     |> Enum.join("; ")
   end
+
+  defp translate_field(:email), do: gettext("email")
+  defp translate_field(:password), do: gettext("password")
+  defp translate_field(:name), do: gettext("name")
+  defp translate_field(field), do: to_string(field)
 end

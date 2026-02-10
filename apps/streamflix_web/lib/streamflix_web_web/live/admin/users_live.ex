@@ -27,7 +27,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
   @impl true
   def handle_info(:load_users, socket) do
     users = load_users_from_db()
-    
+
     socket =
       socket
       |> assign(:users, users)
@@ -240,7 +240,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
             </div>
             <form phx-submit="save_user" class="p-6 space-y-4">
               <input type="hidden" name="_id" value={@editing_user.id} />
-              
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Nombre") %></label>
                 <input

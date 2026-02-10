@@ -1621,3 +1621,31 @@ msgstr "YOUR_JWT_HERE"
 
 msgid "My Project"
 msgstr "My Project"
+
+# Validation errors (changeset) - keep in English for en locale
+msgid "can't be blank"
+msgstr "can't be blank"
+
+msgid "already registered"
+msgstr "already registered"
+
+msgid "must be a valid email"
+msgstr "must be a valid email"
+
+msgid "must have at least one lowercase letter"
+msgstr "must have at least one lowercase letter"
+
+msgid "must have at least one uppercase letter"
+msgstr "must have at least one uppercase letter"
+
+msgid "must have at least one digit"
+msgstr "must have at least one digit"
+
+msgid "email"
+msgstr "email"
+
+msgid "password"
+msgstr "password"
+
+msgid "name"
+msgstr "name"
