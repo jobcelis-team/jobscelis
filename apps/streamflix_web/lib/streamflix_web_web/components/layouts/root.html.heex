@@ -11,8 +11,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <%!-- Favicon: logo en pestaña y en resultados de búsqueda (Google) --%>
-    <link phx-track-static rel="icon" type="image/png" href={~p"/images/logo.png"} />
-    <link phx-track-static rel="icon" href={~p"/favicon.ico"} />
+    <link rel="icon" type="image/png" sizes="48x48" href={~p"/images/favicon-48x48.png"} />
+    <link rel="icon" type="image/png" sizes="192x192" href={~p"/images/logo.png"} />
+    <link rel="apple-touch-icon" sizes="180x180" href={~p"/images/logo.png"} />
     <.live_title default="Jobcelis" suffix=" · Eventos, webhooks y jobs">
       {assigns[:page_title]}
     </.live_title>

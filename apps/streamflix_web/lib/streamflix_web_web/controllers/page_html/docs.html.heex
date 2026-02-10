@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-slate-100 flex flex-col">
+<div class="min-h-screen bg-slate-100 flex flex-col min-w-0 overflow-x-hidden">
   <nav class="bg-white border-b border-slate-200 shrink-0 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-2 min-h-14 py-3">
       <a href="/" class="flex items-center gap-2 text-lg font-bold text-slate-900" aria-label={gettext("Jobcelis - Ir al inicio")}>
         <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" />
         Jobcelis
@@ -27,7 +27,7 @@
     </div>
   </nav>
 
-  <div class="flex flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-10">
+  <div class="flex flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-6 lg:gap-10 min-w-0">
     <%!-- Sidebar con grupos claros --%>
     <aside class="hidden lg:block w-64 shrink-0" aria-label={gettext("Navegación de la documentación")}>
       <nav class="sticky top-8 space-y-6 text-sm bg-white/80 backdrop-blur rounded-2xl border border-slate-200 shadow-sm p-5">
@@ -75,7 +75,7 @@
       </nav>
     </aside>
 
-    <main class="min-w-0 flex-1 max-w-4xl">
+    <main class="docs-main min-w-0 flex-1 max-w-4xl overflow-hidden">
       <header class="mb-10">
         <h1 class="text-4xl font-bold text-slate-900 tracking-tight mb-3"><%= gettext("Documentación de la API") %></h1>
         <p class="text-lg text-slate-600 leading-relaxed max-w-2xl"><%= gettext("Referencia completa: rutas, autenticación, CORS, ejemplos y qué probar en cada endpoint.") %></p>
@@ -169,36 +169,38 @@
           <div class="p-8 space-y-6">
             <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
               <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">1</span>
-              <div>
+              <div class="min-w-0 flex-1">
                 <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Regístrate e inicia sesión") %></h3>
                 <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En la web, regístrate con tu email y contraseña. Entra al Dashboard.") %></p>
               </div>
             </div>
             <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
               <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">2</span>
-              <div>
+              <div class="min-w-0 flex-1">
                 <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Copia tu API Token") %></h3>
                 <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En el Dashboard, sección API Token, verás el token (o prefix). Si acabas de registrarte, el token se habrá mostrado al crear el proyecto. Guárdalo; lo usarás en todas las peticiones con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN.") %></p>
               </div>
             </div>
             <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
               <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">3</span>
-              <div>
+              <div class="min-w-0 flex-1">
                 <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Envía tu primer evento") %></h3>
                 <p class="text-slate-600 text-sm leading-relaxed mb-3"><%= gettext("Desde tu código o con curl: POST /api/v1/events con body JSON (por ejemplo {\"topic\":\"test\",\"message\":\"Hola\"}). En el Dashboard podrás ver el evento en la lista.") %></p>
-                <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto font-mono">curl -X POST "BASE_URL/api/v1/events" -H "Authorization: Bearer TU_TOKEN" -H "Content-Type: application/json" -d '<%= "{\"topic\":\"test\",\"message\":\"" %><%= gettext("Hello") %><%= "\"}" %>'</pre>
+                <div class="min-w-0 overflow-x-auto rounded-lg">
+                  <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre">curl -X POST "BASE_URL/api/v1/events" -H "Authorization: Bearer TU_TOKEN" -H "Content-Type: application/json" -d '<%= "{\"topic\":\"test\",\"message\":\"" %><%= gettext("Hello") %><%= "\"}" %>'</pre>
+                </div>
               </div>
             </div>
             <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
               <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">4</span>
-              <div>
+              <div class="min-w-0 flex-1">
                 <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Crea un webhook") %></h3>
                 <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En el Dashboard, Webhooks → Crear. Pon una URL que pueda recibir POST (puedes usar webhook.site). Opcional: elige un topic (ej. test) para que solo los eventos con ese topic lleguen a esa URL. Guarda y envía otro evento de prueba.") %></p>
               </div>
             </div>
             <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
               <span class="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 text-slate-600 font-bold flex items-center justify-center text-lg">5</span>
-              <div>
+              <div class="min-w-0 flex-1">
                 <h3 class="font-semibold text-slate-900 mb-1"><%= gettext("Crea un job (opcional)") %></h3>
                 <p class="text-slate-600 text-sm leading-relaxed"><%= gettext("En el Dashboard, Jobs → Crear. Elige programación (por ejemplo Diario a las 12:00) y acción (emitir evento o POST a URL). Guarda; el job se ejecutará a la hora indicada. En \"Configurar jobs y cron\" más abajo tienes la guía de cron y ejemplos.") %></p>
               </div>
