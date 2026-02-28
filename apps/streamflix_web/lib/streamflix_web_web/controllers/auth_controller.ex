@@ -30,8 +30,8 @@ defmodule StreamflixWebWeb.AuthController do
       {:ok, user} ->
         do_register_success(conn, user)
 
-      {:ok, user, _opts} ->
-        do_register_success(conn, user)
+      {:ok, user, opts} ->
+        do_register_success(conn, user, opts)
 
       {:error, :email_already_registered} ->
         conn
@@ -120,13 +120,28 @@ defmodule StreamflixWebWeb.AuthController do
   end
 
   defp do_register_success(conn, user) do
+    do_register_success(conn, user, [])
+  end
+
+  defp do_register_success(conn, user, opts) do
     {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
 
-    conn
-    |> put_session(:user_token, token)
-    |> put_session(:user_id, user.id)
-    |> put_flash(:info, gettext("Cuenta creada. Bienvenido."))
-    |> redirect(to: ~p"/platform")
+    conn =
+      conn
+      |> put_session(:user_token, token)
+      |> put_session(:user_id, user.id)
+      |> put_flash(:info, gettext("Cuenta creada. Bienvenido."))
+
+    conn =
+      case Keyword.get(opts, :api_key) do
+        raw_key when is_binary(raw_key) and raw_key != "" ->
+          put_session(conn, :fresh_api_key, raw_key)
+
+        _ ->
+          conn
+      end
+
+    redirect(conn, to: ~p"/platform")
   end
 
   # Email 3-254 chars, password 8-72 chars, name opcional max 255. Sanitiza trim y downcase email.
