@@ -296,10 +296,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={:platform} current_user={@current_user} locale={@locale} active_page={@active_page}>
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 mb-8"><%= gettext("Dashboard") %></h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mb-6 sm:mb-8"><%= gettext("Dashboard") %></h1>
 
         <%= if @project do %>
-          <div class="space-y-8">
+          <div class="space-y-6 sm:space-y-8">
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("Proyecto") %></h2>
               <%= if @editing_project_name do %>
@@ -331,7 +331,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-1"><%= gettext("API Token") %></h2>
-              <p class="text-slate-500 text-sm mb-3 break-words"><%= gettext("Header:") %> <code class="bg-slate-100 px-1 rounded text-xs break-all">Authorization: Bearer &lt;token&gt;</code> <%= gettext("o") %> <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
+              <p class="text-slate-500 text-xs sm:text-sm mb-3 break-words"><%= gettext("Header:") %> <code class="bg-slate-100 px-1 rounded text-xs break-all">Authorization: Bearer &lt;token&gt;</code> <%= gettext("o") %> <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
 
               <%!-- State 1: Fresh token from registration --%>
               <%= if @new_token && @token_source == :registration do %>
@@ -487,7 +487,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-4"><%= gettext("Enviar evento de prueba") %></h2>
-              <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3 max-w-lg">
+              <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3 sm:max-w-lg">
                 <.input type="text" name="topic" id="test-topic" value={@test_topic} placeholder={gettext("Topic (opcional)")} class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm" />
                 <.input type="textarea" name="payload" id="test-payload" value={@test_payload} class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm" />
                 <button type="submit" phx-disable-with={gettext("Enviando...")} class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed">
@@ -502,19 +502,19 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 <table class="min-w-full">
                   <thead>
                     <tr class="bg-slate-50 border-b border-slate-200">
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700">ID</th>
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700"><%= gettext("Topic") %></th>
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700"><%= gettext("Estado") %></th>
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700"><%= gettext("Fecha") %></th>
+                      <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">ID</th>
+                      <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700"><%= gettext("Topic") %></th>
+                      <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700"><%= gettext("Estado") %></th>
+                      <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 hidden sm:table-cell"><%= gettext("Fecha") %></th>
                     </tr>
                   </thead>
                   <tbody>
                     <%= for e <- @events do %>
                       <tr class="border-b border-slate-100 last:border-0">
-                        <td class="px-4 py-3 font-mono text-sm text-slate-600">{String.slice(e.id, 0, 8)}...</td>
-                        <td class="px-4 py-3 text-slate-700">{e.topic || "—"}</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">{e.status}</span></td>
-                        <td class="px-4 py-3 text-sm text-slate-600">{format_dt(e.occurred_at)}</td>
+                        <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600">{String.slice(e.id, 0, 8)}...</td>
+                        <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-700 truncate max-w-[8rem] sm:max-w-none">{e.topic || "—"}</td>
+                        <td class="px-3 sm:px-4 py-2 sm:py-3"><span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">{e.status}</span></td>
+                        <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600 hidden sm:table-cell">{format_dt(e.occurred_at)}</td>
                       </tr>
                     <% end %>
                   </tbody>
@@ -528,15 +528,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 <table class="min-w-full">
                   <thead>
                     <tr class="bg-slate-50 border-b border-slate-200">
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700">URL</th>
-                      <th class="px-4 py-3 text-left text-sm font-medium text-slate-700"><%= gettext("Estado") %></th>
+                      <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">URL</th>
+                      <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700"><%= gettext("Estado") %></th>
                     </tr>
                   </thead>
                   <tbody>
                     <%= for w <- @webhooks do %>
                       <tr class="border-b border-slate-100 last:border-0">
-                        <td class="px-4 py-3 font-mono text-sm text-slate-600">{w.url}</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">{w.status}</span></td>
+                        <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600 truncate max-w-[12rem] sm:max-w-none">{w.url}</td>
+                        <td class="px-3 sm:px-4 py-2 sm:py-3"><span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">{w.status}</span></td>
                       </tr>
                     <% end %>
                   </tbody>
@@ -545,13 +545,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             </section>
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
-              <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <div class="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <h2 class="text-lg font-semibold text-slate-900"><%= gettext("Jobs") %></h2>
                 <button
                   type="button"
                   phx-click="new_job"
                   phx-disable-with={gettext("Cargando...")}
-                  class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <.icon name="hero-plus" class="w-4 h-4" />
                   <%= gettext("Nuevo job") %>
@@ -561,30 +561,30 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 <table class="min-w-full divide-y divide-slate-200">
                   <thead>
                     <tr class="bg-slate-50/80">
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Nombre") %></th>
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Programación") %></th>
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Acción") %></th>
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Estado") %></th>
-                      <th class="px-5 py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Acciones") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Nombre") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell"><%= gettext("Programación") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell"><%= gettext("Acción") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Estado") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Acciones") %></th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     <%= for j <- @jobs do %>
                       <tr class="hover:bg-slate-50/50 transition">
-                        <td class="px-5 py-4 font-medium text-slate-800">{j.name}</td>
-                        <td class="px-5 py-4 text-sm text-slate-600">{j.schedule_type}</td>
-                        <td class="px-5 py-4 text-sm text-slate-600">{j.action_type}</td>
-                        <td class="px-5 py-4">
-                          <span class={["inline-flex px-2.5 py-1 rounded-lg text-xs font-medium", if(j.status == "active", do: "bg-emerald-100 text-emerald-800", else: "bg-slate-200 text-slate-600")]}>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 font-medium text-slate-800 text-sm">{j.name}</td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 hidden sm:table-cell">{j.schedule_type}</td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 hidden sm:table-cell">{j.action_type}</td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4">
+                          <span class={["inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-xs font-medium", if(j.status == "active", do: "bg-emerald-100 text-emerald-800", else: "bg-slate-200 text-slate-600")]}>
                             {j.status}
                           </span>
                         </td>
-                        <td class="px-5 py-4 text-right">
-                          <div class="inline-flex gap-2">
-                            <button phx-click="edit_job" phx-value-id={j.id} phx-disable-with={gettext("Cargando...")} class="text-indigo-600 hover:text-indigo-700 font-medium text-sm disabled:opacity-70"><%= gettext("Editar") %></button>
-                            <button phx-click="show_job_runs" phx-value-id={j.id} phx-disable-with={gettext("Cargando...")} class="text-slate-600 hover:text-slate-700 font-medium text-sm disabled:opacity-70"><%= gettext("Runs") %></button>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
+                          <div class="flex flex-col sm:flex-row sm:inline-flex gap-1 sm:gap-2 items-end sm:items-center">
+                            <button phx-click="edit_job" phx-value-id={j.id} phx-disable-with={gettext("Cargando...")} class="text-indigo-600 hover:text-indigo-700 font-medium text-xs sm:text-sm disabled:opacity-70"><%= gettext("Editar") %></button>
+                            <button phx-click="show_job_runs" phx-value-id={j.id} phx-disable-with={gettext("Cargando...")} class="text-slate-600 hover:text-slate-700 font-medium text-xs sm:text-sm disabled:opacity-70"><%= gettext("Runs") %></button>
                             <%= if j.status == "active" do %>
-                              <button phx-click="deactivate_job" phx-value-id={j.id} phx-disable-with={gettext("Desactivando...")} class="text-red-600 hover:text-red-700 font-medium text-sm disabled:opacity-70"><%= gettext("Desactivar") %></button>
+                              <button phx-click="deactivate_job" phx-value-id={j.id} phx-disable-with={gettext("Desactivando...")} class="text-red-600 hover:text-red-700 font-medium text-xs sm:text-sm disabled:opacity-70"><%= gettext("Desactivar") %></button>
                             <% end %>
                           </div>
                         </td>
@@ -596,32 +596,32 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             </section>
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
-              <h2 class="text-lg font-semibold text-slate-900 mb-6"><%= gettext("Entregas") %></h2>
+              <h2 class="text-lg font-semibold text-slate-900 mb-4 sm:mb-6"><%= gettext("Entregas") %></h2>
               <div class="overflow-x-auto rounded-xl border border-slate-200">
                 <table class="min-w-full divide-y divide-slate-200">
                   <thead>
                     <tr class="bg-slate-50/80">
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Evento / Topic") %></th>
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Webhook") %></th>
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Estado") %></th>
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Intento") %></th>
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("HTTP") %></th>
-                      <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Fecha") %></th>
-                      <th class="px-5 py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Acciones") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Evento / Topic") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden md:table-cell"><%= gettext("Webhook") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Estado") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden lg:table-cell"><%= gettext("Intento") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell"><%= gettext("HTTP") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell"><%= gettext("Fecha") %></th>
+                      <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider"><%= gettext("Acciones") %></th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     <%= for d <- @deliveries do %>
                       <tr class="hover:bg-slate-50/50 transition">
-                        <td class="px-5 py-4 text-sm text-slate-600 font-mono">{if d.event, do: d.event.topic || String.slice(d.event_id, 0, 8), else: String.slice(d.event_id, 0, 8)}</td>
-                        <td class="px-5 py-4 font-mono text-xs text-slate-600 max-w-[14rem] truncate">{if d.webhook, do: d.webhook.url, else: d.webhook_id}</td>
-                        <td class="px-5 py-4"><span class={["inline-flex px-2.5 py-1 rounded-lg text-xs font-medium", if(d.status == "success", do: "bg-emerald-100 text-emerald-800", else: if(d.status == "pending", do: "bg-amber-100 text-amber-800", else: "bg-red-100 text-red-800"))]}>{d.status}</span></td>
-                        <td class="px-5 py-4 text-sm text-slate-600">{d.attempt_number}</td>
-                        <td class="px-5 py-4 text-sm text-slate-600 font-mono">{d.response_status || "—"}</td>
-                        <td class="px-5 py-4 text-sm text-slate-600">{format_dt(d.inserted_at)}</td>
-                        <td class="px-5 py-4 text-right">
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 font-mono truncate max-w-[8rem] sm:max-w-none">{if d.event, do: d.event.topic || String.slice(d.event_id, 0, 8), else: String.slice(d.event_id, 0, 8)}</td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 font-mono text-xs text-slate-600 max-w-[14rem] truncate hidden md:table-cell">{if d.webhook, do: d.webhook.url, else: d.webhook_id}</td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4"><span class={["inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-xs font-medium", if(d.status == "success", do: "bg-emerald-100 text-emerald-800", else: if(d.status == "pending", do: "bg-amber-100 text-amber-800", else: "bg-red-100 text-red-800"))]}>{d.status}</span></td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 hidden lg:table-cell">{d.attempt_number}</td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 font-mono hidden sm:table-cell">{d.response_status || "—"}</td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 hidden sm:table-cell">{format_dt(d.inserted_at)}</td>
+                        <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
                           <%= if d.status != "success" and d.status != "pending" do %>
-                            <button phx-click="retry_delivery" phx-value-id={d.id} phx-disable-with={gettext("Reintentando...")} class="text-indigo-600 hover:text-indigo-700 font-medium text-sm disabled:opacity-70"><%= gettext("Reintentar") %></button>
+                            <button phx-click="retry_delivery" phx-value-id={d.id} phx-disable-with={gettext("Reintentando...")} class="text-indigo-600 hover:text-indigo-700 font-medium text-xs sm:text-sm disabled:opacity-70"><%= gettext("Reintentar") %></button>
                           <% end %>
                         </td>
                       </tr>
@@ -633,11 +633,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
             <%!-- Job form modal: backdrop and modal are siblings so clicking inside modal doesn't close --%>
             <%= if @job_modal do %>
-              <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" id="job-modal-container">
+              <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6" id="job-modal-container">
                 <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" phx-click="close_job_modal" id="job-modal-backdrop" aria-hidden="true"></div>
                 <div class="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-hidden bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200/50" id="job-modal-content" role="dialog" aria-modal="true" aria-labelledby="job-modal-title">
-                  <div class="flex-shrink-0 px-6 py-5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
-                    <h2 id="job-modal-title" class="text-xl font-semibold text-slate-900"><%= if @job_modal == :new, do: gettext("Nuevo job"), else: gettext("Editar job") %></h2>
+                  <div class="flex-shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
+                    <h2 id="job-modal-title" class="text-lg sm:text-xl font-semibold text-slate-900"><%= if @job_modal == :new, do: gettext("Nuevo job"), else: gettext("Editar job") %></h2>
                     <button type="button" phx-click="close_job_modal" class="p-2 -m-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition" aria-label={gettext("Cerrar")}>
                       <.icon name="hero-x-mark" class="w-5 h-5" />
                     </button>
@@ -647,10 +647,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                       <input type="hidden" name="job_id" value={elem(@job_modal, 1)} />
                     <% end %>
                     <% p = @job_form.params || %{} %>
-                    <div class="p-6 space-y-6">
+                    <div class="p-4 sm:p-6 space-y-5 sm:space-y-6">
                       <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5"><%= gettext("Nombre") %></label>
-                        <input type="text" name="name" value={p["name"]} required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder={gettext("Ej: Reporte diario")} />
+                        <input type="text" name="name" value={p["name"]} required class="w-full border border-slate-300 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm sm:text-base" placeholder={gettext("Ej: Reporte diario")} />
                       </div>
 
                       <div class="border-t border-slate-200 pt-6">
