@@ -139,84 +139,63 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gray-100">
-      <.admin_sidebar active="users" current_user_role={@current_user_role} />
+    <.admin_layout active="users" current_user_role={@current_user_role}>
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8"><%= gettext("Usuarios") %></h1>
 
-      <div class="ml-64 p-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8"><%= gettext("Usuarios") %></h1>
+      <%!-- Search --%>
+      <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <input
+          type="text"
+          placeholder={gettext("Buscar usuarios...")}
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
+        />
+      </div>
 
-        <!-- Search -->
-        <div class="bg-white rounded-lg shadow p-4 mb-6">
-          <input
-            type="text"
-            placeholder={gettext("Buscar usuarios...")}
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
-          />
-        </div>
-
-        <!-- Users Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-          <table class="w-full">
+      <%!-- Users Table --%>
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
             <thead class="bg-gray-50 border-b">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Usuario") %></th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Rol") %></th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Registrado") %></th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Estado") %></th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"><%= gettext("Acciones") %></th>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Usuario") %></th>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Rol") %></th>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell"><%= gettext("Registrado") %></th>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Estado") %></th>
+                <th class="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"><%= gettext("Acciones") %></th>
               </tr>
             </thead>
             <tbody class="divide-y">
               <%= for user <- @users do %>
                 <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4">
+                  <td class="px-4 sm:px-6 py-3 sm:py-4">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span class="font-medium text-gray-600"><%= String.first(user.name) %></span>
+                      <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-300 flex items-center justify-center shrink-0">
+                        <span class="font-medium text-gray-600 text-sm"><%= String.first(user.name) %></span>
                       </div>
-                      <div>
-                        <p class="font-medium"><%= user.name %></p>
-                        <p class="text-sm text-gray-500"><%= user.email %></p>
+                      <div class="min-w-0">
+                        <p class="font-medium truncate"><%= user.name %></p>
+                        <p class="text-sm text-gray-500 truncate"><%= user.email %></p>
                       </div>
                     </div>
                   </td>
-                  <td class="px-6 py-4">
+                  <td class="px-4 sm:px-6 py-3 sm:py-4">
                     <span class={"px-2 py-1 rounded text-xs #{role_class(user.role)}"}><%= user.role %></span>
                   </td>
-                  <td class="px-6 py-4 text-gray-500"><%= user.registered %></td>
-                  <td class="px-6 py-4">
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 hidden sm:table-cell"><%= user.registered %></td>
+                  <td class="px-4 sm:px-6 py-3 sm:py-4">
                     <span class={"px-2 py-1 rounded text-xs #{if user.active, do: "bg-green-100 text-green-800", else: "bg-red-100 text-red-800"}"}>
                       <%= if user.active, do: gettext("Activo"), else: gettext("Inactivo") %>
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right">
-                    <button
-                      phx-click="edit_user"
-                      phx-value-id={user.id}
-                      phx-disable-with={gettext("Cargando...")}
-                      class="text-blue-600 hover:text-blue-800 mr-2 disabled:opacity-70"
-                    >
-                      <%= gettext("Editar") %>
-                    </button>
-                    <%= if user.active do %>
-                      <button
-                        phx-click="deactivate_user"
-                        phx-value-id={user.id}
-                        phx-disable-with={gettext("Desactivando...")}
-                        class="text-red-600 hover:text-red-800 disabled:opacity-70"
-                      >
-                        <%= gettext("Desactivar") %>
-                      </button>
-                    <% else %>
-                      <button
-                        phx-click="activate_user"
-                        phx-value-id={user.id}
-                        phx-disable-with={gettext("Activando...")}
-                        class="text-green-600 hover:text-green-800 disabled:opacity-70"
-                      >
-                        <%= gettext("Activar") %>
-                      </button>
-                    <% end %>
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
+                    <div class="flex flex-col sm:flex-row sm:justify-end gap-1">
+                      <button phx-click="edit_user" phx-value-id={user.id} phx-disable-with={gettext("Cargando...")} class="text-blue-600 hover:text-blue-800 text-sm disabled:opacity-70"><%= gettext("Editar") %></button>
+                      <%= if user.active do %>
+                        <button phx-click="deactivate_user" phx-value-id={user.id} phx-disable-with={gettext("Desactivando...")} class="text-red-600 hover:text-red-800 text-sm disabled:opacity-70"><%= gettext("Desactivar") %></button>
+                      <% else %>
+                        <button phx-click="activate_user" phx-value-id={user.id} phx-disable-with={gettext("Activando...")} class="text-green-600 hover:text-green-800 text-sm disabled:opacity-70"><%= gettext("Activar") %></button>
+                      <% end %>
+                    </div>
                   </td>
                 </tr>
               <% end %>
@@ -225,44 +204,27 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
         </div>
       </div>
 
-      <!-- User Edit Modal: backdrop and modal are siblings so clicking inside modal doesn't close -->
+      <%!-- User Edit Modal --%>
       <%= if @editing_user do %>
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="user-modal-container">
           <div class="absolute inset-0 bg-black/50" phx-click="close_user_modal" id="user-modal-backdrop" aria-hidden="true"></div>
-          <div class="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-md mx-4" id="user-modal-content" role="dialog" aria-modal="true">
-            <div class="p-6 border-b flex justify-between items-center">
-              <h2 class="text-xl font-semibold text-gray-900"><%= gettext("Editar Usuario") %></h2>
+          <div class="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-md" id="user-modal-content" role="dialog" aria-modal="true">
+            <div class="p-4 sm:p-6 border-b flex justify-between items-center">
+              <h2 class="text-lg sm:text-xl font-semibold text-gray-900"><%= gettext("Editar Usuario") %></h2>
               <button phx-click="close_user_modal" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            <form phx-submit="save_user" class="p-6 space-y-4">
+            <form phx-submit="save_user" class="p-4 sm:p-6 space-y-4">
               <input type="hidden" name="_id" value={@editing_user.id} />
-
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Nombre") %></label>
-                <input
-                  type="text"
-                  name="name"
-                  value={@editing_user.name}
-                  class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
-                  required
-                />
+                <input type="text" name="name" value={@editing_user.name} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" required />
               </div>
-
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Email") %></label>
-                <input
-                  type="email"
-                  name="email"
-                  value={@editing_user.email}
-                  class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
-                  required
-                />
+                <input type="email" name="email" value={@editing_user.email} class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white" required />
               </div>
-
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Rol") %></label>
                 <select name="role" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white">
@@ -277,7 +239,6 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                   <p class="text-xs text-gray-500 mt-1"><%= gettext("Solo un superadmin puede asignar el rol Superadmin.") %></p>
                 <% end %>
               </div>
-
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"><%= gettext("Estado") %></label>
                 <select name="status" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white">
@@ -285,32 +246,19 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                   <option value="inactive" selected={!@editing_user.active}><%= gettext("Inactivo") %></option>
                 </select>
               </div>
-
-              <div class="flex justify-end gap-4 pt-4 border-t">
-                <button
-                  type="button"
-                  phx-click="close_user_modal"
-                  class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
-                >
-                  <%= gettext("Cancelar") %>
-                </button>
-                <button
-                  type="submit"
-                  phx-disable-with={gettext("Guardando...")}
-                  class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  <%= gettext("Guardar Cambios") %>
-                </button>
+              <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t">
+                <button type="button" phx-click="close_user_modal" class="w-full sm:w-auto px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"><%= gettext("Cancelar") %></button>
+                <button type="submit" phx-disable-with={gettext("Guardando...")} class="w-full sm:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg disabled:opacity-70 disabled:cursor-not-allowed"><%= gettext("Guardar Cambios") %></button>
               </div>
             </form>
           </div>
         </div>
       <% end %>
-    </div>
+    </.admin_layout>
     """
   end
 
-  defp admin_sidebar(assigns), do: StreamflixWebWeb.Admin.DashboardLive.admin_sidebar(assigns)
+  defp admin_layout(assigns), do: StreamflixWebWeb.Admin.DashboardLive.admin_layout(assigns)
 
   defp role_class("superadmin"), do: "bg-amber-100 text-amber-800"
   defp role_class("admin"), do: "bg-blue-100 text-blue-800"
