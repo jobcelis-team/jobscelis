@@ -38,6 +38,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// Mobile menu toggle for site navbar
+document.addEventListener("DOMContentLoaded", function () {
+  document
+    .querySelectorAll("[data-mobile-menu-toggle]")
+    .forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const header = btn.closest("header");
+        if (!header) return;
+        const panel = header.querySelector("[data-mobile-menu-panel]");
+        const spanOpen = btn.querySelector("[data-menu-icon-open]");
+        const spanClose = btn.querySelector("[data-menu-icon-close]");
+        if (!panel) return;
+        const isHidden = panel.classList.contains("hidden");
+        panel.classList.toggle("hidden", !isHidden);
+        if (spanOpen) spanOpen.classList.toggle("hidden", isHidden);
+        if (spanClose) spanClose.classList.toggle("hidden", !isHidden);
+      });
+    });
+});
+
 // Password visibility toggle (login/signup): accessible show/hide
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll("[data-password-toggle]").forEach(function (wrap) {
@@ -64,6 +84,88 @@ import topbar from "../vendor/topbar";
 
 // Custom hooks for LiveView components
 let Hooks = {};
+
+// Password visibility toggle hook for LiveView inputs.
+// Each hook instance keeps its own _visible state so LiveView re-renders
+// (triggered by phx-change validation) never reset the input type.
+Hooks.PasswordToggle = {
+  mounted() {
+    this._visible = false;
+    this._bind();
+  },
+  updated() {
+    // LiveView just patched the DOM → re-apply the saved visibility state
+    // and re-bind the button in case morphdom replaced it
+    this._apply();
+    this._bind();
+  },
+  _bind() {
+    const btn = this.el.querySelector("[data-pw-toggle-btn]");
+    if (!btn || btn._pwBound) return;
+    btn._pwBound = true;
+
+    btn.addEventListener("click", () => {
+      this._visible = !this._visible;
+      this._apply();
+    });
+  },
+  _apply() {
+    const input = this.el.querySelector("input");
+    const btn = this.el.querySelector("[data-pw-toggle-btn]");
+    if (!input) return;
+
+    input.type = this._visible ? "text" : "password";
+
+    if (btn) {
+      const iconShow = btn.querySelector("[data-pw-icon-show]");
+      const iconHide = btn.querySelector("[data-pw-icon-hide]");
+      if (iconShow) iconShow.classList.toggle("hidden", this._visible);
+      if (iconHide) iconHide.classList.toggle("hidden", !this._visible);
+    }
+  },
+};
+
+// Copy to clipboard hook for API token section
+Hooks.CopyClipboard = {
+  mounted() {
+    this.el.addEventListener("click", () => {
+      const targetId = this.el.getAttribute("data-copy-target");
+      const target = targetId && document.getElementById(targetId);
+      const value =
+        (target && target.getAttribute("data-real-value")) ||
+        (target && target.value) ||
+        "";
+      if (!value) return;
+
+      const icon = this.el.querySelector("[data-copy-icon]");
+      const check = this.el.querySelector("[data-check-icon]");
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(() => {
+          this._showCheck(icon, check);
+        });
+      } else if (target) {
+        // Fallback: select text in input
+        target.select();
+        target.setSelectionRange(0, 99999);
+        try {
+          document.execCommand("copy");
+          this._showCheck(icon, check);
+        } catch (_e) {
+          // silent
+        }
+      }
+    });
+  },
+  _showCheck(icon, check) {
+    if (icon) icon.classList.add("hidden");
+    if (check) check.classList.remove("hidden");
+    setTimeout(() => {
+      if (icon) icon.classList.remove("hidden");
+      if (check) check.classList.add("hidden");
+    }, 2000);
+  },
+};
 
 // Video player hook: full-featured custom player (volume, fullscreen, speed, shortcuts, auto-hide, next episode)
 Hooks.VideoPlayer = {
