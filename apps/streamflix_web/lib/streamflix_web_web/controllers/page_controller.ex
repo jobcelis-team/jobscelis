@@ -2,13 +2,7 @@ defmodule StreamflixWebWeb.PageController do
   use StreamflixWebWeb, :controller
 
   def home(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    pricing = %{
-      basic: 0,
-      standard: 0,
-      premium: 0
-    }
-    render(conn, :home, pricing: pricing, legal: legal)
+    render(conn, :home, active_page: :home)
   end
 
   def login(conn, _params) do
@@ -22,58 +16,17 @@ defmodule StreamflixWebWeb.PageController do
   end
 
   def docs(conn, _params) do
-    base_url = build_base_url(conn)
-    current_user = current_user_from_session(conn)
-    render(conn, :docs, base_url: base_url, current_user: current_user)
+    render(conn, :docs, active_page: :docs, base_url: build_base_url(conn))
   end
 
-  def terms(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "en"
-    render(conn, :terms, legal: legal, locale: locale)
-  end
-
-  def privacy(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "en"
-    render(conn, :privacy, legal: legal, locale: locale)
-  end
-
-  def faq(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "en"
-    render(conn, :faq, legal: legal, locale: locale)
-  end
-
-  def about(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "en"
-    render(conn, :about, legal: legal, locale: locale)
-  end
-
-  def contact(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "en"
-    render(conn, :contact, legal: legal, locale: locale)
-  end
-
-  def pricing(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "en"
-    render(conn, :pricing, legal: legal, locale: locale)
-  end
-
-  def cookies(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "en"
-    render(conn, :cookies, legal: legal, locale: locale)
-  end
-
-  def changelog(conn, _params) do
-    legal = Application.get_env(:streamflix_web, :legal, []) |> Enum.into(%{})
-    locale = get_session(conn, :locale) || "en"
-    render(conn, :changelog, legal: legal, locale: locale)
-  end
+  def terms(conn, _params), do: render(conn, :terms, active_page: :terms)
+  def privacy(conn, _params), do: render(conn, :privacy, active_page: :privacy)
+  def faq(conn, _params), do: render(conn, :faq, active_page: :faq)
+  def about(conn, _params), do: render(conn, :about, active_page: :about)
+  def contact(conn, _params), do: render(conn, :contact, active_page: :contact)
+  def pricing(conn, _params), do: render(conn, :pricing, active_page: :pricing)
+  def cookies(conn, _params), do: render(conn, :cookies, active_page: :cookies)
+  def changelog(conn, _params), do: render(conn, :changelog, active_page: :changelog)
 
   def set_locale(conn, %{"locale" => locale}) do
     locale = if locale in ["es", "en"], do: locale, else: "en"
@@ -105,16 +58,5 @@ defmodule StreamflixWebWeb.PageController do
     port = conn.port
     port_str = if (scheme == "https" and port == 443) or (scheme == "http" and port == 80), do: "", else: ":#{port}"
     "#{scheme}://#{conn.host}#{port_str}"
-  end
-
-  defp current_user_from_session(conn) do
-    case get_session(conn, :user_token) do
-      nil -> nil
-      token ->
-        case StreamflixAccounts.verify_token(token) do
-          {:ok, user, _claims} -> user
-          {:error, _} -> nil
-        end
-    end
   end
 end

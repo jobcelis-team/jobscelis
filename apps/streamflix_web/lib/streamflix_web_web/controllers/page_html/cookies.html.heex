@@ -1,24 +1,4 @@
-<div class="min-h-screen bg-slate-50">
-  <nav class="bg-white/95 border-b border-slate-200/80 backdrop-blur-sm sticky top-0 z-10">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-      <a href="/" class="flex items-center gap-2 text-xl font-bold text-slate-900 tracking-tight" aria-label={gettext("Jobcelis - Ir al inicio")}>
-        <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" />
-        <%= Map.get(@legal, :product_name, "Jobcelis") %>
-      </a>
-      <div class="flex items-center gap-4">
-        <a href="/locale/es" class={[@locale == "es" && "text-slate-900 font-medium" || "text-slate-500 hover:text-slate-700"]}>ES</a>
-        <span class="text-slate-300">|</span>
-        <a href="/locale/en" class={[@locale == "en" && "text-slate-900 font-medium" || "text-slate-500 hover:text-slate-700"]}>EN</a>
-        <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Documentación") %></a>
-        <a href="/privacy" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Privacidad") %></a>
-        <a href="/cookies" class="text-indigo-600 font-medium text-sm"><%= gettext("Cookies") %></a>
-        <a href="/" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Inicio") %></a>
-        <a href="/terms" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Términos") %></a>
-      </div>
-    </div>
-  </nav>
-
-  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+<Layouts.public flash={@flash} current_user={@current_user} locale={@locale} legal={@legal} active_page={@active_page}>
     <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Política de cookies") %></h1>
     <p class="text-slate-500 text-sm mb-8">
       <%= gettext("Última actualización") %>: <%= Date.utc_today() |> Calendar.strftime("%d/%m/%Y") %>
@@ -68,11 +48,4 @@
         <p><%= gettext("El tratamiento de tus datos personales se describe en nuestra") %> <a href="/privacy" class="text-indigo-600 hover:underline"><%= gettext("Política de privacidad") %></a>. <%= gettext("Si tienes dudas, contacta a") %> <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong> <%= gettext("en la página de") %> <a href="/contact" class="text-indigo-600 hover:underline"><%= gettext("Contacto") %></a>.</p>
       </section>
     </div>
-
-    <div class="mt-10 pt-6 border-t border-slate-200 flex gap-4 text-sm">
-      <a href="/privacy" class="text-indigo-600 hover:text-indigo-700 font-medium"><%= gettext("Privacidad") %></a>
-      <a href="/terms" class="text-slate-500 hover:text-slate-700"><%= gettext("Términos") %></a>
-      <a href="/contact" class="text-slate-500 hover:text-slate-700"><%= gettext("Contacto") %></a>
-    </div>
-  </main>
-</div>
+</Layouts.public>

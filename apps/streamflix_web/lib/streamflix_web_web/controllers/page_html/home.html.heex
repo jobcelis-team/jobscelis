@@ -1,26 +1,4 @@
-<div class="min-h-screen bg-slate-50">
-  <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
-  <header class="bg-white/95 border-b border-slate-200/80 backdrop-blur-sm sticky top-0 z-10">
-    <nav class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16" aria-label={gettext("Navegación principal")}>
-      <a href="/" class="flex items-center gap-2 text-xl font-bold text-slate-900 tracking-tight rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label={gettext("Jobcelis - Ir al inicio")}>
-        <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" />
-        Jobcelis
-      </a>
-      <div class="flex items-center gap-4">
-        <span class="flex items-center gap-1 text-sm" role="group" aria-label={gettext("Selección de idioma")}>
-          <a href="/locale/es" class={["font-medium transition rounded px-1", (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]} aria-current={@locale == "es" && "page"}>ES</a>
-          <span class="text-slate-300" aria-hidden="true">|</span>
-          <a href="/locale/en" class={["font-medium transition rounded px-1", (@locale == "en" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]} aria-current={@locale == "en" && "page"}>EN</a>
-        </span>
-        <a href="/docs" class="text-slate-600 hover:text-slate-900 font-medium text-sm transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Documentación") %></a>
-        <a href="/pricing" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Apoyar el proyecto") %></a>
-        <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Iniciar sesión") %></a>
-        <a href="/signup" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition shadow-sm hover:shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"><%= gettext("Registrarse") %></a>
-      </div>
-    </nav>
-  </header>
-
-  <main id="main-content" role="main" tabindex="-1">
+<Layouts.public flash={@flash} current_user={@current_user} locale={@locale} legal={@legal} active_page={@active_page} main_class="flex-1">
   <%!-- Hero --%>
   <section class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-24 md:pt-24 md:pb-32" aria-label={gettext("Presentación")}>
     <div class="absolute inset-0 bg-gradient-to-b from-indigo-50/60 via-transparent to-transparent pointer-events-none" aria-hidden="true"></div>
@@ -105,25 +83,4 @@
       </a>
     </div>
   </section>
-  </main>
-
-  <footer class="border-t border-slate-200 py-8 bg-white" role="contentinfo">
-    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-        <span class="text-slate-500 text-sm font-medium">Jobcelis · <%= gettext("Eventos, webhooks y jobs") %></span>
-        <span class="text-slate-400 text-xs hidden sm:inline" aria-hidden="true">|</span>
-        <span class="text-slate-400 text-xs">© <%= Date.utc_today().year %> <%= Map.get(@legal || %{}, :owner, "Jobcelis") %>. <%= gettext("Todos los derechos reservados.") %></span>
-      </div>
-      <nav class="flex items-center gap-6 text-sm" aria-label={gettext("Enlaces legales y de ayuda")}>
-        <a href="/docs" class="text-slate-500 hover:text-slate-700 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Documentación") %></a>
-        <a href="/faq" class="text-slate-500 hover:text-slate-700 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("FAQ") %></a>
-        <a href="/contact" class="text-slate-500 hover:text-slate-700 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Contacto") %></a>
-        <a href="/pricing" class="text-slate-500 hover:text-slate-700 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Planes") %></a>
-        <a href="/terms" class="text-slate-500 hover:text-slate-700 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Términos") %></a>
-        <a href="/privacy" class="text-slate-500 hover:text-slate-700 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Privacidad") %></a>
-        <a href="/login" class="text-slate-500 hover:text-slate-700 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Iniciar sesión") %></a>
-        <a href="/signup" class="text-indigo-600 hover:text-indigo-700 font-medium rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><%= gettext("Registrarse") %></a>
-      </nav>
-    </div>
-  </footer>
-</div>
+</Layouts.public>

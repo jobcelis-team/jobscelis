@@ -4,7 +4,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   alias StreamflixCore.Platform
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     user = socket.assigns.current_user
     project = Platform.get_project_by_user_id(user.id)
     api_key = if project, do: Platform.get_api_key_for_project(project.id), else: nil
@@ -12,6 +12,21 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     webhooks = if project, do: Platform.list_webhooks(project.id), else: []
     jobs = if project, do: Platform.list_jobs(project.id, include_inactive: true), else: []
     deliveries = if project, do: Platform.list_deliveries(project_id: project.id, limit: 30), else: []
+
+    # Check if we have a fresh API key from registration
+    {new_token, token_source} =
+      case session["fresh_api_key"] do
+        fresh_key when is_binary(fresh_key) and fresh_key != "" ->
+          # Only use if prefix still matches (prevents stale key after regeneration)
+          if api_key && String.starts_with?(fresh_key, api_key.prefix) do
+            {fresh_key, :registration}
+          else
+            {nil, nil}
+          end
+
+        _ ->
+          {nil, nil}
+      end
 
     socket =
       socket
@@ -23,13 +38,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:deliveries, deliveries)
       |> assign(:test_topic, "")
       |> assign(:test_payload, "{}")
-      |> assign(:new_token, nil)
+      |> assign(:new_token, new_token)
+      |> assign(:token_source, token_source)
       |> assign(:token_visible, true)
       |> assign(:editing_project_name, false)
       |> assign(:job_modal, nil)
       |> assign(:job_runs_modal, nil)
       |> assign(:job_form, nil)
       |> assign(:page_title, "Jobcelis Dashboard")
+      |> assign(:active_page, :dashboard)
 
     {:ok, socket}
   end
@@ -102,9 +119,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         api_key = Platform.get_api_key_for_project(project.id)
         socket =
           socket
-          |> put_flash(:info, gettext("Nuevo token generado. El token anterior ya no funciona. Guárdalo; solo se muestra esta vez."))
+          |> put_flash(:info, gettext("Token regenerado correctamente."))
           |> assign(:api_key, api_key)
           |> assign(:new_token, raw_key)
+          |> assign(:token_source, :regenerated)
           |> assign(:token_visible, true)
         {:noreply, socket}
       _ ->
@@ -276,7 +294,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={:platform} current_user={@current_user} locale={@locale}>
+    <Layouts.app flash={@flash} current_scope={:platform} current_user={@current_user} locale={@locale} active_page={@active_page}>
       <div>
         <h1 class="text-2xl font-bold text-slate-900 mb-8"><%= gettext("Dashboard") %></h1>
 
@@ -313,68 +331,157 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
               <h2 class="text-lg font-semibold text-slate-900 mb-1"><%= gettext("API Token") %></h2>
-              <p class="text-slate-500 text-sm mb-2"><%= gettext("Header:") %> <code class="bg-slate-100 px-1 rounded text-xs">Authorization: Bearer &lt;token&gt;</code> <%= gettext("o") %> <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
-              <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 mb-4 text-slate-600 text-sm">
-                <strong class="text-slate-700"><%= gettext("Cómo funciona:") %></strong> <%= gettext("Al hacer «Regenerar token» se crea un token nuevo y se muestra solo una vez. El servidor no guarda el valor completo (por seguridad), solo un prefijo. Si recargas la página solo verás el prefijo; guarda el token cuando lo regeneres (por ejemplo en un .env o gestor de contraseñas).") %>
-              </div>
-              <%= if @api_key do %>
-                <div class="rounded-lg border border-slate-200 bg-slate-50 max-w-2xl">
-                  <%= if @new_token do %>
-                    <div class="flex items-stretch gap-0 overflow-hidden">
-                      <input
-                        type="text"
-                        readonly
-                        value={if @token_visible, do: @new_token, else: "••••••••••••••••••••••••••••••••••••••"}
-                        class="flex-1 min-w-0 font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-900 focus:ring-0"
-                        phx-no-feedback
-                      />
-                      <button
-                        type="button"
-                        phx-click="toggle_token_visibility"
-                        class="p-3 border-l border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition"
-                        title={if @token_visible, do: gettext("Ocultar"), else: gettext("Mostrar")}
-                        aria-label={if @token_visible, do: gettext("Ocultar token"), else: gettext("Mostrar token")}
-                      >
-                        <%= if @token_visible do %>
-                          <.icon name="hero-eye-slash" class="w-5 h-5" />
-                        <% else %>
-                          <.icon name="hero-eye" class="w-5 h-5" />
-                        <% end %>
-                      </button>
-                    </div>
-                  <% else %>
+              <p class="text-slate-500 text-sm mb-3"><%= gettext("Header:") %> <code class="bg-slate-100 px-1 rounded text-xs">Authorization: Bearer &lt;token&gt;</code> <%= gettext("o") %> <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
+
+              <%!-- State 1: Fresh token from registration --%>
+              <%= if @new_token && @token_source == :registration do %>
+                <div class="rounded-lg border-2 border-emerald-300 bg-emerald-50 p-4 max-w-2xl">
+                  <div class="flex items-center gap-2 mb-3">
+                    <.icon name="hero-check-circle" class="w-5 h-5 text-emerald-600" />
+                    <span class="text-emerald-800 font-medium text-sm"><%= gettext("Tu API token ha sido creado. Cópialo y guárdalo ahora.") %></span>
+                  </div>
+                  <div class="flex items-stretch gap-0 overflow-hidden rounded-lg border border-emerald-200 bg-white">
                     <input
+                      id="token-input"
                       type="text"
                       readonly
-                      value={@api_key.prefix}
-                      class="w-full font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-600 focus:ring-0"
-                      aria-label={gettext("Prefijo del token (valor completo solo al regenerar)")}
+                      value={if @token_visible, do: @new_token, else: String.duplicate("•", 38)}
+                      data-real-value={@new_token}
+                      class="flex-1 min-w-0 font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-900 focus:ring-0"
+                      phx-no-feedback
                     />
-                  <% end %>
+                    <button
+                      type="button"
+                      phx-click="toggle_token_visibility"
+                      class="p-3 border-l border-emerald-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition"
+                      title={if @token_visible, do: gettext("Ocultar"), else: gettext("Mostrar")}
+                      aria-label={if @token_visible, do: gettext("Ocultar token"), else: gettext("Mostrar token")}
+                    >
+                      <%= if @token_visible do %>
+                        <.icon name="hero-eye-slash" class="w-5 h-5" />
+                      <% else %>
+                        <.icon name="hero-eye" class="w-5 h-5" />
+                      <% end %>
+                    </button>
+                    <button
+                      type="button"
+                      id="copy-token-btn"
+                      phx-hook="CopyClipboard"
+                      data-copy-target="token-input"
+                      class="p-3 border-l border-emerald-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-emerald-600 transition"
+                      title={gettext("Copiar token")}
+                      aria-label={gettext("Copiar token")}
+                    >
+                      <span data-copy-icon><.icon name="hero-clipboard-document" class="w-5 h-5" /></span>
+                      <span data-check-icon class="hidden"><.icon name="hero-check" class="w-5 h-5 text-emerald-600" /></span>
+                    </button>
+                  </div>
                 </div>
-                <%= if @new_token do %>
-                  <p class="text-amber-700 text-sm mt-2"><%= gettext("El token anterior ya no sirve. Solo este token es válido. Guárdalo; solo se muestra esta vez.") %></p>
-                <% else %>
-                  <p class="text-slate-500 text-sm mt-2"><%= gettext("Solo el token actual es válido. El valor completo solo se muestra al regenerar.") %></p>
-                <% end %>
+                <div class="mt-3 flex items-center gap-3">
+                  <button
+                    phx-click="regenerate_token"
+                    phx-disable-with={gettext("Regenerando...")}
+                    data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
+                    type="button"
+                    class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    <%= gettext("Regenerar token") %>
+                  </button>
+                </div>
+
+              <%!-- State 2: Regenerated token --%>
+              <% else %>
+              <%= if @new_token && @token_source == :regenerated do %>
+                <div class="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 max-w-2xl">
+                  <div class="flex items-center gap-2 mb-3">
+                    <.icon name="hero-exclamation-triangle" class="w-5 h-5 text-amber-600" />
+                    <span class="text-amber-800 font-medium text-sm"><%= gettext("El token anterior ha sido revocado. Copia y guarda el nuevo.") %></span>
+                  </div>
+                  <div class="flex items-stretch gap-0 overflow-hidden rounded-lg border border-amber-200 bg-white">
+                    <input
+                      id="token-input"
+                      type="text"
+                      readonly
+                      value={if @token_visible, do: @new_token, else: String.duplicate("•", 38)}
+                      data-real-value={@new_token}
+                      class="flex-1 min-w-0 font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-900 focus:ring-0"
+                      phx-no-feedback
+                    />
+                    <button
+                      type="button"
+                      phx-click="toggle_token_visibility"
+                      class="p-3 border-l border-amber-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition"
+                      title={if @token_visible, do: gettext("Ocultar"), else: gettext("Mostrar")}
+                      aria-label={if @token_visible, do: gettext("Ocultar token"), else: gettext("Mostrar token")}
+                    >
+                      <%= if @token_visible do %>
+                        <.icon name="hero-eye-slash" class="w-5 h-5" />
+                      <% else %>
+                        <.icon name="hero-eye" class="w-5 h-5" />
+                      <% end %>
+                    </button>
+                    <button
+                      type="button"
+                      id="copy-token-btn"
+                      phx-hook="CopyClipboard"
+                      data-copy-target="token-input"
+                      class="p-3 border-l border-amber-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-amber-600 transition"
+                      title={gettext("Copiar token")}
+                      aria-label={gettext("Copiar token")}
+                    >
+                      <span data-copy-icon><.icon name="hero-clipboard-document" class="w-5 h-5" /></span>
+                      <span data-check-icon class="hidden"><.icon name="hero-check" class="w-5 h-5 text-amber-600" /></span>
+                    </button>
+                  </div>
+                </div>
+                <div class="mt-3 flex items-center gap-3">
+                  <button
+                    phx-click="regenerate_token"
+                    phx-disable-with={gettext("Regenerando...")}
+                    data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
+                    type="button"
+                    class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    <%= gettext("Regenerar token") %>
+                  </button>
+                </div>
+
+              <%!-- State 3: Prefix only (no full token available) --%>
+              <% else %>
+              <%= if @api_key != nil do %>
+                <div class="rounded-lg border border-slate-200 bg-slate-50 max-w-2xl">
+                  <input
+                    type="text"
+                    readonly
+                    value={"#{@api_key.prefix}••••••••••"}
+                    class="w-full font-mono text-sm px-4 py-3 bg-transparent border-0 text-slate-600 focus:ring-0"
+                    aria-label={gettext("Prefijo del token")}
+                  />
+                </div>
+                <p class="text-slate-500 text-sm mt-2"><%= gettext("Solo se muestra el prefijo. Regenera para obtener el token completo.") %></p>
                 <button
                   phx-click="regenerate_token"
                   phx-disable-with={gettext("Regenerando...")}
+                  data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
                   type="button"
-                  class="mt-4 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  class="mt-3 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Regenerar token") %>
                 </button>
+
+              <%!-- State 4: No API key at all --%>
               <% else %>
-                <p class="text-slate-600 mb-3"><%= gettext("No hay API key.") %></p>
+                <p class="text-slate-600 mb-3"><%= gettext("No hay API token. Genera uno para empezar.") %></p>
                 <button
                   phx-click="regenerate_token"
-                  phx-disable-with={gettext("Regenerando...")}
+                  phx-disable-with={gettext("Generando...")}
                   type="button"
                   class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Generar token") %>
                 </button>
+              <% end %>
+              <% end %>
               <% end %>
             </section>
 

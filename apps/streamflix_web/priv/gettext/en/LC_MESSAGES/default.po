@@ -424,6 +424,33 @@ msgstr "The previous token no longer works. Only this token is valid. Save it; i
 msgid "Solo el token actual es válido. El valor completo solo se muestra al regenerar."
 msgstr "Only the current token is valid. The full value is only shown when regenerating."
 
+msgid "Tu API token ha sido creado. Cópialo y guárdalo ahora."
+msgstr "Your API token has been created. Copy and save it now."
+
+msgid "El token anterior ha sido revocado. Copia y guarda el nuevo."
+msgstr "The previous token has been revoked. Copy and save the new one."
+
+msgid "Solo se muestra el prefijo. Regenera para obtener el token completo."
+msgstr "Only the prefix is shown. Regenerate to get the full token."
+
+msgid "No hay API token. Genera uno para empezar."
+msgstr "No API token found. Generate one to get started."
+
+msgid "Copiar token"
+msgstr "Copy token"
+
+msgid "¿Regenerar token? El token actual dejará de funcionar."
+msgstr "Regenerate token? The current token will stop working."
+
+msgid "Token regenerado correctamente."
+msgstr "Token regenerated successfully."
+
+msgid "Generando..."
+msgstr "Generating..."
+
+msgid "Prefijo del token"
+msgstr "Token prefix"
+
 msgid "Enviar evento de prueba"
 msgstr "Send test event"
 
@@ -1048,6 +1075,18 @@ msgstr "The new password is required."
 msgid "La confirmación no coincide."
 msgstr "The confirmation does not match."
 
+msgid "actual"
+msgstr "current"
+
+msgid "Acciones rápidas"
+msgstr "Quick actions"
+
+msgid "Volver al panel principal"
+msgstr "Return to the main panel"
+
+msgid "Salir de tu cuenta"
+msgstr "Sign out of your account"
+
 # Auth: register, login, logout and validations
 msgid "Este correo ya está registrado. Usa otro o inicia sesión."
 msgstr "This email is already registered. Use another one or sign in."
@@ -1649,3 +1688,42 @@ msgstr "password"
 
 msgid "name"
 msgstr "name"
+
+msgid "Abrir menú"
+msgstr "Open menu"
+
+msgid "Producto"
+msgstr "Product"
+
+msgid "Información"
+msgstr "Information"
+
+msgid "Sin coste"
+msgstr "No cost"
+
+msgid "Sin tarjeta ni suscripción"
+msgstr "No credit card or subscription"
+
+msgid "Listo en segundos"
+msgstr "Ready in seconds"
+
+msgid "Token generado al registrarte"
+msgstr "Token generated on sign up"
+
+msgid "Todo con una sola API"
+msgstr "All with a single API"
+
+msgid "Al registrarte aceptas los"
+msgstr "By signing up you accept the"
+
+msgid "Publica eventos, configura webhooks y programa tareas recurrentes. Todo con una API simple y un token."
+msgstr "Publish events, configure webhooks and schedule recurring tasks. All with a simple API and one token."
+
+msgid "Webhooks con filtros y reintentos automáticos"
+msgstr "Webhooks with filters and automatic retries"
+
+msgid "Jobs programados: diario, semanal, mensual o cron"
+msgstr "Scheduled jobs: daily, weekly, monthly or cron"
+
+msgid "Un solo token para toda la API"
+msgstr "One token for the entire API"
