@@ -38,25 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Mobile menu toggle for site navbar
-document.addEventListener("DOMContentLoaded", function () {
-  document
-    .querySelectorAll("[data-mobile-menu-toggle]")
-    .forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const header = btn.closest("header");
-        if (!header) return;
-        const panel = header.querySelector("[data-mobile-menu-panel]");
-        const spanOpen = btn.querySelector("[data-menu-icon-open]");
-        const spanClose = btn.querySelector("[data-menu-icon-close]");
-        if (!panel) return;
-        const isHidden = panel.classList.contains("hidden");
-        panel.classList.toggle("hidden", !isHidden);
-        if (spanOpen) spanOpen.classList.toggle("hidden", isHidden);
-        if (spanClose) spanClose.classList.toggle("hidden", !isHidden);
-      });
-    });
-});
+// Mobile menu toggle is handled by Phoenix.LiveView.JS commands in the navbar component
 
 // Password visibility toggle (login/signup): accessible show/hide
 document.addEventListener("DOMContentLoaded", function () {
