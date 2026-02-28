@@ -425,6 +425,33 @@ msgstr "El token anterior ya no sirve. Solo este token es válido. Guárdalo; so
 msgid "Solo el token actual es válido. El valor completo solo se muestra al regenerar."
 msgstr "Solo el token actual es válido. El valor completo solo se muestra al regenerar."
 
+msgid "Tu API token ha sido creado. Cópialo y guárdalo ahora."
+msgstr "Tu API token ha sido creado. Cópialo y guárdalo ahora."
+
+msgid "El token anterior ha sido revocado. Copia y guarda el nuevo."
+msgstr "El token anterior ha sido revocado. Copia y guarda el nuevo."
+
+msgid "Solo se muestra el prefijo. Regenera para obtener el token completo."
+msgstr "Solo se muestra el prefijo. Regenera para obtener el token completo."
+
+msgid "No hay API token. Genera uno para empezar."
+msgstr "No hay API token. Genera uno para empezar."
+
+msgid "Copiar token"
+msgstr "Copiar token"
+
+msgid "¿Regenerar token? El token actual dejará de funcionar."
+msgstr "¿Regenerar token? El token actual dejará de funcionar."
+
+msgid "Token regenerado correctamente."
+msgstr "Token regenerado correctamente."
+
+msgid "Generando..."
+msgstr "Generando..."
+
+msgid "Prefijo del token"
+msgstr "Prefijo del token"
+
 msgid "Enviar evento de prueba"
 msgstr "Enviar evento de prueba"
 
@@ -961,6 +988,18 @@ msgstr "La nueva contraseña es obligatoria."
 
 msgid "La confirmación no coincide."
 msgstr "La confirmación no coincide."
+
+msgid "actual"
+msgstr "actual"
+
+msgid "Acciones rápidas"
+msgstr "Acciones rápidas"
+
+msgid "Volver al panel principal"
+msgstr "Volver al panel principal"
+
+msgid "Salir de tu cuenta"
+msgstr "Salir de tu cuenta"
 
 # Auth: registro, login, logout y validaciones
 msgid "Este correo ya está registrado. Usa otro o inicia sesión."
@@ -1524,3 +1563,42 @@ msgstr "contraseña"
 
 msgid "name"
 msgstr "nombre"
+
+msgid "Abrir menú"
+msgstr "Abrir menú"
+
+msgid "Producto"
+msgstr "Producto"
+
+msgid "Información"
+msgstr "Información"
+
+msgid "Sin coste"
+msgstr "Sin coste"
+
+msgid "Sin tarjeta ni suscripción"
+msgstr "Sin tarjeta ni suscripción"
+
+msgid "Listo en segundos"
+msgstr "Listo en segundos"
+
+msgid "Token generado al registrarte"
+msgstr "Token generado al registrarte"
+
+msgid "Todo con una sola API"
+msgstr "Todo con una sola API"
+
+msgid "Al registrarte aceptas los"
+msgstr "Al registrarte aceptas los"
+
+msgid "Publica eventos, configura webhooks y programa tareas recurrentes. Todo con una API simple y un token."
+msgstr "Publica eventos, configura webhooks y programa tareas recurrentes. Todo con una API simple y un token."
+
+msgid "Webhooks con filtros y reintentos automáticos"
+msgstr "Webhooks con filtros y reintentos automáticos"
+
+msgid "Jobs programados: diario, semanal, mensual o cron"
+msgstr "Jobs programados: diario, semanal, mensual o cron"
+
+msgid "Un solo token para toda la API"
+msgstr "Un solo token para toda la API"
