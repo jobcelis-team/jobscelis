@@ -119,15 +119,15 @@ defmodule StreamflixWebWeb.Layouts do
           type="button"
           class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           aria-label={gettext("Abrir menú")}
-          data-mobile-menu-toggle
+          phx-click={JS.toggle(to: "#mobile-menu-panel") |> JS.toggle(to: "#menu-icon-open") |> JS.toggle(to: "#menu-icon-close")}
         >
-          <span data-menu-icon-open><.icon name="hero-bars-3" class="w-6 h-6" /></span>
-          <span data-menu-icon-close class="hidden"><.icon name="hero-x-mark" class="w-6 h-6" /></span>
+          <span id="menu-icon-open"><.icon name="hero-bars-3" class="w-6 h-6" /></span>
+          <span id="menu-icon-close" class="hidden"><.icon name="hero-x-mark" class="w-6 h-6" /></span>
         </button>
       </nav>
 
       <%!-- Mobile menu panel --%>
-      <div class="md:hidden hidden border-t border-slate-200 bg-white" data-mobile-menu-panel>
+      <div class="md:hidden hidden border-t border-slate-200 bg-white" id="mobile-menu-panel">
         <div class="px-4 py-4 space-y-1">
           <a href="/docs" class={["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition", @active_page == :docs && "bg-indigo-50 text-indigo-600" || "text-slate-700 hover:bg-slate-50"]}>
             <.icon name="hero-book-open" class="w-5 h-5" />

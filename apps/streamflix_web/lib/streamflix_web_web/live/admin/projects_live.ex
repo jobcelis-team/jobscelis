@@ -102,69 +102,62 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gray-100">
-      <.admin_sidebar active="projects" current_user_role={@current_user_role} />
-
-      <div class="ml-64 p-8">
-        <%= if @view_id do %>
-          <.project_show
-            project={@project}
-            user_email={@project_user_email}
-            events={@project_events}
-            webhooks={@project_webhooks}
-            jobs={@project_jobs}
-            deliveries={@project_deliveries}
-            loading={@loading}
-          />
-        <% else %>
-          <.projects_index projects={@projects} loading={@loading} />
-        <% end %>
-      </div>
-    </div>
+    <.admin_layout active="projects" current_user_role={@current_user_role}>
+      <%= if @view_id do %>
+        <.project_show
+          project={@project}
+          user_email={@project_user_email}
+          events={@project_events}
+          webhooks={@project_webhooks}
+          jobs={@project_jobs}
+          deliveries={@project_deliveries}
+          loading={@loading}
+        />
+      <% else %>
+        <.projects_index projects={@projects} loading={@loading} />
+      <% end %>
+    </.admin_layout>
     """
   end
 
   defp projects_index(assigns) do
     ~H"""
-    <h1 class="text-3xl font-bold text-gray-900 mb-8"><%= gettext("Proyectos") %></h1>
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8"><%= gettext("Proyectos") %></h1>
 
     <%= if @loading do %>
       <p class="text-gray-500"><%= gettext("Cargando...") %></p>
     <% else %>
       <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="w-full">
-          <thead class="bg-gray-50 border-b">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Proyecto") %></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Usuario") %></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Estado") %></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Creado") %></th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"><%= gettext("Ver") %></th>
-            </tr>
-          </thead>
-          <tbody class="divide-y">
-            <%= for p <- @projects do %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 font-medium text-gray-900"><%= p.name %></td>
-                <td class="px-6 py-4 text-gray-600"><%= p.user_email || "—" %></td>
-                <td class="px-6 py-4">
-                  <span class={[
-                    "px-2 py-1 rounded text-xs",
-                    if(p.status == "active", do: "bg-green-100 text-green-800", else: "bg-gray-200 text-gray-700")
-                  ]}>
-                    <%= p.status %>
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-gray-500 text-sm"><%= format_date(p.inserted_at) %></td>
-                <td class="px-6 py-4 text-right">
-                  <.link navigate={"/admin/projects/#{p.id}"} class="text-blue-600 hover:underline">
-                    <%= gettext("Ver") %>
-                  </.link>
-                </td>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50 border-b">
+              <tr>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Proyecto") %></th>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell"><%= gettext("Usuario") %></th>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Estado") %></th>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell"><%= gettext("Creado") %></th>
+                <th class="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"><%= gettext("Ver") %></th>
               </tr>
-            <% end %>
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="divide-y">
+              <%= for p <- @projects do %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 font-medium text-gray-900"><%= p.name %></td>
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell truncate max-w-[12rem]"><%= p.user_email || "—" %></td>
+                  <td class="px-4 sm:px-6 py-3 sm:py-4">
+                    <span class={["px-2 py-1 rounded text-xs", if(p.status == "active", do: "bg-green-100 text-green-800", else: "bg-gray-200 text-gray-700")]}>
+                      <%= p.status %>
+                    </span>
+                  </td>
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-sm hidden sm:table-cell"><%= format_date(p.inserted_at) %></td>
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
+                    <.link navigate={"/admin/projects/#{p.id}"} class="text-blue-600 hover:underline text-sm"><%= gettext("Ver") %></.link>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
         <%= if @projects == [] do %>
           <div class="p-8 text-center text-gray-500"><%= gettext("No hay proyectos.") %></div>
         <% end %>
@@ -175,18 +168,18 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
 
   defp project_show(assigns) do
     ~H"""
-    <div class="space-y-8">
+    <div class="space-y-6 sm:space-y-8">
       <.link navigate="/admin/projects" class="text-blue-600 hover:underline text-sm">
         ← <%= gettext("Volver a proyectos") %>
       </.link>
 
       <%= if @project do %>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h1 class="text-2xl font-bold text-gray-900 mb-2"><%= @project.name %></h1>
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2"><%= @project.name %></h1>
           <p class="text-gray-600">
             <%= gettext("Usuario") %>: <%= @user_email || "—" %>
           </p>
-          <p class="text-sm text-gray-500 mt-1">
+          <p class="text-sm text-gray-500 mt-1 break-all">
             ID: {@project.id} · <%= gettext("Estado") %>: <%= @project.status %>
           </p>
         </div>
@@ -268,7 +261,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
     """
   end
 
-  defp admin_sidebar(assigns), do: StreamflixWebWeb.Admin.DashboardLive.admin_sidebar(assigns)
+  defp admin_layout(assigns), do: StreamflixWebWeb.Admin.DashboardLive.admin_layout(assigns)
 
   defp format_date(nil), do: "—"
   defp format_date(datetime), do: Calendar.strftime(datetime, "%d %b %Y %H:%M")

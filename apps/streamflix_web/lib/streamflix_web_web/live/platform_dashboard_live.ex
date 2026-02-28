@@ -300,7 +300,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
         <%= if @project do %>
           <div class="space-y-8">
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("Proyecto") %></h2>
               <%= if @editing_project_name do %>
                 <.form for={%{}} id="project-name-form" phx-submit="update_project_name" class="flex flex-wrap items-center gap-2">
@@ -326,16 +326,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                   </button>
                 </p>
               <% end %>
-              <p class="text-slate-500 text-sm font-mono mt-1">{@project.id}</p>
+              <p class="text-slate-500 text-sm font-mono mt-1 break-all">{@project.id}</p>
             </section>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-1"><%= gettext("API Token") %></h2>
-              <p class="text-slate-500 text-sm mb-3"><%= gettext("Header:") %> <code class="bg-slate-100 px-1 rounded text-xs">Authorization: Bearer &lt;token&gt;</code> <%= gettext("o") %> <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
+              <p class="text-slate-500 text-sm mb-3 break-words"><%= gettext("Header:") %> <code class="bg-slate-100 px-1 rounded text-xs break-all">Authorization: Bearer &lt;token&gt;</code> <%= gettext("o") %> <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code></p>
 
               <%!-- State 1: Fresh token from registration --%>
               <%= if @new_token && @token_source == :registration do %>
-                <div class="rounded-lg border-2 border-emerald-300 bg-emerald-50 p-4 max-w-2xl">
+                <div class="rounded-lg border-2 border-emerald-300 bg-emerald-50 p-3 sm:p-4">
                   <div class="flex items-center gap-2 mb-3">
                     <.icon name="hero-check-circle" class="w-5 h-5 text-emerald-600" />
                     <span class="text-emerald-800 font-medium text-sm"><%= gettext("Tu API token ha sido creado. Cópialo y guárdalo ahora.") %></span>
@@ -392,7 +392,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <%!-- State 2: Regenerated token --%>
               <% else %>
               <%= if @new_token && @token_source == :regenerated do %>
-                <div class="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 max-w-2xl">
+                <div class="rounded-lg border-2 border-amber-300 bg-amber-50 p-3 sm:p-4">
                   <div class="flex items-center gap-2 mb-3">
                     <.icon name="hero-exclamation-triangle" class="w-5 h-5 text-amber-600" />
                     <span class="text-amber-800 font-medium text-sm"><%= gettext("El token anterior ha sido revocado. Copia y guarda el nuevo.") %></span>
@@ -449,7 +449,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <%!-- State 3: Prefix only (no full token available) --%>
               <% else %>
               <%= if @api_key != nil do %>
-                <div class="rounded-lg border border-slate-200 bg-slate-50 max-w-2xl">
+                <div class="rounded-lg border border-slate-200 bg-slate-50">
                   <input
                     type="text"
                     readonly
@@ -485,7 +485,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <% end %>
             </section>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-4"><%= gettext("Enviar evento de prueba") %></h2>
               <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3 max-w-lg">
                 <.input type="text" name="topic" id="test-topic" value={@test_topic} placeholder={gettext("Topic (opcional)")} class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm" />
@@ -496,7 +496,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               </.form>
             </section>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-4"><%= gettext("Eventos recientes") %></h2>
               <div class="overflow-x-auto rounded-lg border border-slate-200">
                 <table class="min-w-full">
@@ -522,7 +522,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               </div>
             </section>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-4"><%= gettext("Webhooks") %></h2>
               <div class="overflow-x-auto rounded-lg border border-slate-200">
                 <table class="min-w-full">
@@ -544,7 +544,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               </div>
             </section>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <h2 class="text-lg font-semibold text-slate-900"><%= gettext("Jobs") %></h2>
                 <button
@@ -595,7 +595,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               </div>
             </section>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
               <h2 class="text-lg font-semibold text-slate-900 mb-6"><%= gettext("Entregas") %></h2>
               <div class="overflow-x-auto rounded-xl border border-slate-200">
                 <table class="min-w-full divide-y divide-slate-200">
