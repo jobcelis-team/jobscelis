@@ -6,6 +6,7 @@ defmodule StreamflixWebWeb.Router do
     plug :fetch_session
     plug :fetch_live_flash
     plug StreamflixWebWeb.Plugs.SetLocale
+    plug StreamflixWebWeb.Plugs.MaybeLoadCurrentUser
     plug :put_root_layout, html: {StreamflixWebWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers

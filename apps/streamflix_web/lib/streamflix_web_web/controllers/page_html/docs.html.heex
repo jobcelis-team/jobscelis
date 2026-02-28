@@ -1,33 +1,5 @@
-<div class="min-h-screen bg-slate-100 flex flex-col min-w-0 overflow-x-hidden">
-  <nav class="bg-white border-b border-slate-200 shrink-0 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-2 min-h-14 py-3">
-      <a href="/" class="flex items-center gap-2 text-lg font-bold text-slate-900" aria-label={gettext("Jobcelis - Ir al inicio")}>
-        <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" />
-        Jobcelis
-      </a>
-      <div class="flex items-center gap-4">
-        <span class="flex items-center gap-1 text-sm">
-          <a href="/locale/es" onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';" class={["font-medium", (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]}>ES</a>
-          <span class="text-slate-300">|</span>
-          <a href="/locale/en" onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000';" class={["font-medium", (@locale == "en" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"]}>EN</a>
-        </span>
-        <a href="/docs" class="text-indigo-600 font-medium text-sm"><%= gettext("Documentación") %></a>
-        <a href="/platform" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Dashboard") %></a>
-        <%= if @current_user do %>
-          <a href="/account" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Cuenta") %></a>
-          <%= if @current_user.role in ["admin", "superadmin"] do %>
-            <a href="/admin" class="text-amber-600 hover:text-amber-700 font-medium text-sm"><%= gettext("Admin") %></a>
-          <% end %>
-          <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Cerrar sesión") %></a>
-        <% else %>
-          <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm"><%= gettext("Iniciar sesión") %></a>
-          <a href="/signup" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition"><%= gettext("Registrarse") %></a>
-        <% end %>
-      </div>
-    </div>
-  </nav>
-
-  <div class="flex flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-6 lg:gap-10 min-w-0">
+<Layouts.public flash={@flash} current_user={@current_user} locale={@locale} legal={@legal} active_page={@active_page} main_class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex w-full gap-6 lg:gap-10 min-w-0">
     <%!-- Sidebar con grupos claros --%>
     <aside class="hidden lg:block w-64 shrink-0" aria-label={gettext("Navegación de la documentación")}>
       <nav class="sticky top-8 space-y-6 text-sm bg-white/80 backdrop-blur rounded-2xl border border-slate-200 shadow-sm p-5">
@@ -733,4 +705,4 @@
       </section>
     </main>
   </div>
-</div>
+</Layouts.public>

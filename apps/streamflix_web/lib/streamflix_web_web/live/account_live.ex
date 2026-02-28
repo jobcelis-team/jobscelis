@@ -11,30 +11,55 @@ defmodule StreamflixWebWeb.AccountLive do
     socket =
       socket
       |> assign(:page_title, gettext("Cuenta"))
+      |> assign(:active_page, :account)
       |> assign(:user, user)
       |> assign(:email_form, to_form(email_form_params(), as: "email_change"))
       |> assign(:password_form, to_form(password_form_params(), as: "password_change"))
       |> assign(:email_form_errors, [])
       |> assign(:password_form_errors, [])
-      |> assign(:show_email_form, false)
-      |> assign(:show_password_form, false)
+      |> assign(:show_email_modal, false)
+      |> assign(:show_password_modal, false)
 
     {:ok, socket}
   end
 
-  def handle_event("toggle_email_form", _, socket) do
+  # ── Modal open / close ──────────────────────────────────────────────
+
+  def handle_event("open_email_modal", _, socket) do
     {:noreply,
      socket
-     |> assign(:show_email_form, not socket.assigns.show_email_form)
-     |> assign(:show_password_form, false)}
+     |> assign(:show_email_modal, true)
+     |> assign(:show_password_modal, false)
+     |> assign(:email_form, to_form(email_form_params(), as: "email_change"))
+     |> assign(:email_form_errors, [])}
   end
 
-  def handle_event("toggle_password_form", _, socket) do
+  def handle_event("close_email_modal", _, socket) do
     {:noreply,
      socket
-     |> assign(:show_password_form, not socket.assigns.show_password_form)
-     |> assign(:show_email_form, false)}
+     |> assign(:show_email_modal, false)
+     |> assign(:email_form, to_form(email_form_params(), as: "email_change"))
+     |> assign(:email_form_errors, [])}
   end
+
+  def handle_event("open_password_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_password_modal, true)
+     |> assign(:show_email_modal, false)
+     |> assign(:password_form, to_form(password_form_params(), as: "password_change"))
+     |> assign(:password_form_errors, [])}
+  end
+
+  def handle_event("close_password_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_password_modal, false)
+     |> assign(:password_form, to_form(password_form_params(), as: "password_change"))
+     |> assign(:password_form_errors, [])}
+  end
+
+  # ── Email validation & save ─────────────────────────────────────────
 
   @impl true
   def handle_event("validate_email", %{"email_change" => params}, socket) do
@@ -75,7 +100,7 @@ defmodule StreamflixWebWeb.AccountLive do
              |> assign(:user, updated_user)
              |> assign(:email_form, to_form(email_form_params(), as: "email_change"))
              |> assign(:email_form_errors, [])
-             |> assign(:show_email_form, false)}
+             |> assign(:show_email_modal, false)}
 
           {:error, :wrong_password} ->
             {:noreply,
@@ -104,6 +129,8 @@ defmodule StreamflixWebWeb.AccountLive do
         end
     end
   end
+
+  # ── Password validation & save ──────────────────────────────────────
 
   def handle_event("validate_password", %{"password_change" => params}, socket) do
     validated = password_form_params(params) |> password_form_validate()
@@ -149,7 +176,7 @@ defmodule StreamflixWebWeb.AccountLive do
              |> put_flash(:info, gettext("Contraseña actualizada correctamente."))
              |> assign(:password_form, to_form(password_form_params(), as: "password_change"))
              |> assign(:password_form_errors, [])
-             |> assign(:show_password_form, false)}
+             |> assign(:show_password_modal, false)}
 
           {:error, :wrong_password} ->
             {:noreply,
@@ -173,6 +200,8 @@ defmodule StreamflixWebWeb.AccountLive do
   def handle_event("logout", _, socket) do
     {:noreply, redirect(socket, to: "/logout", external: true)}
   end
+
+  # ── Form helpers ────────────────────────────────────────────────────
 
   defp email_form_params(attrs \\ %{}) do
     attrs = attrs || %{}
@@ -218,11 +247,13 @@ defmodule StreamflixWebWeb.AccountLive do
     |> Map.put(:errors, Enum.reverse(errors))
   end
 
+  # ── Render ──────────────────────────────────────────────────────────
+
   @impl true
   def render(assigns) do
     assigns =
       assign(assigns, :input_class,
-        "mt-2 block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/25"
+        "mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/25"
       )
 
     ~H"""
@@ -231,65 +262,203 @@ defmodule StreamflixWebWeb.AccountLive do
       current_scope={:account}
       current_user={@current_user}
       locale={@locale}
+      active_page={@active_page}
       main_class="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-8 flex-1"
     >
       <div class="w-full">
-        <h1 class="text-3xl font-semibold text-slate-900"><%= gettext("Cuenta") %></h1>
+        <%!-- Page header --%>
+        <div class="mb-8">
+          <h1 class="text-3xl font-semibold text-slate-900"><%= gettext("Cuenta") %></h1>
+          <p class="mt-2 text-base text-slate-500"><%= gettext("Gestiona tu perfil y preferencias de seguridad.") %></p>
+        </div>
 
-        <div class="mt-8 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <%!-- Bloque principal: datos + acciones --%>
-          <div class="p-8 sm:p-10">
-            <dl class="space-y-6">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <dt class="text-base text-slate-500"><%= gettext("Email") %></dt>
-                  <dd class="mt-1 text-lg text-slate-900 font-medium">{@user.email}</dd>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <%!-- Profile card --%>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+              <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                <%= gettext("Información de tu perfil.") %>
+              </h2>
+            </div>
+
+            <div class="p-6 sm:p-8 space-y-0 divide-y divide-slate-100">
+              <%!-- Email row --%>
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-6">
+                <div class="min-w-0">
+                  <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide"><%= gettext("Email") %></dt>
+                  <dd class="mt-1 text-lg text-slate-900 font-medium truncate">{@user.email}</dd>
                 </div>
                 <button
                   type="button"
-                  phx-click="toggle_email_form"
-                  class="text-base font-medium text-indigo-600 hover:text-indigo-700 whitespace-nowrap py-1"
+                  phx-click="open_email_modal"
+                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
                 >
-                  <%= if @show_email_form, do: gettext("Cancelar"), else: gettext("Cambiar correo") %>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                  </svg>
+                  <%= gettext("Cambiar correo") %>
                 </button>
               </div>
+
+              <%!-- Role row (admin/superadmin only) --%>
               <%= if @user.role in ["admin", "superadmin"] do %>
-                <div>
-                  <dt class="text-base text-slate-500"><%= gettext("Rol") %></dt>
-                  <dd class="mt-1">
+                <div class="py-6">
+                  <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide"><%= gettext("Rol") %></dt>
+                  <dd class="mt-2">
                     <span class={[
-                      "inline-flex px-3 py-1 rounded-md text-sm font-medium",
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
                       @user.role == "superadmin" && "bg-amber-100 text-amber-800",
                       @user.role == "admin" && "bg-slate-100 text-slate-700"
                     ]}>
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                      </svg>
                       {@user.role}
                     </span>
                   </dd>
                 </div>
               <% end %>
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-slate-200">
-                <span class="text-base text-slate-500"><%= gettext("Contraseña") %></span>
+
+              <%!-- Password row --%>
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-6">
+                <div>
+                  <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide"><%= gettext("Contraseña") %></dt>
+                  <dd class="mt-1 text-lg text-slate-400 tracking-wider">••••••••••••</dd>
+                </div>
                 <button
                   type="button"
-                  phx-click="toggle_password_form"
-                  class="text-base font-medium text-indigo-600 hover:text-indigo-700 whitespace-nowrap py-1"
+                  phx-click="open_password_modal"
+                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
                 >
-                  <%= if @show_password_form, do: gettext("Cancelar"), else: gettext("Cambiar contraseña") %>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                  <%= gettext("Cambiar contraseña") %>
                 </button>
               </div>
-            </dl>
+            </div>
+          </div>
 
-            <%!-- Formulario cambiar email (solo si está abierto) --%>
-            <div :if={@show_email_form} class="mt-8 pt-8 border-t border-slate-200">
-              <.form
-                for={@email_form}
-                id="email-form"
-                phx-change="validate_email"
-                phx-submit="save_email"
-                class="space-y-5"
+          <%!-- Quick actions card --%>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+              <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                </svg>
+                <%= gettext("Acciones rápidas") %>
+              </h2>
+            </div>
+
+            <div class="p-6 sm:p-8 space-y-3">
+              <.link
+                navigate="/platform"
+                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 transition group"
               >
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition">
+                  <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                  </svg>
+                </div>
                 <div>
-                  <label for="email_change_new_email" class="block text-base font-medium text-slate-700">
+                  <p class="text-base font-medium text-slate-800"><%= gettext("Ir al dashboard") %></p>
+                  <p class="text-sm text-slate-500"><%= gettext("Volver al panel principal") %></p>
+                </div>
+                <svg class="w-5 h-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </.link>
+
+              <a
+                href="/logout"
+                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-700 transition group"
+              >
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-red-100 transition">
+                  <svg class="w-5 h-5 text-slate-500 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-base font-medium"><%= gettext("Cerrar sesión") %></p>
+                  <p class="text-sm text-slate-500 group-hover:text-red-500 transition"><%= gettext("Salir de tu cuenta") %></p>
+                </div>
+                <svg class="w-5 h-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- MODAL: Change email                                          --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%= if @show_email_modal do %>
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="email-modal-container" phx-mounted={JS.transition({"ease-out duration-200", "opacity-0", "opacity-100"}, to: "#email-modal-container")}>
+          <%!-- Backdrop --%>
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            phx-click="close_email_modal"
+            id="email-modal-backdrop"
+            aria-hidden="true"
+          ></div>
+
+          <%!-- Modal panel --%>
+          <div
+            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            id="email-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="email-modal-title"
+          >
+            <%!-- Header --%>
+            <div class="px-6 pt-6 pb-4">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 id="email-modal-title" class="text-lg font-semibold text-slate-900"><%= gettext("Cambiar correo") %></h2>
+                    <p class="text-sm text-slate-500 mt-0.5"><%= gettext("El correo debe ser único en el sistema. Necesitas tu contraseña actual.") %></p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  phx-click="close_email_modal"
+                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                  aria-label={gettext("Cerrar")}
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <%!-- Current email indicator --%>
+            <div class="mx-6 mb-4 px-4 py-3 bg-slate-50 rounded-lg border border-slate-200">
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide"><%= gettext("Email") %> <%= gettext("actual") %></p>
+              <p class="mt-0.5 text-sm text-slate-800 font-medium">{@user.email}</p>
+            </div>
+
+            <%!-- Form --%>
+            <.form
+              for={@email_form}
+              id="email-modal-form"
+              phx-change="validate_email"
+              phx-submit="save_email"
+              class="px-6 pb-6"
+            >
+              <div class="space-y-4">
+                <div>
+                  <label for="email_change_new_email" class="block text-sm font-medium text-slate-700">
                     <%= gettext("Nuevo correo") %>
                   </label>
                   <.input
@@ -300,7 +469,7 @@ defmodule StreamflixWebWeb.AccountLive do
                   />
                 </div>
                 <div>
-                  <label for="email_change_current_password" class="block text-base font-medium text-slate-700">
+                  <label for="email_change_current_password" class="block text-sm font-medium text-slate-700">
                     <%= gettext("Contraseña actual") %>
                   </label>
                   <.input
@@ -310,30 +479,103 @@ defmodule StreamflixWebWeb.AccountLive do
                     class={@input_class}
                   />
                 </div>
-                <%= if @email_form_errors != [] do %>
-                  <p class="text-sm text-red-600" role="alert"><%= Enum.join(@email_form_errors, " ") %></p>
-                <% end %>
+              </div>
+
+              <%!-- Errors --%>
+              <%= if @email_form_errors != [] do %>
+                <div class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3" role="alert">
+                  <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>
+                  <div class="text-sm text-red-700">
+                    <%= for error <- @email_form_errors do %>
+                      <p>{error}</p>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+
+              <%!-- Footer buttons --%>
+              <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                <button
+                  type="button"
+                  phx-click="close_email_modal"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                >
+                  <%= gettext("Cancelar") %>
+                </button>
                 <button
                   type="submit"
                   phx-disable-with={gettext("Actualizando...")}
-                  class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Actualizar correo") %>
                 </button>
-              </.form>
+              </div>
+            </.form>
+          </div>
+        </div>
+      <% end %>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- MODAL: Change password                                       --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%= if @show_password_modal do %>
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="password-modal-container" phx-mounted={JS.transition({"ease-out duration-200", "opacity-0", "opacity-100"}, to: "#password-modal-container")}>
+          <%!-- Backdrop --%>
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            phx-click="close_password_modal"
+            id="password-modal-backdrop"
+            aria-hidden="true"
+          ></div>
+
+          <%!-- Modal panel --%>
+          <div
+            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            id="password-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="password-modal-title"
+          >
+            <%!-- Header --%>
+            <div class="px-6 pt-6 pb-4">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 id="password-modal-title" class="text-lg font-semibold text-slate-900"><%= gettext("Cambiar contraseña") %></h2>
+                    <p class="text-sm text-slate-500 mt-0.5"><%= gettext("Mínimo 8 caracteres, con mayúsculas, minúsculas y números.") %></p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  phx-click="close_password_modal"
+                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                  aria-label={gettext("Cerrar")}
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            <%!-- Formulario cambiar contraseña (solo si está abierto) --%>
-            <div :if={@show_password_form} class="mt-8 pt-8 border-t border-slate-200">
-              <.form
-                for={@password_form}
-                id="password-form"
-                phx-change="validate_password"
-                phx-submit="save_password"
-                class="space-y-5"
-              >
+            <%!-- Form --%>
+            <.form
+              for={@password_form}
+              id="password-modal-form"
+              phx-change="validate_password"
+              phx-submit="save_password"
+              class="px-6 pb-6"
+            >
+              <div class="space-y-4">
                 <div>
-                  <label for="password_change_current_password" class="block text-base font-medium text-slate-700">
+                  <label for="password_change_current_password" class="block text-sm font-medium text-slate-700">
                     <%= gettext("Contraseña actual") %>
                   </label>
                   <.input
@@ -343,8 +585,9 @@ defmodule StreamflixWebWeb.AccountLive do
                     class={@input_class}
                   />
                 </div>
-                <div>
-                  <label for="password_change_new_password" class="block text-base font-medium text-slate-700">
+
+                <div class="pt-2 border-t border-slate-100">
+                  <label for="password_change_new_password" class="block text-sm font-medium text-slate-700">
                     <%= gettext("Nueva contraseña") %>
                   </label>
                   <.input
@@ -354,8 +597,9 @@ defmodule StreamflixWebWeb.AccountLive do
                     class={@input_class}
                   />
                 </div>
+
                 <div>
-                  <label for="password_change_new_password_confirm" class="block text-base font-medium text-slate-700">
+                  <label for="password_change_new_password_confirm" class="block text-sm font-medium text-slate-700">
                     <%= gettext("Confirmar nueva contraseña") %>
                   </label>
                   <.input
@@ -365,36 +609,43 @@ defmodule StreamflixWebWeb.AccountLive do
                     class={@input_class}
                   />
                 </div>
-                <%= if @password_form_errors != [] do %>
-                  <p class="text-sm text-red-600" role="alert"><%= Enum.join(@password_form_errors, " ") %></p>
-                <% end %>
+              </div>
+
+              <%!-- Errors --%>
+              <%= if @password_form_errors != [] do %>
+                <div class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3" role="alert">
+                  <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>
+                  <div class="text-sm text-red-700">
+                    <%= for error <- @password_form_errors do %>
+                      <p>{error}</p>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+
+              <%!-- Footer buttons --%>
+              <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                <button
+                  type="button"
+                  phx-click="close_password_modal"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                >
+                  <%= gettext("Cancelar") %>
+                </button>
                 <button
                   type="submit"
                   phx-disable-with={gettext("Actualizando...")}
-                  class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <%= gettext("Actualizar contraseña") %>
                 </button>
-              </.form>
-            </div>
-
-            <div class="mt-8 pt-6 flex flex-wrap gap-4">
-              <.link
-                navigate="/platform"
-                class="inline-flex items-center px-5 py-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-base font-medium transition"
-              >
-                <%= gettext("Ir al dashboard") %>
-              </.link>
-              <a
-                href="/logout"
-                class="inline-flex items-center px-5 py-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-base font-medium transition"
-              >
-                <%= gettext("Cerrar sesión") %>
-              </a>
-            </div>
+              </div>
+            </.form>
           </div>
         </div>
-      </div>
+      <% end %>
     </Layouts.app>
     """
   end
