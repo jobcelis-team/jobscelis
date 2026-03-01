@@ -10,7 +10,7 @@ defmodule StreamflixCore.PlatformTest do
 
       assert {:ok, event} = Platform.create_event(project.id, payload)
       assert event.topic == "order.created"
-      assert event.payload == payload
+      assert event.payload == %{"amount" => 100}
       assert event.project_id == project.id
     end
 
@@ -41,24 +41,23 @@ defmodule StreamflixCore.PlatformTest do
     end
   end
 
-  describe "create_webhook/1" do
+  describe "create_webhook/2" do
     test "creates a webhook with valid data" do
       project = insert(:project)
 
       attrs = %{
-        project_id: project.id,
         url: "https://example.com/webhook",
         topics: ["order.created"]
       }
 
-      assert {:ok, webhook} = Platform.create_webhook(attrs)
+      assert {:ok, webhook} = Platform.create_webhook(project.id, attrs)
       assert webhook.url == "https://example.com/webhook"
       assert webhook.status == "active"
     end
 
     test "rejects webhook without URL" do
       project = insert(:project)
-      assert {:error, changeset} = Platform.create_webhook(%{project_id: project.id})
+      assert {:error, changeset} = Platform.create_webhook(project.id, %{})
       assert %{url: _} = errors_on(changeset)
     end
   end
