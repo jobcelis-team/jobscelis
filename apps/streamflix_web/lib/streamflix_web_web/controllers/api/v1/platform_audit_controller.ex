@@ -5,6 +5,10 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAuditController do
   alias StreamflixCore.Audit
   alias StreamflixWebWeb.Schemas
 
+  alias StreamflixWebWeb.Plugs.RequireScope
+
+  plug RequireScope, "audit:read"
+
   tags(["Audit Log"])
   security([%{"api_key" => []}])
 
@@ -29,7 +33,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAuditController do
     project = conn.assigns.current_project
 
     opts = [
-      limit: min(String.to_integer(params["limit"] || "50"), 100),
+      limit: min(safe_int(params["limit"], 50), 100),
       action: params["action"],
       resource_type: params["resource_type"]
     ]
@@ -37,6 +41,17 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAuditController do
     logs = Audit.list_for_project(project.id, opts)
     json(conn, %{data: Enum.map(logs, &audit_json/1)})
   end
+
+  defp safe_int(nil, default), do: default
+
+  defp safe_int(val, default) when is_binary(val) do
+    case Integer.parse(val) do
+      {n, _} -> n
+      :error -> default
+    end
+  end
+
+  defp safe_int(val, _default) when is_integer(val), do: val
 
   defp audit_json(log) do
     %{

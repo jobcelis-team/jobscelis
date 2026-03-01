@@ -63,10 +63,6 @@ defmodule StreamflixCore.Platform do
   def get_project(id), do: Repo.get(Project, id)
   def get_project!(id), do: Repo.get!(Project, id)
 
-  def get_project_by_user_id(user_id) do
-    get_default_project_for_user(user_id)
-  end
-
   def get_default_project_for_user(user_id) do
     cache_key = {:project_user, user_id}
 
@@ -252,19 +248,6 @@ defmodule StreamflixCore.Platform do
     create_api_key(project_id, %{name: "Default", scopes: scopes, allowed_ips: allowed_ips})
   end
 
-  def list_api_keys_for_project(project_id) do
-    ApiKey
-    |> where([k], k.project_id == ^project_id and k.status == "active")
-    |> order_by([k], desc: k.inserted_at)
-    |> Repo.all()
-  end
-
-  def set_api_key_inactive(%ApiKey{} = key) do
-    key
-    |> ApiKey.changeset(%{status: "inactive"})
-    |> Repo.update()
-  end
-
   defp generate_raw_api_key() do
     @prefix <> Base.url_encode64(:crypto.strong_rand_bytes(@key_byte_length), padding: false)
   end
@@ -350,10 +333,6 @@ defmodule StreamflixCore.Platform do
   ]
 
   def webhook_templates, do: @webhook_templates
-
-  def get_webhook_template(id) do
-    Enum.find(@webhook_templates, fn t -> t.id == id end)
-  end
 
   # ---------- Webhooks ----------
 
@@ -889,17 +868,6 @@ defmodule StreamflixCore.Platform do
     |> Repo.all()
   end
 
-  def create_job_run(job_id, status, result \\ nil) do
-    %JobRun{}
-    |> JobRun.changeset(%{
-      job_id: job_id,
-      executed_at: DateTime.utc_now() |> DateTime.truncate(:microsecond),
-      status: status,
-      result: result
-    })
-    |> Repo.insert()
-  end
-
   # ---------- Dead Letter Queue ----------
 
   def create_dead_letter(attrs) do
@@ -1191,6 +1159,8 @@ defmodule StreamflixCore.Platform do
     |> Repo.one()
   end
 
+  def get_sandbox_endpoint(id), do: Repo.get(SandboxEndpoint, id)
+
   def delete_sandbox_endpoint(id) do
     case Repo.get(SandboxEndpoint, id) do
       nil -> {:error, :not_found}
@@ -1412,12 +1382,6 @@ defmodule StreamflixCore.Platform do
     |> Enum.each(&Cachex.del(@cache, &1))
   end
 
-  @doc "Invalidate all caches for a project (call after major changes)"
-  def invalidate_project_cache(project_id) do
-    Cachex.del(@cache, {:active_webhooks, project_id})
-    Cachex.del(@cache, {:project_user, project_id})
-  end
-
   # ---------- Cursor Pagination ----------
 
   @default_page_size 50
@@ -1470,23 +1434,6 @@ defmodule StreamflixCore.Platform do
     query = apply_cursor(query, cursor, :inserted_at)
 
     items = query |> limit(^(limit + 1)) |> preload([:event, :webhook]) |> Repo.all()
-    build_page(items, limit)
-  end
-
-  @doc "Paginate dead letters with cursor-based pagination."
-  def paginate_dead_letters(project_id, opts \\ []) do
-    limit = parse_limit(opts)
-    cursor = Keyword.get(opts, :cursor)
-    resolved = Keyword.get(opts, :resolved, false)
-
-    query =
-      DeadLetter
-      |> where([dl], dl.project_id == ^project_id and dl.resolved == ^resolved)
-      |> order_by([dl], desc: dl.inserted_at, desc: dl.id)
-
-    query = apply_cursor(query, cursor, :inserted_at)
-
-    items = query |> limit(^(limit + 1)) |> preload([:webhook, :event]) |> Repo.all()
     build_page(items, limit)
   end
 

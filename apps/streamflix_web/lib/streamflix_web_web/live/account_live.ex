@@ -19,6 +19,11 @@ defmodule StreamflixWebWeb.AccountLive do
       |> assign(:password_form_errors, [])
       |> assign(:show_email_modal, false)
       |> assign(:show_password_modal, false)
+      |> assign(:show_name_modal, false)
+      |> assign(:show_delete_modal, false)
+      |> assign(:name_form, to_form(%{"name" => user.name || ""}, as: "name_change"))
+      |> assign(:name_form_errors, [])
+      |> assign(:delete_form_errors, [])
 
     {:ok, socket}
   end
@@ -214,6 +219,119 @@ defmodule StreamflixWebWeb.AccountLive do
     end
   end
 
+  # ── Name modal ─────────────────────────────────────────────────────
+
+  def handle_event("open_name_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_name_modal, true)
+     |> assign(
+       :name_form,
+       to_form(%{"name" => socket.assigns.user.name || ""}, as: "name_change")
+     )
+     |> assign(:name_form_errors, [])}
+  end
+
+  def handle_event("close_name_modal", _, socket) do
+    {:noreply, assign(socket, :show_name_modal, false)}
+  end
+
+  def handle_event("save_name", %{"name_change" => %{"name" => name}}, socket) do
+    name = String.trim(name)
+
+    cond do
+      name == "" ->
+        {:noreply,
+         socket
+         |> assign(:name_form_errors, [gettext("El nombre es obligatorio.")])}
+
+      String.length(name) > 255 ->
+        {:noreply,
+         socket
+         |> assign(:name_form_errors, [gettext("El nombre es demasiado largo.")])}
+
+      true ->
+        case StreamflixAccounts.update_name(socket.assigns.user, name) do
+          {:ok, updated_user} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, gettext("Nombre actualizado correctamente."))
+             |> assign(:user, updated_user)
+             |> assign(:show_name_modal, false)
+             |> assign(:name_form_errors, [])}
+
+          {:error, _} ->
+            {:noreply,
+             socket
+             |> assign(:name_form_errors, [gettext("No se pudo actualizar el nombre.")])}
+        end
+    end
+  end
+
+  # ── Delete account modal ──────────────────────────────────────────
+
+  def handle_event("open_delete_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_delete_modal, true)
+     |> assign(:delete_form_errors, [])}
+  end
+
+  def handle_event("close_delete_modal", _, socket) do
+    {:noreply, assign(socket, :show_delete_modal, false)}
+  end
+
+  def handle_event("delete_account", %{"password" => password}, socket) do
+    user = socket.assigns.user
+
+    case StreamflixAccounts.delete_user(user, password) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Cuenta eliminada correctamente."))
+         |> redirect(to: "/logout")}
+
+      {:error, :wrong_password} ->
+        {:noreply,
+         socket
+         |> assign(:delete_form_errors, [gettext("La contraseña no es correcta.")])}
+
+      {:error, _} ->
+        {:noreply,
+         socket
+         |> assign(:delete_form_errors, [gettext("No se pudo eliminar la cuenta.")])}
+    end
+  end
+
+  # ── Resend email verification ─────────────────────────────────────
+
+  def handle_event("resend_verification", _, socket) do
+    user = socket.assigns.user
+
+    if user.email_verified_at do
+      {:noreply, put_flash(socket, :info, gettext("Tu correo ya está verificado."))}
+    else
+      case StreamflixAccounts.generate_email_confirmation_token(user) do
+        {:ok, token} ->
+          url = StreamflixWebWeb.Endpoint.url() <> "/confirm-email/#{token}"
+          locale = socket.assigns[:locale] || "es"
+          StreamflixWebWeb.Mailer.send_email_confirmation(user, url, locale)
+          {:noreply, put_flash(socket, :info, gettext("Enlace de verificación enviado."))}
+
+        {:error, :rate_limited} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             gettext("Debes esperar 5 minutos entre cada solicitud de correo.")
+           )}
+
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("No se pudo enviar el enlace."))}
+      end
+    end
+  end
+
   def handle_event("logout", _, socket) do
     {:noreply, redirect(socket, to: "/logout", external: true)}
   end
@@ -345,8 +463,62 @@ defmodule StreamflixWebWeb.AccountLive do
             </div>
 
             <div class="p-6 sm:p-8 space-y-0 divide-y divide-slate-100">
-              <%!-- Email row --%>
+              <%!-- Email verification banner --%>
+              <%= if is_nil(@user.email_verified_at) do %>
+                <div class="mb-4 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                  <svg
+                    class="w-5 h-5 shrink-0 mt-0.5 text-amber-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"
+                    />
+                  </svg>
+                  <div>
+                    <span>{gettext("Tu correo no ha sido verificado.")}</span>
+                    <button
+                      type="button"
+                      phx-click="resend_verification"
+                      class="ml-2 text-amber-700 underline hover:text-amber-900 font-medium"
+                    >
+                      {gettext("Reenviar enlace")}
+                    </button>
+                  </div>
+                </div>
+              <% end %>
+              <%!-- Name row --%>
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-6">
+                <div class="min-w-0">
+                  <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide">
+                    {gettext("Nombre")}
+                  </dt>
+                  <dd class="mt-1 text-lg text-slate-900 font-medium truncate">
+                    {@user.name || gettext("Sin nombre")}
+                  </dd>
+                </div>
+                <button
+                  type="button"
+                  phx-click="open_name_modal"
+                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"
+                    />
+                  </svg>
+                  {gettext("Editar nombre")}
+                </button>
+              </div>
+              <%!-- Email row --%>
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-6">
                 <div class="min-w-0">
                   <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide">
                     {gettext("Email")}
@@ -487,6 +659,46 @@ defmodule StreamflixWebWeb.AccountLive do
                   />
                 </svg>
               </.link>
+              <button
+                type="button"
+                phx-click="open_delete_modal"
+                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-700 transition group text-left"
+              >
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-red-100 transition">
+                  <svg
+                    class="w-5 h-5 text-slate-500 group-hover:text-red-600 transition"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-base font-medium">{gettext("Eliminar cuenta")}</p>
+                  <p class="text-sm text-slate-500 group-hover:text-red-500 transition">
+                    {gettext("Eliminar permanentemente tu cuenta y datos")}
+                  </p>
+                </div>
+                <svg
+                  class="w-5 h-5 text-slate-400 ml-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                  />
+                </svg>
+              </button>
               <a
                 href="/logout"
                 class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-700 transition group"
@@ -880,6 +1092,181 @@ defmodule StreamflixWebWeb.AccountLive do
                 </button>
               </div>
             </.form>
+          </div>
+        </div>
+      <% end %>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- MODAL: Change name                                           --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%= if @show_name_modal do %>
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="name-modal-container">
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            phx-click="close_name_modal"
+            aria-hidden="true"
+          >
+          </div>
+          <div
+            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="px-6 pt-6 pb-4">
+              <div class="flex items-start justify-between">
+                <h2 class="text-lg font-semibold text-slate-900">{gettext("Editar nombre")}</h2>
+                <button
+                  type="button"
+                  phx-click="close_name_modal"
+                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <.form for={@name_form} id="name-modal-form" phx-submit="save_name" class="px-6 pb-6">
+              <div>
+                <label for="name_change_name" class="block text-sm font-medium text-slate-700">
+                  {gettext("Nombre")}
+                </label>
+                <.input
+                  field={@name_form["name"]}
+                  type="text"
+                  placeholder={gettext("Tu nombre")}
+                  class={@input_class}
+                />
+              </div>
+              <%= if @name_form_errors != [] do %>
+                <div
+                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                  role="alert"
+                >
+                  <div class="text-sm text-red-700">
+                    <%= for error <- @name_form_errors do %>
+                      <p>{error}</p>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                <button
+                  type="button"
+                  phx-click="close_name_modal"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                >
+                  {gettext("Cancelar")}
+                </button>
+                <button
+                  type="submit"
+                  phx-disable-with={gettext("Actualizando...")}
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
+                >
+                  {gettext("Guardar nombre")}
+                </button>
+              </div>
+            </.form>
+          </div>
+        </div>
+      <% end %>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- MODAL: Delete account                                        --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%= if @show_delete_modal do %>
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          id="delete-modal-container"
+        >
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            phx-click="close_delete_modal"
+            aria-hidden="true"
+          >
+          </div>
+          <div
+            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="px-6 pt-6 pb-4">
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg
+                    class="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="text-lg font-semibold text-red-900">
+                    {gettext("Eliminar cuenta")}
+                  </h2>
+                  <p class="text-sm text-slate-500 mt-0.5">
+                    {gettext(
+                      "Esta acción es irreversible. Se eliminarán todos tus datos, proyectos y configuración."
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <form phx-submit="delete_account" class="px-6 pb-6">
+              <div>
+                <label for="delete_password" class="block text-sm font-medium text-slate-700 mb-1.5">
+                  {gettext("Confirma tu contraseña para eliminar la cuenta")}
+                </label>
+                <input
+                  id="delete_password"
+                  type="password"
+                  name="password"
+                  required
+                  placeholder="••••••••"
+                  class={@input_class}
+                />
+              </div>
+              <%= if @delete_form_errors != [] do %>
+                <div
+                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                  role="alert"
+                >
+                  <div class="text-sm text-red-700">
+                    <%= for error <- @delete_form_errors do %>
+                      <p>{error}</p>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                <button
+                  type="button"
+                  phx-click="close_delete_modal"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                >
+                  {gettext("Cancelar")}
+                </button>
+                <button
+                  type="submit"
+                  phx-disable-with={gettext("Eliminando...")}
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition"
+                >
+                  {gettext("Eliminar mi cuenta")}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       <% end %>

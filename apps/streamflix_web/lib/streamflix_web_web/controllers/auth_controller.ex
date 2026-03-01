@@ -2,6 +2,7 @@ defmodule StreamflixWebWeb.AuthController do
   use StreamflixWebWeb, :controller
 
   alias StreamflixAccounts
+  alias StreamflixWebWeb.Mailer
 
   @doc """
   Handles user registration from web form.
@@ -121,6 +122,118 @@ defmodule StreamflixWebWeb.AuthController do
     |> redirect(to: "/")
   end
 
+  # ---------- PASSWORD RESET ----------
+
+  def forgot_password(conn, %{"email" => email}) when is_binary(email) and email != "" do
+    case StreamflixAccounts.generate_reset_password_token(String.trim(email)) do
+      {:ok, token, user} ->
+        url = build_url(conn, "/reset-password/#{token}")
+        Mailer.send_reset_password_email(user, url, conn.assigns[:locale] || "es")
+
+        conn
+        |> put_flash(
+          :info,
+          gettext(
+            "Si tu correo está registrado, recibirás un enlace para restablecer tu contraseña."
+          )
+        )
+        |> redirect(to: "/login")
+
+      {:error, _} ->
+        # Don't reveal whether email exists
+        conn
+        |> put_flash(
+          :info,
+          gettext(
+            "Si tu correo está registrado, recibirás un enlace para restablecer tu contraseña."
+          )
+        )
+        |> redirect(to: "/login")
+    end
+  end
+
+  def forgot_password(conn, _params) do
+    conn
+    |> put_flash(:error, gettext("Ingresa tu correo electrónico."))
+    |> redirect(to: "/forgot-password")
+  end
+
+  def reset_password(conn, %{
+        "token" => token,
+        "password" => password,
+        "password_confirm" => confirm
+      })
+      when is_binary(password) do
+    cond do
+      String.length(password) < 8 ->
+        conn
+        |> put_flash(:error, gettext("La contraseña debe tener al menos 8 caracteres"))
+        |> redirect(to: "/reset-password/#{token}")
+
+      password != confirm ->
+        conn
+        |> put_flash(:error, gettext("Las contraseñas no coinciden."))
+        |> redirect(to: "/reset-password/#{token}")
+
+      true ->
+        case StreamflixAccounts.reset_user_password(token, password) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, gettext("Contraseña restablecida. Ya puedes iniciar sesión."))
+            |> redirect(to: "/login")
+
+          {:error, :invalid_token} ->
+            conn
+            |> put_flash(:error, gettext("El enlace ha expirado o no es válido."))
+            |> redirect(to: "/forgot-password")
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            errors = format_errors(changeset)
+
+            conn
+            |> put_flash(
+              :error,
+              gettext("Error al cambiar contraseña: %{details}", details: errors)
+            )
+            |> redirect(to: "/reset-password/#{token}")
+        end
+    end
+  end
+
+  def reset_password(conn, %{"token" => token}) do
+    conn
+    |> put_flash(:error, gettext("Ingresa una contraseña válida."))
+    |> redirect(to: "/reset-password/#{token}")
+  end
+
+  # ---------- EMAIL VERIFICATION ----------
+
+  def confirm_email(conn, %{"token" => token}) do
+    case StreamflixAccounts.confirm_user_email(token) do
+      {:ok, _user} ->
+        conn
+        |> put_flash(:info, gettext("Correo verificado correctamente."))
+        |> redirect(to: "/login")
+
+      {:error, _} ->
+        conn
+        |> put_flash(:error, gettext("El enlace de verificación ha expirado o no es válido."))
+        |> redirect(to: "/login")
+    end
+  end
+
+  defp build_url(conn, path) do
+    scheme = if conn.scheme == :https, do: "https", else: "http"
+    port = conn.port
+
+    port_str =
+      if (scheme == "https" and port == 443) or (scheme == "http" and port == 80),
+        do: "",
+        else: ":#{port}"
+
+    "#{scheme}://#{conn.host}#{port_str}#{path}"
+  end
+
   defp do_register_success(conn, user) do
     do_register_success(conn, user, [])
   end
@@ -128,11 +241,21 @@ defmodule StreamflixWebWeb.AuthController do
   defp do_register_success(conn, user, opts) do
     {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
 
+    # Send email verification
+    case StreamflixAccounts.generate_email_confirmation_token(user) do
+      {:ok, confirm_token} ->
+        url = build_url(conn, "/confirm-email/#{confirm_token}")
+        Mailer.send_email_confirmation(user, url, conn.assigns[:locale] || "es")
+
+      _ ->
+        :ok
+    end
+
     conn =
       conn
       |> put_session(:user_token, token)
       |> put_session(:user_id, user.id)
-      |> put_flash(:info, gettext("Cuenta creada. Bienvenido."))
+      |> put_flash(:info, gettext("Cuenta creada. Revisa tu correo para verificar tu email."))
 
     conn =
       case Keyword.get(opts, :api_key) do

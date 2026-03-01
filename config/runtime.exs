@@ -16,6 +16,14 @@ if signing_salt = System.get_env("LIVE_VIEW_SIGNING_SALT") do
   config :streamflix_web, StreamflixWebWeb.Endpoint, live_view: [signing_salt: signing_salt]
 end
 
+# Resend API (email delivery) — all environments
+if resend_key = System.get_env("RESEND_API_KEY") do
+  config :streamflix_web, StreamflixWebWeb.Mailer,
+    api_key: resend_key,
+    from_email: System.get_env("MAILER_FROM_EMAIL") || "noreply@jobcelis.com",
+    from_name: System.get_env("MAILER_FROM_NAME") || "Jobcelis"
+end
+
 # ============================================
 # PRODUCTION RUNTIME CONFIG
 # ============================================
