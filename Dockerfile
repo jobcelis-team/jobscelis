@@ -78,6 +78,7 @@ FROM elixir:1.17-otp-27-alpine AS prod
 
 RUN apk add --no-cache \
     libstdc++ \
+    ca-certificates \
     postgresql-client \
     curl
 
