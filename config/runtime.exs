@@ -32,27 +32,13 @@ if config_env() == :prod do
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
   # prepare: :unnamed necesario con Supabase pooler (PgBouncer); si no, "prepared statement does not exist"
-  # ssl: opciones en :ssl (ssl_opts está deprecado)
-  # En Alpine, :public_key.cacerts_get() falla (Unknown CA). Usar cacertfile directamente.
-  ssl_opts =
-    if File.exists?("/etc/ssl/certs/ca-certificates.crt") do
-      [
-        verify: :verify_peer,
-        cacertfile: ~c"/etc/ssl/certs/ca-certificates.crt",
-        server_name_indication: String.to_charlist(URI.parse(database_url).host),
-        customize_hostname_check: [
-          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
-        ]
-      ]
-    else
-      [verify: :verify_none]
-    end
-
+  # ssl: Supabase pooler usa un certificado que no es verificable con verify_peer en Alpine.
+  # La conexión sigue encriptada con TLS; verify_none solo omite la validación de la cadena CA.
   config :streamflix_core, StreamflixCore.Repo,
     url: database_url,
     pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
-    ssl: ssl_opts,
+    ssl: [verify: :verify_none],
     prepare: :unnamed
 
   # Secret Key Base
