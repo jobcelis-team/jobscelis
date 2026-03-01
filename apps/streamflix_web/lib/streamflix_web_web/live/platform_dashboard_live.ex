@@ -94,6 +94,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:active_page, :dashboard)
       |> assign(:webhook_modal, nil)
       |> assign(:webhook_form, %{"url" => "", "topics" => "", "secret" => ""})
+      |> assign(:confirm_regenerate_token, false)
 
     if connected?(socket) do
       if project, do: Platform.subscribe(project.id)
@@ -187,6 +188,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   @impl true
+  def handle_event("show_confirm_regenerate", _params, socket) do
+    {:noreply, assign(socket, :confirm_regenerate_token, true)}
+  end
+
+  @impl true
+  def handle_event("cancel_confirm_regenerate", _params, socket) do
+    {:noreply, assign(socket, :confirm_regenerate_token, false)}
+  end
+
+  @impl true
   def handle_event("regenerate_token", _params, socket) do
     with_permission(socket, :admin, fn ->
       project = socket.assigns.project
@@ -195,24 +206,28 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         {:ok, _api_key, raw_key} ->
           api_key = Platform.get_api_key_for_project(project.id)
 
-          socket =
-            Audit.record("api_key.regenerated",
-              user_id: socket.assigns.current_user.id,
-              project_id: project.id,
-              resource_type: "api_key"
-            )
+          Audit.record("api_key.regenerated",
+            user_id: socket.assigns.current_user.id,
+            project_id: project.id,
+            resource_type: "api_key"
+          )
 
-          socket
-          |> put_flash(:info, gettext("Token regenerado correctamente."))
-          |> assign(:api_key, api_key)
-          |> assign(:new_token, raw_key)
-          |> assign(:token_source, :regenerated)
-          |> assign(:token_visible, true)
+          socket =
+            socket
+            |> put_flash(:info, gettext("Token regenerado correctamente."))
+            |> assign(:api_key, api_key)
+            |> assign(:new_token, raw_key)
+            |> assign(:token_source, :regenerated)
+            |> assign(:token_visible, true)
+            |> assign(:confirm_regenerate_token, false)
 
           {:noreply, socket}
 
         _ ->
-          {:noreply, put_flash(socket, :error, gettext("No se pudo regenerar el token."))}
+          {:noreply,
+           socket
+           |> put_flash(:error, gettext("No se pudo regenerar el token."))
+           |> assign(:confirm_regenerate_token, false)}
       end
     end)
   end
@@ -3374,6 +3389,57 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         </div>
       </div>
     <% end %>
+
+    <%!-- Confirm regenerate token modal --%>
+    <%= if @confirm_regenerate_token do %>
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+        <div
+          class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          phx-click="cancel_confirm_regenerate"
+          aria-hidden="true"
+        >
+        </div>
+        <div
+          class="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-regenerate-title"
+        >
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+              <.icon name="hero-exclamation-triangle" class="w-5 h-5 text-amber-600" />
+            </div>
+            <div class="flex-1">
+              <h3 id="confirm-regenerate-title" class="text-lg font-semibold text-slate-900">
+                {gettext("¿Regenerar token?")}
+              </h3>
+              <p class="mt-2 text-sm text-slate-600">
+                {gettext(
+                  "El token actual dejará de funcionar inmediatamente. Asegúrate de actualizar tus integraciones con el nuevo token."
+                )}
+              </p>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              phx-click="cancel_confirm_regenerate"
+              class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 text-sm font-medium transition"
+            >
+              {gettext("Cancelar")}
+            </button>
+            <button
+              type="button"
+              phx-click="regenerate_token"
+              phx-disable-with={gettext("Regenerando...")}
+              class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {gettext("Sí, regenerar")}
+            </button>
+          </div>
+        </div>
+      </div>
+    <% end %>
     """
   end
 
@@ -3465,9 +3531,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       <%= if can_admin_team?(@current_user_role) do %>
         <div class="mt-3 flex items-center gap-3">
           <button
-            phx-click="regenerate_token"
-            phx-disable-with={gettext("Regenerando...")}
-            data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
+            phx-click="show_confirm_regenerate"
             type="button"
             class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
           >
@@ -3492,9 +3556,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         <%= if can_admin_team?(@current_user_role) do %>
           <div class="flex flex-col sm:flex-row gap-2 mt-3">
             <button
-              phx-click="regenerate_token"
-              phx-disable-with={gettext("Regenerando...")}
-              data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
+              phx-click="show_confirm_regenerate"
               type="button"
               class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
             >
