@@ -11,12 +11,14 @@ defmodule StreamflixCore.Schemas.Webhook do
 
   schema "webhooks" do
     field :url, :string
-    field :secret_encrypted, :string
+    field :secret_encrypted, StreamflixCore.Encrypted.Binary
     field :status, :string, default: "active"
     field :topics, {:array, :string}, default: []
     field :filters, StreamflixCore.Types.WebhookFilters, default: []
     field :body_config, :map, default: %{}
     field :headers, :map, default: %{}
+    field :retry_config, :map, default: %{}
+    field :batch_config, :map
 
     belongs_to :project, StreamflixCore.Schemas.Project
     has_many :deliveries, StreamflixCore.Schemas.Delivery
@@ -26,7 +28,7 @@ defmodule StreamflixCore.Schemas.Webhook do
 
   def changeset(webhook, attrs) do
     webhook
-    |> cast(attrs, [:project_id, :url, :secret_encrypted, :status, :topics, :filters, :body_config, :headers])
+    |> cast(attrs, [:project_id, :url, :secret_encrypted, :status, :topics, :filters, :body_config, :headers, :retry_config, :batch_config])
     |> validate_required([:project_id, :url])
     |> validate_inclusion(:status, ~w(active inactive))
     |> validate_format(:url, ~r|^https?://|, message: "must be http or https")

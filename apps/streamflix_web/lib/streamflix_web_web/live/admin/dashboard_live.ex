@@ -14,6 +14,8 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
       |> assign(:current_user_role, user.role)
       |> assign(:stats, get_stats())
       |> assign(:recent_users, get_recent_users())
+      |> assign(:oban_stats, get_oban_stats())
+      |> assign(:oban_recent, get_oban_recent_jobs())
 
     if connected?(socket) do
       send(self(), :load_data)
@@ -27,7 +29,9 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     {:noreply,
      socket
      |> assign(:stats, get_stats())
-     |> assign(:recent_users, get_recent_users())}
+     |> assign(:recent_users, get_recent_users())
+     |> assign(:oban_stats, get_oban_stats())
+     |> assign(:oban_recent, get_oban_recent_jobs())}
   end
 
   @impl true
@@ -53,6 +57,64 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
         <div class="bg-white rounded-lg shadow p-4 sm:p-6">
           <p class="text-sm text-gray-500"><%= gettext("Eventos (total)") %></p>
           <p class="text-2xl font-bold">{@stats.total_events}</p>
+        </div>
+      </div>
+
+      <%!-- Oban Jobs Stats --%>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500"><%= gettext("Jobs completados") %></p>
+          <p class="text-2xl font-bold text-emerald-600">{@oban_stats.completed}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500"><%= gettext("Jobs ejecutándose") %></p>
+          <p class="text-2xl font-bold text-blue-600">{@oban_stats.executing}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500"><%= gettext("Jobs en cola") %></p>
+          <p class="text-2xl font-bold text-amber-600">{@oban_stats.available}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500"><%= gettext("Jobs fallidos") %></p>
+          <p class="text-2xl font-bold text-red-600">{@oban_stats.discarded}</p>
+        </div>
+      </div>
+
+      <%!-- Oban Recent Jobs --%>
+      <div class="bg-white rounded-lg shadow overflow-hidden mb-6 sm:mb-8">
+        <div class="p-4 sm:p-6 border-b">
+          <h2 class="text-lg font-semibold"><%= gettext("Jobs recientes (Oban)") %></h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Cola") %></th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Estado") %></th>
+                <th class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Intentos") %></th>
+                <th class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Fecha") %></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <%= for job <- @oban_recent do %>
+                <tr>
+                  <td class="px-4 py-3 text-sm font-mono truncate max-w-[10rem]"><%= short_worker(job.worker) %></td>
+                  <td class="px-4 py-3 text-sm"><%= job.queue %></td>
+                  <td class="px-4 py-3">
+                    <span class={"px-2 py-0.5 rounded text-xs font-medium #{oban_state_class(job.state)}"}>
+                      <%= job.state %>
+                    </span>
+                  </td>
+                  <td class="hidden sm:table-cell px-4 py-3 text-sm text-gray-500"><%= job.attempt %>/<%= job.max_attempts %></td>
+                  <td class="hidden sm:table-cell px-4 py-3 text-sm text-gray-500"><%= Calendar.strftime(job.inserted_at, "%d/%m %H:%M") %></td>
+                </tr>
+              <% end %>
+              <%= if @oban_recent == [] do %>
+                <tr><td colspan="5" class="px-4 py-6 text-center text-sm text-gray-400"><%= gettext("Sin jobs recientes") %></td></tr>
+              <% end %>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -163,7 +225,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     """
   end
 
-  defp get_stats do
+  defp get_stats() do
     alias StreamflixCore.Schemas.{Project, WebhookEvent}
     total_users = Repo.aggregate(User, :count)
     total_projects = Repo.aggregate(Project, :count)
@@ -171,11 +233,59 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     %{total_users: total_users, total_projects: total_projects, total_events: total_events}
   end
 
-  defp get_recent_users do
+  defp get_recent_users() do
     User
     |> order_by([u], desc: u.inserted_at)
     |> limit(10)
     |> Repo.all()
     |> Enum.map(fn u -> %{name: u.name, email: u.email, role: u.role} end)
   end
+
+  defp get_oban_stats() do
+    counts =
+      from(j in "oban_jobs",
+        where: j.inserted_at > ago(24, "hour"),
+        group_by: j.state,
+        select: {j.state, count(j.id)}
+      )
+      |> Repo.all()
+      |> Map.new()
+
+    %{
+      completed: Map.get(counts, "completed", 0),
+      executing: Map.get(counts, "executing", 0),
+      available: Map.get(counts, "available", 0),
+      discarded: Map.get(counts, "discarded", 0)
+    }
+  end
+
+  defp get_oban_recent_jobs() do
+    from(j in "oban_jobs",
+      order_by: [desc: j.inserted_at],
+      limit: 15,
+      select: %{
+        id: j.id,
+        worker: j.worker,
+        queue: j.queue,
+        state: j.state,
+        attempt: j.attempt,
+        max_attempts: j.max_attempts,
+        inserted_at: j.inserted_at
+      }
+    )
+    |> Repo.all()
+  end
+
+  defp short_worker(worker) do
+    worker
+    |> String.split(".")
+    |> List.last()
+  end
+
+  defp oban_state_class("completed"), do: "bg-emerald-100 text-emerald-700"
+  defp oban_state_class("executing"), do: "bg-blue-100 text-blue-700"
+  defp oban_state_class("available"), do: "bg-amber-100 text-amber-700"
+  defp oban_state_class("retryable"), do: "bg-orange-100 text-orange-700"
+  defp oban_state_class("discarded"), do: "bg-red-100 text-red-700"
+  defp oban_state_class(_), do: "bg-gray-100 text-gray-700"
 end

@@ -19,7 +19,7 @@ defmodule StreamflixWebWeb do
 
   def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
 
-  def router do
+  def router() do
     quote do
       use Phoenix.Router, helpers: false
 
@@ -30,13 +30,13 @@ defmodule StreamflixWebWeb do
     end
   end
 
-  def channel do
+  def channel() do
     quote do
       use Phoenix.Channel
     end
   end
 
-  def controller do
+  def controller() do
     quote do
       use Phoenix.Controller, formats: [:html, :json]
 
@@ -48,7 +48,7 @@ defmodule StreamflixWebWeb do
     end
   end
 
-  def live_view do
+  def live_view() do
     quote do
       use Phoenix.LiveView
 
@@ -56,7 +56,7 @@ defmodule StreamflixWebWeb do
     end
   end
 
-  def live_component do
+  def live_component() do
     quote do
       use Phoenix.LiveComponent
 
@@ -64,7 +64,7 @@ defmodule StreamflixWebWeb do
     end
   end
 
-  def html do
+  def html() do
     quote do
       use Phoenix.Component
 
@@ -77,7 +77,7 @@ defmodule StreamflixWebWeb do
     end
   end
 
-  defp html_helpers do
+  defp html_helpers() do
     quote do
       # Translation
       use Gettext, backend: StreamflixWebWeb.Gettext
@@ -96,7 +96,7 @@ defmodule StreamflixWebWeb do
     end
   end
 
-  def verified_routes do
+  def verified_routes() do
     quote do
       use Phoenix.VerifiedRoutes,
         endpoint: StreamflixWebWeb.Endpoint,

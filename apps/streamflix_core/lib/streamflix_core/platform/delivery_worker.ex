@@ -65,7 +65,8 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       json: body,
       headers: headers,
       receive_timeout: @receive_timeout,
-      connect_options: [timeout: @connect_timeout]
+      connect_options: [timeout: @connect_timeout],
+      finch: StreamflixCore.Finch
     ]
 
     case Req.post(url, opts) do
@@ -108,30 +109,103 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
   defp format_response_body(%{body: body}), do: inspect(body)
 
   defp mark_success(delivery, status, _resp) do
-    delivery
-    |> Delivery.changeset(%{
-      status: "success",
-      attempt_number: delivery.attempt_number + 1,
-      response_status: status,
-      response_body: nil,
-      next_retry_at: nil
-    })
-    |> Repo.update()
+    result =
+      delivery
+      |> Delivery.changeset(%{
+        status: "success",
+        attempt_number: delivery.attempt_number + 1,
+        response_status: status,
+        response_body: nil,
+        next_retry_at: nil
+      })
+      |> Repo.update()
+
+    case result do
+      {:ok, d} ->
+        broadcast_delivery(d)
+        {:ok, d}
+
+      err ->
+        err
+    end
   end
 
   defp mark_failed(delivery, status, reason) do
+    new_attempt = delivery.attempt_number + 1
+    max_attempts = get_max_attempts(delivery)
+
     delivery
     |> Delivery.changeset(%{
       status: "failed",
-      attempt_number: delivery.attempt_number + 1,
+      attempt_number: new_attempt,
       response_status: status,
       response_body: reason,
       next_retry_at: nil
     })
     |> Repo.update()
     |> case do
-      {:ok, d} -> {:error, {:failed, d}}
-      err -> err
+      {:ok, d} ->
+        broadcast_delivery(d)
+
+        # Move to Dead Letter Queue if all retries exhausted
+        if new_attempt >= max_attempts do
+          move_to_dlq(d, status, reason)
+        end
+
+        {:error, {:failed, d}}
+
+      err ->
+        err
+    end
+  end
+
+  defp get_max_attempts(delivery) do
+    case Repo.get(StreamflixCore.Schemas.Webhook, delivery.webhook_id) do
+      nil -> 5
+      w -> (w.retry_config || %{})["max_attempts"] || 5
+    end
+  end
+
+  defp move_to_dlq(delivery, _status, reason) do
+    event = delivery.event || Repo.get(StreamflixCore.Schemas.WebhookEvent, delivery.event_id)
+    webhook = delivery.webhook || Repo.get(StreamflixCore.Schemas.Webhook, delivery.webhook_id)
+
+    if event do
+      Platform.create_dead_letter(%{
+        project_id: event.project_id,
+        delivery_id: delivery.id,
+        event_id: delivery.event_id,
+        webhook_id: delivery.webhook_id,
+        original_payload: event.payload || %{},
+        last_error: reason,
+        last_response_status: delivery.response_status,
+        attempts_exhausted: delivery.attempt_number
+      })
+
+      # Notify project owner
+      project = Repo.get(StreamflixCore.Schemas.Project, event.project_id)
+
+      if project && project.user_id do
+        StreamflixCore.Notifications.notify_dlq_entry(
+          project.user_id,
+          project.id,
+          if(webhook, do: webhook.url, else: "unknown")
+        )
+      end
+
+      Logger.warning("[DeliveryWorker] Delivery #{delivery.id} moved to Dead Letter Queue after #{delivery.attempt_number} attempts")
+    end
+  end
+
+  defp broadcast_delivery(delivery) do
+    event = delivery.event || Repo.get(StreamflixCore.Schemas.WebhookEvent, delivery.event_id)
+
+    if event do
+      Phoenix.PubSub.broadcast(
+        StreamflixCore.PubSub,
+        "project:#{event.project_id}",
+        {:delivery_updated, delivery}
+      )
     end
   end
 end
