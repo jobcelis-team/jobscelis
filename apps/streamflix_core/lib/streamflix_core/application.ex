@@ -8,8 +8,11 @@ defmodule StreamflixCore.Application do
   def start(_type, _args) do
     children = [
       StreamflixCore.Repo,
+      StreamflixCore.Vault,
       {Task.Supervisor, name: StreamflixCore.TaskSupervisor},
       {Phoenix.PubSub, name: StreamflixCore.PubSub},
+      {Cachex, name: :platform_cache},
+      {Finch, name: StreamflixCore.Finch, pools: %{default: [size: 25, count: 1]}},
       {Oban, Application.fetch_env!(:streamflix_core, Oban)},
       StreamflixCore.Platform.Scheduler
     ]

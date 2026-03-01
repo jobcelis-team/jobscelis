@@ -1,6 +1,8 @@
 defmodule StreamflixWebWeb.Router do
   use StreamflixWebWeb, :router
 
+  def api_spec, do: StreamflixWebWeb.ApiSpec.spec()
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -44,6 +46,10 @@ defmodule StreamflixWebWeb.Router do
     plug StreamflixWebWeb.Plugs.ApiKeyAuth
   end
 
+  pipeline :openapi do
+    plug OpenApiSpex.Plug.PutApiSpec, module: StreamflixWebWeb.ApiSpec
+  end
+
   # ============================================
   # PUBLIC ROUTES (redirect if authenticated)
   # ============================================
@@ -61,6 +67,35 @@ defmodule StreamflixWebWeb.Router do
     pipe_through :browser
 
     get "/locale/:locale", PageController, :set_locale
+  end
+
+  # Health check para load balancers y monitoring
+  scope "/", StreamflixWebWeb do
+    pipe_through :api
+
+    get "/health", HealthController, :index
+  end
+
+  # OpenAPI spec (JSON)
+  scope "/api" do
+    pipe_through [:api, :openapi]
+
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+  end
+
+  # Swagger UI (HTML)
+  scope "/api" do
+    pipe_through [:browser, :openapi]
+
+    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+  end
+
+  # Sandbox catch-all (receives webhook test requests)
+  scope "/sandbox", StreamflixWebWeb do
+    pipe_through :api
+
+    match :*, "/:slug", SandboxController, :receive
+    match :*, "/:slug/*path", SandboxController, :receive
   end
 
   # Sitemap para SEO (Google Search Console)
@@ -114,14 +149,40 @@ defmodule StreamflixWebWeb.Router do
     get "/events/:id", PlatformEventsController, :show
     delete "/events/:id", PlatformEventsController, :delete
 
+    post "/simulate", PlatformEventsController, :simulate
+
+    get "/webhooks/templates", PlatformWebhooksController, :templates
     get "/webhooks", PlatformWebhooksController, :index
     post "/webhooks", PlatformWebhooksController, :create
     get "/webhooks/:id", PlatformWebhooksController, :show
+    get "/webhooks/:id/health", PlatformWebhooksController, :health
     patch "/webhooks/:id", PlatformWebhooksController, :update
     delete "/webhooks/:id", PlatformWebhooksController, :delete
 
     get "/deliveries", PlatformDeliveriesController, :index
     post "/deliveries/:id/retry", PlatformDeliveriesController, :retry
+
+    get "/dead-letters", PlatformDeadLettersController, :index
+    get "/dead-letters/:id", PlatformDeadLettersController, :show
+    post "/dead-letters/:id/retry", PlatformDeadLettersController, :retry
+    patch "/dead-letters/:id/resolve", PlatformDeadLettersController, :resolve
+
+    post "/replays", PlatformReplaysController, :create
+    get "/replays", PlatformReplaysController, :index
+    get "/replays/:id", PlatformReplaysController, :show
+    delete "/replays/:id", PlatformReplaysController, :cancel
+
+    get "/audit-log", PlatformAuditController, :index
+
+    get "/sandbox-endpoints", PlatformSandboxController, :index
+    post "/sandbox-endpoints", PlatformSandboxController, :create
+    delete "/sandbox-endpoints/:id", PlatformSandboxController, :delete
+    get "/sandbox-endpoints/:id/requests", PlatformSandboxController, :requests
+
+    get "/analytics/events-per-day", PlatformAnalyticsController, :events_per_day
+    get "/analytics/deliveries-per-day", PlatformAnalyticsController, :deliveries_per_day
+    get "/analytics/top-topics", PlatformAnalyticsController, :top_topics
+    get "/analytics/webhook-stats", PlatformAnalyticsController, :webhook_stats
 
     get "/jobs", PlatformJobsController, :index
     post "/jobs", PlatformJobsController, :create
@@ -129,12 +190,52 @@ defmodule StreamflixWebWeb.Router do
     patch "/jobs/:id", PlatformJobsController, :update
     delete "/jobs/:id", PlatformJobsController, :delete
     get "/jobs/:id/runs", PlatformJobsController, :runs
+    get "/jobs/cron-preview", PlatformJobsController, :cron_preview
 
     get "/project", PlatformProjectController, :show
     patch "/project", PlatformProjectController, :update
     get "/topics", PlatformProjectController, :topics
     get "/token", PlatformProjectController, :token
     post "/token/regenerate", PlatformProjectController, :regenerate_token
+
+    # Event Schemas (B14)
+    get "/event-schemas", PlatformEventSchemasController, :index
+    post "/event-schemas", PlatformEventSchemasController, :create
+    get "/event-schemas/:id", PlatformEventSchemasController, :show
+    patch "/event-schemas/:id", PlatformEventSchemasController, :update
+    delete "/event-schemas/:id", PlatformEventSchemasController, :delete
+    post "/event-schemas/validate", PlatformEventSchemasController, :validate
+
+    # SSE Stream (B17)
+    get "/stream", PlatformSSEController, :stream
+
+    # Export (B16)
+    get "/export/events", PlatformExportController, :events
+    get "/export/deliveries", PlatformExportController, :deliveries
+    get "/export/jobs", PlatformExportController, :jobs
+    get "/export/audit-log", PlatformExportController, :audit_log
+  end
+
+  # ============================================
+  # API V1 - JWT auth routes (Projects, Teams)
+  # ============================================
+
+  scope "/api/v1", StreamflixWebWeb.Api.V1, as: :api_v1 do
+    pipe_through [:api, :api_auth]
+
+    # Multi-project (B11)
+    get "/projects", PlatformProjectsController, :index
+    post "/projects", PlatformProjectsController, :create
+    get "/projects/:id", PlatformProjectsController, :show
+    patch "/projects/:id", PlatformProjectsController, :update
+    delete "/projects/:id", PlatformProjectsController, :delete
+    patch "/projects/:id/default", PlatformProjectsController, :set_default
+
+    # Team Members (B20)
+    get "/projects/:project_id/members", PlatformMembersController, :index
+    post "/projects/:project_id/members", PlatformMembersController, :create
+    patch "/projects/:project_id/members/:id", PlatformMembersController, :update
+    delete "/projects/:project_id/members/:id", PlatformMembersController, :delete
   end
 
   # ============================================

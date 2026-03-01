@@ -1,0 +1,9 @@
+[
+  verbose: false,
+  private: false,
+  skip: false,
+  router: "lib/streamflix_web_web/router.ex",
+  exit: "low",
+  format: "txt",
+  ignore: ["Config.HTTPS"]
+]

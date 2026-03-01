@@ -67,7 +67,9 @@ defmodule StreamflixWeb.MixProject do
       # Utilities
       {:jason, "~> 1.4"},
       {:dns_cluster, "~> 0.1"},
-      {:plug_cowboy, "~> 2.7"}
+      {:plug_cowboy, "~> 2.7"},
+      {:open_api_spex, "~> 3.22"},
+      {:excoveralls, "~> 0.18", only: :test}
     ]
   end
 
