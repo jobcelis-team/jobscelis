@@ -5093,3 +5093,18 @@ msgstr "new@example.com"
 #, elixir-autogen, elixir-format
 msgid "user.created, order.paid"
 msgstr "user.created, order.paid"
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "¿Regenerar token?"
+msgstr "Regenerate token?"
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "El token actual dejará de funcionar inmediatamente. Asegúrate de actualizar tus integraciones con el nuevo token."
+msgstr "The current token will stop working immediately. Make sure to update your integrations with the new token."
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Sí, regenerar"
+msgstr "Yes, regenerate"
