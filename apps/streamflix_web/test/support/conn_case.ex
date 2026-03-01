@@ -33,7 +33,7 @@ defmodule StreamflixWebWeb.ConnCase do
     |> Ecto.Changeset.change(%{api_key_hash: hash, api_key_prefix: String.slice(token, 0, 8)})
     |> StreamflixCore.Repo.update!()
 
-    conn = put_req_header(conn, "x-api-key", token)
+    conn = Plug.Conn.put_req_header(conn, "x-api-key", token)
     %{conn: conn, project: project, api_token: token}
   end
 end
