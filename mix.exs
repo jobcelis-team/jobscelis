@@ -9,8 +9,13 @@ defmodule Streamflix.MixProject do
       deps: deps(),
       aliases: aliases(),
       releases: releases(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      test_coverage: [tool: ExCoveralls]
     ]
+  end
+
+  def cli do
+    [preferred_envs: [coveralls: :test, "coveralls.detail": :test, "coveralls.html": :test]]
   end
 
   defp deps do
@@ -18,6 +23,7 @@ defmodule Streamflix.MixProject do
       # Dev/Test tools
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:sobelow, "~> 0.14", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false}
     ]
   end

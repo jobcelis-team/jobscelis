@@ -38,7 +38,11 @@ if config_env() == :prod do
     url: database_url,
     pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
-    ssl: [verify: :verify_none],
+    ssl: [
+      verify: :verify_peer,
+      cacerts: :public_key.cacerts_get(),
+      server_name_indication: String.to_charlist(URI.parse(database_url).host)
+    ],
     prepare: :unnamed
 
   # Secret Key Base
@@ -73,6 +77,19 @@ if config_env() == :prod do
   config :streamflix_accounts, StreamflixAccounts.Guardian,
     issuer: "streamflix",
     secret_key: guardian_secret
+
+  # Cloak Vault Key (At-Rest Encryption for webhook secrets)
+  if cloak_key = System.get_env("CLOAK_KEY") do
+    config :streamflix_core, StreamflixCore.Vault,
+      ciphers: [
+        default: {
+          Cloak.Ciphers.AES.GCM,
+          tag: "AES.GCM.V1",
+          key: Base.decode64!(cloak_key),
+          iv_length: 12
+        }
+      ]
+  end
 
   # Erlang Distribution Cookie
   if cookie = System.get_env("NODE_COOKIE") do

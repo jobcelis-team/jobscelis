@@ -29,7 +29,7 @@ defmodule StreamflixAccounts do
     case Repo.insert(changeset) do
       {:ok, user} ->
         api_key_raw =
-          case Platform.create_project(%{user_id: user.id, name: "My Project"}) do
+          case Platform.create_project(%{user_id: user.id, name: "My Project", is_default: true}) do
             {:ok, project} ->
               case Platform.create_api_key(project.id, %{name: "Default"}) do
                 {:ok, _api_key, raw_key} -> raw_key

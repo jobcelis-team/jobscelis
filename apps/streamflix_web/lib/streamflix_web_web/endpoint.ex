@@ -8,6 +8,7 @@ defmodule StreamflixWebWeb.Endpoint do
     store: :cookie,
     key: "_streamflix_web_key",
     signing_salt: "Ig7MA6EW",
+    encryption_salt: "rK3vPx9Q",
     same_site: "Lax",
     max_age: 2_592_000  # 30 días en segundos (para remember me)
   ]
@@ -15,6 +16,9 @@ defmodule StreamflixWebWeb.Endpoint do
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
+
+  socket "/ws", StreamflixWebWeb.UserSocket,
+    websocket: [timeout: 120_000]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -25,6 +29,7 @@ defmodule StreamflixWebWeb.Endpoint do
     at: "/",
     from: {:streamflix_web, "priv/static"},
     gzip: not code_reloading?,
+    brotli: not code_reloading?,
     only: StreamflixWebWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
@@ -50,5 +55,6 @@ defmodule StreamflixWebWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug StreamflixWebWeb.Plugs.CORS
+  plug StreamflixWebWeb.Plugs.Compress
   plug StreamflixWebWeb.Router
 end
