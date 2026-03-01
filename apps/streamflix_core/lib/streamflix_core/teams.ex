@@ -23,19 +23,27 @@ defmodule StreamflixCore.Teams do
 
   def accept_invitation(member_id) do
     case Repo.get(ProjectMember, member_id) do
-      nil -> {:error, :not_found}
+      nil ->
+        {:error, :not_found}
+
       %{status: "pending"} = member ->
         member
         |> ProjectMember.changeset(%{status: "active"})
         |> Repo.update()
-      _ -> {:error, :already_accepted}
+
+      _ ->
+        {:error, :already_accepted}
     end
   end
 
   def remove_member(member_id) do
     case Repo.get(ProjectMember, member_id) do
-      nil -> {:error, :not_found}
-      %{role: "owner"} -> {:error, :cannot_remove_owner}
+      nil ->
+        {:error, :not_found}
+
+      %{role: "owner"} ->
+        {:error, :cannot_remove_owner}
+
       member ->
         member
         |> ProjectMember.changeset(%{status: "removed"})
@@ -45,7 +53,9 @@ defmodule StreamflixCore.Teams do
 
   def update_member_role(member_id, role) do
     case Repo.get(ProjectMember, member_id) do
-      nil -> {:error, :not_found}
+      nil ->
+        {:error, :not_found}
+
       member ->
         member
         |> ProjectMember.changeset(%{role: role})
@@ -72,7 +82,10 @@ defmodule StreamflixCore.Teams do
 
   def get_member_role(project_id, user_id) do
     ProjectMember
-    |> where([m], m.project_id == ^project_id and m.user_id == ^user_id and m.status in ["active", "pending"])
+    |> where(
+      [m],
+      m.project_id == ^project_id and m.user_id == ^user_id and m.status in ["active", "pending"]
+    )
     |> select([m], m.role)
     |> Repo.one()
   end
@@ -82,11 +95,18 @@ defmodule StreamflixCore.Teams do
     project = Repo.get(Project, project_id)
 
     cond do
-      is_nil(project) -> false
-      project.user_id == user_id -> true
+      is_nil(project) ->
+        false
+
+      project.user_id == user_id ->
+        true
+
       true ->
         ProjectMember
-        |> where([m], m.project_id == ^project_id and m.user_id == ^user_id and m.status == "active")
+        |> where(
+          [m],
+          m.project_id == ^project_id and m.user_id == ^user_id and m.status == "active"
+        )
         |> Repo.exists?()
     end
   end
@@ -95,11 +115,19 @@ defmodule StreamflixCore.Teams do
     project = Repo.get(Project, project_id)
 
     cond do
-      is_nil(project) -> false
-      project.user_id == user_id -> true
+      is_nil(project) ->
+        false
+
+      project.user_id == user_id ->
+        true
+
       true ->
         ProjectMember
-        |> where([m], m.project_id == ^project_id and m.user_id == ^user_id and m.status == "active" and m.role in ["owner", "editor"])
+        |> where(
+          [m],
+          m.project_id == ^project_id and m.user_id == ^user_id and m.status == "active" and
+            m.role in ["owner", "editor"]
+        )
         |> Repo.exists?()
     end
   end

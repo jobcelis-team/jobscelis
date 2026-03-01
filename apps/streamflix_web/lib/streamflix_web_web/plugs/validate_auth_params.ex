@@ -29,7 +29,10 @@ defmodule StreamflixWebWeb.Plugs.ValidateAuthParams do
 
     if is_binary(email) and is_binary(password) do
       email = String.trim(email) |> String.downcase()
-      name = params["name"] && (params["name"] |> to_string() |> String.trim() |> String.slice(0, @max_name_len))
+
+      name =
+        params["name"] &&
+          params["name"] |> to_string() |> String.trim() |> String.slice(0, @max_name_len)
 
       cond do
         byte_size(email) > @max_email_len ->
@@ -50,7 +53,9 @@ defmodule StreamflixWebWeb.Plugs.ValidateAuthParams do
           safe = Map.put(safe, "password", password)
           safe = if name, do: Map.put(safe, "name", name), else: safe
           safe = if params["plan"], do: Map.put(safe, "plan", params["plan"]), else: safe
-          safe = if params["remember"], do: Map.put(safe, "remember", params["remember"]), else: safe
+
+          safe =
+            if params["remember"], do: Map.put(safe, "remember", params["remember"]), else: safe
 
           %{conn | params: safe, body_params: safe}
       end

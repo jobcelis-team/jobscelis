@@ -35,7 +35,9 @@ defmodule StreamflixWebWeb.Plugs.ApiKeyAuth do
 
   defp get_api_key(conn) do
     case get_req_header(conn, "authorization") do
-      ["Bearer " <> token] -> token
+      ["Bearer " <> token] ->
+        token
+
       _ ->
         case get_req_header(conn, "x-api-key") do
           [token] -> token

@@ -6,8 +6,8 @@ defmodule StreamflixCore.Schemas.BatchItem do
   @foreign_key_type :binary_id
 
   schema "batch_items" do
-    belongs_to :webhook, StreamflixCore.Schemas.Webhook
-    belongs_to :event, StreamflixCore.Schemas.WebhookEvent
+    belongs_to(:webhook, StreamflixCore.Schemas.Webhook)
+    belongs_to(:event, StreamflixCore.Schemas.WebhookEvent)
 
     timestamps(type: :utc_datetime_usec, updated_at: false)
   end

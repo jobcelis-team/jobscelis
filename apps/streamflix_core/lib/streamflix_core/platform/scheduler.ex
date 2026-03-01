@@ -21,12 +21,14 @@ defmodule StreamflixCore.Platform.Scheduler do
   @impl true
   def handle_info(:tick, state) do
     jobs = Platform.list_jobs_to_run_now()
+
     for job <- jobs do
       case Oban.insert(StreamflixCore.Platform.ObanScheduledJobWorker.new(%{job_id: job.id})) do
         {:ok, _} -> Logger.debug("Scheduled job #{job.id} enqueued")
         {:error, reason} -> Logger.warning("Failed to enqueue job #{job.id}: #{inspect(reason)}")
       end
     end
+
     schedule_next()
     {:noreply, state}
   end

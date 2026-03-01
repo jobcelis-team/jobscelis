@@ -6,14 +6,20 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
   alias StreamflixCore.Audit
   alias StreamflixWebWeb.Schemas
 
-  tags ["Sandbox"]
-  security [%{"api_key" => []}]
+  tags(["Sandbox"])
+  security([%{"api_key" => []}])
 
-  operation :index,
+  operation(:index,
     summary: "List sandbox endpoints",
     responses: [
-      ok: {"Sandbox endpoints list", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{data: %OpenApiSpex.Schema{type: :array, items: Schemas.SandboxEndpoint}}}}
+      ok:
+        {"Sandbox endpoints list", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{data: %OpenApiSpex.Schema{type: :array, items: Schemas.SandboxEndpoint}}
+         }}
     ]
+  )
 
   def index(conn, _params) do
     project = conn.assigns.current_project
@@ -21,13 +27,16 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
     json(conn, %{data: Enum.map(endpoints, &endpoint_json/1)})
   end
 
-  operation :create,
+  operation(:create,
     summary: "Create a sandbox endpoint",
-    request_body: {"Sandbox endpoint attributes", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{name: %OpenApiSpex.Schema{type: :string}}}},
+    request_body:
+      {"Sandbox endpoint attributes", "application/json",
+       %OpenApiSpex.Schema{type: :object, properties: %{name: %OpenApiSpex.Schema{type: :string}}}},
     responses: [
       created: {"Sandbox endpoint created", "application/json", Schemas.SandboxEndpoint},
       unprocessable_entity: {"Creation failed", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def create(conn, params) do
     project = conn.assigns.current_project
@@ -53,13 +62,19 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
     end
   end
 
-  operation :delete,
+  operation(:delete,
     summary: "Delete a sandbox endpoint",
     parameters: [id: [in: :path, type: :string, description: "Sandbox endpoint ID"]],
     responses: [
-      ok: {"Sandbox endpoint deleted", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{status: %OpenApiSpex.Schema{type: :string}}}},
+      ok:
+        {"Sandbox endpoint deleted", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{status: %OpenApiSpex.Schema{type: :string}}
+         }},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def delete(conn, %{"id" => id}) do
     case Platform.delete_sandbox_endpoint(id) do
@@ -68,12 +83,20 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
     end
   end
 
-  operation :requests,
+  operation(:requests,
     summary: "List sandbox endpoint requests",
     parameters: [id: [in: :path, type: :string, description: "Sandbox endpoint ID"]],
     responses: [
-      ok: {"Sandbox requests list", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{data: %OpenApiSpex.Schema{type: :array, items: %OpenApiSpex.Schema{type: :object}}}}}
+      ok:
+        {"Sandbox requests list", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{
+             data: %OpenApiSpex.Schema{type: :array, items: %OpenApiSpex.Schema{type: :object}}
+           }
+         }}
     ]
+  )
 
   def requests(conn, %{"id" => id}) do
     reqs = Platform.list_sandbox_requests(id)

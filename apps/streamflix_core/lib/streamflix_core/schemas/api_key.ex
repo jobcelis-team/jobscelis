@@ -12,14 +12,14 @@ defmodule StreamflixCore.Schemas.ApiKey do
   @valid_scopes ~w(* events:read events:write webhooks:read webhooks:write jobs:read jobs:write deliveries:read deliveries:retry)
 
   schema "api_keys" do
-    field :prefix, :string
-    field :key_hash, :string
-    field :name, :string, default: "Default"
-    field :status, :string, default: "active"
-    field :scopes, {:array, :string}, default: ["*"]
-    field :allowed_ips, {:array, :string}, default: []
+    field(:prefix, :string)
+    field(:key_hash, :string)
+    field(:name, :string, default: "Default")
+    field(:status, :string, default: "active")
+    field(:scopes, {:array, :string}, default: ["*"])
+    field(:allowed_ips, {:array, :string}, default: [])
 
-    belongs_to :project, StreamflixCore.Schemas.Project
+    belongs_to(:project, StreamflixCore.Schemas.Project)
 
     timestamps(type: :utc_datetime_usec)
   end
@@ -35,7 +35,9 @@ defmodule StreamflixCore.Schemas.ApiKey do
 
   defp validate_scopes(changeset) do
     case get_change(changeset, :scopes) do
-      nil -> changeset
+      nil ->
+        changeset
+
       scopes ->
         if Enum.all?(scopes, &(&1 in @valid_scopes)) do
           changeset
