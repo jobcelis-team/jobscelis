@@ -37,11 +37,19 @@ if config_env() == :prod do
     url: database_url,
     pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
-    ssl: [
-      verify: :verify_peer,
-      cacerts: :public_key.cacerts_get(),
-      server_name_indication: String.to_charlist(URI.parse(database_url).host)
-    ],
+    ssl:
+      if File.exists?("/etc/ssl/certs/ca-certificates.crt") do
+        [
+          verify: :verify_peer,
+          cacertfile: ~c"/etc/ssl/certs/ca-certificates.crt",
+          server_name_indication: String.to_charlist(URI.parse(database_url).host),
+          customize_hostname_check: [
+            match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+          ]
+        ]
+      else
+        [verify: :verify_none]
+      end,
     prepare: :unnamed
 
   # Secret Key Base
