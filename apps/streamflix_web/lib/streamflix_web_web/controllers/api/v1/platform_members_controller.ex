@@ -41,17 +41,23 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
     if Teams.user_can_write?(project_id, user.id) do
       user_id =
         case params do
-          %{"user_id" => uid} when is_binary(uid) and uid != "" -> uid
+          %{"user_id" => uid} when is_binary(uid) and uid != "" ->
+            uid
+
           %{"email" => email} when is_binary(email) and email != "" ->
             case StreamflixAccounts.get_user_by_email(email) do
               nil -> nil
               u -> u.id
             end
-          _ -> nil
+
+          _ ->
+            nil
         end
 
       if is_nil(user_id) do
-        conn |> put_status(422) |> json(%{error: "User not found. Provide a valid user_id or email."})
+        conn
+        |> put_status(422)
+        |> json(%{error: "User not found. Provide a valid user_id or email."})
       else
         role = params["role"] || "viewer"
 
