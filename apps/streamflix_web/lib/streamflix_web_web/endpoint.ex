@@ -10,15 +10,15 @@ defmodule StreamflixWebWeb.Endpoint do
     signing_salt: "Ig7MA6EW",
     encryption_salt: "rK3vPx9Q",
     same_site: "Lax",
-    max_age: 2_592_000  # 30 días en segundos (para remember me)
+    # 30 días en segundos (para remember me)
+    max_age: 2_592_000
   ]
 
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
-  socket "/ws", StreamflixWebWeb.UserSocket,
-    websocket: [timeout: 120_000]
+  socket "/ws", StreamflixWebWeb.UserSocket, websocket: [timeout: 120_000]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -48,6 +48,7 @@ defmodule StreamflixWebWeb.Endpoint do
     pass: ["*/*"],
     json_decoder: Phoenix.json_library(),
     length: 256_000
+
   # 256 KB max body (spec §11); for larger uploads use multipart
   plug StreamflixWebWeb.Plugs.SecurityHeaders
 

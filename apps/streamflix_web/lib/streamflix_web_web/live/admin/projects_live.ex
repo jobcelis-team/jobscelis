@@ -9,6 +9,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
   def mount(params, _session, socket) do
     view_id = params["id"]
     page_title = if view_id, do: gettext("Proyecto"), else: gettext("Proyectos")
+
     socket =
       socket
       |> assign(:page_title, page_title)
@@ -38,6 +39,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
     socket =
       if view_id do
         send(self(), {:load_project, view_id})
+
         socket
         |> assign(:page_title, gettext("Proyecto"))
         |> assign(:loading, true)
@@ -55,6 +57,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
       Platform.list_projects(include_inactive: true)
       |> Enum.map(fn p ->
         user = if p.user_id, do: StreamflixAccounts.get_user(p.user_id), else: nil
+
         %{
           id: p.id,
           name: p.name,
@@ -73,6 +76,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
   @impl true
   def handle_info({:load_project, id}, socket) do
     project = Platform.get_project(id)
+
     socket =
       if project do
         events = Platform.list_events(project.id, limit: 30)
@@ -122,44 +126,79 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
 
   defp projects_index(assigns) do
     ~H"""
-    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8"><%= gettext("Proyectos") %></h1>
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">{gettext("Proyectos")}</h1>
 
     <%= if @loading do %>
-      <p class="text-gray-500"><%= gettext("Cargando...") %></p>
+      <p class="text-gray-500">{gettext("Cargando...")}</p>
     <% else %>
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full">
             <thead class="bg-gray-50 border-b">
               <tr>
-                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Proyecto") %></th>
-                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell"><%= gettext("Usuario") %></th>
-                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= gettext("Estado") %></th>
-                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell"><%= gettext("Creado") %></th>
-                <th class="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"><%= gettext("Ver") %></th>
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  {gettext("Proyecto")}
+                </th>
+
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">
+                  {gettext("Usuario")}
+                </th>
+
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  {gettext("Estado")}
+                </th>
+
+                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">
+                  {gettext("Creado")}
+                </th>
+
+                <th class="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  {gettext("Ver")}
+                </th>
               </tr>
             </thead>
+
             <tbody class="divide-y">
               <%= for p <- @projects do %>
                 <tr class="hover:bg-gray-50">
-                  <td class="px-4 sm:px-6 py-3 sm:py-4 font-medium text-gray-900"><%= p.name %></td>
-                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell truncate max-w-[12rem]"><%= p.user_email || "—" %></td>
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 font-medium text-gray-900">{p.name}</td>
+
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell truncate max-w-[12rem]">
+                    {p.user_email || "—"}
+                  </td>
+
                   <td class="px-4 sm:px-6 py-3 sm:py-4">
-                    <span class={["px-2 py-1 rounded text-xs", if(p.status == "active", do: "bg-green-100 text-green-800", else: "bg-gray-200 text-gray-700")]}>
-                      <%= p.status %>
+                    <span class={[
+                      "px-2 py-1 rounded text-xs",
+                      if(p.status == "active",
+                        do: "bg-green-100 text-green-800",
+                        else: "bg-gray-200 text-gray-700"
+                      )
+                    ]}>
+                      {p.status}
                     </span>
                   </td>
-                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-sm hidden sm:table-cell"><%= format_date(p.inserted_at) %></td>
+
+                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-sm hidden sm:table-cell">
+                    {format_date(p.inserted_at)}
+                  </td>
+
                   <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
-                    <.link navigate={"/admin/projects/#{p.id}"} class="text-blue-600 hover:underline text-sm"><%= gettext("Ver") %></.link>
+                    <.link
+                      navigate={"/admin/projects/#{p.id}"}
+                      class="text-blue-600 hover:underline text-sm"
+                    >
+                      {gettext("Ver")}
+                    </.link>
                   </td>
                 </tr>
               <% end %>
             </tbody>
           </table>
         </div>
+
         <%= if @projects == [] do %>
-          <div class="p-8 text-center text-gray-500"><%= gettext("No hay proyectos.") %></div>
+          <div class="p-8 text-center text-gray-500">{gettext("No hay proyectos.")}</div>
         <% end %>
       </div>
     <% end %>
@@ -170,49 +209,54 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
     ~H"""
     <div class="space-y-6 sm:space-y-8">
       <.link navigate="/admin/projects" class="text-blue-600 hover:underline text-sm">
-        ← <%= gettext("Volver a proyectos") %>
+        ← {gettext("Volver a proyectos")}
       </.link>
-
       <%= if @project do %>
         <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2"><%= @project.name %></h1>
-          <p class="text-gray-600">
-            <%= gettext("Usuario") %>: <%= @user_email || "—" %>
-          </p>
+          <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{@project.name}</h1>
+
+          <p class="text-gray-600">{gettext("Usuario")}: {@user_email || "—"}</p>
+
           <p class="text-sm text-gray-500 mt-1 break-all">
-            ID: {@project.id} · <%= gettext("Estado") %>: <%= @project.status %>
+            ID: {@project.id} · {gettext("Estado")}: {@project.status}
           </p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="p-4 border-b font-medium"><%= gettext("Eventos recientes") %> (<%= length(@events) %>)</div>
+            <div class="p-4 border-b font-medium">
+              {gettext("Eventos recientes")} ({length(@events)})
+            </div>
+
             <div class="max-h-64 overflow-y-auto divide-y">
               <%= for e <- @events do %>
                 <div class="p-3 text-sm">
-                  <span class="font-mono text-gray-600"><%= e.topic || "—" %></span>
-                  <span class="text-gray-400 ml-2"><%= format_date(e.occurred_at) %></span>
+                  <span class="font-mono text-gray-600">{e.topic || "—"}</span>
+                  <span class="text-gray-400 ml-2">{format_date(e.occurred_at)}</span>
                 </div>
               <% end %>
+
               <%= if @events == [] do %>
-                <div class="p-4 text-gray-500"><%= gettext("Sin eventos") %></div>
+                <div class="p-4 text-gray-500">{gettext("Sin eventos")}</div>
               <% end %>
             </div>
           </div>
 
           <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="p-4 border-b font-medium"><%= gettext("Webhooks") %> (<%= length(@webhooks) %>)</div>
+            <div class="p-4 border-b font-medium">{gettext("Webhooks")} ({length(@webhooks)})</div>
+
             <div class="max-h-64 overflow-y-auto divide-y">
               <%= for w <- @webhooks do %>
                 <div class="p-3 text-sm">
                   <span class={if(w.status == "active", do: "text-green-700", else: "text-gray-500")}>
-                    <%= w.url %>
+                    {w.url}
                   </span>
-                  <span class="text-gray-400 ml-2"><%= w.status %></span>
+                  <span class="text-gray-400 ml-2">{w.status}</span>
                 </div>
               <% end %>
+
               <%= if @webhooks == [] do %>
-                <div class="p-4 text-gray-500"><%= gettext("Sin webhooks") %></div>
+                <div class="p-4 text-gray-500">{gettext("Sin webhooks")}</div>
               <% end %>
             </div>
           </div>
@@ -220,41 +264,49 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="p-4 border-b font-medium"><%= gettext("Jobs") %> (<%= length(@jobs) %>)</div>
+            <div class="p-4 border-b font-medium">{gettext("Jobs")} ({length(@jobs)})</div>
+
             <div class="max-h-64 overflow-y-auto divide-y">
               <%= for j <- @jobs do %>
                 <div class="p-3 text-sm">
-                  <span><%= j.name || j.id %></span>
-                  <span class="text-gray-400 ml-2"><%= j.schedule_type %> · <%= j.status %></span>
+                  <span>{j.name || j.id}</span>
+                  <span class="text-gray-400 ml-2">{j.schedule_type} · {j.status}</span>
                 </div>
               <% end %>
+
               <%= if @jobs == [] do %>
-                <div class="p-4 text-gray-500"><%= gettext("Sin jobs") %></div>
+                <div class="p-4 text-gray-500">{gettext("Sin jobs")}</div>
               <% end %>
             </div>
           </div>
 
           <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="p-4 border-b font-medium"><%= gettext("Entregas recientes") %> (<%= length(@deliveries) %>)</div>
+            <div class="p-4 border-b font-medium">
+              {gettext("Entregas recientes")} ({length(@deliveries)})
+            </div>
+
             <div class="max-h-64 overflow-y-auto divide-y">
               <%= for d <- @deliveries do %>
                 <div class="p-3 text-sm flex justify-between">
-                  <span><%= d.status %></span>
-                  <span class="text-gray-500"><%= if d.response_status, do: d.response_status, else: "—" %></span>
-                  <span class="text-gray-400"><%= format_date(d.inserted_at) %></span>
+                  <span>{d.status}</span>
+                  <span class="text-gray-500">
+                    {if d.response_status, do: d.response_status, else: "—"}
+                  </span>
+                  <span class="text-gray-400">{format_date(d.inserted_at)}</span>
                 </div>
               <% end %>
+
               <%= if @deliveries == [] do %>
-                <div class="p-4 text-gray-500"><%= gettext("Sin entregas") %></div>
+                <div class="p-4 text-gray-500">{gettext("Sin entregas")}</div>
               <% end %>
             </div>
           </div>
         </div>
       <% else %>
         <%= if @loading do %>
-          <p class="text-gray-500"><%= gettext("Cargando...") %></p>
+          <p class="text-gray-500">{gettext("Cargando...")}</p>
         <% else %>
-          <p class="text-gray-500"><%= gettext("Proyecto no encontrado.") %></p>
+          <p class="text-gray-500">{gettext("Proyecto no encontrado.")}</p>
         <% end %>
       <% end %>
     </div>

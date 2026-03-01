@@ -5,17 +5,25 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
   alias StreamflixCore.Platform
   alias StreamflixWebWeb.Schemas
 
-  tags ["Dead Letter Queue"]
-  security [%{"api_key" => []}]
+  tags(["Dead Letter Queue"])
+  security([%{"api_key" => []}])
 
-  operation :index,
+  operation(:index,
     summary: "List dead letter entries",
     parameters: [
       resolved: [in: :query, type: :string, description: "Filter by resolved status (true/false)"]
     ],
     responses: [
-      ok: {"Dead letters list", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{dead_letters: %OpenApiSpex.Schema{type: :array, items: Schemas.DeadLetter}}}}
+      ok:
+        {"Dead letters list", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{
+             dead_letters: %OpenApiSpex.Schema{type: :array, items: Schemas.DeadLetter}
+           }
+         }}
     ]
+  )
 
   def index(conn, params) do
     project = conn.assigns.current_project
@@ -24,13 +32,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
     json(conn, %{dead_letters: Enum.map(dead_letters, &dl_json/1)})
   end
 
-  operation :show,
+  operation(:show,
     summary: "Get dead letter details",
     parameters: [id: [in: :path, type: :string, description: "Dead letter ID"]],
     responses: [
       ok: {"Dead letter details", "application/json", Schemas.DeadLetter},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def show(conn, %{"id" => id}) do
     case Platform.get_dead_letter(id) do
@@ -48,14 +57,23 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
     end
   end
 
-  operation :retry,
+  operation(:retry,
     summary: "Retry a dead letter delivery",
     parameters: [id: [in: :path, type: :string, description: "Dead letter ID"]],
     responses: [
-      ok: {"Retry initiated", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{status: %OpenApiSpex.Schema{type: :string}, delivery_id: %OpenApiSpex.Schema{type: :string}}}},
+      ok:
+        {"Retry initiated", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{
+             status: %OpenApiSpex.Schema{type: :string},
+             delivery_id: %OpenApiSpex.Schema{type: :string}
+           }
+         }},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse},
       unprocessable_entity: {"Webhook inactive", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def retry(conn, %{"id" => id} = params) do
     project = conn.assigns.current_project
@@ -83,13 +101,19 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
     end
   end
 
-  operation :resolve,
+  operation(:resolve,
     summary: "Resolve a dead letter entry",
     parameters: [id: [in: :path, type: :string, description: "Dead letter ID"]],
     responses: [
-      ok: {"Dead letter resolved", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{status: %OpenApiSpex.Schema{type: :string}}}},
+      ok:
+        {"Dead letter resolved", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{status: %OpenApiSpex.Schema{type: :string}}
+         }},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def resolve(conn, %{"id" => id}) do
     project = conn.assigns.current_project

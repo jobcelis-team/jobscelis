@@ -9,14 +9,14 @@ defmodule StreamflixCore.Schemas.SandboxRequest do
   @foreign_key_type :binary_id
 
   schema "sandbox_requests" do
-    field :method, :string
-    field :path, :string
-    field :headers, :map, default: %{}
-    field :body, :string
-    field :query_params, :map, default: %{}
-    field :ip, :string
+    field(:method, :string)
+    field(:path, :string)
+    field(:headers, :map, default: %{})
+    field(:body, :string)
+    field(:query_params, :map, default: %{})
+    field(:ip, :string)
 
-    belongs_to :endpoint, StreamflixCore.Schemas.SandboxEndpoint
+    belongs_to(:endpoint, StreamflixCore.Schemas.SandboxEndpoint)
 
     timestamps(type: :utc_datetime_usec, updated_at: false)
   end

@@ -5,10 +5,10 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAuditController do
   alias StreamflixCore.Audit
   alias StreamflixWebWeb.Schemas
 
-  tags ["Audit Log"]
-  security [%{"api_key" => []}]
+  tags(["Audit Log"])
+  security([%{"api_key" => []}])
 
-  operation :index,
+  operation(:index,
     summary: "List audit log entries",
     parameters: [
       limit: [in: :query, type: :integer, description: "Max results (1-100, default 50)"],
@@ -16,8 +16,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAuditController do
       resource_type: [in: :query, type: :string, description: "Filter by resource type"]
     ],
     responses: [
-      ok: {"Audit log entries", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{data: %OpenApiSpex.Schema{type: :array, items: Schemas.AuditLogEntry}}}}
+      ok:
+        {"Audit log entries", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{data: %OpenApiSpex.Schema{type: :array, items: Schemas.AuditLogEntry}}
+         }}
     ]
+  )
 
   def index(conn, params) do
     project = conn.assigns.current_project

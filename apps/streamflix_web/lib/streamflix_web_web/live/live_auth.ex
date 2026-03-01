@@ -9,7 +9,7 @@ defmodule StreamflixWebWeb.LiveAuth do
 
   def on_mount(:mount_current_user, _params, session, socket) do
     socket = mount_current_user(socket, session)
-    
+
     # Redirect to login if not authenticated
     if is_nil(socket.assigns.current_user) do
       {:halt, redirect(socket, to: "/login")}
@@ -24,7 +24,7 @@ defmodule StreamflixWebWeb.LiveAuth do
 
   def on_mount(:mount_admin_user, _params, session, socket) do
     socket = mount_current_user(socket, session)
-    
+
     # Check if user is authenticated
     if is_nil(socket.assigns.current_user) do
       {:halt, redirect(socket, to: "/login")}
@@ -32,11 +32,13 @@ defmodule StreamflixWebWeb.LiveAuth do
       # Check if user is admin (for now, check if email contains "admin" or has role field)
       # TODO: Add proper role field to User schema
       is_admin = check_admin(socket.assigns.current_user)
-      
+
       if is_admin do
         {:cont, socket}
       else
-        {:halt, redirect(socket, to: "/") |> put_flash(:error, gettext("Acceso denegado. Se requieren permisos de administrador."))}
+        {:halt,
+         redirect(socket, to: "/")
+         |> put_flash(:error, gettext("Acceso denegado. Se requieren permisos de administrador."))}
       end
     end
   end

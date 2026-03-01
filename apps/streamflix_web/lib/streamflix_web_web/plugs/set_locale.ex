@@ -10,6 +10,7 @@ defmodule StreamflixWebWeb.Plugs.SetLocale do
   def call(conn, _opts) do
     locale = get_locale(conn) |> validate_locale()
     Gettext.put_locale(StreamflixWebWeb.Gettext, locale)
+
     conn
     |> put_session("locale", locale)
     |> assign(:locale, locale)
@@ -30,6 +31,7 @@ defmodule StreamflixWebWeb.Plugs.SetLocale do
   end
 
   defp parse_cookie(nil, _), do: nil
+
   defp parse_cookie(cookie_str, name) do
     cookie_str
     |> String.split(";")

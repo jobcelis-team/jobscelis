@@ -9,12 +9,12 @@ defmodule StreamflixCore.Schemas.EventSchema do
   @foreign_key_type :binary_id
 
   schema "event_schemas" do
-    field :topic, :string
-    field :schema, :map
-    field :version, :integer, default: 1
-    field :status, :string, default: "active"
+    field(:topic, :string)
+    field(:schema, :map)
+    field(:version, :integer, default: 1)
+    field(:status, :string, default: "active")
 
-    belongs_to :project, StreamflixCore.Schemas.Project
+    belongs_to(:project, StreamflixCore.Schemas.Project)
 
     timestamps(type: :utc_datetime_usec)
   end

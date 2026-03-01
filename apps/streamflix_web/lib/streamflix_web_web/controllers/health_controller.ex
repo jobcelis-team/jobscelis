@@ -4,15 +4,16 @@ defmodule StreamflixWebWeb.HealthController do
 
   alias StreamflixWebWeb.Schemas
 
-  tags ["System"]
-  security []
+  tags(["System"])
+  security([])
 
-  operation :index,
+  operation(:index,
     summary: "Check system health status",
     responses: [
       ok: {"System healthy", "application/json", Schemas.HealthResponse},
       service_unavailable: {"System unhealthy", "application/json", Schemas.HealthResponse}
     ]
+  )
 
   def index(conn, _params) do
     db_status =

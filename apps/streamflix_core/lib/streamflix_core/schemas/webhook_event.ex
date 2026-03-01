@@ -10,14 +10,14 @@ defmodule StreamflixCore.Schemas.WebhookEvent do
   @foreign_key_type :binary_id
 
   schema "webhook_events" do
-    field :topic, :string
-    field :payload, :map, default: %{}
-    field :status, :string, default: "active"
-    field :occurred_at, :utc_datetime_usec
-    field :deliver_at, :utc_datetime_usec
+    field(:topic, :string)
+    field(:payload, :map, default: %{})
+    field(:status, :string, default: "active")
+    field(:occurred_at, :utc_datetime_usec)
+    field(:deliver_at, :utc_datetime_usec)
 
-    belongs_to :project, StreamflixCore.Schemas.Project
-    has_many :deliveries, StreamflixCore.Schemas.Delivery, foreign_key: :event_id
+    belongs_to(:project, StreamflixCore.Schemas.Project)
+    has_many(:deliveries, StreamflixCore.Schemas.Delivery, foreign_key: :event_id)
 
     timestamps(type: :utc_datetime_usec)
   end
