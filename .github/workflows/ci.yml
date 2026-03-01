@@ -64,7 +64,7 @@ jobs:
         run: mix credo --min-priority=high
 
       - name: Run Sobelow (security)
-        run: cd apps/streamflix_web && mix sobelow --exit low
+        run: mix sobelow --exit low --app-dir apps/streamflix_web
 
       - name: Setup database
         run: mix ecto.create && mix ecto.migrate
