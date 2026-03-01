@@ -1,80 +1,138 @@
-<Layouts.public flash={@flash} current_user={@current_user} locale={@locale} legal={@legal} active_page={@active_page}>
-    <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Términos de uso") %></h1>
-    <p class="text-slate-500 text-sm mb-8">
-      <%= gettext("Última actualización") %>: <%= Date.utc_today() |> Calendar.strftime("%d/%m/%Y") %>
-    </p>
+<Layouts.public
+  flash={@flash}
+  current_user={@current_user}
+  locale={@locale}
+  legal={@legal}
+  active_page={@active_page}
+>
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Términos de uso")}</h1>
 
-    <div class="prose prose-slate max-w-none text-slate-700 space-y-6">
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">1. <%= gettext("Aceptación") %></h2>
-        <p>
-          <%= gettext("Al utilizar el servicio") %> <strong><%= Map.get(@legal, :product_name, "Jobcelis") %></strong> <%= gettext("(«el Servicio»), aceptas estos Términos de uso. El Servicio es ofrecido por") %> <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>.
-          <%= gettext("Es un servicio gratuito; no se cobra por su uso.") %>
-        </p>
-      </section>
+  <p class="text-slate-500 text-sm mb-8">
+    {gettext("Última actualización")}: {Date.utc_today() |> Calendar.strftime("%d/%m/%Y")}
+  </p>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">2. <%= gettext("Propiedad intelectual y uso del Servicio") %></h2>
-        <p>
-          <%= gettext("El Servicio, su marca, diseño, código y documentación son propiedad de") %> <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>.
-          <%= gettext("No está permitido copiar, clonar, revender ni hacer pasar el Servicio como propio.") %>
-          <%= gettext("Puedes usar el Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación.") %>
-        </p>
-      </section>
+  <div class="prose prose-slate max-w-none text-slate-700 space-y-6">
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">1. {gettext("Aceptación")}</h2>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">2.1. <%= gettext("Originalidad y no afiliación") %></h2>
-        <p>
-          <strong><%= Map.get(@legal, :product_name, "Jobcelis") %></strong> <%= gettext("es un proyecto original desarrollado por") %> <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>.
-          <%= gettext("No estamos afiliados, asociados ni respaldados por ninguna otra empresa, marca o servicio con nombre o funcionalidad similar.") %>
-          <%= gettext("Cualquier parecido con otros nombres o productos es puramente casual y no intencional. Si consideras que existe un conflicto con derechos de terceros, contacta con nosotros para resolverlo.") %>
-        </p>
-      </section>
+      <p>
+        {gettext("Al utilizar el servicio")}
+        <strong>{Map.get(@legal, :product_name, "Jobcelis")}</strong> {gettext(
+          "(«el Servicio»), aceptas estos Términos de uso. El Servicio es ofrecido por"
+        )} <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>. {gettext(
+          "Es un servicio gratuito; no se cobra por su uso."
+        )}
+      </p>
+    </section>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">3. <%= gettext("Uso aceptable") %></h2>
-        <p>
-          <%= gettext("Te comprometes a no usar el Servicio para actividades ilegales, spam, abuso de recursos ni para atacar a terceros.") %>
-          <%= gettext("Nos reservamos el derecho de suspender o dar de baja cuentas que incumplan estos términos.") %>
-        </p>
-      </section>
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        2. {gettext("Propiedad intelectual y uso del Servicio")}
+      </h2>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">4. <%= gettext("Datos y privacidad") %></h2>
-        <p>
-          <%= gettext("El tratamiento de tus datos personales se describe en nuestra") %> <a href="/privacy" class="text-indigo-600 hover:underline"><%= gettext("Política de privacidad") %></a>.
-        </p>
-      </section>
+      <p>
+        {gettext("El Servicio, su marca, diseño, código y documentación son propiedad de")} <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>. {gettext(
+          "No está permitido copiar, clonar, revender ni hacer pasar el Servicio como propio."
+        )} {gettext(
+          "Puedes usar el Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación."
+        )}
+      </p>
+    </section>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">5. <%= gettext("Sin garantía") %></h2>
-        <p>
-          <%= gettext("El Servicio se ofrece «tal cual». No garantizamos disponibilidad ininterrumpida ni ausencia de errores.") %>
-          <%= gettext("En la medida permitida por la ley, no seremos responsables por daños indirectos derivados del uso del Servicio.") %>
-        </p>
-      </section>
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        2.1. {gettext("Originalidad y no afiliación")}
+      </h2>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">6. <%= gettext("Cambios") %></h2>
-        <p>
-          <%= gettext("Podemos modificar estos Términos. Los cambios se publicarán en esta página con una nueva fecha de «Última actualización».") %>
-          <%= gettext("El uso continuado del Servicio tras los cambios implica la aceptación de los nuevos términos.") %>
-        </p>
-      </section>
+      <p>
+        <strong>{Map.get(@legal, :product_name, "Jobcelis")}</strong> {gettext(
+          "es un proyecto original desarrollado por"
+        )} <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>. {gettext(
+          "No estamos afiliados, asociados ni respaldados por ninguna otra empresa, marca o servicio con nombre o funcionalidad similar."
+        )} {gettext(
+          "Cualquier parecido con otros nombres o productos es puramente casual y no intencional. Si consideras que existe un conflicto con derechos de terceros, contacta con nosotros para resolverlo."
+        )}
+      </p>
+    </section>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">7. <%= gettext("Contacto") %></h2>
-        <p>
-          <%= gettext("Para dudas sobre estos Términos, contacta al titular del Servicio:") %> <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>.
-          <%= if Map.get(@legal, :contact_url) || Map.get(@legal, :profile_url) do %>
-            <%= gettext("Puedes contactarme por") %>
-            <%= if url = Map.get(@legal, :contact_url) do %>
-              <a href={url} target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">GitHub</a><%= if Map.get(@legal, :profile_url), do: " " <> gettext("o") <> " ", else: "." %>
-            <% end %><%= if url = Map.get(@legal, :profile_url) do %>
-              <a href={url} target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline"><%= gettext("mi perfil") %></a>.
-            <% end %>
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        3. {gettext("Uso aceptable")}
+      </h2>
+
+      <p>
+        {gettext(
+          "Te comprometes a no usar el Servicio para actividades ilegales, spam, abuso de recursos ni para atacar a terceros."
+        )} {gettext(
+          "Nos reservamos el derecho de suspender o dar de baja cuentas que incumplan estos términos."
+        )}
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        4. {gettext("Datos y privacidad")}
+      </h2>
+
+      <p>
+        {gettext("El tratamiento de tus datos personales se describe en nuestra")} <a
+          href="/privacy"
+          class="text-indigo-600 hover:underline"
+        ><%= gettext("Política de privacidad") %></a>.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">5. {gettext("Sin garantía")}</h2>
+
+      <p>
+        {gettext(
+          "El Servicio se ofrece «tal cual». No garantizamos disponibilidad ininterrumpida ni ausencia de errores."
+        )} {gettext(
+          "En la medida permitida por la ley, no seremos responsables por daños indirectos derivados del uso del Servicio."
+        )}
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">6. {gettext("Cambios")}</h2>
+
+      <p>
+        {gettext(
+          "Podemos modificar estos Términos. Los cambios se publicarán en esta página con una nueva fecha de «Última actualización»."
+        )} {gettext(
+          "El uso continuado del Servicio tras los cambios implica la aceptación de los nuevos términos."
+        )}
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">7. {gettext("Contacto")}</h2>
+
+      <p>
+        {gettext("Para dudas sobre estos Términos, contacta al titular del Servicio:")} <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>.
+        <%= if Map.get(@legal, :contact_url) || Map.get(@legal, :profile_url) do %>
+          {gettext("Puedes contactarme por")}
+          <%= if url = Map.get(@legal, :contact_url) do %>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-indigo-600 hover:underline"
+            >GitHub</a>{if Map.get(@legal, :profile_url),
+              do: " " <> gettext("o") <> " ",
+              else: "."}
           <% end %>
-        </p>
-      </section>
-    </div>
+          <%= if url = Map.get(@legal, :profile_url) do %>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-indigo-600 hover:underline"
+            ><%= gettext("mi perfil") %></a>.
+          <% end %>
+        <% end %>
+      </p>
+    </section>
+  </div>
 </Layouts.public>

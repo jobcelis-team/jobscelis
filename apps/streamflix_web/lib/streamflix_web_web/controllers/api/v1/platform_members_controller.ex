@@ -5,13 +5,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
   alias StreamflixCore.Teams
   alias StreamflixCore.Notifications
 
-  tags ["Team Members"]
-  security [%{"bearer" => []}]
+  tags(["Team Members"])
+  security([%{"bearer" => []}])
 
-  operation :index,
+  operation(:index,
     summary: "List project members",
     parameters: [project_id: [in: :path, type: :string, required: true]],
     responses: [ok: {"Members list", "application/json", StreamflixWebWeb.Schemas.MemberList}]
+  )
 
   def index(conn, %{"project_id" => project_id}) do
     user = conn.assigns.current_user
@@ -24,11 +25,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
     end
   end
 
-  operation :create,
+  operation(:create,
     summary: "Invite a member to a project",
     parameters: [project_id: [in: :path, type: :string, required: true]],
     request_body: {"Invite params", "application/json", StreamflixWebWeb.Schemas.MemberInvite},
-    responses: [created: {"Member invited", "application/json", StreamflixWebWeb.Schemas.MemberResponse}]
+    responses: [
+      created: {"Member invited", "application/json", StreamflixWebWeb.Schemas.MemberResponse}
+    ]
+  )
 
   def create(conn, %{"project_id" => project_id} = params) do
     user = conn.assigns.current_user
@@ -62,14 +66,17 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
     end
   end
 
-  operation :update,
+  operation(:update,
     summary: "Update member role",
     parameters: [
       project_id: [in: :path, type: :string, required: true],
       id: [in: :path, type: :string, required: true]
     ],
     request_body: {"Role params", "application/json", StreamflixWebWeb.Schemas.MemberUpdate},
-    responses: [ok: {"Member updated", "application/json", StreamflixWebWeb.Schemas.MemberResponse}]
+    responses: [
+      ok: {"Member updated", "application/json", StreamflixWebWeb.Schemas.MemberResponse}
+    ]
+  )
 
   def update(conn, %{"project_id" => project_id, "id" => id} = params) do
     user = conn.assigns.current_user
@@ -78,32 +85,47 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
       role = params["role"]
 
       case Teams.update_member_role(id, role) do
-        {:ok, updated} -> json(conn, %{data: member_json(updated)})
-        {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "Member not found"})
-        {:error, _} -> conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not update"})
+        {:ok, updated} ->
+          json(conn, %{data: member_json(updated)})
+
+        {:error, :not_found} ->
+          conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+
+        {:error, _} ->
+          conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not update"})
       end
     else
       conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
     end
   end
 
-  operation :delete,
+  operation(:delete,
     summary: "Remove member from project",
     parameters: [
       project_id: [in: :path, type: :string, required: true],
       id: [in: :path, type: :string, required: true]
     ],
-    responses: [ok: {"Member removed", "application/json", StreamflixWebWeb.Schemas.MemberResponse}]
+    responses: [
+      ok: {"Member removed", "application/json", StreamflixWebWeb.Schemas.MemberResponse}
+    ]
+  )
 
   def delete(conn, %{"project_id" => project_id, "id" => id}) do
     user = conn.assigns.current_user
 
     if Teams.user_can_write?(project_id, user.id) do
       case Teams.remove_member(id) do
-        {:ok, _} -> json(conn, %{ok: true})
-        {:error, :cannot_remove_owner} -> conn |> put_status(:unprocessable_entity) |> json(%{error: "Cannot remove owner"})
-        {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "Member not found"})
-        {:error, _} -> conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not remove"})
+        {:ok, _} ->
+          json(conn, %{ok: true})
+
+        {:error, :cannot_remove_owner} ->
+          conn |> put_status(:unprocessable_entity) |> json(%{error: "Cannot remove owner"})
+
+        {:error, :not_found} ->
+          conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+
+        {:error, _} ->
+          conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not remove"})
       end
     else
       conn |> put_status(:forbidden) |> json(%{error: "Access denied"})

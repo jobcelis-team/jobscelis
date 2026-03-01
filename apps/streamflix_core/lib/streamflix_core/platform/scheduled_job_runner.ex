@@ -8,6 +8,7 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
 
   def run(job_id) do
     job = Repo.get(Job, job_id) |> Repo.preload(:project)
+
     if job && job.status == "active" do
       do_run(job)
     else
@@ -29,6 +30,7 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
     payload = cfg["payload"] || %{}
     payload = maybe_substitute_date(payload)
     body = if topic, do: Map.put(payload, "topic", topic), else: payload
+
     case Platform.create_event(job.project_id, body) do
       {:ok, event} -> record_run(job, "success", %{event_id: event.id})
       {:error, _} -> record_run(job, "failed", %{})
@@ -40,6 +42,7 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
     url = cfg["url"]
     payload = cfg["payload"] || %{}
     payload = maybe_substitute_date(payload)
+
     if is_binary(url) and url != "" do
       case Req.post(url, json: payload, receive_timeout: 15_000, finch: StreamflixCore.Finch) do
         {:ok, %{status: status}} -> record_run(job, "success", %{response_status: status})
@@ -52,15 +55,19 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
 
   defp maybe_substitute_date(payload) when is_map(payload) do
     now = DateTime.utc_now() |> DateTime.to_iso8601()
+
     for {k, v} <- payload, into: %{} do
-      v2 = cond do
-        v == "{{date}}" or v == "{{ date }}" -> now
-        is_map(v) -> maybe_substitute_date(v)
-        true -> v
-      end
+      v2 =
+        cond do
+          v == "{{date}}" or v == "{{ date }}" -> now
+          is_map(v) -> maybe_substitute_date(v)
+          true -> v
+        end
+
       {k, v2}
     end
   end
+
   defp maybe_substitute_date(v), do: v
 
   defp record_run(job, status, result) do
@@ -70,7 +77,8 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
         executed_at: DateTime.utc_now() |> DateTime.truncate(:microsecond),
         status: status,
         result: result
-      }) |> Repo.insert()
+      })
+      |> Repo.insert()
 
     if status == "failed" and job.project do
       project = job.project

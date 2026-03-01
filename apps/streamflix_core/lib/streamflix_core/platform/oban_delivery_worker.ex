@@ -33,7 +33,9 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
 
   defp get_retry_config(delivery_id) do
     case StreamflixCore.Repo.get(StreamflixCore.Schemas.Delivery, delivery_id) do
-      nil -> %{}
+      nil ->
+        %{}
+
       d ->
         case StreamflixCore.Repo.get(StreamflixCore.Schemas.Webhook, d.webhook_id) do
           nil -> %{}
@@ -44,6 +46,7 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
 
   defp get_retry_delays(delivery_id) do
     config = get_retry_config(delivery_id)
+
     case config["backoff_seconds"] do
       delays when is_list(delays) and delays != [] -> delays
       _ -> @default_backoff

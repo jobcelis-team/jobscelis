@@ -26,6 +26,7 @@ defmodule StreamflixWebWeb.Router do
         {"POST", "/api/v1/auth/refresh", 30}
       ],
       window_sec: 60
+
     plug StreamflixWebWeb.Plugs.ValidateAuthParams
   end
 
@@ -245,7 +246,11 @@ defmodule StreamflixWebWeb.Router do
   scope "/", StreamflixWebWeb do
     pipe_through [:browser]
 
-    live_session :default, on_mount: [{StreamflixWebWeb.LiveLocale, :set}, {StreamflixWebWeb.LiveAuth, :mount_current_user}] do
+    live_session :default,
+      on_mount: [
+        {StreamflixWebWeb.LiveLocale, :set},
+        {StreamflixWebWeb.LiveAuth, :mount_current_user}
+      ] do
       live "/account", AccountLive, :index
       live "/platform", PlatformDashboardLive, :index
     end
@@ -258,7 +263,11 @@ defmodule StreamflixWebWeb.Router do
   scope "/admin", StreamflixWebWeb.Admin do
     pipe_through [:browser]
 
-    live_session :admin, on_mount: [{StreamflixWebWeb.LiveLocale, :set}, {StreamflixWebWeb.LiveAuth, :mount_admin_user}] do
+    live_session :admin,
+      on_mount: [
+        {StreamflixWebWeb.LiveLocale, :set},
+        {StreamflixWebWeb.LiveAuth, :mount_admin_user}
+      ] do
       live "/", DashboardLive, :index
       live "/users", UsersLive, :index
       live "/projects", ProjectsLive, :index

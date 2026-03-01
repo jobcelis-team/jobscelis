@@ -14,40 +14,46 @@
     <link rel="icon" type="image/png" sizes="48x48" href={~p"/images/favicon-48x48.png"} />
     <link rel="icon" type="image/png" sizes="192x192" href={~p"/images/logo.png"} />
     <link rel="apple-touch-icon" sizes="180x180" href={~p"/images/logo.png"} />
-    <meta name="theme-color" content="#0f172a" />
-    <%!-- SEO: Brand and Open Graph --%>
+    <meta name="theme-color" content="#0f172a" /> <%!-- SEO: Brand and Open Graph --%>
     <meta name="application-name" content="Jobcelis" />
-    <meta name="description" content="Events, webhooks and scheduled jobs platform for developers. Send events with a simple POST and trigger webhooks in real time." />
-    <meta property="og:site_name" content="Jobcelis" />
+    <meta
+      name="description"
+      content="Events, webhooks and scheduled jobs platform for developers. Send events with a simple POST and trigger webhooks in real time."
+    /> <meta property="og:site_name" content="Jobcelis" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://jobcelis.com" />
     <meta property="og:title" content="Jobcelis · Events, webhooks and jobs" />
-    <meta property="og:description" content="Events, webhooks and scheduled jobs platform for developers." />
-    <meta property="og:image" content="https://jobcelis.com/images/logo.png" />
-    <%!-- Twitter Cards --%>
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      property="og:description"
+      content="Events, webhooks and scheduled jobs platform for developers."
+    /> <meta property="og:image" content="https://jobcelis.com/images/logo.png" />
+    <%!-- Twitter Cards --%> <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Jobcelis · Events, webhooks and jobs" />
-    <meta name="twitter:description" content="Events, webhooks and scheduled jobs platform for developers." />
-    <meta name="twitter:image" content="https://jobcelis.com/images/logo.png" />
+    <meta
+      name="twitter:description"
+      content="Events, webhooks and scheduled jobs platform for developers."
+    /> <meta name="twitter:image" content="https://jobcelis.com/images/logo.png" />
     <%!-- Schema.org: For Google to recognize logo and application type --%>
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Jobcelis",
-      "url": "https://jobcelis.com",
-      "logo": "https://jobcelis.com/images/logo.png",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "Web",
-      "description": "Events, webhooks and scheduled jobs platform for developers. Send events with a simple POST and trigger webhooks in real time."
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Jobcelis",
+        "url": "https://jobcelis.com",
+        "logo": "https://jobcelis.com/images/logo.png",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "description": "Events, webhooks and scheduled jobs platform for developers. Send events with a simple POST and trigger webhooks in real time."
+      }
     </script>
+
     <.live_title default="Jobcelis" suffix=" · Eventos, webhooks y jobs">
       {assigns[:page_title]}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
+
     <script>
       (() => {
         const setTheme = (theme) => {
@@ -68,7 +74,6 @@
       })();
     </script>
   </head>
-  <body>
-    {@inner_content}
-  </body>
+
+  <body>{@inner_content}</body>
 </html>

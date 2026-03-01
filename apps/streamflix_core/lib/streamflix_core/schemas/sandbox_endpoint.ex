@@ -10,12 +10,12 @@ defmodule StreamflixCore.Schemas.SandboxEndpoint do
   @foreign_key_type :binary_id
 
   schema "sandbox_endpoints" do
-    field :slug, :string
-    field :name, :string
-    field :expires_at, :utc_datetime_usec
+    field(:slug, :string)
+    field(:name, :string)
+    field(:expires_at, :utc_datetime_usec)
 
-    belongs_to :project, StreamflixCore.Schemas.Project
-    has_many :requests, StreamflixCore.Schemas.SandboxRequest, foreign_key: :endpoint_id
+    belongs_to(:project, StreamflixCore.Schemas.Project)
+    has_many(:requests, StreamflixCore.Schemas.SandboxRequest, foreign_key: :endpoint_id)
 
     timestamps(type: :utc_datetime_usec)
   end
