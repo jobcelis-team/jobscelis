@@ -48,7 +48,7 @@ config :streamflix_web, StreamflixWebWeb.Endpoint,
   live_view: [signing_salt: "change_this_in_runtime"]
 
 # ============================================
-# STREAMFLIX_ACCOUNTS CONFIG (Guardian)
+# STREAMFLIX_ACCOUNTS CONFIG (Guardian + Password Hashing)
 # Secrets configured in runtime.exs
 # ============================================
 
@@ -56,6 +56,24 @@ config :streamflix_accounts, StreamflixAccounts.Guardian,
   issuer: "streamflix",
   secret_key: "configured_in_runtime",
   ttl: {7, :days}
+
+# PBKDF2 with 210,000 rounds (OWASP-compliant for SHA-512)
+config :pbkdf2_elixir, rounds: 210_000
+
+# ============================================
+# CLOAK VAULT CONFIG (At-Rest Encryption)
+# Default dev key below; production key in runtime.exs via CLOAK_KEY env var
+# ============================================
+
+config :streamflix_core, StreamflixCore.Vault,
+  ciphers: [
+    default: {
+      Cloak.Ciphers.AES.GCM,
+      tag: "AES.GCM.V1",
+      key: Base.decode64!("dGVzdF9rZXlfMzJfYnl0ZXNfbG9uZ19mb3JfZGV2"),
+      iv_length: 12
+    }
+  ]
 
 # ============================================
 # LOGGER CONFIG
@@ -83,7 +101,16 @@ config :streamflix_core, Oban,
   queues: [
     delivery: 10,
     scheduled_job: 1,
+    replay: 3,
     default: 5
+  ],
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"* * * * *", StreamflixCore.Platform.ObanDelayedEventsWorker},
+       {"* * * * *", StreamflixCore.Platform.ObanBatchWorker},
+       {"0 3 * * 0", StreamflixCore.Platform.ObanPurgeWorker}
+     ]}
   ]
 
 # ============================================

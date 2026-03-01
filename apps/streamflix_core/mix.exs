@@ -35,7 +35,13 @@ defmodule StreamflixCore.MixProject do
       {:oban, "~> 2.20"},
       {:jason, "~> 1.4"},
       {:req, "~> 0.5"},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:cachex, "~> 4.0"},
+      {:cloak_ecto, "~> 1.3"},
+      {:cloak, "~> 1.1"},
+      {:ex_json_schema, "~> 0.10"},
+      {:logger_json, "~> 7.0"},
+      {:ex_machina, "~> 2.8", only: :test}
     ]
   end
 
