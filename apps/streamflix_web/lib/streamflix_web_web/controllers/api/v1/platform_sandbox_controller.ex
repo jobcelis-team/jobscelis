@@ -6,6 +6,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
   alias StreamflixCore.Audit
   alias StreamflixWebWeb.Schemas
 
+  alias StreamflixWebWeb.Plugs.RequireScope
+
+  plug RequireScope, "sandbox:read" when action in [:index, :requests]
+  plug RequireScope, "sandbox:write" when action in [:create, :delete]
+
   tags(["Sandbox"])
   security([%{"api_key" => []}])
 
@@ -77,9 +82,21 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
   )
 
   def delete(conn, %{"id" => id}) do
-    case Platform.delete_sandbox_endpoint(id) do
-      {:ok, _} -> json(conn, %{status: "deleted"})
-      {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
+    project = conn.assigns.current_project
+
+    case Platform.get_sandbox_endpoint(id) do
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      ep ->
+        if ep.project_id != project.id do
+          conn |> put_status(:not_found) |> json(%{error: "not_found"})
+        else
+          case Platform.delete_sandbox_endpoint(id) do
+            {:ok, _} -> json(conn, %{status: "deleted"})
+            {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
+          end
+        end
     end
   end
 
@@ -99,8 +116,20 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
   )
 
   def requests(conn, %{"id" => id}) do
-    reqs = Platform.list_sandbox_requests(id)
-    json(conn, %{data: Enum.map(reqs, &request_json/1)})
+    project = conn.assigns.current_project
+
+    case Platform.get_sandbox_endpoint(id) do
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      ep ->
+        if ep.project_id != project.id do
+          conn |> put_status(:not_found) |> json(%{error: "not_found"})
+        else
+          reqs = Platform.list_sandbox_requests(id)
+          json(conn, %{data: Enum.map(reqs, &request_json/1)})
+        end
+    end
   end
 
   defp endpoint_json(ep) do

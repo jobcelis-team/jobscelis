@@ -68,6 +68,20 @@ defmodule StreamflixCore.Notifications do
     {:ok, count}
   end
 
+  def mark_invite_read(user_id, member_id) do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    Notification
+    |> where(
+      [n],
+      n.user_id == ^user_id and n.type == "team_invite" and n.read == false and
+        fragment("?->>'member_id' = ?", n.metadata, ^member_id)
+    )
+    |> Repo.update_all(set: [read: true, read_at: now, updated_at: now])
+
+    :ok
+  end
+
   # --- Notification triggers (called from workers/platform) ---
 
   def notify_webhook_failing(user_id, project_id, webhook_url) do

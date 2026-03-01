@@ -5,6 +5,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
   alias StreamflixCore.Platform
   alias StreamflixWebWeb.Schemas
 
+  alias StreamflixWebWeb.Plugs.RequireScope
+
+  plug RequireScope, "dead_letters:read" when action in [:index, :show]
+  plug RequireScope, "dead_letters:write" when action in [:retry, :resolve]
+
   tags(["Dead Letter Queue"])
   security([%{"api_key" => []}])
 

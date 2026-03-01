@@ -36,6 +36,30 @@ defmodule StreamflixCore.Teams do
     end
   end
 
+  def reject_invitation(member_id) do
+    case Repo.get(ProjectMember, member_id) do
+      nil ->
+        {:error, :not_found}
+
+      %{status: "pending"} = member ->
+        member
+        |> ProjectMember.changeset(%{status: "removed"})
+        |> Repo.update()
+
+      _ ->
+        {:error, :not_pending}
+    end
+  end
+
+  def list_pending_invitations(user_id) do
+    ProjectMember
+    |> where([m], m.user_id == ^user_id and m.status == "pending")
+    |> join(:inner, [m], p in Project, on: p.id == m.project_id)
+    |> select([m, p], %{id: m.id, role: m.role, project_id: p.id, project_name: p.name})
+    |> order_by([m], desc: m.inserted_at)
+    |> Repo.all()
+  end
+
   def remove_member(member_id) do
     case Repo.get(ProjectMember, member_id) do
       nil ->

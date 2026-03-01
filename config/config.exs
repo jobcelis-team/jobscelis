@@ -48,6 +48,15 @@ config :streamflix_web, StreamflixWebWeb.Endpoint,
   live_view: [signing_salt: "change_this_in_runtime"]
 
 # ============================================
+# MAILER CONFIG (Resend API)
+# API key configured in runtime.exs
+# ============================================
+
+config :streamflix_web, StreamflixWebWeb.Mailer,
+  from_email: "noreply@jobcelis.com",
+  from_name: "Jobcelis"
+
+# ============================================
 # STREAMFLIX_ACCOUNTS CONFIG (Guardian + Password Hashing)
 # Secrets configured in runtime.exs
 # ============================================

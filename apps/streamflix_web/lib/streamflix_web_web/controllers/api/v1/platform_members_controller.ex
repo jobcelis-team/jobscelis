@@ -3,6 +3,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
   use OpenApiSpex.ControllerSpecs
 
   alias StreamflixCore.Teams
+  alias StreamflixCore.Platform
   alias StreamflixCore.Notifications
   alias StreamflixAccounts
 
@@ -60,20 +61,32 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
         |> json(%{error: "User not found. Provide a valid user_id or email."})
       else
         role = params["role"] || "viewer"
+        inviter_role = Teams.get_member_role(project_id, user.id)
+        is_owner = inviter_role == "owner" || Platform.get_project(project_id).user_id == user.id
 
-        case Teams.invite_member(project_id, user_id, role, user.id) do
-          {:ok, member} ->
-            # Notify the invited user
-            Notifications.notify_team_invite(user_id, project_id, role, member.id)
+        cond do
+          user_id == user.id ->
+            conn |> put_status(422) |> json(%{error: "Cannot invite yourself"})
 
+          role in ["editor", "owner"] && !is_owner ->
             conn
-            |> put_status(:created)
-            |> json(%{data: member_json(member)})
+            |> put_status(:forbidden)
+            |> json(%{error: "Only the project owner can invite editors"})
 
-          {:error, changeset} ->
-            conn
-            |> put_status(:unprocessable_entity)
-            |> json(%{error: "Invalid invite", details: format_errors(changeset)})
+          true ->
+            case Teams.invite_member(project_id, user_id, role, user.id) do
+              {:ok, member} ->
+                Notifications.notify_team_invite(user_id, project_id, role, member.id)
+
+                conn
+                |> put_status(:created)
+                |> json(%{data: member_json(member)})
+
+              {:error, changeset} ->
+                conn
+                |> put_status(:unprocessable_entity)
+                |> json(%{error: "Invalid invite", details: format_errors(changeset)})
+            end
         end
       end
     else
@@ -144,6 +157,85 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
       end
     else
       conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
+    end
+  end
+
+  operation(:pending,
+    summary: "List pending invitations for the authenticated user",
+    responses: [
+      ok: {"Pending invitations", "application/json", StreamflixWebWeb.Schemas.MemberList}
+    ]
+  )
+
+  def pending(conn, _params) do
+    user = conn.assigns.current_user
+    invitations = Teams.list_pending_invitations(user.id)
+    json(conn, %{data: invitations})
+  end
+
+  operation(:accept,
+    summary: "Accept a pending invitation",
+    parameters: [id: [in: :path, type: :string, required: true]],
+    responses: [
+      ok: {"Invitation accepted", "application/json", StreamflixWebWeb.Schemas.MemberResponse}
+    ]
+  )
+
+  def accept(conn, %{"id" => id}) do
+    user = conn.assigns.current_user
+
+    case Teams.get_member(id) do
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "Invitation not found"})
+
+      member ->
+        if member.user_id == user.id do
+          case Teams.accept_invitation(id) do
+            {:ok, updated} ->
+              json(conn, %{data: member_json(updated)})
+
+            {:error, :already_accepted} ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: "Already accepted"})
+
+            {:error, _} ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not accept"})
+          end
+        else
+          conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
+        end
+    end
+  end
+
+  operation(:reject,
+    summary: "Reject a pending invitation",
+    parameters: [id: [in: :path, type: :string, required: true]],
+    responses: [
+      ok: {"Invitation rejected", "application/json", StreamflixWebWeb.Schemas.MemberResponse}
+    ]
+  )
+
+  def reject(conn, %{"id" => id}) do
+    user = conn.assigns.current_user
+
+    case Teams.get_member(id) do
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "Invitation not found"})
+
+      member ->
+        if member.user_id == user.id do
+          case Teams.reject_invitation(id) do
+            {:ok, updated} ->
+              json(conn, %{data: member_json(updated)})
+
+            {:error, :not_pending} ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: "Not pending"})
+
+            {:error, _} ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not reject"})
+          end
+        else
+          conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
+        end
     end
   end
 

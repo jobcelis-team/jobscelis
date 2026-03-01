@@ -123,6 +123,11 @@ defmodule StreamflixWebWeb.Router do
     post "/signup", AuthController, :register
     delete "/logout", AuthController, :logout
     get "/logout", AuthController, :logout
+    get "/forgot-password", PageController, :forgot_password
+    post "/forgot-password", AuthController, :forgot_password
+    get "/reset-password/:token", PageController, :reset_password
+    post "/reset-password/:token", AuthController, :reset_password
+    get "/confirm-email/:token", AuthController, :confirm_email
   end
 
   # ============================================
@@ -237,6 +242,11 @@ defmodule StreamflixWebWeb.Router do
     post "/projects/:project_id/members", PlatformMembersController, :create
     patch "/projects/:project_id/members/:id", PlatformMembersController, :update
     delete "/projects/:project_id/members/:id", PlatformMembersController, :delete
+
+    # Invitations
+    get "/invitations/pending", PlatformMembersController, :pending
+    post "/invitations/:id/accept", PlatformMembersController, :accept
+    post "/invitations/:id/reject", PlatformMembersController, :reject
   end
 
   # ============================================

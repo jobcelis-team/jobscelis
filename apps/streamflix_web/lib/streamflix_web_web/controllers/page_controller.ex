@@ -27,6 +27,8 @@ defmodule StreamflixWebWeb.PageController do
   def pricing(conn, _params), do: render(conn, :pricing, active_page: :pricing)
   def cookies(conn, _params), do: render(conn, :cookies, active_page: :cookies)
   def changelog(conn, _params), do: render(conn, :changelog, active_page: :changelog)
+  def forgot_password(conn, _params), do: render(conn, :forgot_password)
+  def reset_password(conn, %{"token" => token}), do: render(conn, :reset_password, token: token)
 
   def set_locale(conn, %{"locale" => locale}) do
     locale = if locale in ["es", "en"], do: locale, else: "en"

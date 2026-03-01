@@ -3207,9 +3207,72 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
               </div>
             </div>
 
-            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
+            <h3 class="text-lg font-semibold text-slate-800 mt-6 mb-3">
+              {gettext("Invitaciones")}
+            </h3>
+
+            <div class="space-y-4">
+              <div class="border border-slate-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-700">
+                    GET
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    /api/v1/invitations/pending
+                  </code>
+                </div>
+
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Lista las invitaciones pendientes del usuario autenticado. Devuelve id, role, project_id y project_name."
+                  )}
+                </p>
+                <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono">curl -X GET "<%= @base_url %>/api/v1/invitations/pending" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</pre>
+              </div>
+
+              <div class="border border-slate-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700">
+                    POST
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    /api/v1/invitations/:id/accept
+                  </code>
+                </div>
+
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Acepta una invitación pendiente. Solo el usuario invitado puede aceptarla. Cambia el status a 'active'."
+                  )}
+                </p>
+                <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono">curl -X POST "<%= @base_url %>/api/v1/invitations/MEMBER_ID/accept" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</pre>
+              </div>
+
+              <div class="border border-slate-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700">
+                    POST
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    /api/v1/invitations/:id/reject
+                  </code>
+                </div>
+
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Rechaza una invitación pendiente. Solo el usuario invitado puede rechazarla. Cambia el status a 'removed'."
+                  )}
+                </p>
+                <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono">curl -X POST "<%= @base_url %>/api/v1/invitations/MEMBER_ID/reject" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</pre>
+              </div>
+            </div>
+
+            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800 mt-4">
               {gettext(
-                "En el dashboard, busca la sección 'Equipo'. Puedes invitar por email, cambiar roles y remover miembros desde la interfaz."
+                "En el dashboard, busca la sección 'Equipo'. Puedes invitar por email, cambiar roles y remover miembros desde la interfaz. Las invitaciones pendientes aparecen como banner y en las notificaciones."
               )}
             </div>
           </div>

@@ -13,7 +13,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     project = Enum.find(projects, & &1.is_default) || List.first(projects)
     api_key = if project, do: Platform.get_api_key_for_project(project.id), else: nil
     events = if project, do: Platform.list_events(project.id, limit: 20), else: []
-    webhooks = if project, do: Platform.list_webhooks(project.id), else: []
+
+    webhooks =
+      if project, do: Platform.list_webhooks(project.id, include_inactive: true), else: []
+
     webhook_health = if project, do: Platform.webhooks_health(project.id), else: %{}
     jobs = if project, do: Platform.list_jobs(project.id, include_inactive: true), else: []
 
@@ -26,9 +29,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     sandbox_endpoints = if project, do: Platform.list_sandbox_endpoints(project.id), else: []
     event_schemas = if project, do: Platform.list_event_schemas(project.id), else: []
     team_members = if project, do: Teams.list_members(project.id), else: []
+    current_user_role = compute_user_role(project, user)
     analytics = if project, do: load_analytics(project.id), else: %{}
     notifications = Notifications.list_for_user(user.id, limit: 10)
     unread_count = Notifications.unread_count(user.id)
+    pending_invitations = Teams.list_pending_invitations(user.id)
 
     # Check if we have a fresh API key from registration
     {new_token, token_source} =
@@ -64,6 +69,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:audit_logs, audit_logs)
       |> assign(:event_schemas, event_schemas)
       |> assign(:team_members, team_members)
+      |> assign(:current_user_role, current_user_role)
       |> assign(:analytics, analytics)
       |> assign(:active_tab, "overview")
       |> assign(:kpi_events_today, compute_kpi_events_today(events))
@@ -71,6 +77,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:notifications, notifications)
       |> assign(:unread_count, unread_count)
       |> assign(:show_notifications, false)
+      |> assign(:pending_invitations, pending_invitations)
       |> assign(:jobs, jobs)
       |> assign(:deliveries, deliveries)
       |> assign(:test_topic, "")
@@ -85,6 +92,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:cron_preview, [])
       |> assign(:page_title, "Jobcelis Dashboard")
       |> assign(:active_page, :dashboard)
+      |> assign(:webhook_modal, nil)
+      |> assign(:webhook_form, %{"url" => "", "topics" => "", "secret" => ""})
 
     if connected?(socket) do
       if project, do: Platform.subscribe(project.id)
@@ -96,43 +105,47 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("send_test", %{"topic" => topic, "payload" => payload_str} = _params, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
 
-    payload =
-      case Jason.decode(payload_str) do
-        {:ok, map} when is_map(map) -> map
-        _ -> %{}
-      end
+      payload =
+        case Jason.decode(payload_str) do
+          {:ok, map} when is_map(map) -> map
+          _ -> %{}
+        end
 
-    body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
+      body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
 
-    result = Platform.create_event(project.id, body)
+      result = Platform.create_event(project.id, body)
 
-    socket =
-      case result do
-        {:ok, event} ->
-          Audit.record("event.created",
-            user_id: socket.assigns.current_user.id,
-            project_id: project.id,
-            resource_type: "event",
-            resource_id: event.id
-          )
+      socket =
+        case result do
+          {:ok, event} ->
+            Audit.record("event.created",
+              user_id: socket.assigns.current_user.id,
+              project_id: project.id,
+              resource_type: "event",
+              resource_id: event.id
+            )
 
-          events = [event | Platform.list_events(project.id, limit: 19)]
-          put_flash(socket, :info, gettext("Event sent. ID: %{id}", id: event.id))
-          assign(socket, :events, events)
+            events = [event | Platform.list_events(project.id, limit: 19)]
+            put_flash(socket, :info, gettext("Event sent. ID: %{id}", id: event.id))
+            assign(socket, :events, events)
 
-        {:error, _} ->
-          put_flash(socket, :error, gettext("Failed to send event"))
-          socket
-      end
+          {:error, _} ->
+            put_flash(socket, :error, gettext("Failed to send event"))
+            socket
+        end
 
-    {:noreply, socket}
+      {:noreply, socket}
+    end)
   end
 
   @impl true
   def handle_event("edit_project_name", _params, socket) do
-    {:noreply, assign(socket, :editing_project_name, true)}
+    with_permission(socket, :admin, fn ->
+      {:noreply, assign(socket, :editing_project_name, true)}
+    end)
   end
 
   @impl true
@@ -142,28 +155,30 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("update_project_name", %{"name" => name}, socket) do
-    project = socket.assigns.project
-    name = String.trim(name)
+    with_permission(socket, :admin, fn ->
+      project = socket.assigns.project
+      name = String.trim(name)
 
-    socket =
-      if name == "" do
-        put_flash(socket, :error, gettext("El nombre no puede estar vacío."))
-        |> assign(:editing_project_name, false)
-      else
-        case Platform.update_project(project, %{name: name}) do
-          {:ok, updated} ->
-            socket
-            |> put_flash(:info, gettext("Nombre del proyecto actualizado."))
-            |> assign(:project, updated)
-            |> assign(:editing_project_name, false)
+      socket =
+        if name == "" do
+          put_flash(socket, :error, gettext("El nombre no puede estar vacío."))
+          |> assign(:editing_project_name, false)
+        else
+          case Platform.update_project(project, %{name: name}) do
+            {:ok, updated} ->
+              socket
+              |> put_flash(:info, gettext("Nombre del proyecto actualizado."))
+              |> assign(:project, updated)
+              |> assign(:editing_project_name, false)
 
-          {:error, _} ->
-            put_flash(socket, :error, gettext("No se pudo actualizar el nombre."))
-            |> assign(:editing_project_name, false)
+            {:error, _} ->
+              put_flash(socket, :error, gettext("No se pudo actualizar el nombre."))
+              |> assign(:editing_project_name, false)
+          end
         end
-      end
 
-    {:noreply, socket}
+      {:noreply, socket}
+    end)
   end
 
   @impl true
@@ -173,97 +188,103 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("regenerate_token", _params, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :admin, fn ->
+      project = socket.assigns.project
 
-    case Platform.regenerate_api_key(project.id) do
-      {:ok, _api_key, raw_key} ->
-        api_key = Platform.get_api_key_for_project(project.id)
+      case Platform.regenerate_api_key(project.id) do
+        {:ok, _api_key, raw_key} ->
+          api_key = Platform.get_api_key_for_project(project.id)
 
-        socket =
-          Audit.record("api_key.regenerated",
-            user_id: socket.assigns.current_user.id,
-            project_id: project.id,
-            resource_type: "api_key"
-          )
+          socket =
+            Audit.record("api_key.regenerated",
+              user_id: socket.assigns.current_user.id,
+              project_id: project.id,
+              resource_type: "api_key"
+            )
 
-        socket
-        |> put_flash(:info, gettext("Token regenerado correctamente."))
-        |> assign(:api_key, api_key)
-        |> assign(:new_token, raw_key)
-        |> assign(:token_source, :regenerated)
-        |> assign(:token_visible, true)
+          socket
+          |> put_flash(:info, gettext("Token regenerado correctamente."))
+          |> assign(:api_key, api_key)
+          |> assign(:new_token, raw_key)
+          |> assign(:token_source, :regenerated)
+          |> assign(:token_visible, true)
 
-        {:noreply, socket}
+          {:noreply, socket}
 
-      _ ->
-        {:noreply, put_flash(socket, :error, gettext("No se pudo regenerar el token."))}
-    end
+        _ ->
+          {:noreply, put_flash(socket, :error, gettext("No se pudo regenerar el token."))}
+      end
+    end)
   end
 
   # Jobs: open create modal
   @impl true
   def handle_event("new_job", _, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
 
-    if project do
-      form =
-        to_form(%{
-          "name" => "",
-          "schedule_type" => "daily",
-          "schedule_hour" => "0",
-          "schedule_minute" => "0",
-          "schedule_day_of_week" => "1",
-          "schedule_day_of_month" => "1",
-          "schedule_cron" => "0 0 * * *",
-          "action_type" => "emit_event",
-          "action_topic" => "",
-          "action_payload" => "{}",
-          "action_url" => "",
-          "action_method" => "POST"
-        })
+      if project do
+        form =
+          to_form(%{
+            "name" => "",
+            "schedule_type" => "daily",
+            "schedule_hour" => "0",
+            "schedule_minute" => "0",
+            "schedule_day_of_week" => "1",
+            "schedule_day_of_month" => "1",
+            "schedule_cron" => "0 0 * * *",
+            "action_type" => "emit_event",
+            "action_topic" => "",
+            "action_payload" => "{}",
+            "action_url" => "",
+            "action_method" => "POST"
+          })
 
-      {:noreply,
-       socket
-       |> assign(:job_modal, :new)
-       |> assign(:job_form, form)}
-    else
-      {:noreply, socket}
-    end
+        {:noreply,
+         socket
+         |> assign(:job_modal, :new)
+         |> assign(:job_form, form)}
+      else
+        {:noreply, socket}
+      end
+    end)
   end
 
   @impl true
   def handle_event("edit_job", %{"id" => id}, socket) do
-    project = socket.assigns.project
-    job = project && Platform.get_job(id)
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
+      job = project && Platform.get_job(id)
 
-    if job && job.project_id == project.id do
-      sc = job.schedule_config || %{}
-      ac = job.action_config || %{}
+      if job && job.project_id == project.id do
+        sc = job.schedule_config || %{}
+        ac = job.action_config || %{}
 
-      form =
-        to_form(%{
-          "name" => job.name || "",
-          "schedule_type" => job.schedule_type || "daily",
-          "schedule_hour" => to_str(Map.get(sc, "hour", 0)),
-          "schedule_minute" => to_str(Map.get(sc, "minute", 0)),
-          "schedule_day_of_week" => to_str(Map.get(sc, "day_of_week", 1)),
-          "schedule_day_of_month" => to_str(Map.get(sc, "day_of_month", 1)),
-          "schedule_cron" => Map.get(sc, "expr") || Map.get(sc, "expression") || "0 0 * * *",
-          "action_type" => job.action_type || "emit_event",
-          "action_topic" => Map.get(ac, "topic") || "",
-          "action_payload" => (ac["payload"] && Jason.encode!(ac["payload"])) || "{}",
-          "action_url" => Map.get(ac, "url") || "",
-          "action_method" => Map.get(ac, "method") || "POST",
-          "status" => job.status || "active"
-        })
+        form =
+          to_form(%{
+            "name" => job.name || "",
+            "schedule_type" => job.schedule_type || "daily",
+            "schedule_hour" => to_str(Map.get(sc, "hour", 0)),
+            "schedule_minute" => to_str(Map.get(sc, "minute", 0)),
+            "schedule_day_of_week" => to_str(Map.get(sc, "day_of_week", 1)),
+            "schedule_day_of_month" => to_str(Map.get(sc, "day_of_month", 1)),
+            "schedule_cron" => Map.get(sc, "expr") || Map.get(sc, "expression") || "0 0 * * *",
+            "action_type" => job.action_type || "emit_event",
+            "action_topic" => Map.get(ac, "topic") || "",
+            "action_payload" => (ac["payload"] && Jason.encode!(ac["payload"])) || "{}",
+            "action_url" => Map.get(ac, "url") || "",
+            "action_method" => Map.get(ac, "method") || "POST",
+            "status" => job.status || "active"
+          })
 
-      {:noreply,
-       socket
-       |> assign(:job_modal, {:edit, job.id})
-       |> assign(:job_form, form)}
-    else
-      {:noreply, socket}
-    end
+        {:noreply,
+         socket
+         |> assign(:job_modal, {:edit, job.id})
+         |> assign(:job_form, form)}
+      else
+        {:noreply, socket}
+      end
+    end)
   end
 
   @impl true
@@ -276,58 +297,60 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("save_job", params, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
 
-    if project do
-      schedule_config = build_schedule_config(params)
-      action_config = build_action_config(params)
+      if project do
+        schedule_config = build_schedule_config(params)
+        action_config = build_action_config(params)
 
-      attrs = %{
-        "name" => params["name"] || "",
-        "schedule_type" => params["schedule_type"] || "daily",
-        "schedule_config" => schedule_config,
-        "action_type" => params["action_type"] || "emit_event",
-        "action_config" => action_config
-      }
+        attrs = %{
+          "name" => params["name"] || "",
+          "schedule_type" => params["schedule_type"] || "daily",
+          "schedule_config" => schedule_config,
+          "action_type" => params["action_type"] || "emit_event",
+          "action_config" => action_config
+        }
 
-      attrs =
-        if match?({:edit, _}, socket.assigns.job_modal),
-          do: Map.put(attrs, "status", params["status"] || "active"),
-          else: attrs
+        attrs =
+          if match?({:edit, _}, socket.assigns.job_modal),
+            do: Map.put(attrs, "status", params["status"] || "active"),
+            else: attrs
 
-      result =
-        case socket.assigns.job_modal do
-          :new ->
-            Platform.create_job(project.id, attrs)
+        result =
+          case socket.assigns.job_modal do
+            :new ->
+              Platform.create_job(project.id, attrs)
 
-          {:edit, id} ->
-            job_id = params["job_id"] || id
-            job = Platform.get_job(job_id)
+            {:edit, id} ->
+              job_id = params["job_id"] || id
+              job = Platform.get_job(job_id)
 
-            if job && job.project_id == project.id,
-              do: Platform.update_job(job, attrs),
-              else: {:error, nil}
-        end
+              if job && job.project_id == project.id,
+                do: Platform.update_job(job, attrs),
+                else: {:error, nil}
+          end
 
-      socket =
-        case result do
-          {:ok, _job} ->
-            jobs = Platform.list_jobs(project.id, include_inactive: true)
+        socket =
+          case result do
+            {:ok, _job} ->
+              jobs = Platform.list_jobs(project.id, include_inactive: true)
 
-            socket
-            |> put_flash(:info, gettext("Job guardado."))
-            |> assign(:jobs, jobs)
-            |> assign(:job_modal, nil)
-            |> assign(:job_form, nil)
+              socket
+              |> put_flash(:info, gettext("Job guardado."))
+              |> assign(:jobs, jobs)
+              |> assign(:job_modal, nil)
+              |> assign(:job_form, nil)
 
-          {:error, _} ->
-            put_flash(socket, :error, gettext("Error al guardar el job."))
-        end
+            {:error, _} ->
+              put_flash(socket, :error, gettext("Error al guardar el job."))
+          end
 
-      {:noreply, socket}
-    else
-      {:noreply, socket}
-    end
+        {:noreply, socket}
+      else
+        {:noreply, socket}
+      end
+    end)
   end
 
   @impl true
@@ -364,42 +387,46 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("deactivate_job", %{"id" => id}, socket) do
-    project = socket.assigns.project
-    job = project && Platform.get_job(id)
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
+      job = project && Platform.get_job(id)
 
-    if job && job.project_id == project.id do
-      Platform.set_job_inactive(job)
-      jobs = Platform.list_jobs(project.id, include_inactive: true)
+      if job && job.project_id == project.id do
+        Platform.set_job_inactive(job)
+        jobs = Platform.list_jobs(project.id, include_inactive: true)
 
-      {:noreply,
-       socket
-       |> put_flash(:info, gettext("Job desactivado."))
-       |> assign(:jobs, jobs)}
-    else
-      {:noreply, socket}
-    end
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Job desactivado."))
+         |> assign(:jobs, jobs)}
+      else
+        {:noreply, socket}
+      end
+    end)
   end
 
   @impl true
   def handle_event("retry_delivery", %{"id" => id}, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
 
-    if project do
-      case Platform.retry_delivery(project.id, id) do
-        {:ok, _} ->
-          deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
+      if project do
+        case Platform.retry_delivery(project.id, id) do
+          {:ok, _} ->
+            deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
 
-          {:noreply,
-           socket
-           |> put_flash(:info, gettext("Reintento encolado."))
-           |> assign(:deliveries, deliveries)}
+            {:noreply,
+             socket
+             |> put_flash(:info, gettext("Reintento encolado."))
+             |> assign(:deliveries, deliveries)}
 
-        {:error, :not_found} ->
-          {:noreply, put_flash(socket, :error, gettext("Entrega no encontrada."))}
+          {:error, :not_found} ->
+            {:noreply, put_flash(socket, :error, gettext("Entrega no encontrada."))}
+        end
+      else
+        {:noreply, socket}
       end
-    else
-      {:noreply, socket}
-    end
+    end)
   end
 
   @impl true
@@ -431,60 +458,208 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("retry_dead_letter", %{"id" => id}, socket) do
-    case Platform.retry_dead_letter(id) do
-      {:ok, _} ->
-        dead_letters = Platform.list_dead_letters(socket.assigns.project.id)
-        deliveries = Platform.list_deliveries(project_id: socket.assigns.project.id, limit: 30)
+    with_permission(socket, :write, fn ->
+      case Platform.retry_dead_letter(id) do
+        {:ok, _} ->
+          dead_letters = Platform.list_dead_letters(socket.assigns.project.id)
+          deliveries = Platform.list_deliveries(project_id: socket.assigns.project.id, limit: 30)
 
-        {:noreply,
-         socket
-         |> put_flash(:info, gettext("Reintento encolado desde DLQ."))
-         |> assign(:dead_letters, dead_letters)
-         |> assign(:deliveries, deliveries)}
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("Reintento encolado desde DLQ."))
+           |> assign(:dead_letters, dead_letters)
+           |> assign(:deliveries, deliveries)}
 
-      {:error, :webhook_inactive} ->
-        {:noreply, put_flash(socket, :error, gettext("El webhook está inactivo."))}
+        {:error, :webhook_inactive} ->
+          {:noreply, put_flash(socket, :error, gettext("El webhook está inactivo."))}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al reintentar."))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al reintentar."))}
+      end
+    end)
   end
 
   @impl true
   def handle_event("resolve_dead_letter", %{"id" => id}, socket) do
-    case Platform.resolve_dead_letter(id) do
-      {:ok, _} ->
-        dead_letters = Platform.list_dead_letters(socket.assigns.project.id)
+    with_permission(socket, :write, fn ->
+      case Platform.resolve_dead_letter(id) do
+        {:ok, _} ->
+          dead_letters = Platform.list_dead_letters(socket.assigns.project.id)
 
-        {:noreply,
-         socket
-         |> put_flash(:info, gettext("Marcado como resuelto."))
-         |> assign(:dead_letters, dead_letters)}
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("Marcado como resuelto."))
+           |> assign(:dead_letters, dead_letters)}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al resolver."))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al resolver."))}
+      end
+    end)
+  end
+
+  # ── Webhook CRUD ───────────────────────────────────────────────────
+
+  def handle_event("new_webhook", _, socket) do
+    with_permission(socket, :write, fn ->
+      {:noreply,
+       socket
+       |> assign(:webhook_modal, :new)
+       |> assign(:webhook_form, %{"url" => "", "topics" => "", "secret" => ""})}
+    end)
+  end
+
+  def handle_event("edit_webhook", %{"id" => id}, socket) do
+    with_permission(socket, :write, fn ->
+      case Platform.get_webhook(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
+
+        w ->
+          {:noreply,
+           socket
+           |> assign(:webhook_modal, {:edit, w})
+           |> assign(:webhook_form, %{
+             "url" => w.url,
+             "topics" => Enum.join(w.topics || [], ", "),
+             "secret" => ""
+           })}
+      end
+    end)
+  end
+
+  def handle_event("close_webhook_modal", _, socket) do
+    {:noreply, assign(socket, :webhook_modal, nil)}
+  end
+
+  def handle_event("save_webhook", %{"webhook" => params}, socket) do
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
+      url = String.trim(params["url"] || "")
+
+      topics =
+        params["topics"]
+        |> to_string()
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.reject(&(&1 == ""))
+
+      secret = params["secret"] || ""
+
+      attrs = %{
+        "url" => url,
+        "topics" => topics
+      }
+
+      attrs = if secret != "", do: Map.put(attrs, "secret_encrypted", secret), else: attrs
+
+      case socket.assigns.webhook_modal do
+        :new ->
+          case Platform.create_webhook(project.id, attrs) do
+            {:ok, _} ->
+              webhooks = Platform.list_webhooks(project.id, include_inactive: true)
+              webhook_health = Platform.webhooks_health(project.id)
+
+              {:noreply,
+               socket
+               |> assign(:webhooks, webhooks)
+               |> assign(:webhook_health, webhook_health)
+               |> assign(:webhook_modal, nil)
+               |> put_flash(:info, gettext("Webhook creado."))}
+
+            {:error, changeset} ->
+              msg = format_changeset_errors(changeset)
+              {:noreply, put_flash(socket, :error, msg)}
+          end
+
+        {:edit, w} ->
+          case Platform.update_webhook(w, attrs) do
+            {:ok, _} ->
+              webhooks = Platform.list_webhooks(project.id, include_inactive: true)
+              webhook_health = Platform.webhooks_health(project.id)
+
+              {:noreply,
+               socket
+               |> assign(:webhooks, webhooks)
+               |> assign(:webhook_health, webhook_health)
+               |> assign(:webhook_modal, nil)
+               |> put_flash(:info, gettext("Webhook actualizado."))}
+
+            {:error, changeset} ->
+              msg = format_changeset_errors(changeset)
+              {:noreply, put_flash(socket, :error, msg)}
+          end
+
+        _ ->
+          {:noreply, socket}
+      end
+    end)
+  end
+
+  def handle_event("deactivate_webhook", %{"id" => id}, socket) do
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
+
+      case Platform.get_webhook(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
+
+        w ->
+          {:ok, _} = Platform.set_webhook_inactive(w)
+          webhooks = Platform.list_webhooks(project.id, include_inactive: true)
+          webhook_health = Platform.webhooks_health(project.id)
+
+          {:noreply,
+           socket
+           |> assign(:webhooks, webhooks)
+           |> assign(:webhook_health, webhook_health)
+           |> put_flash(:info, gettext("Webhook desactivado."))}
+      end
+    end)
+  end
+
+  def handle_event("activate_webhook", %{"id" => id}, socket) do
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
+
+      case Platform.get_webhook(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
+
+        w ->
+          {:ok, _} = Platform.update_webhook(w, %{"status" => "active"})
+          webhooks = Platform.list_webhooks(project.id, include_inactive: true)
+          webhook_health = Platform.webhooks_health(project.id)
+
+          {:noreply,
+           socket
+           |> assign(:webhooks, webhooks)
+           |> assign(:webhook_health, webhook_health)
+           |> put_flash(:info, gettext("Webhook activado."))}
+      end
+    end)
   end
 
   @impl true
   def handle_event("simulate_event", %{"topic" => topic, "payload" => payload_str}, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
 
-    payload =
-      case Jason.decode(payload_str) do
-        {:ok, map} when is_map(map) -> map
-        _ -> %{}
+      payload =
+        case Jason.decode(payload_str) do
+          {:ok, map} when is_map(map) -> map
+          _ -> %{}
+        end
+
+      body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
+
+      case Platform.simulate_event(project.id, body) do
+        matches when is_list(matches) ->
+          {:noreply, assign(socket, :simulation_result, matches)}
+
+        _ ->
+          {:noreply, put_flash(socket, :error, gettext("Error en simulación"))}
       end
-
-    body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
-
-    case Platform.simulate_event(project.id, body) do
-      matches when is_list(matches) ->
-        {:noreply, assign(socket, :simulation_result, matches)}
-
-      _ ->
-        {:noreply, put_flash(socket, :error, gettext("Error en simulación"))}
-    end
+    end)
   end
 
   @impl true
@@ -506,68 +681,74 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("start_replay", params, socket) do
-    project = socket.assigns.project
-    user = socket.assigns.current_user
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
+      user = socket.assigns.current_user
 
-    filters = %{
-      "topic" => params["topic"],
-      "from_date" => params["from_date"],
-      "to_date" => params["to_date"],
-      "webhook_id" => params["webhook_id"]
-    }
+      filters = %{
+        "topic" => params["topic"],
+        "from_date" => params["from_date"],
+        "to_date" => params["to_date"],
+        "webhook_id" => params["webhook_id"]
+      }
 
-    case Platform.create_replay(project.id, user.id, filters) do
-      {:ok, _replay} ->
-        replays = Platform.list_replays(project.id, limit: 10)
+      case Platform.create_replay(project.id, user.id, filters) do
+        {:ok, _replay} ->
+          replays = Platform.list_replays(project.id, limit: 10)
 
-        {:noreply,
-         socket
-         |> put_flash(:info, gettext("Replay iniciado."))
-         |> assign(:replays, replays)
-         |> assign(:replay_modal, false)}
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("Replay iniciado."))
+           |> assign(:replays, replays)
+           |> assign(:replay_modal, false)}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al iniciar replay."))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al iniciar replay."))}
+      end
+    end)
   end
 
   @impl true
   def handle_event("cancel_replay", %{"id" => id}, socket) do
-    case Platform.cancel_replay(id) do
-      {:ok, _} ->
-        replays = Platform.list_replays(socket.assigns.project.id, limit: 10)
+    with_permission(socket, :write, fn ->
+      case Platform.cancel_replay(id) do
+        {:ok, _} ->
+          replays = Platform.list_replays(socket.assigns.project.id, limit: 10)
 
-        {:noreply,
-         socket
-         |> put_flash(:info, gettext("Replay cancelado."))
-         |> assign(:replays, replays)}
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("Replay cancelado."))
+           |> assign(:replays, replays)}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al cancelar replay."))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al cancelar replay."))}
+      end
+    end)
   end
 
   # ---------- Sandbox ----------
 
   @impl true
   def handle_event("create_sandbox", params, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
 
-    case Platform.create_sandbox_endpoint(project.id, params["name"]) do
-      {:ok, endpoint} ->
-        endpoints = Platform.list_sandbox_endpoints(project.id)
-        requests = Platform.list_sandbox_requests(endpoint.id)
+      case Platform.create_sandbox_endpoint(project.id, params["name"]) do
+        {:ok, endpoint} ->
+          endpoints = Platform.list_sandbox_endpoints(project.id)
+          requests = Platform.list_sandbox_requests(endpoint.id)
 
-        {:noreply,
-         socket
-         |> put_flash(:info, gettext("Sandbox creado."))
-         |> assign(:sandbox_endpoints, endpoints)
-         |> assign(:sandbox_active, endpoint)
-         |> assign(:sandbox_requests, requests)}
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("Sandbox creado."))
+           |> assign(:sandbox_endpoints, endpoints)
+           |> assign(:sandbox_active, endpoint)
+           |> assign(:sandbox_requests, requests)}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al crear sandbox."))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al crear sandbox."))}
+      end
+    end)
   end
 
   @impl true
@@ -588,20 +769,22 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("delete_sandbox", %{"id" => id}, socket) do
-    Platform.delete_sandbox_endpoint(id)
-    endpoints = Platform.list_sandbox_endpoints(socket.assigns.project.id)
+    with_permission(socket, :write, fn ->
+      Platform.delete_sandbox_endpoint(id)
+      endpoints = Platform.list_sandbox_endpoints(socket.assigns.project.id)
 
-    active =
-      if socket.assigns.sandbox_active && socket.assigns.sandbox_active.id == id,
-        do: nil,
-        else: socket.assigns.sandbox_active
+      active =
+        if socket.assigns.sandbox_active && socket.assigns.sandbox_active.id == id,
+          do: nil,
+          else: socket.assigns.sandbox_active
 
-    {:noreply,
-     socket
-     |> put_flash(:info, gettext("Sandbox eliminado."))
-     |> assign(:sandbox_endpoints, endpoints)
-     |> assign(:sandbox_active, active)
-     |> assign(:sandbox_requests, if(active, do: socket.assigns.sandbox_requests, else: []))}
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Sandbox eliminado."))
+       |> assign(:sandbox_endpoints, endpoints)
+       |> assign(:sandbox_active, active)
+       |> assign(:sandbox_requests, if(active, do: socket.assigns.sandbox_requests, else: []))}
+    end)
   end
 
   # ---------- Tab navigation ----------
@@ -635,7 +818,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
         api_key = Platform.get_api_key_for_project(project.id)
         events = Platform.list_events(project.id, limit: 20)
-        webhooks = Platform.list_webhooks(project.id)
+        webhooks = Platform.list_webhooks(project.id, include_inactive: true)
         webhook_health = Platform.webhooks_health(project.id)
         jobs = Platform.list_jobs(project.id, include_inactive: true)
         deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
@@ -645,6 +828,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         sandbox_endpoints = Platform.list_sandbox_endpoints(project.id)
         event_schemas = Platform.list_event_schemas(project.id)
         team_members = Teams.list_members(project.id)
+        user_role = compute_user_role(project, socket.assigns.current_user)
         analytics = load_analytics(project.id)
 
         {:noreply,
@@ -664,6 +848,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
          |> assign(:sandbox_requests, [])
          |> assign(:event_schemas, event_schemas)
          |> assign(:team_members, team_members)
+         |> assign(:current_user_role, user_role)
          |> assign(:analytics, analytics)
          |> assign(:active_tab, "overview")
          |> assign(:kpi_events_today, compute_kpi_events_today(events))
@@ -701,166 +886,229 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("delete_project", %{"id" => id}, socket) do
-    user = socket.assigns.current_user
+    with_permission(socket, :admin, fn ->
+      user = socket.assigns.current_user
 
-    case Platform.get_project(id) do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("Proyecto no encontrado."))}
+      case Platform.get_project(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Proyecto no encontrado."))}
 
-      project ->
-        if project.user_id != user.id do
-          {:noreply,
-           put_flash(socket, :error, gettext("Solo el dueño puede eliminar el proyecto."))}
-        else
-          case Platform.delete_project(project) do
-            {:ok, _} ->
-              projects = Teams.list_all_accessible_projects(user.id)
-              new_project = List.first(projects)
+        project ->
+          if project.user_id != user.id do
+            {:noreply,
+             put_flash(socket, :error, gettext("Solo el dueño puede eliminar el proyecto."))}
+          else
+            case Platform.delete_project(project) do
+              {:ok, _} ->
+                projects = Teams.list_all_accessible_projects(user.id)
+                new_project = List.first(projects)
 
-              socket =
-                socket
-                |> assign(:projects, projects)
-                |> assign(:project, new_project)
-                |> put_flash(:info, gettext("Proyecto eliminado."))
+                socket =
+                  socket
+                  |> assign(:projects, projects)
+                  |> assign(:project, new_project)
+                  |> put_flash(:info, gettext("Proyecto eliminado."))
 
-              if new_project do
-                events = Platform.list_events(new_project.id, limit: 20)
-                webhooks = Platform.list_webhooks(new_project.id)
-                api_key = Platform.get_api_key_for_project(new_project.id)
+                if new_project do
+                  events = Platform.list_events(new_project.id, limit: 20)
+                  webhooks = Platform.list_webhooks(new_project.id)
+                  api_key = Platform.get_api_key_for_project(new_project.id)
 
-                socket
-                |> assign(:api_key, api_key)
-                |> assign(:events, events)
-                |> assign(:webhooks, webhooks)
-              else
-                socket
-                |> assign(:api_key, nil)
-                |> assign(:events, [])
-                |> assign(:webhooks, [])
-              end
-              |> then(&{:noreply, &1})
+                  socket
+                  |> assign(:api_key, api_key)
+                  |> assign(:events, events)
+                  |> assign(:webhooks, webhooks)
+                else
+                  socket
+                  |> assign(:api_key, nil)
+                  |> assign(:events, [])
+                  |> assign(:webhooks, [])
+                end
+                |> then(&{:noreply, &1})
 
-            {:error, _} ->
-              {:noreply, put_flash(socket, :error, gettext("Error al eliminar proyecto."))}
+              {:error, _} ->
+                {:noreply, put_flash(socket, :error, gettext("Error al eliminar proyecto."))}
+            end
           end
-        end
-    end
+      end
+    end)
   end
 
   # ---------- Event Schemas (B14) ----------
 
   @impl true
   def handle_event("create_event_schema", %{"topic" => topic, "schema" => schema_str}, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
 
-    case Jason.decode(schema_str) do
-      {:ok, schema_map} ->
-        case Platform.create_event_schema(project.id, %{"topic" => topic, "schema" => schema_map}) do
-          {:ok, _} ->
+      case Jason.decode(schema_str) do
+        {:ok, schema_map} ->
+          case Platform.create_event_schema(project.id, %{
+                 "topic" => topic,
+                 "schema" => schema_map
+               }) do
+            {:ok, _} ->
+              schemas = Platform.list_event_schemas(project.id)
+
+              {:noreply,
+               socket
+               |> assign(:event_schemas, schemas)
+               |> put_flash(:info, gettext("Schema creado."))}
+
+            {:error, _} ->
+              {:noreply, put_flash(socket, :error, gettext("Error al crear schema."))}
+          end
+
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("JSON inválido para el schema."))}
+      end
+    end)
+  end
+
+  @impl true
+  def handle_event("delete_event_schema", %{"id" => id}, socket) do
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
+
+      case Platform.get_event_schema(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Schema no encontrado."))}
+
+        schema ->
+          if schema.project_id == project.id do
+            Platform.delete_event_schema(schema)
             schemas = Platform.list_event_schemas(project.id)
 
             {:noreply,
              socket
              |> assign(:event_schemas, schemas)
-             |> put_flash(:info, gettext("Schema creado."))}
-
-          {:error, _} ->
-            {:noreply, put_flash(socket, :error, gettext("Error al crear schema."))}
-        end
-
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("JSON inválido para el schema."))}
-    end
-  end
-
-  @impl true
-  def handle_event("delete_event_schema", %{"id" => id}, socket) do
-    project = socket.assigns.project
-
-    case Platform.get_event_schema(id) do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("Schema no encontrado."))}
-
-      schema ->
-        if schema.project_id == project.id do
-          Platform.delete_event_schema(schema)
-          schemas = Platform.list_event_schemas(project.id)
-
-          {:noreply,
-           socket
-           |> assign(:event_schemas, schemas)
-           |> put_flash(:info, gettext("Schema eliminado."))}
-        else
-          {:noreply, put_flash(socket, :error, gettext("Schema no encontrado."))}
-        end
-    end
+             |> put_flash(:info, gettext("Schema eliminado."))}
+          else
+            {:noreply, put_flash(socket, :error, gettext("Schema no encontrado."))}
+          end
+      end
+    end)
   end
 
   # ---------- Team Management (B20) ----------
 
   @impl true
   def handle_event("invite_member", %{"email" => email, "role" => role}, socket) do
-    project = socket.assigns.project
-    user = socket.assigns.current_user
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
+      user = socket.assigns.current_user
 
-    case StreamflixAccounts.get_user_by_email(email) do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("Usuario no encontrado con ese email."))}
+      case StreamflixAccounts.get_user_by_email(email) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Usuario no encontrado con ese email."))}
 
-      target_user ->
-        case Teams.invite_member(project.id, target_user.id, role, user.id) do
-          {:ok, _member} ->
-            Notifications.create(%{
-              user_id: target_user.id,
-              type: "team_invite",
-              title: "Invitación a proyecto",
-              message: "Has sido invitado al proyecto #{project.name} como #{role}.",
-              metadata: %{"project_id" => project.id}
-            })
+        target_user ->
+          if target_user.id == user.id do
+            {:noreply, put_flash(socket, :error, gettext("No puedes invitarte a ti mismo."))}
+          else
+            case Teams.invite_member(project.id, target_user.id, role, user.id) do
+              {:ok, member} ->
+                Notifications.notify_team_invite(target_user.id, project.id, role, member.id)
 
-            members = Teams.list_members(project.id)
+                members = Teams.list_members(project.id)
 
-            {:noreply,
-             socket
-             |> assign(:team_members, members)
-             |> put_flash(:info, gettext("Miembro invitado."))}
+                {:noreply,
+                 socket
+                 |> assign(:team_members, members)
+                 |> put_flash(:info, gettext("Miembro invitado."))}
 
-          {:error, _} ->
-            {:noreply, put_flash(socket, :error, gettext("Error al invitar miembro."))}
-        end
-    end
+              {:error, _} ->
+                {:noreply, put_flash(socket, :error, gettext("Error al invitar miembro."))}
+            end
+          end
+      end
+    end)
   end
 
   @impl true
   def handle_event("remove_member", %{"id" => id}, socket) do
-    case Teams.remove_member(id) do
-      {:ok, _} ->
-        members = Teams.list_members(socket.assigns.project.id)
+    with_permission(socket, :admin, fn ->
+      case Teams.remove_member(id) do
+        {:ok, _} ->
+          members = Teams.list_members(socket.assigns.project.id)
 
-        {:noreply,
-         socket
-         |> assign(:team_members, members)
-         |> put_flash(:info, gettext("Miembro removido."))}
+          {:noreply,
+           socket
+           |> assign(:team_members, members)
+           |> put_flash(:info, gettext("Miembro removido."))}
 
-      {:error, :cannot_remove_owner} ->
-        {:noreply, put_flash(socket, :error, gettext("No se puede remover al dueño."))}
+        {:error, :cannot_remove_owner} ->
+          {:noreply, put_flash(socket, :error, gettext("No se puede remover al dueño."))}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al remover miembro."))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al remover miembro."))}
+      end
+    end)
   end
 
   @impl true
   def handle_event("update_member_role", %{"id" => id, "role" => role}, socket) do
-    case Teams.update_member_role(id, role) do
+    with_permission(socket, :admin, fn ->
+      case Teams.update_member_role(id, role) do
+        {:ok, _} ->
+          members = Teams.list_members(socket.assigns.project.id)
+
+          {:noreply,
+           socket
+           |> assign(:team_members, members)
+           |> put_flash(:info, gettext("Rol actualizado."))}
+
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al actualizar rol."))}
+      end
+    end)
+  end
+
+  @impl true
+  def handle_event("accept_invitation", %{"id" => member_id}, socket) do
+    user = socket.assigns.current_user
+
+    case Teams.accept_invitation(member_id) do
       {:ok, _} ->
-        members = Teams.list_members(socket.assigns.project.id)
+        Notifications.mark_invite_read(user.id, member_id)
+        projects = Teams.list_all_accessible_projects(user.id)
+        pending = Teams.list_pending_invitations(user.id)
+        notifications = Notifications.list_for_user(user.id, limit: 10)
+        unread_count = Notifications.unread_count(user.id)
 
         {:noreply,
-         socket |> assign(:team_members, members) |> put_flash(:info, gettext("Rol actualizado."))}
+         socket
+         |> assign(:projects, projects)
+         |> assign(:pending_invitations, pending)
+         |> assign(:notifications, notifications)
+         |> assign(:unread_count, unread_count)
+         |> put_flash(:info, gettext("Invitación aceptada."))}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al actualizar rol."))}
+        {:noreply, put_flash(socket, :error, gettext("Error al aceptar invitación."))}
+    end
+  end
+
+  @impl true
+  def handle_event("reject_invitation", %{"id" => member_id}, socket) do
+    user = socket.assigns.current_user
+
+    case Teams.reject_invitation(member_id) do
+      {:ok, _} ->
+        Notifications.mark_invite_read(user.id, member_id)
+        pending = Teams.list_pending_invitations(user.id)
+        notifications = Notifications.list_for_user(user.id, limit: 10)
+        unread_count = Notifications.unread_count(user.id)
+
+        {:noreply,
+         socket
+         |> assign(:pending_invitations, pending)
+         |> assign(:notifications, notifications)
+         |> assign(:unread_count, unread_count)
+         |> put_flash(:info, gettext("Invitación rechazada."))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Error al rechazar invitación."))}
     end
   end
 
@@ -882,15 +1130,24 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   @impl true
-  def handle_info({:new_notification, _notif}, socket) do
+  def handle_info({:new_notification, notif}, socket) do
     user = socket.assigns.current_user
     notifications = Notifications.list_for_user(user.id, limit: 10)
     unread_count = Notifications.unread_count(user.id)
 
-    {:noreply,
-     socket
-     |> assign(:notifications, notifications)
-     |> assign(:unread_count, unread_count)}
+    socket =
+      socket
+      |> assign(:notifications, notifications)
+      |> assign(:unread_count, unread_count)
+
+    socket =
+      if is_map(notif) && Map.get(notif, :type) == "team_invite" do
+        assign(socket, :pending_invitations, Teams.list_pending_invitations(user.id))
+      else
+        socket
+      end
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -1044,7 +1301,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                       <div class="flex items-start gap-2">
                         <span class={"mt-1 w-2 h-2 rounded-full shrink-0 #{if !notif.read, do: "bg-indigo-500", else: "bg-transparent"}"}>
                         </span>
-                        <div class="min-w-0">
+                        <div class="min-w-0 flex-1">
                           <p class="text-sm font-medium text-slate-900 truncate">
                             {notification_title(notif)}
                           </p>
@@ -1052,6 +1309,30 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                           <p class="text-[10px] text-slate-400 mt-1">
                             {format_dt(notif.inserted_at)}
                           </p>
+                          <%= if notif.type == "team_invite" && is_map(notif.metadata) && Map.get(notif.metadata, "member_id") do %>
+                            <%= if !notif.read do %>
+                              <div class="flex gap-2 mt-2">
+                                <button
+                                  phx-click="accept_invitation"
+                                  phx-value-id={notif.metadata["member_id"]}
+                                  class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-medium"
+                                >
+                                  {gettext("Aceptar")}
+                                </button>
+                                <button
+                                  phx-click="reject_invitation"
+                                  phx-value-id={notif.metadata["member_id"]}
+                                  class="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-[11px] font-medium"
+                                >
+                                  {gettext("Rechazar")}
+                                </button>
+                              </div>
+                            <% else %>
+                              <p class="text-[10px] text-emerald-600 mt-1 font-medium">
+                                {gettext("Respondida")}
+                              </p>
+                            <% end %>
+                          <% end %>
                         </div>
                       </div>
                     </div>
@@ -1110,6 +1391,48 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               </p>
             </div>
           </div>
+
+          <%!-- ===== PENDING INVITATIONS BANNER ===== --%>
+          <%= if @pending_invitations != [] do %>
+            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 sm:p-4 mb-6 sm:mb-8">
+              <div class="flex items-center gap-2 mb-3">
+                <.icon name="hero-envelope" class="w-5 h-5 text-indigo-600" />
+                <h3 class="text-sm sm:text-base font-semibold text-indigo-900">
+                  {gettext("Invitaciones pendientes")}
+                </h3>
+              </div>
+              <div class="space-y-2">
+                <%= for inv <- @pending_invitations do %>
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white rounded-lg p-3 border border-indigo-100">
+                    <div class="text-sm text-slate-700">
+                      <span class="font-medium">{inv.project_name}</span>
+                      <span class="text-slate-400 mx-1">&middot;</span>
+                      <span class="text-slate-500">
+                        {gettext("Rol: %{role}", role: inv.role)}
+                      </span>
+                    </div>
+                    <div class="flex gap-2">
+                      <button
+                        phx-click="accept_invitation"
+                        phx-value-id={inv.id}
+                        class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs sm:text-sm font-medium"
+                      >
+                        {gettext("Aceptar")}
+                      </button>
+                      <button
+                        phx-click="reject_invitation"
+                        phx-value-id={inv.id}
+                        data-confirm={gettext("¿Rechazar esta invitación?")}
+                        class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs sm:text-sm font-medium"
+                      >
+                        {gettext("Rechazar")}
+                      </button>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
 
           <%!-- ===== TAB NAVIGATION ===== --%>
           <div class="border-b border-slate-200 mb-6 sm:mb-8 overflow-x-auto">
@@ -1201,83 +1524,89 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-3">
           {gettext("Enviar evento de prueba")}
         </h2>
-        <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3">
-          <.input
-            type="text"
-            name="topic"
-            id="test-topic"
-            value={@test_topic}
-            placeholder={gettext("Topic (opcional)")}
-            class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm"
-          />
-          <.input
-            type="textarea"
-            name="payload"
-            id="test-payload"
-            value={@test_payload}
-            class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm"
-          />
-          <div class="flex flex-col sm:flex-row gap-2">
-            <button
-              type="submit"
-              phx-disable-with={gettext("Enviando...")}
-              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {gettext("Enviar")}
-            </button>
-            <button
-              type="button"
-              phx-click="simulate_event"
-              phx-value-topic={@test_topic}
-              phx-value-payload={@test_payload}
-              phx-disable-with={gettext("Simulando...")}
-              class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {gettext("Simular")}
-            </button>
-          </div>
-        </.form>
-        <%= if @simulation_result do %>
-          <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="font-semibold text-amber-900">{gettext("Resultado de simulación")}</h3>
+        <%= if can_manage_team?(@current_user_role) do %>
+          <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3">
+            <.input
+              type="text"
+              name="topic"
+              id="test-topic"
+              value={@test_topic}
+              placeholder={gettext("Topic (opcional)")}
+              class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm"
+            />
+            <.input
+              type="textarea"
+              name="payload"
+              id="test-payload"
+              value={@test_payload}
+              class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm"
+            />
+            <div class="flex flex-col sm:flex-row gap-2">
+              <button
+                type="submit"
+                phx-disable-with={gettext("Enviando...")}
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {gettext("Enviar")}
+              </button>
               <button
                 type="button"
-                phx-click="close_simulation"
-                class="text-amber-600 hover:text-amber-800 text-sm"
+                phx-click="simulate_event"
+                phx-value-topic={@test_topic}
+                phx-value-payload={@test_payload}
+                phx-disable-with={gettext("Simulando...")}
+                class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {gettext("Cerrar")}
+                {gettext("Simular")}
               </button>
             </div>
-            <%= if @simulation_result == [] do %>
-              <p class="text-sm text-amber-800">
-                {gettext("Ningún webhook matchearía con este evento.")}
-              </p>
-            <% else %>
-              <p class="text-sm text-amber-800 mb-2">
-                {gettext("%{count} webhook(s) recibirían este evento:",
-                  count: length(@simulation_result)
-                )}
-              </p>
-              <%= for sim <- @simulation_result do %>
-                <div class="mt-2 p-3 bg-white border border-amber-100 rounded text-sm">
-                  <p class="font-mono text-xs text-slate-600 truncate">{sim.webhook_url}</p>
-                  <p class="text-xs text-slate-500 mt-1">
-                    {gettext("Topics")}:
-                    <span class="font-medium">{if sim.matched_by_topics, do: "✓", else: "✗"}</span>
-                    · {gettext("Filtros")}:
-                    <span class="font-medium">{if sim.matched_by_filters, do: "✓", else: "✗"}</span>
-                    <%= if sim.would_send_headers["x-signature"] do %>
-                      · HMAC:
-                      <span class="font-mono text-xs">
-                        {String.slice(sim.would_send_headers["x-signature"], 0, 20)}...
-                      </span>
-                    <% end %>
-                  </p>
-                </div>
+          </.form>
+          <%= if @simulation_result do %>
+            <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-amber-900">{gettext("Resultado de simulación")}</h3>
+                <button
+                  type="button"
+                  phx-click="close_simulation"
+                  class="text-amber-600 hover:text-amber-800 text-sm"
+                >
+                  {gettext("Cerrar")}
+                </button>
+              </div>
+              <%= if @simulation_result == [] do %>
+                <p class="text-sm text-amber-800">
+                  {gettext("Ningún webhook matchearía con este evento.")}
+                </p>
+              <% else %>
+                <p class="text-sm text-amber-800 mb-2">
+                  {gettext("%{count} webhook(s) recibirían este evento:",
+                    count: length(@simulation_result)
+                  )}
+                </p>
+                <%= for sim <- @simulation_result do %>
+                  <div class="mt-2 p-3 bg-white border border-amber-100 rounded text-sm">
+                    <p class="font-mono text-xs text-slate-600 truncate">{sim.webhook_url}</p>
+                    <p class="text-xs text-slate-500 mt-1">
+                      {gettext("Topics")}:
+                      <span class="font-medium">{if sim.matched_by_topics, do: "✓", else: "✗"}</span>
+                      · {gettext("Filtros")}:
+                      <span class="font-medium">{if sim.matched_by_filters, do: "✓", else: "✗"}</span>
+                      <%= if sim.would_send_headers["x-signature"] do %>
+                        · {gettext("HMAC")}:
+                        <span class="font-mono text-xs">
+                          {String.slice(sim.would_send_headers["x-signature"], 0, 20)}...
+                        </span>
+                      <% end %>
+                    </p>
+                  </div>
+                <% end %>
               <% end %>
-            <% end %>
-          </div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-slate-500 italic">
+            {gettext("Solo lectura. No tienes permisos para enviar eventos.")}
+          </p>
         <% end %>
       </section>
     </div>
@@ -1468,34 +1797,38 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             {gettext("Event Schemas")}
           </h2>
         </div>
-        <.form
-          for={%{}}
-          id="event-schema-form"
-          phx-submit="create_event_schema"
-          class="flex flex-col gap-2 mb-4"
-        >
-          <input
-            type="text"
-            name="topic"
-            placeholder={gettext("Topic (ej: order.created)")}
-            required
-            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-          />
-          <textarea
-            name="schema"
-            rows="2"
-            placeholder={gettext("JSON Schema (ej: {\"type\":\"object\",\"required\":[\"amount\"]})")}
-            required
-            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono"
-          ></textarea>
-          <button
-            type="submit"
-            phx-disable-with={gettext("Creando...")}
-            class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium"
+        <%= if can_manage_team?(@current_user_role) do %>
+          <.form
+            for={%{}}
+            id="event-schema-form"
+            phx-submit="create_event_schema"
+            class="flex flex-col gap-2 mb-4"
           >
-            {gettext("Crear")}
-          </button>
-        </.form>
+            <input
+              type="text"
+              name="topic"
+              placeholder={gettext("Topic (ej: order.created)")}
+              required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+            />
+            <textarea
+              name="schema"
+              rows="2"
+              placeholder={
+                gettext("JSON Schema (ej: {\"type\":\"object\",\"required\":[\"amount\"]})")
+              }
+              required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono"
+            ></textarea>
+            <button
+              type="submit"
+              phx-disable-with={gettext("Creando...")}
+              class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium"
+            >
+              {gettext("Crear")}
+            </button>
+          </.form>
+        <% end %>
         <%= if @event_schemas == [] do %>
           <p class="text-sm text-slate-500">
             {gettext("Sin schemas. Los eventos no serán validados.")}
@@ -1531,16 +1864,18 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         {s.status}
                       </span>
                     </td>
-                    <td class="px-3 py-2 text-right">
-                      <button
-                        phx-click="delete_event_schema"
-                        phx-value-id={s.id}
-                        data-confirm={gettext("¿Eliminar este schema?")}
-                        class="text-red-600 hover:text-red-700 text-xs font-medium"
-                      >
-                        {gettext("Eliminar")}
-                      </button>
-                    </td>
+                    <%= if can_manage_team?(@current_user_role) do %>
+                      <td class="px-3 py-2 text-right">
+                        <button
+                          phx-click="delete_event_schema"
+                          phx-value-id={s.id}
+                          data-confirm={gettext("¿Eliminar este schema?")}
+                          class="text-red-600 hover:text-red-700 text-xs font-medium"
+                        >
+                          {gettext("Eliminar")}
+                        </button>
+                      </td>
+                    <% end %>
                   </tr>
                 <% end %>
               </tbody>
@@ -1558,13 +1893,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               {gettext("Event Replay")}
             </h2>
           </div>
-          <button
-            type="button"
-            phx-click="open_replay_modal"
-            class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
-          >
-            <.icon name="hero-play" class="w-4 h-4" /> {gettext("Nuevo replay")}
-          </button>
+          <%= if can_manage_team?(@current_user_role) do %>
+            <button
+              type="button"
+              phx-click="open_replay_modal"
+              class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
+            >
+              <.icon name="hero-play" class="w-4 h-4" /> {gettext("Nuevo replay")}
+            </button>
+          <% end %>
         </div>
         <%= if @replays == [] do %>
           <p class="text-sm text-slate-500">
@@ -1617,7 +1954,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                       {format_dt(r.inserted_at)}
                     </td>
                     <td class="px-3 py-2 text-right">
-                      <%= if r.status in ["pending", "running"] do %>
+                      <%= if r.status in ["pending", "running"] && can_manage_team?(@current_user_role) do %>
                         <button
                           phx-click="cancel_replay"
                           phx-value-id={r.id}
@@ -1643,7 +1980,19 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     ~H"""
     <%!-- Webhooks table --%>
     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-4">{gettext("Webhooks")}</h2>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Webhooks")}</h2>
+        <%= if can_manage_team?(@current_user_role) do %>
+          <button
+            type="button"
+            phx-click="new_webhook"
+            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition"
+          >
+            <.icon name="hero-plus" class="w-4 h-4" />
+            {gettext("Crear webhook")}
+          </button>
+        <% end %>
+      </div>
       <div class="overflow-x-auto rounded-lg border border-slate-200">
         <table class="min-w-full">
           <thead>
@@ -1651,20 +2000,46 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
                 URL
               </th>
+              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 hidden sm:table-cell">
+                {gettext("Topics")}
+              </th>
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
                 {gettext("Salud")}
               </th>
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
                 {gettext("Estado")}
               </th>
+              <%= if can_manage_team?(@current_user_role) do %>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm font-medium text-slate-700">
+                  {gettext("Acciones")}
+                </th>
+              <% end %>
             </tr>
           </thead>
           <tbody>
             <%= for w <- @webhooks do %>
               <% health = @webhook_health[w.id] %>
-              <tr class="border-b border-slate-100 last:border-0">
+              <tr class={"border-b border-slate-100 last:border-0 #{if w.status == "inactive", do: "opacity-50"}"}>
                 <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600 truncate max-w-[8rem] sm:max-w-[12rem] lg:max-w-none">
                   {w.url}
+                </td>
+                <td class="px-3 sm:px-4 py-2 sm:py-3 hidden sm:table-cell">
+                  <%= if w.topics && w.topics != [] do %>
+                    <div class="flex flex-wrap gap-1">
+                      <%= for topic <- Enum.take(w.topics, 3) do %>
+                        <span class="px-1.5 py-0.5 rounded text-xs bg-slate-100 text-slate-600">
+                          {topic}
+                        </span>
+                      <% end %>
+                      <%= if length(w.topics) > 3 do %>
+                        <span class="text-xs text-slate-400">
+                          +{length(w.topics) - 3}
+                        </span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <span class="text-xs text-slate-400">{gettext("Todos")}</span>
+                  <% end %>
                 </td>
                 <td class="px-3 sm:px-4 py-2 sm:py-3">
                   <%= if health do %>
@@ -1679,16 +2054,158 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                   <% end %>
                 </td>
                 <td class="px-3 sm:px-4 py-2 sm:py-3">
-                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
+                  <span class={[
+                    "px-2 py-0.5 rounded text-xs font-medium",
+                    if(w.status == "active",
+                      do: "bg-emerald-100 text-emerald-700",
+                      else: "bg-slate-100 text-slate-500"
+                    )
+                  ]}>
                     {w.status}
                   </span>
                 </td>
+                <%= if can_manage_team?(@current_user_role) do %>
+                  <td class="px-3 sm:px-4 py-2 sm:py-3 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        phx-click="edit_webhook"
+                        phx-value-id={w.id}
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition"
+                        title={gettext("Editar")}
+                      >
+                        <.icon name="hero-pencil-square" class="w-4 h-4" />
+                      </button>
+                      <%= if w.status == "active" do %>
+                        <button
+                          type="button"
+                          phx-click="deactivate_webhook"
+                          phx-value-id={w.id}
+                          data-confirm={gettext("¿Desactivar este webhook?")}
+                          class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                          title={gettext("Desactivar")}
+                        >
+                          <.icon name="hero-pause-circle" class="w-4 h-4" />
+                        </button>
+                      <% else %>
+                        <button
+                          type="button"
+                          phx-click="activate_webhook"
+                          phx-value-id={w.id}
+                          class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition"
+                          title={gettext("Activar")}
+                        >
+                          <.icon name="hero-play-circle" class="w-4 h-4" />
+                        </button>
+                      <% end %>
+                    </div>
+                  </td>
+                <% end %>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
     </section>
+
+    <%!-- Webhook create/edit modal --%>
+    <%= if @webhook_modal do %>
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          phx-click="close_webhook_modal"
+          aria-hidden="true"
+        >
+        </div>
+        <div
+          class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div class="px-6 pt-6 pb-4 flex items-start justify-between">
+            <h2 class="text-lg font-semibold text-slate-900">
+              {if @webhook_modal == :new,
+                do: gettext("Crear webhook"),
+                else: gettext("Editar webhook")}
+            </h2>
+            <button
+              type="button"
+              phx-click="close_webhook_modal"
+              class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <form phx-submit="save_webhook" class="px-6 pb-6 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">URL</label>
+              <input
+                type="url"
+                name="webhook[url]"
+                value={@webhook_form["url"]}
+                required
+                placeholder="https://example.com/webhook"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">
+                {gettext("Topics")}
+                <span class="font-normal text-slate-400">
+                  ({gettext("separados por coma, vacío = todos")})
+                </span>
+              </label>
+              <input
+                type="text"
+                name="webhook[topics]"
+                value={@webhook_form["topics"]}
+                placeholder="user.created, order.paid"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">
+                {gettext("Secreto HMAC")}
+                <span class="font-normal text-slate-400">
+                  ({gettext("opcional, dejar vacío para mantener el actual")})
+                </span>
+              </label>
+              <input
+                type="password"
+                name="webhook[secret]"
+                value=""
+                placeholder="whsec_..."
+                autocomplete="off"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              />
+            </div>
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+              <button
+                type="button"
+                phx-click="close_webhook_modal"
+                class="w-full sm:w-auto px-4 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+              >
+                {gettext("Cancelar")}
+              </button>
+              <button
+                type="submit"
+                phx-disable-with={gettext("Guardando...")}
+                class="w-full sm:w-auto px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
+              >
+                {if @webhook_modal == :new, do: gettext("Crear"), else: gettext("Guardar")}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    <% end %>
 
     <%!-- Deliveries --%>
     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
@@ -1774,7 +2291,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                   {format_dt(d.inserted_at)}
                 </td>
                 <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
-                  <%= if d.status != "success" and d.status != "pending" do %>
+                  <%= if d.status != "success" and d.status != "pending" and can_manage_team?(@current_user_role) do %>
                     <button
                       phx-click="retry_delivery"
                       phx-value-id={d.id}
@@ -1842,24 +2359,26 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                     {format_dt(dl.inserted_at)}
                   </td>
                   <td class="px-3 sm:px-4 py-2 sm:py-3 text-right">
-                    <div class="flex flex-col sm:flex-row sm:justify-end gap-1">
-                      <button
-                        phx-click="retry_dead_letter"
-                        phx-value-id={dl.id}
-                        phx-disable-with={gettext("...")}
-                        class="text-indigo-600 hover:text-indigo-700 font-medium text-xs disabled:opacity-70"
-                      >
-                        {gettext("Reintentar")}
-                      </button>
-                      <button
-                        phx-click="resolve_dead_letter"
-                        phx-value-id={dl.id}
-                        phx-disable-with={gettext("...")}
-                        class="text-slate-500 hover:text-slate-700 font-medium text-xs disabled:opacity-70"
-                      >
-                        {gettext("Descartar")}
-                      </button>
-                    </div>
+                    <%= if can_manage_team?(@current_user_role) do %>
+                      <div class="flex flex-col sm:flex-row sm:justify-end gap-1">
+                        <button
+                          phx-click="retry_dead_letter"
+                          phx-value-id={dl.id}
+                          phx-disable-with={gettext("...")}
+                          class="text-indigo-600 hover:text-indigo-700 font-medium text-xs disabled:opacity-70"
+                        >
+                          {gettext("Reintentar")}
+                        </button>
+                        <button
+                          phx-click="resolve_dead_letter"
+                          phx-value-id={dl.id}
+                          phx-disable-with={gettext("...")}
+                          class="text-slate-500 hover:text-slate-700 font-medium text-xs disabled:opacity-70"
+                        >
+                          {gettext("Descartar")}
+                        </button>
+                      </div>
+                    <% end %>
                   </td>
                 </tr>
               <% end %>
@@ -1885,14 +2404,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           >
             <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> CSV
           </a>
-          <button
-            type="button"
-            phx-click="new_job"
-            phx-disable-with={gettext("Cargando...")}
-            class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            <.icon name="hero-plus" class="w-4 h-4" /> {gettext("Nuevo job")}
-          </button>
+          <%= if can_manage_team?(@current_user_role) do %>
+            <button
+              type="button"
+              phx-click="new_job"
+              phx-disable-with={gettext("Cargando...")}
+              class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              <.icon name="hero-plus" class="w-4 h-4" /> {gettext("Nuevo job")}
+            </button>
+          <% end %>
         </div>
       </div>
       <div class="overflow-x-auto rounded-xl border border-slate-200">
@@ -1939,14 +2460,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 </td>
                 <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
                   <div class="flex flex-col sm:flex-row sm:inline-flex gap-1 sm:gap-2 items-start sm:items-center">
-                    <button
-                      phx-click="edit_job"
-                      phx-value-id={j.id}
-                      phx-disable-with={gettext("Cargando...")}
-                      class="text-indigo-600 hover:text-indigo-700 font-medium text-xs sm:text-sm disabled:opacity-70"
-                    >
-                      {gettext("Editar")}
-                    </button>
+                    <%= if can_manage_team?(@current_user_role) do %>
+                      <button
+                        phx-click="edit_job"
+                        phx-value-id={j.id}
+                        phx-disable-with={gettext("Cargando...")}
+                        class="text-indigo-600 hover:text-indigo-700 font-medium text-xs sm:text-sm disabled:opacity-70"
+                      >
+                        {gettext("Editar")}
+                      </button>
+                    <% end %>
                     <button
                       phx-click="show_job_runs"
                       phx-value-id={j.id}
@@ -1955,7 +2478,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                     >
                       {gettext("Runs")}
                     </button>
-                    <%= if j.status == "active" do %>
+                    <%= if j.status == "active" && can_manage_team?(@current_user_role) do %>
                       <button
                         phx-click="deactivate_job"
                         phx-value-id={j.id}
@@ -2016,13 +2539,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         <% else %>
           <p class="text-slate-600">
             <strong>{@project.name}</strong>
-            <button
-              type="button"
-              phx-click="edit_project_name"
-              class="ml-2 text-indigo-600 hover:text-indigo-700 text-sm font-medium"
-            >
-              {gettext("Editar nombre")}
-            </button>
+            <%= if can_admin_team?(@current_user_role) do %>
+              <button
+                type="button"
+                phx-click="edit_project_name"
+                class="ml-2 text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+              >
+                {gettext("Editar nombre")}
+              </button>
+            <% end %>
           </p>
         <% end %>
         <p class="text-slate-500 text-sm font-mono mt-1 break-all">{@project.id}</p>
@@ -2121,13 +2646,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             <.icon name="hero-beaker" class="w-5 h-5 text-purple-600" />
             <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Sandbox")}</h2>
           </div>
-          <button
-            type="button"
-            phx-click="create_sandbox"
-            class="inline-flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
-          >
-            <.icon name="hero-plus" class="w-4 h-4" /> {gettext("Crear endpoint")}
-          </button>
+          <%= if can_manage_team?(@current_user_role) do %>
+            <button
+              type="button"
+              phx-click="create_sandbox"
+              class="inline-flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
+            >
+              <.icon name="hero-plus" class="w-4 h-4" /> {gettext("Crear endpoint")}
+            </button>
+          <% end %>
         </div>
         <%= if @sandbox_endpoints == [] do %>
           <p class="text-sm text-slate-500">
@@ -2142,15 +2669,17 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 phx-value-id={ep.id}
               >
                 <span class="font-mono text-xs">{ep.slug}</span>
-                <button
-                  type="button"
-                  phx-click="delete_sandbox"
-                  phx-value-id={ep.id}
-                  class="ml-1 text-slate-400 hover:text-red-500"
-                  title={gettext("Eliminar")}
-                >
-                  <.icon name="hero-x-mark" class="w-3.5 h-3.5" />
-                </button>
+                <%= if can_manage_team?(@current_user_role) do %>
+                  <button
+                    type="button"
+                    phx-click="delete_sandbox"
+                    phx-value-id={ep.id}
+                    class="ml-1 text-slate-400 hover:text-red-500"
+                    title={gettext("Eliminar")}
+                  >
+                    <.icon name="hero-x-mark" class="w-3.5 h-3.5" />
+                  </button>
+                <% end %>
               </div>
             <% end %>
           </div>
@@ -2205,35 +2734,44 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
       <%!-- Team --%>
       <section class="bg-white rounded-xl border border-cyan-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-        <div class="flex items-center gap-2 mb-4">
-          <.icon name="hero-user-group" class="w-5 h-5 text-cyan-600" />
-          <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Equipo")}</h2>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <.icon name="hero-user-group" class="w-5 h-5 text-cyan-600" />
+            <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Equipo")}</h2>
+          </div>
+          <span class={"px-2 py-0.5 rounded text-xs font-medium #{member_role_class(@current_user_role)}"}>
+            {gettext("Tu rol: %{role}", role: @current_user_role || "—")}
+          </span>
         </div>
-        <.form
-          for={%{}}
-          id="invite-member-form"
-          phx-submit="invite_member"
-          class="flex flex-col sm:flex-row gap-2 mb-4"
-        >
-          <input
-            type="email"
-            name="email"
-            placeholder={gettext("Email del usuario")}
-            required
-            class="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-2 text-sm"
-          />
-          <select name="role" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
-            <option value="viewer">{gettext("Viewer")}</option>
-            <option value="editor">{gettext("Editor")}</option>
-          </select>
-          <button
-            type="submit"
-            phx-disable-with={gettext("Invitando...")}
-            class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium shrink-0"
+        <%= if can_manage_team?(@current_user_role) do %>
+          <.form
+            for={%{}}
+            id="invite-member-form"
+            phx-submit="invite_member"
+            class="flex flex-col sm:flex-row gap-2 mb-4"
           >
-            {gettext("Invitar")}
-          </button>
-        </.form>
+            <input
+              type="email"
+              name="email"
+              placeholder={gettext("Email del usuario")}
+              required
+              class="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-2 text-sm"
+            />
+            <select name="role" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+              <option value="viewer">{gettext("Viewer")}</option>
+              <%= if can_admin_team?(@current_user_role) do %>
+                <option value="editor">{gettext("Editor")}</option>
+              <% end %>
+            </select>
+            <button
+              type="submit"
+              phx-disable-with={gettext("Invitando...")}
+              class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium shrink-0"
+            >
+              {gettext("Invitar")}
+            </button>
+          </.form>
+        <% end %>
         <%= if @team_members == [] do %>
           <p class="text-sm text-slate-500">
             {gettext("Solo tú tienes acceso. Invita colaboradores.")}
@@ -2252,9 +2790,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                   <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
                     {gettext("Estado")}
                   </th>
-                  <th class="px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase">
-                    {gettext("Acciones")}
-                  </th>
+                  <%= if can_admin_team?(@current_user_role) do %>
+                    <th class="px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase">
+                      {gettext("Acciones")}
+                    </th>
+                  <% end %>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -2273,30 +2813,42 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         {m.status}
                       </span>
                     </td>
-                    <td class="px-3 py-2 text-right">
-                      <%= if m.role != "owner" do %>
-                        <div class="flex flex-col sm:flex-row sm:justify-end gap-1">
-                          <%= if m.role == "viewer" do %>
+                    <%= if can_admin_team?(@current_user_role) do %>
+                      <td class="px-3 py-2 text-right">
+                        <%= if m.role != "owner" do %>
+                          <div class="flex flex-col sm:flex-row sm:justify-end gap-1">
+                            <%= if m.role == "viewer" do %>
+                              <button
+                                phx-click="update_member_role"
+                                phx-value-id={m.id}
+                                phx-value-role="editor"
+                                class="text-indigo-600 hover:text-indigo-700 text-xs font-medium"
+                              >
+                                {gettext("Promover")}
+                              </button>
+                            <% end %>
+                            <%= if m.role == "editor" do %>
+                              <button
+                                phx-click="update_member_role"
+                                phx-value-id={m.id}
+                                phx-value-role="viewer"
+                                class="text-amber-600 hover:text-amber-700 text-xs font-medium"
+                              >
+                                {gettext("Degradar")}
+                              </button>
+                            <% end %>
                             <button
-                              phx-click="update_member_role"
+                              phx-click="remove_member"
                               phx-value-id={m.id}
-                              phx-value-role="editor"
-                              class="text-indigo-600 hover:text-indigo-700 text-xs font-medium"
+                              data-confirm={gettext("¿Remover este miembro?")}
+                              class="text-red-600 hover:text-red-700 text-xs font-medium"
                             >
-                              {gettext("Promover")}
+                              {gettext("Remover")}
                             </button>
-                          <% end %>
-                          <button
-                            phx-click="remove_member"
-                            phx-value-id={m.id}
-                            data-confirm={gettext("¿Remover este miembro?")}
-                            class="text-red-600 hover:text-red-700 text-xs font-medium"
-                          >
-                            {gettext("Remover")}
-                          </button>
-                        </div>
-                      <% end %>
-                    </td>
+                          </div>
+                        <% end %>
+                      </td>
+                    <% end %>
                   </tr>
                 <% end %>
               </tbody>
@@ -2907,17 +3459,19 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           </button>
         </div>
       </div>
-      <div class="mt-3 flex items-center gap-3">
-        <button
-          phx-click="regenerate_token"
-          phx-disable-with={gettext("Regenerando...")}
-          data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
-          type="button"
-          class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {gettext("Regenerar token")}
-        </button>
-      </div>
+      <%= if can_admin_team?(@current_user_role) do %>
+        <div class="mt-3 flex items-center gap-3">
+          <button
+            phx-click="regenerate_token"
+            phx-disable-with={gettext("Regenerando...")}
+            data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
+            type="button"
+            class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {gettext("Regenerar token")}
+          </button>
+        </div>
+      <% end %>
     <% else %>
       <%= if @api_key != nil do %>
         <div class="rounded-lg border border-slate-200 bg-slate-50">
@@ -2932,17 +3486,19 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         <p class="text-slate-500 text-sm mt-2">
           {gettext("Solo se muestra el prefijo. Regenera para obtener el token completo.")}
         </p>
-        <div class="flex flex-col sm:flex-row gap-2 mt-3">
-          <button
-            phx-click="regenerate_token"
-            phx-disable-with={gettext("Regenerando...")}
-            data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
-            type="button"
-            class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {gettext("Regenerar token")}
-          </button>
-        </div>
+        <%= if can_admin_team?(@current_user_role) do %>
+          <div class="flex flex-col sm:flex-row gap-2 mt-3">
+            <button
+              phx-click="regenerate_token"
+              phx-disable-with={gettext("Regenerando...")}
+              data-confirm={gettext("¿Regenerar token? El token actual dejará de funcionar.")}
+              type="button"
+              class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {gettext("Regenerar token")}
+            </button>
+          </div>
+        <% end %>
         <div class="mt-4 pt-4 border-t border-slate-200 space-y-2">
           <div class="flex items-center gap-2">
             <span class="text-xs font-medium text-slate-500 uppercase">{gettext("Scopes")}:</span>
@@ -2971,14 +3527,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         </div>
       <% else %>
         <p class="text-slate-600 mb-3">{gettext("No hay API token. Genera uno para empezar.")}</p>
-        <button
-          phx-click="regenerate_token"
-          phx-disable-with={gettext("Generando...")}
-          type="button"
-          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {gettext("Generar token")}
-        </button>
+        <%= if can_admin_team?(@current_user_role) do %>
+          <button
+            phx-click="regenerate_token"
+            phx-disable-with={gettext("Generando...")}
+            type="button"
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {gettext("Generar token")}
+          </button>
+        <% end %>
       <% end %>
     <% end %>
     """
@@ -3187,4 +3745,50 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
     end
   end
+
+  # Permission helpers: :write = editor+owner, :admin = owner only
+  defp authorize(socket, :write) do
+    if socket.assigns.current_user_role in ["owner", "editor"],
+      do: :ok,
+      else: {:error, gettext("No tienes permisos para esta acción.")}
+  end
+
+  defp authorize(socket, :admin) do
+    if socket.assigns.current_user_role == "owner",
+      do: :ok,
+      else: {:error, gettext("Solo el dueño del proyecto puede hacer esto.")}
+  end
+
+  defp with_permission(socket, level, fun) do
+    case authorize(socket, level) do
+      :ok -> fun.()
+      {:error, msg} -> {:noreply, put_flash(socket, :error, msg)}
+    end
+  end
+
+  defp compute_user_role(nil, _user), do: nil
+
+  defp compute_user_role(project, user) do
+    if project.user_id == user.id do
+      "owner"
+    else
+      Teams.get_member_role(project.id, user.id) || "viewer"
+    end
+  end
+
+  defp can_manage_team?(role), do: role in ["owner", "editor"]
+  defp can_admin_team?(role), do: role == "owner"
+
+  defp format_changeset_errors(%Ecto.Changeset{} = changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
+        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
+      end)
+    end)
+    |> Enum.map_join("; ", fn {field, errors} ->
+      "#{field}: #{Enum.join(errors, ", ")}"
+    end)
+  end
+
+  defp format_changeset_errors(_), do: gettext("Error desconocido")
 end
