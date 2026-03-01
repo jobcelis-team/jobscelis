@@ -40,8 +40,12 @@ defmodule StreamflixWebWeb.Plugs.ApiKeyAuth do
 
       _ ->
         case get_req_header(conn, "x-api-key") do
-          [token] -> token
-          _ -> nil
+          [token] ->
+            token
+
+          _ ->
+            # Fallback: check query param for browser-initiated requests (export downloads)
+            conn.query_params["api_key"]
         end
     end
   end

@@ -1454,14 +1454,14 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
                 <div class="flex flex-wrap gap-2">
                   <a
-                    href="/api/v1/export/events?format=csv"
+                    href="/export/events?format=csv"
                     target="_blank"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
                   >
                     <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> CSV
                   </a>
                   <a
-                    href="/api/v1/export/events?format=json"
+                    href="/export/events?format=json"
                     target="_blank"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
                   >
@@ -1556,7 +1556,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         <td class="px-3 sm:px-4 py-2 sm:py-3">
                           <%= if health do %>
                             <span
-                              title={"#{health.success_rate}% — #{health.total} deliveries (24h)"}
+                              title={"#{health.success_rate}% — #{health.total} #{gettext("entregas")} (24h)"}
                               class={"inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium #{health_class(health.score)}"}
                             >
                               <span class={"w-2 h-2 rounded-full #{health_dot(health.score)}"}></span> {health_label(
@@ -1584,7 +1584,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
                 <div class="flex flex-wrap gap-2">
                   <a
-                    href="/api/v1/export/jobs?format=csv"
+                    href="/export/jobs?format=csv"
                     target="_blank"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
                   >
@@ -3044,7 +3044,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   defp health_dot(:critical), do: "bg-red-500"
   defp health_dot(_), do: "bg-slate-400"
 
-  defp health_label(:healthy), do: "OK"
+  defp health_label(:healthy), do: gettext("OK")
   defp health_label(:degraded), do: gettext("Degradado")
   defp health_label(:critical), do: gettext("Crítico")
   defp health_label(:no_data), do: gettext("Sin datos")
@@ -3055,6 +3055,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   defp notification_title(%{type: "job_failed"}), do: gettext("Job fallido")
   defp notification_title(%{type: "dlq_entry"}), do: gettext("Entrega movida a DLQ")
   defp notification_title(%{type: "replay_completed"}), do: gettext("Replay completado")
+  defp notification_title(%{type: "team_invite"}), do: gettext("Invitación a proyecto")
   defp notification_title(notif), do: notif.title
 
   defp notification_message(%{type: "webhook_failing", metadata: %{"webhook_url" => url}}) do
@@ -3071,6 +3072,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   defp notification_message(%{type: "replay_completed", metadata: %{"event_count" => count}}) do
     gettext("Se re-enviaron %{count} eventos exitosamente", count: count)
+  end
+
+  defp notification_message(%{type: "team_invite", metadata: %{"project_id" => _pid}} = _notif) do
+    gettext("Has sido invitado a un proyecto.")
   end
 
   defp notification_message(notif), do: notif.message

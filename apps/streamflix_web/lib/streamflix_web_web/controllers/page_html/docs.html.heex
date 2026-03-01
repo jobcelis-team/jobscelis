@@ -710,6 +710,13 @@
                     X-Api-Key: &lt;{gettext("tu_token")}&gt;
                   </code>
                 </li>
+
+                <li>
+                  {gettext("Query param (para descargas desde el navegador)")}
+                  <code class="bg-slate-100 px-2 py-1 rounded font-mono text-sm">
+                    ?api_key=&lt;{gettext("tu_token")}&gt;
+                  </code>
+                </li>
               </ol>
 
               <p class="text-slate-600 text-sm">
@@ -3137,7 +3144,7 @@ channel.on("delivery:updated", payload => console.log(payload))</pre>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
-                  {gettext("Invita a un usuario al proyecto. Requiere rol owner o editor.")}
+                  {gettext("Invita a un usuario al proyecto. Requiere rol owner o editor. Puedes usar user_id o email.")}
                 </p>
 
                 <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
@@ -3149,7 +3156,13 @@ channel.on("delivery:updated", payload => console.log(payload))</pre>
                 >curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{"user_id":"UUID_DEL_USUARIO","role":"editor"}'</pre>
+  -d '{"user_id":"UUID_DEL_USUARIO","role":"editor"}'
+
+# <%= gettext("O por email") %>:
+curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"email":"usuario@example.com","role":"viewer"}'</pre>
               </div>
 
               <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
@@ -3361,6 +3374,28 @@ curl "<%= @base_url %>/api/v1/events?limit=10&cursor=NEXT_CURSOR_VALUE" \
   -H "X-API-Key: YOUR_API_KEY"
 curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
   -H "X-API-Key: YOUR_API_KEY" -o audit.csv</pre>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
+                    GET
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    /export/events | deliveries | jobs | audit-log
+                  </code>
+                </div>
+
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Rutas de exportación para el navegador (Dashboard). Usan autenticación de sesión, sin API Key. Los mismos parámetros format=csv|json aplican."
+                  )}
+                </p>
+                <div class="rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-800">
+                  {gettext(
+                    "Estas rutas son usadas automáticamente por los botones de exportación del Dashboard. No requieren API Key."
+                  )}
+                </div>
               </div>
             </div>
           </div>
