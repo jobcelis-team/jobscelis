@@ -187,11 +187,11 @@ defmodule StreamflixWebWeb.Router do
 
     get "/jobs", PlatformJobsController, :index
     post "/jobs", PlatformJobsController, :create
+    get "/jobs/cron-preview", PlatformJobsController, :cron_preview
     get "/jobs/:id", PlatformJobsController, :show
     patch "/jobs/:id", PlatformJobsController, :update
     delete "/jobs/:id", PlatformJobsController, :delete
     get "/jobs/:id/runs", PlatformJobsController, :runs
-    get "/jobs/cron-preview", PlatformJobsController, :cron_preview
 
     get "/project", PlatformProjectController, :show
     patch "/project", PlatformProjectController, :update
@@ -254,6 +254,16 @@ defmodule StreamflixWebWeb.Router do
       live "/account", AccountLive, :index
       live "/platform", PlatformDashboardLive, :index
     end
+  end
+
+  # Browser-initiated export downloads (session-based auth)
+  scope "/", StreamflixWebWeb do
+    pipe_through [:browser]
+
+    get "/export/events", BrowserExportController, :events
+    get "/export/deliveries", BrowserExportController, :deliveries
+    get "/export/jobs", BrowserExportController, :jobs
+    get "/export/audit-log", BrowserExportController, :audit_log
   end
 
   # ============================================

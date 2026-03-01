@@ -986,7 +986,7 @@ defmodule StreamflixCore.Platform do
             total: count(d.id),
             success: count(fragment("CASE WHEN ? = 'success' THEN 1 END", d.status)),
             failed: count(fragment("CASE WHEN ? = 'failed' THEN 1 END", d.status)),
-            avg_latency: avg(fragment("EXTRACT(EPOCH FROM ? - ?)", d.updated_at, d.inserted_at))
+            avg_latency: fragment("AVG(EXTRACT(EPOCH FROM ? - ?))", d.updated_at, d.inserted_at)
           }
         )
       )

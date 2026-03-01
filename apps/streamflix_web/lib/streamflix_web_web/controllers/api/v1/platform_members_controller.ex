@@ -4,6 +4,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
 
   alias StreamflixCore.Teams
   alias StreamflixCore.Notifications
+  alias StreamflixAccounts
 
   tags(["Team Members"])
   security([%{"bearer" => []}])
@@ -38,28 +39,36 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
     user = conn.assigns.current_user
 
     if Teams.user_can_write?(project_id, user.id) do
-      user_id = params["user_id"]
-      role = params["role"] || "viewer"
+      user_id =
+        case params do
+          %{"user_id" => uid} when is_binary(uid) and uid != "" -> uid
+          %{"email" => email} when is_binary(email) and email != "" ->
+            case StreamflixAccounts.get_user_by_email(email) do
+              nil -> nil
+              u -> u.id
+            end
+          _ -> nil
+        end
 
-      case Teams.invite_member(project_id, user_id, role, user.id) do
-        {:ok, member} ->
-          # Notify the invited user
-          Notifications.create(%{
-            user_id: user_id,
-            type: "team_invite",
-            title: "Invitación a proyecto",
-            message: "Has sido invitado a un proyecto como #{role}.",
-            metadata: %{"project_id" => project_id, "member_id" => member.id}
-          })
+      if is_nil(user_id) do
+        conn |> put_status(422) |> json(%{error: "User not found. Provide a valid user_id or email."})
+      else
+        role = params["role"] || "viewer"
 
-          conn
-          |> put_status(:created)
-          |> json(%{data: member_json(member)})
+        case Teams.invite_member(project_id, user_id, role, user.id) do
+          {:ok, member} ->
+            # Notify the invited user
+            Notifications.notify_team_invite(user_id, project_id, role, member.id)
 
-        {:error, changeset} ->
-          conn
-          |> put_status(:unprocessable_entity)
-          |> json(%{error: "Invalid invite", details: format_errors(changeset)})
+            conn
+            |> put_status(:created)
+            |> json(%{data: member_json(member)})
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{error: "Invalid invite", details: format_errors(changeset)})
+        end
       end
     else
       conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
