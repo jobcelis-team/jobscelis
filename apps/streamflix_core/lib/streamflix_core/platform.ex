@@ -5,21 +5,119 @@ defmodule StreamflixCore.Platform do
   """
   import Ecto.Query
   alias StreamflixCore.Repo
-  alias StreamflixCore.Schemas.{Project, ApiKey, Webhook, WebhookEvent, Delivery, Job, JobRun}
+  alias StreamflixCore.Schemas.{Project, ApiKey, Webhook, WebhookEvent, Delivery, Job, JobRun, DeadLetter, Replay, SandboxEndpoint, SandboxRequest, EventSchema, BatchItem}
+
+  @cache :platform_cache
+  @api_key_ttl :timer.seconds(60)
+  @project_ttl :timer.seconds(120)
+  @webhooks_ttl :timer.seconds(30)
 
   # ---------- Projects ----------
 
   def create_project(attrs) do
-    %Project{}
-    |> Project.changeset(attrs)
-    |> Repo.insert()
+    user_id = attrs[:user_id] || attrs["user_id"]
+
+    # First project for user auto-sets is_default
+    is_default =
+      if user_id do
+        not Repo.exists?(from(p in Project, where: p.user_id == ^user_id and p.status == "active"))
+      else
+        false
+      end
+
+    attrs = Map.put(attrs, :is_default, Map.get(attrs, :is_default, is_default))
+
+    case %Project{}
+         |> Project.changeset(attrs)
+         |> Repo.insert() do
+      {:ok, project} ->
+        # Auto-create owner membership
+        if user_id do
+          StreamflixCore.Teams.create_owner_member(project.id, user_id)
+        end
+
+        {:ok, project}
+
+      error ->
+        error
+    end
   end
 
   def get_project(id), do: Repo.get(Project, id)
   def get_project!(id), do: Repo.get!(Project, id)
 
   def get_project_by_user_id(user_id) do
-    Repo.get_by(Project, user_id: user_id, status: "active")
+    get_default_project_for_user(user_id)
+  end
+
+  def get_default_project_for_user(user_id) do
+    cache_key = {:project_user, user_id}
+
+    case Cachex.get(@cache, cache_key) do
+      {:ok, nil} ->
+        result =
+          Project
+          |> where([p], p.user_id == ^user_id and p.status == "active")
+          |> order_by([p], [desc: p.is_default, asc: p.inserted_at])
+          |> limit(1)
+          |> Repo.one()
+
+        if result, do: Cachex.put(@cache, cache_key, result, ttl: @project_ttl)
+        result
+
+      {:ok, cached} ->
+        cached
+    end
+  end
+
+  def set_default_project(user_id, project_id) do
+    Repo.transaction(fn ->
+      # Unset all defaults for user
+      from(p in Project, where: p.user_id == ^user_id and p.is_default == true)
+      |> Repo.update_all(set: [is_default: false, updated_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)])
+
+      # Set target as default
+      case Repo.get(Project, project_id) do
+        nil -> Repo.rollback(:not_found)
+        project ->
+          project
+          |> Project.changeset(%{is_default: true})
+          |> Repo.update!()
+      end
+    end)
+    |> case do
+      {:ok, project} ->
+        Cachex.del(@cache, {:project_user, user_id})
+        {:ok, project}
+
+      error ->
+        error
+    end
+  end
+
+  def delete_project(%Project{} = project) do
+    case set_project_inactive(project) do
+      {:ok, updated} ->
+        # If deleted project was default, promote next one
+        if project.is_default do
+          next =
+            Project
+            |> where([p], p.user_id == ^project.user_id and p.status == "active" and p.id != ^project.id)
+            |> order_by([p], asc: p.inserted_at)
+            |> limit(1)
+            |> Repo.one()
+
+          if next do
+            next |> Project.changeset(%{is_default: true}) |> Repo.update()
+          end
+        end
+
+        Cachex.del(@cache, {:project_user, project.user_id})
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
 
   def list_projects(opts \\ []) do
@@ -59,12 +157,17 @@ defmodule StreamflixCore.Platform do
     prefix = String.slice(raw_key, 0, 12)
     key_hash = hash_api_key(raw_key)
 
+    scopes = attrs["scopes"] || attrs[:scopes] || ["*"]
+    allowed_ips = attrs["allowed_ips"] || attrs[:allowed_ips] || []
+
     case %ApiKey{}
          |> ApiKey.changeset(Map.merge(attrs, %{
            project_id: project_id,
            prefix: prefix,
            key_hash: key_hash,
-           name: attrs["name"] || attrs[:name] || "Default"
+           name: attrs["name"] || attrs[:name] || "Default",
+           scopes: scopes,
+           allowed_ips: allowed_ips
          }))
          |> Repo.insert() do
       {:ok, api_key} -> {:ok, api_key, raw_key}
@@ -74,11 +177,23 @@ defmodule StreamflixCore.Platform do
 
   def verify_api_key(_prefix, raw_key) when is_binary(raw_key) do
     key_hash = hash_api_key(raw_key)
-    ApiKey
-    |> where([k], k.key_hash == ^key_hash and k.status == "active")
-    |> join(:inner, [k], p in Project, on: p.id == k.project_id and p.status == "active")
-    |> preload([k, p], [project: p])
-    |> Repo.one()
+    cache_key = {:api_key, key_hash}
+
+    case Cachex.get(@cache, cache_key) do
+      {:ok, nil} ->
+        result =
+          ApiKey
+          |> where([k], k.key_hash == ^key_hash and k.status == "active")
+          |> join(:inner, [k], p in Project, on: p.id == k.project_id and p.status == "active")
+          |> preload([k, p], [project: p])
+          |> Repo.one()
+
+        if result, do: Cachex.put(@cache, cache_key, result, ttl: @api_key_ttl)
+        result
+
+      {:ok, cached} ->
+        cached
+    end
   end
 
   def get_api_key_for_project(project_id) do
@@ -90,12 +205,25 @@ defmodule StreamflixCore.Platform do
   end
 
   def regenerate_api_key(project_id) do
+    # Preserve scopes and allowed_ips from current active key
+    current_key = get_api_key_for_project(project_id)
+    scopes = if current_key, do: current_key.scopes || ["*"], else: ["*"]
+    allowed_ips = if current_key, do: current_key.allowed_ips || [], else: []
+
     # Deactivate existing keys for this project
     ApiKey
     |> where([k], k.project_id == ^project_id)
     |> Repo.update_all(set: [status: "inactive", updated_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)])
 
-    create_api_key(project_id, %{name: "Default"})
+    invalidate_api_key_cache()
+    create_api_key(project_id, %{name: "Default", scopes: scopes, allowed_ips: allowed_ips})
+  end
+
+  def list_api_keys_for_project(project_id) do
+    ApiKey
+    |> where([k], k.project_id == ^project_id and k.status == "active")
+    |> order_by([k], desc: k.inserted_at)
+    |> Repo.all()
   end
 
   def set_api_key_inactive(%ApiKey{} = key) do
@@ -104,7 +232,7 @@ defmodule StreamflixCore.Platform do
     |> Repo.update()
   end
 
-  defp generate_raw_api_key do
+  defp generate_raw_api_key() do
     @prefix <> Base.url_encode64(:crypto.strong_rand_bytes(@key_byte_length), padding: false)
   end
 
@@ -112,13 +240,103 @@ defmodule StreamflixCore.Platform do
     :crypto.hash(:sha256, raw) |> Base.encode64(padding: false)
   end
 
+  # ---------- Webhook Templates ----------
+
+  @webhook_templates [
+    %{
+      id: "slack",
+      name: "Slack",
+      description: "Enviar a un canal de Slack via Incoming Webhook",
+      body_config: %{
+        "body_mode" => "custom",
+        "template" => %{
+          "text" => "Nuevo evento: {{topic}}",
+          "blocks" => [
+            %{
+              "type" => "section",
+              "text" => %{
+                "type" => "mrkdwn",
+                "text" => "*{{topic}}*\n```{{payload}}```"
+              }
+            }
+          ]
+        }
+      },
+      headers: %{"content-type" => "application/json"},
+      url_placeholder: "https://hooks.slack.com/services/T.../B.../xxx"
+    },
+    %{
+      id: "discord",
+      name: "Discord",
+      description: "Enviar a un canal de Discord via Webhook URL",
+      body_config: %{
+        "body_mode" => "custom",
+        "template" => %{
+          "content" => "Evento: {{topic}}",
+          "embeds" => [
+            %{
+              "title" => "{{topic}}",
+              "description" => "{{payload}}"
+            }
+          ]
+        }
+      },
+      headers: %{"content-type" => "application/json"},
+      url_placeholder: "https://discord.com/api/webhooks/ID/TOKEN"
+    },
+    %{
+      id: "telegram",
+      name: "Telegram Bot",
+      description: "Enviar mensaje via Telegram Bot API",
+      body_config: %{
+        "body_mode" => "custom",
+        "template" => %{
+          "chat_id" => "{{CHAT_ID}}",
+          "text" => "Evento {{topic}}: {{payload}}"
+        }
+      },
+      headers: %{"content-type" => "application/json"},
+      url_placeholder: "https://api.telegram.org/botTOKEN/sendMessage"
+    },
+    %{
+      id: "generic",
+      name: "Generic JSON",
+      description: "Payload completo como JSON",
+      body_config: %{"body_mode" => "full"},
+      headers: %{"content-type" => "application/json"},
+      url_placeholder: "https://your-endpoint.com/webhook"
+    },
+    %{
+      id: "custom",
+      name: "Custom",
+      description: "Configurar manualmente",
+      body_config: nil,
+      headers: %{},
+      url_placeholder: "https://your-endpoint.com/webhook"
+    }
+  ]
+
+  def webhook_templates, do: @webhook_templates
+
+  def get_webhook_template(id) do
+    Enum.find(@webhook_templates, fn t -> t.id == id end)
+  end
+
   # ---------- Webhooks ----------
 
   def create_webhook(project_id, attrs) do
     attrs = Map.merge(attrs, %{"project_id" => project_id})
-    %Webhook{}
-    |> Webhook.changeset(attrs)
-    |> Repo.insert()
+
+    case %Webhook{}
+         |> Webhook.changeset(attrs)
+         |> Repo.insert() do
+      {:ok, webhook} ->
+        Cachex.del(@cache, {:active_webhooks, project_id})
+        {:ok, webhook}
+
+      error ->
+        error
+    end
   end
 
   def list_webhooks(project_id, opts \\ []) do
@@ -134,9 +352,16 @@ defmodule StreamflixCore.Platform do
   def get_webhook!(id), do: Repo.get!(Webhook, id)
 
   def update_webhook(%Webhook{} = webhook, attrs) do
-    webhook
-    |> Webhook.changeset(attrs)
-    |> Repo.update()
+    case webhook
+         |> Webhook.changeset(attrs)
+         |> Repo.update() do
+      {:ok, updated} ->
+        Cachex.del(@cache, {:active_webhooks, webhook.project_id})
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
 
   def set_webhook_inactive(%Webhook{} = webhook) do
@@ -144,9 +369,21 @@ defmodule StreamflixCore.Platform do
   end
 
   def list_active_webhooks_for_project(project_id) do
-    Webhook
-    |> where([w], w.project_id == ^project_id and w.status == "active")
-    |> Repo.all()
+    cache_key = {:active_webhooks, project_id}
+
+    case Cachex.get(@cache, cache_key) do
+      {:ok, nil} ->
+        result =
+          Webhook
+          |> where([w], w.project_id == ^project_id and w.status == "active")
+          |> Repo.all()
+
+        Cachex.put(@cache, cache_key, result, ttl: @webhooks_ttl)
+        result
+
+      {:ok, cached} ->
+        cached
+    end
   end
 
   # ---------- Events (webhook_events) ----------
@@ -155,21 +392,52 @@ defmodule StreamflixCore.Platform do
     {topic, payload} = extract_topic_and_payload(body)
     occurred_at = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
+    # Schema validation (opt-in: no schema = pass)
+    case validate_event_payload(project_id, topic, payload) do
+      :ok -> :ok
+      {:error, _} = err -> throw(err)
+    end
+
+    # Parse deliver_at for delayed events
+    deliver_at = parse_deliver_at(body)
+
     attrs = %{
       project_id: project_id,
       topic: topic,
       payload: payload,
       status: "active",
-      occurred_at: occurred_at
+      occurred_at: occurred_at,
+      deliver_at: deliver_at
     }
 
-    with {:ok, event} <- insert_event(attrs),
-         :ok <- create_deliveries_for_event(event) do
+    with {:ok, event} <- insert_event(attrs) do
+      # Skip immediate delivery if future deliver_at
+      if is_nil(deliver_at) or DateTime.compare(deliver_at, DateTime.utc_now()) != :gt do
+        create_deliveries_for_event(event)
+      end
+
+      broadcast(project_id, {:event_created, event})
       {:ok, event}
     end
+  catch
+    {:error, {:schema_validation, _errors}} = err -> err
   end
 
   def create_event(_project_id, _), do: {:error, :invalid_payload}
+
+  defp parse_deliver_at(body) do
+    raw = Map.get(body, "deliver_at") || Map.get(body, :deliver_at)
+
+    case raw do
+      nil -> nil
+      str when is_binary(str) ->
+        case DateTime.from_iso8601(str) do
+          {:ok, dt, _} -> DateTime.truncate(dt, :microsecond)
+          _ -> nil
+        end
+      _ -> nil
+    end
+  end
 
   defp extract_topic_and_payload(body) do
     case Map.get(body, "topic") || Map.get(body, :topic) do
@@ -190,18 +458,27 @@ defmodule StreamflixCore.Platform do
     matching = Enum.filter(webhooks, &webhook_matches_event?(&1, event))
 
     Enum.each(matching, fn w ->
-      case %Delivery{}
-           |> Delivery.changeset(%{
-             event_id: event.id,
-             webhook_id: w.id,
-             status: "pending",
-             attempt_number: 0
-           })
-           |> Repo.insert() do
-        {:ok, delivery} ->
-          Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id}))
-        _ ->
-          :ok
+      batch_config = w.batch_config || %{}
+
+      if batch_config["enabled"] == true do
+        # Add to batch queue instead of immediate delivery
+        %BatchItem{}
+        |> BatchItem.changeset(%{webhook_id: w.id, event_id: event.id})
+        |> Repo.insert()
+      else
+        case %Delivery{}
+             |> Delivery.changeset(%{
+               event_id: event.id,
+               webhook_id: w.id,
+               status: "pending",
+               attempt_number: 0
+             })
+             |> Repo.insert() do
+          {:ok, delivery} ->
+            Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id}))
+          _ ->
+            :ok
+        end
       end
     end)
 
@@ -428,7 +705,7 @@ defmodule StreamflixCore.Platform do
     update_job(job, %{status: "inactive"})
   end
 
-  def list_jobs_to_run_now do
+  def list_jobs_to_run_now() do
     now = DateTime.utc_now()
     today_sec = now.hour * 3600 + now.minute * 60 + now.second
     date = DateTime.to_date(now)
@@ -498,6 +775,30 @@ defmodule StreamflixCore.Platform do
     end
   end
 
+  @doc """
+  Calculate next N execution times for a cron expression.
+  Returns list of DateTime structs.
+  """
+  def next_cron_executions(cron_expr, count \\ 5) when is_binary(cron_expr) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    # Start from the next full minute
+    start = DateTime.add(now, 60 - now.second, :second)
+
+    Stream.iterate(start, fn dt -> DateTime.add(dt, 60, :second) end)
+    |> Stream.filter(fn dt ->
+      date = DateTime.to_date(dt)
+      cron_matches?(
+        cron_expr,
+        dt.minute,
+        dt.hour,
+        date.day,
+        date.month,
+        Date.day_of_week(date)
+      )
+    end)
+    |> Enum.take(count)
+  end
+
   def list_job_runs(job_id, opts \\ []) do
     limit = Keyword.get(opts, :limit, 20)
     JobRun
@@ -518,10 +819,591 @@ defmodule StreamflixCore.Platform do
     |> Repo.insert()
   end
 
+  # ---------- Dead Letter Queue ----------
+
+  def create_dead_letter(attrs) do
+    %DeadLetter{}
+    |> DeadLetter.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def list_dead_letters(project_id, opts \\ []) do
+    resolved = Keyword.get(opts, :resolved, false)
+    limit = Keyword.get(opts, :limit, 50)
+
+    DeadLetter
+    |> where([dl], dl.project_id == ^project_id and dl.resolved == ^resolved)
+    |> order_by([dl], desc: dl.inserted_at)
+    |> limit(^limit)
+    |> preload([:webhook, :event])
+    |> Repo.all()
+  end
+
+  def get_dead_letter(id), do: Repo.get(DeadLetter, id) |> Repo.preload([:webhook, :event])
+
+  def resolve_dead_letter(id) do
+    case Repo.get(DeadLetter, id) do
+      nil -> {:error, :not_found}
+      dl ->
+        dl
+        |> DeadLetter.changeset(%{resolved: true, resolved_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)})
+        |> Repo.update()
+    end
+  end
+
+  def retry_dead_letter(id, modified_payload \\ nil) do
+    case Repo.get(DeadLetter, id) |> Repo.preload([:event, :webhook]) do
+      nil -> {:error, :not_found}
+      dl ->
+        _payload = modified_payload || dl.original_payload
+        webhook = dl.webhook
+
+        if is_nil(webhook) or webhook.status == "inactive" do
+          {:error, :webhook_inactive}
+        else
+          case %Delivery{}
+               |> Delivery.changeset(%{
+                 event_id: dl.event_id,
+                 webhook_id: dl.webhook_id,
+                 status: "pending",
+                 attempt_number: 0
+               })
+               |> Repo.insert() do
+            {:ok, delivery} ->
+              Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id}))
+              resolve_dead_letter(id)
+              {:ok, delivery}
+
+            error ->
+              error
+          end
+        end
+    end
+  end
+
+  # ---------- Webhook Health Score ----------
+
+  @doc "Calculate health score for a webhook based on last 24h deliveries"
+  def webhook_health(webhook_id) do
+    since = DateTime.utc_now() |> DateTime.add(-24, :hour) |> DateTime.truncate(:microsecond)
+
+    stats =
+      Repo.one(
+        from(d in Delivery,
+          where: d.webhook_id == ^webhook_id and d.inserted_at >= ^since,
+          select: %{
+            total: count(d.id),
+            success: count(fragment("CASE WHEN ? = 'success' THEN 1 END", d.status)),
+            failed: count(fragment("CASE WHEN ? = 'failed' THEN 1 END", d.status)),
+            avg_latency:
+              avg(fragment("EXTRACT(EPOCH FROM ? - ?)", d.updated_at, d.inserted_at))
+          }
+        )
+      )
+
+    success_rate =
+      if stats.total > 0,
+        do: Float.round(stats.success / stats.total * 100, 1),
+        else: 100.0
+
+    score =
+      cond do
+        stats.total == 0 -> :no_data
+        success_rate >= 98 -> :healthy
+        success_rate >= 90 -> :degraded
+        true -> :critical
+      end
+
+    %{
+      score: score,
+      success_rate: success_rate,
+      total: stats.total,
+      success: stats.success,
+      failed: stats.failed,
+      avg_latency: if(stats.avg_latency, do: Float.round(stats.avg_latency * 1.0, 2), else: nil)
+    }
+  end
+
+  @doc "Calculate health for all webhooks of a project"
+  def webhooks_health(project_id) do
+    webhooks = list_webhooks(project_id)
+
+    Enum.map(webhooks, fn w ->
+      {w.id, webhook_health(w.id)}
+    end)
+    |> Map.new()
+  end
+
+  # ---------- Webhook Simulator ----------
+
+  @doc "Simulate an event: show which webhooks would match without sending"
+  def simulate_event(project_id, body) when is_map(body) do
+    {topic, payload} = extract_topic_and_payload(body)
+    webhooks = list_active_webhooks_for_project(project_id)
+
+    fake_event = %{topic: topic, payload: payload, id: "simulated", occurred_at: DateTime.utc_now()}
+
+    matching = Enum.filter(webhooks, &webhook_matches_event?(&1, fake_event))
+
+    Enum.map(matching, fn webhook ->
+      body_to_send = build_webhook_body(webhook, fake_event)
+      body_json = Jason.encode!(body_to_send)
+
+      signature =
+        if webhook.secret_encrypted && webhook.secret_encrypted != "" do
+          sig = :crypto.mac(:hmac, :sha256, webhook.secret_encrypted, body_json) |> Base.encode64(padding: false)
+          "sha256=#{sig}"
+        else
+          nil
+        end
+
+      %{
+        webhook_id: webhook.id,
+        webhook_url: webhook.url,
+        would_send_body: body_to_send,
+        would_send_headers: %{
+          "content-type" => "application/json",
+          "x-signature" => signature
+        },
+        matched_by_topics: topic in (webhook.topics || []) or webhook.topics == [],
+        matched_by_filters: filters_match?(webhook.filters || [], topic, payload)
+      }
+    end)
+  end
+
+  def simulate_event(_project_id, _), do: {:error, :invalid_payload}
+
+  # ---------- Event Replay ----------
+
+  def create_replay(project_id, user_id, filters) do
+    # Count matching events
+    topic = filters["topic"]
+    from_date = parse_replay_datetime(filters["from_date"])
+    to_date = parse_replay_datetime(filters["to_date"])
+
+    total = count_events_for_replay(project_id, topic, from_date, to_date)
+
+    attrs = %{
+      project_id: project_id,
+      created_by: user_id,
+      status: "pending",
+      filters: filters,
+      total_events: total
+    }
+
+    case %Replay{} |> Replay.changeset(attrs) |> Repo.insert() do
+      {:ok, replay} ->
+        Oban.insert(StreamflixCore.Platform.ObanReplayWorker.new(%{replay_id: replay.id}))
+        {:ok, replay}
+
+      error ->
+        error
+    end
+  end
+
+  def list_replays(project_id, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 20)
+
+    Replay
+    |> where([r], r.project_id == ^project_id)
+    |> order_by([r], desc: r.inserted_at)
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
+  def get_replay(id), do: Repo.get(Replay, id)
+
+  def cancel_replay(id) do
+    case Repo.get(Replay, id) do
+      nil -> {:error, :not_found}
+      %{status: status} when status in ["completed", "cancelled", "failed"] -> {:error, :already_finished}
+      replay ->
+        replay
+        |> Replay.changeset(%{status: "cancelled"})
+        |> Repo.update()
+    end
+  end
+
+  defp count_events_for_replay(project_id, topic, from_date, to_date) do
+    query =
+      WebhookEvent
+      |> where([e], e.project_id == ^project_id and e.status == "active")
+
+    query = if topic && topic != "", do: where(query, [e], e.topic == ^topic), else: query
+    query = if from_date, do: where(query, [e], e.occurred_at >= ^from_date), else: query
+    query = if to_date, do: where(query, [e], e.occurred_at <= ^to_date), else: query
+
+    query
+    |> select([e], count(e.id))
+    |> Repo.one()
+  end
+
+  defp parse_replay_datetime(nil), do: nil
+  defp parse_replay_datetime(""), do: nil
+  defp parse_replay_datetime(str) when is_binary(str) do
+    case DateTime.from_iso8601(str) do
+      {:ok, dt, _} -> DateTime.truncate(dt, :microsecond)
+      _ ->
+        case NaiveDateTime.from_iso8601(str) do
+          {:ok, ndt} -> DateTime.from_naive!(ndt, "Etc/UTC") |> DateTime.truncate(:microsecond)
+          _ -> nil
+        end
+    end
+  end
+  defp parse_replay_datetime(_), do: nil
+
+  # ---------- Sandbox ----------
+
+  def create_sandbox_endpoint(project_id, name \\ nil) do
+    slug = generate_sandbox_slug()
+    expires_at = DateTime.utc_now() |> DateTime.add(24, :hour) |> DateTime.truncate(:microsecond)
+
+    %SandboxEndpoint{}
+    |> SandboxEndpoint.changeset(%{
+      project_id: project_id,
+      slug: slug,
+      name: name || "Sandbox #{slug}",
+      expires_at: expires_at
+    })
+    |> Repo.insert()
+  end
+
+  def list_sandbox_endpoints(project_id) do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    SandboxEndpoint
+    |> where([s], s.project_id == ^project_id and s.expires_at > ^now)
+    |> order_by([s], desc: s.inserted_at)
+    |> Repo.all()
+  end
+
+  def get_sandbox_by_slug(slug) do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    SandboxEndpoint
+    |> where([s], s.slug == ^slug and s.expires_at > ^now)
+    |> Repo.one()
+  end
+
+  def delete_sandbox_endpoint(id) do
+    case Repo.get(SandboxEndpoint, id) do
+      nil -> {:error, :not_found}
+      endpoint -> Repo.delete(endpoint)
+    end
+  end
+
+  def record_sandbox_request(endpoint_id, attrs) do
+    %SandboxRequest{}
+    |> SandboxRequest.changeset(Map.put(attrs, :endpoint_id, endpoint_id))
+    |> Repo.insert()
+    |> case do
+      {:ok, req} ->
+        endpoint = Repo.get(SandboxEndpoint, endpoint_id) |> Repo.preload(:project)
+        if endpoint do
+          broadcast(endpoint.project_id, {:sandbox_request, req})
+        end
+        {:ok, req}
+
+      error ->
+        error
+    end
+  end
+
+  def list_sandbox_requests(endpoint_id, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 50)
+
+    SandboxRequest
+    |> where([r], r.endpoint_id == ^endpoint_id)
+    |> order_by([r], desc: r.inserted_at)
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
+  defp generate_sandbox_slug() do
+    :crypto.strong_rand_bytes(8) |> Base.url_encode64(padding: false) |> String.downcase()
+  end
+
+  # ---------- Analytics ----------
+
+  @doc "Events per day for the last N days"
+  def events_per_day(project_id, days \\ 30) do
+    since = DateTime.utc_now() |> DateTime.add(-days, :day) |> DateTime.truncate(:microsecond)
+
+    from(e in WebhookEvent,
+      where: e.project_id == ^project_id and e.inserted_at >= ^since,
+      group_by: fragment("DATE(?)", e.inserted_at),
+      order_by: fragment("DATE(?)", e.inserted_at),
+      select: %{date: fragment("DATE(?)", e.inserted_at), count: count(e.id)}
+    )
+    |> Repo.all()
+  end
+
+  @doc "Delivery stats (success vs failed) per day"
+  def deliveries_per_day(project_id, days \\ 30) do
+    since = DateTime.utc_now() |> DateTime.add(-days, :day) |> DateTime.truncate(:microsecond)
+
+    from(d in Delivery,
+      join: e in WebhookEvent, on: e.id == d.event_id,
+      where: e.project_id == ^project_id and d.inserted_at >= ^since,
+      group_by: fragment("DATE(?)", d.inserted_at),
+      order_by: fragment("DATE(?)", d.inserted_at),
+      select: %{
+        date: fragment("DATE(?)", d.inserted_at),
+        success: count(fragment("CASE WHEN ? = 'success' THEN 1 END", d.status)),
+        failed: count(fragment("CASE WHEN ? = 'failed' THEN 1 END", d.status)),
+        total: count(d.id)
+      }
+    )
+    |> Repo.all()
+  end
+
+  @doc "Top topics by event volume"
+  def top_topics(project_id, limit_count \\ 10) do
+    from(e in WebhookEvent,
+      where: e.project_id == ^project_id and e.status == "active" and not is_nil(e.topic) and e.topic != "",
+      group_by: e.topic,
+      order_by: [desc: count(e.id)],
+      limit: ^limit_count,
+      select: %{topic: e.topic, count: count(e.id)}
+    )
+    |> Repo.all()
+  end
+
+  @doc "Delivery stats per webhook (last 7 days)"
+  def delivery_stats_by_webhook(project_id) do
+    since = DateTime.utc_now() |> DateTime.add(-7, :day) |> DateTime.truncate(:microsecond)
+
+    from(d in Delivery,
+      join: w in Webhook, on: w.id == d.webhook_id,
+      where: w.project_id == ^project_id and d.inserted_at >= ^since,
+      group_by: [w.id, w.url],
+      select: %{
+        webhook_id: w.id,
+        webhook_url: w.url,
+        total: count(d.id),
+        success: count(fragment("CASE WHEN ? = 'success' THEN 1 END", d.status)),
+        failed: count(fragment("CASE WHEN ? = 'failed' THEN 1 END", d.status))
+      }
+    )
+    |> Repo.all()
+  end
+
+  # ---------- Event Schemas (B14) ----------
+
+  def create_event_schema(project_id, attrs) do
+    attrs = Map.merge(attrs, %{"project_id" => project_id})
+
+    %EventSchema{}
+    |> EventSchema.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def list_event_schemas(project_id, opts \\ []) do
+    include_inactive = Keyword.get(opts, :include_inactive, false)
+
+    EventSchema
+    |> where([s], s.project_id == ^project_id)
+    |> maybe_filter_active(:status, include_inactive)
+    |> order_by([s], desc: s.inserted_at)
+    |> Repo.all()
+  end
+
+  def get_event_schema(id), do: Repo.get(EventSchema, id)
+
+  def update_event_schema(%EventSchema{} = schema, attrs) do
+    schema
+    |> EventSchema.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_event_schema(%EventSchema{} = schema) do
+    update_event_schema(schema, %{status: "inactive"})
+  end
+
+  def validate_event_payload(project_id, topic, payload) do
+    case topic do
+      nil -> :ok
+      "" -> :ok
+      t ->
+        schema_record =
+          EventSchema
+          |> where([s], s.project_id == ^project_id and s.topic == ^t and s.status == "active")
+          |> order_by([s], desc: s.version)
+          |> limit(1)
+          |> Repo.one()
+
+        case schema_record do
+          nil -> :ok
+          %{schema: json_schema} ->
+            resolved = ExJsonSchema.Schema.resolve(json_schema)
+
+            case ExJsonSchema.Validator.validate(resolved, payload) do
+              :ok -> :ok
+              {:error, errors} -> {:error, {:schema_validation, errors}}
+            end
+        end
+    end
+  end
+
+  def dry_validate_event_payload(project_id, topic, payload) do
+    validate_event_payload(project_id, topic, payload)
+  end
+
+  # ---------- Delayed Events (B10) ----------
+
+  def process_delayed_events() do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    events =
+      WebhookEvent
+      |> where([e], not is_nil(e.deliver_at) and e.deliver_at <= ^now and e.status == "active")
+      |> join(:left, [e], d in Delivery, on: d.event_id == e.id)
+      |> group_by([e, d], e.id)
+      |> having([e, d], count(d.id) == 0)
+      |> select([e, d], e)
+      |> Repo.all()
+
+    Enum.each(events, fn event ->
+      create_deliveries_for_event(event)
+      broadcast(event.project_id, {:delayed_event_delivered, event})
+    end)
+
+    {:ok, length(events)}
+  end
+
   # ---------- Helpers ----------
 
   defp maybe_filter_active(query, _field, true), do: query
   defp maybe_filter_active(query, field, false) do
     where(query, [x], field(x, ^field) == "active")
+  end
+
+  # ---------- Cache Invalidation ----------
+
+  defp invalidate_api_key_cache() do
+    Cachex.keys(@cache)
+    |> then(fn
+      {:ok, keys} -> keys
+      _ -> []
+    end)
+    |> Enum.filter(fn
+      {:api_key, _} -> true
+      _ -> false
+    end)
+    |> Enum.each(&Cachex.del(@cache, &1))
+  end
+
+  @doc "Invalidate all caches for a project (call after major changes)"
+  def invalidate_project_cache(project_id) do
+    Cachex.del(@cache, {:active_webhooks, project_id})
+    Cachex.del(@cache, {:project_user, project_id})
+  end
+
+  # ---------- Cursor Pagination ----------
+
+  @default_page_size 50
+  @max_page_size 200
+
+  @doc """
+  Paginate events with cursor-based pagination.
+  Returns %{data: [...], has_next: bool, next_cursor: string | nil}
+  Cursor is the ID of the last item in the current page.
+  """
+  def paginate_events(project_id, opts \\ []) do
+    limit = parse_limit(opts)
+    cursor = Keyword.get(opts, :cursor)
+    topic = Keyword.get(opts, :topic)
+
+    query =
+      WebhookEvent
+      |> where([e], e.project_id == ^project_id and e.status == "active")
+      |> maybe_filter_topic(topic)
+      |> order_by([e], desc: e.occurred_at, desc: e.id)
+
+    query = apply_cursor(query, cursor, :occurred_at)
+
+    items = query |> limit(^(limit + 1)) |> Repo.all()
+    build_page(items, limit)
+  end
+
+  @doc "Paginate deliveries with cursor-based pagination."
+  def paginate_deliveries(opts \\ []) do
+    limit = parse_limit(opts)
+    cursor = Keyword.get(opts, :cursor)
+    project_id = Keyword.get(opts, :project_id)
+    status = Keyword.get(opts, :status)
+    webhook_id = Keyword.get(opts, :webhook_id)
+
+    query =
+      Delivery
+      |> maybe_where(:status, status)
+      |> maybe_where(:webhook_id, webhook_id)
+      |> order_by([d], desc: d.inserted_at, desc: d.id)
+
+    query =
+      if project_id do
+        event_ids = from(e in WebhookEvent, where: e.project_id == ^project_id, select: e.id)
+        where(query, [d], d.event_id in subquery(event_ids))
+      else
+        query
+      end
+
+    query = apply_cursor(query, cursor, :inserted_at)
+
+    items = query |> limit(^(limit + 1)) |> preload([:event, :webhook]) |> Repo.all()
+    build_page(items, limit)
+  end
+
+  @doc "Paginate dead letters with cursor-based pagination."
+  def paginate_dead_letters(project_id, opts \\ []) do
+    limit = parse_limit(opts)
+    cursor = Keyword.get(opts, :cursor)
+    resolved = Keyword.get(opts, :resolved, false)
+
+    query =
+      DeadLetter
+      |> where([dl], dl.project_id == ^project_id and dl.resolved == ^resolved)
+      |> order_by([dl], desc: dl.inserted_at, desc: dl.id)
+
+    query = apply_cursor(query, cursor, :inserted_at)
+
+    items = query |> limit(^(limit + 1)) |> preload([:webhook, :event]) |> Repo.all()
+    build_page(items, limit)
+  end
+
+  defp apply_cursor(query, nil, _field), do: query
+  defp apply_cursor(query, cursor, field) do
+    case Repo.get(query |> exclude(:order_by) |> exclude(:limit) |> limit(1) |> where([x], x.id == ^cursor), cursor) do
+      nil -> query
+      record ->
+        cursor_val = Map.get(record, field)
+        where(query, [x], field(x, ^field) < ^cursor_val or (field(x, ^field) == ^cursor_val and x.id < ^cursor))
+    end
+  end
+
+  defp parse_limit(opts) do
+    limit = Keyword.get(opts, :limit, @default_page_size)
+    min(max(limit, 1), @max_page_size)
+  end
+
+  defp build_page(items, limit) do
+    has_next = length(items) > limit
+    data = Enum.take(items, limit)
+    next_cursor = if has_next and data != [], do: List.last(data).id, else: nil
+
+    %{data: data, has_next: has_next, next_cursor: next_cursor}
+  end
+
+  # ---------- PubSub ----------
+
+  @pubsub StreamflixCore.PubSub
+
+  @doc "Subscribe to real-time updates for a project"
+  def subscribe(project_id) do
+    Phoenix.PubSub.subscribe(@pubsub, "project:#{project_id}")
+  end
+
+  defp broadcast(project_id, message) do
+    Phoenix.PubSub.broadcast(@pubsub, "project:#{project_id}", message)
   end
 end

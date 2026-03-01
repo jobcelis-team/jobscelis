@@ -1,37 +1,39 @@
 defmodule StreamflixWebWeb.ConnCase do
   @moduledoc """
-  This module defines the test case to be used by
-  tests that require setting up a connection.
-
-  Such tests rely on `Phoenix.ConnTest` and also
-  import other functionality to make it easier
-  to build common data structures and query the data layer.
-
-  Finally, if the test case interacts with the database,
-  we enable the SQL sandbox, so changes done to the database
-  are reverted at the end of every test. If you are using
-  PostgreSQL, you can even run database tests asynchronously
-  by setting `use StreamflixWebWeb.ConnCase, async: true`, although
-  this option is not recommended for other databases.
+  Test case for tests that require setting up a connection.
   """
-
   use ExUnit.CaseTemplate
 
   using do
     quote do
-      # The default endpoint for testing
       @endpoint StreamflixWebWeb.Endpoint
 
       use StreamflixWebWeb, :verified_routes
 
-      # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
       import StreamflixWebWeb.ConnCase
+      import StreamflixCore.Factory
     end
   end
 
-  setup _tags do
+  setup tags do
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(StreamflixCore.Repo, shared: not tags[:async])
+    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
+  end
+
+  @doc "Creates a project and returns a conn with API key set"
+  def setup_api_conn(%{conn: conn}) do
+    project = StreamflixCore.Factory.insert(:project)
+    token = "test_token_#{System.unique_integer([:positive])}"
+    hash = Base.encode16(:crypto.hash(:sha256, token), case: :lower)
+
+    project
+    |> Ecto.Changeset.change(%{api_key_hash: hash, api_key_prefix: String.slice(token, 0, 8)})
+    |> StreamflixCore.Repo.update!()
+
+    conn = put_req_header(conn, "x-api-key", token)
+    %{conn: conn, project: project, api_token: token}
   end
 end

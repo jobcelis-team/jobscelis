@@ -25,11 +25,32 @@ defmodule StreamflixAccounts.Services.Authentication do
           {:error, :account_inactive}
         else
           if Pbkdf2.verify_pass(password, user.password_hash) do
+            maybe_rehash(user, password)
             {:ok, user}
           else
             {:error, :invalid_credentials}
           end
         end
+    end
+  end
+
+  # Re-hash with current config if the stored hash used fewer rounds
+  defp maybe_rehash(user, password) do
+    configured_rounds = Application.get_env(:pbkdf2_elixir, :rounds, 210_000)
+
+    if needs_rehash?(user.password_hash, configured_rounds) do
+      new_hash = Pbkdf2.hash_pwd_salt(password)
+
+      user
+      |> Ecto.Changeset.change(password_hash: new_hash)
+      |> Repo.update()
+    end
+  end
+
+  defp needs_rehash?(hash, target_rounds) do
+    case Regex.run(~r/rounds=(\d+)/, hash) do
+      [_, rounds_str] -> String.to_integer(rounds_str) < target_rounds
+      _ -> true
     end
   end
 

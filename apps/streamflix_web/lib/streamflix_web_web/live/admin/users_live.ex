@@ -115,7 +115,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
     |> Enum.join("; ")
   end
 
-  defp load_users_from_db do
+  defp load_users_from_db() do
     User
     |> order_by([u], desc: u.inserted_at)
     |> limit(100)

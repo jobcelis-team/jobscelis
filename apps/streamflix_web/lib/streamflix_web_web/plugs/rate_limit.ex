@@ -74,7 +74,7 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
     end
   end
 
-  defp ensure_table! do
+  defp ensure_table!() do
     case :ets.whereis(@table) do
       :undefined ->
         :ets.new(@table, [:set, :public, :named_table, read_concurrency: true])

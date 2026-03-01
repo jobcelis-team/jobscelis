@@ -88,7 +88,7 @@ defmodule StreamflixAccounts.Schemas.User do
       nil ->
         changeset
       password ->
-        # Using Pbkdf2 instead of Bcrypt (pure Elixir, no C compiler needed on Windows)
+        # PBKDF2-SHA512 with 210,000 rounds (OWASP-compliant)
         put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(password))
     end
   end

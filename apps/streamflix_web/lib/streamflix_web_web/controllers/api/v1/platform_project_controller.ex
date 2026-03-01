@@ -1,7 +1,18 @@
 defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
   use StreamflixWebWeb, :controller
+  use OpenApiSpex.ControllerSpecs
 
   alias StreamflixCore.Platform
+  alias StreamflixWebWeb.Schemas
+
+  tags ["Project"]
+  security [%{"api_key" => []}]
+
+  operation :show,
+    summary: "Get current project details",
+    responses: [
+      ok: {"Project details", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{id: %OpenApiSpex.Schema{type: :string}, name: %OpenApiSpex.Schema{type: :string}, status: %OpenApiSpex.Schema{type: :string}, settings: %OpenApiSpex.Schema{type: :object}}}}
+    ]
 
   def show(conn, _params) do
     project = conn.assigns.current_project
@@ -13,6 +24,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
     })
   end
 
+  operation :update,
+    summary: "Update project settings",
+    request_body: {"Project attributes", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{name: %OpenApiSpex.Schema{type: :string}, settings: %OpenApiSpex.Schema{type: :object}}}},
+    responses: [
+      ok: {"Project updated", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{id: %OpenApiSpex.Schema{type: :string}, name: %OpenApiSpex.Schema{type: :string}, status: %OpenApiSpex.Schema{type: :string}}}},
+      unprocessable_entity: {"Validation errors", "application/json", Schemas.ErrorResponse}
+    ]
+
   def update(conn, params) do
     project = conn.assigns.current_project
     attrs = Map.take(params, ["name", "settings"])
@@ -23,11 +42,23 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
     end
   end
 
+  operation :topics,
+    summary: "List topics used in project",
+    responses: [
+      ok: {"Topics list", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{topics: %OpenApiSpex.Schema{type: :array, items: %OpenApiSpex.Schema{type: :string}}}}}
+    ]
+
   def topics(conn, _params) do
     project = conn.assigns.current_project
     topics = Platform.list_topics_used(project.id)
     json(conn, %{topics: topics})
   end
+
+  operation :token,
+    summary: "Get API token info",
+    responses: [
+      ok: {"Token info", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{prefix: %OpenApiSpex.Schema{type: :string, nullable: true}, message: %OpenApiSpex.Schema{type: :string}}}}
+    ]
 
   def token(conn, _params) do
     project = conn.assigns.current_project
@@ -37,6 +68,13 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
       message: "Use Authorization: Bearer <your_key>. Regenerate from dashboard to get a new key."
     })
   end
+
+  operation :regenerate_token,
+    summary: "Regenerate project API token",
+    responses: [
+      ok: {"New token generated", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{token: %OpenApiSpex.Schema{type: :string}, message: %OpenApiSpex.Schema{type: :string}}}},
+      internal_server_error: {"Regeneration failed", "application/json", Schemas.ErrorResponse}
+    ]
 
   def regenerate_token(conn, _params) do
     project = conn.assigns.current_project

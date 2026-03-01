@@ -9,6 +9,10 @@ import Config
 # Do not print debug messages in production
 config :logger, level: :info
 
+# Structured JSON logging for production (easier to parse by log aggregators)
+config :logger, :default_handler,
+  formatter: {LoggerJSON.Formatters.Basic, metadata: [:request_id, :user_id]}
+
 # Disable dev routes in production
 config :streamflix_web, dev_routes: false
 
