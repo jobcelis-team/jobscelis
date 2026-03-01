@@ -72,7 +72,7 @@ defmodule StreamflixWebWeb.Layouts do
       @sticky && "sticky top-0"
     ]}>
       <nav
-        class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16"
+        class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 flex items-center justify-between h-16"
         aria-label={gettext("Navegación principal")}
       >
         <%!-- Logo --%>
@@ -288,7 +288,7 @@ defmodule StreamflixWebWeb.Layouts do
   def site_footer(assigns) do
     ~H"""
     <footer class="border-t border-slate-200 bg-white mt-auto" role="contentinfo">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-10">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <%!-- Brand column --%>
           <div>
