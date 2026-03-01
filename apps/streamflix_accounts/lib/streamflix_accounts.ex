@@ -35,6 +35,7 @@ defmodule StreamflixAccounts do
                 {:ok, _api_key, raw_key} -> raw_key
                 _ -> nil
               end
+
             _ ->
               nil
           end

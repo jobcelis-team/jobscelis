@@ -9,15 +9,15 @@ defmodule StreamflixCore.Schemas.Notification do
   @foreign_key_type :binary_id
 
   schema "notifications" do
-    field :type, :string
-    field :title, :string
-    field :message, :string
-    field :metadata, :map, default: %{}
-    field :read, :boolean, default: false
-    field :read_at, :utc_datetime_usec
+    field(:type, :string)
+    field(:title, :string)
+    field(:message, :string)
+    field(:metadata, :map, default: %{})
+    field(:read, :boolean, default: false)
+    field(:read_at, :utc_datetime_usec)
 
-    field :user_id, :binary_id
-    belongs_to :project, StreamflixCore.Schemas.Project
+    field(:user_id, :binary_id)
+    belongs_to(:project, StreamflixCore.Schemas.Project)
 
     timestamps(type: :utc_datetime_usec)
   end

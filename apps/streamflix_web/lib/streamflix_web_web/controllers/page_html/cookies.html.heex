@@ -1,51 +1,110 @@
-<Layouts.public flash={@flash} current_user={@current_user} locale={@locale} legal={@legal} active_page={@active_page}>
-    <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Política de cookies") %></h1>
-    <p class="text-slate-500 text-sm mb-8">
-      <%= gettext("Última actualización") %>: <%= Date.utc_today() |> Calendar.strftime("%d/%m/%Y") %>
-    </p>
+<Layouts.public
+  flash={@flash}
+  current_user={@current_user}
+  locale={@locale}
+  legal={@legal}
+  active_page={@active_page}
+>
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Política de cookies")}</h1>
 
-    <div class="prose prose-slate max-w-none text-slate-700 space-y-6">
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">1. <%= gettext("Qué son las cookies") %></h2>
-        <p><%= gettext("Las cookies son pequeños archivos de texto que el sitio web guarda en tu dispositivo (ordenador, tablet o móvil) cuando lo visitas. Se usan para recordar preferencias o mantener tu sesión.") %></p>
-      </section>
+  <p class="text-slate-500 text-sm mb-8">
+    {gettext("Última actualización")}: {Date.utc_today() |> Calendar.strftime("%d/%m/%Y")}
+  </p>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">2. <%= gettext("Cookies que usa este sitio") %></h2>
-        <p class="mb-4"><%= gettext("Este sitio utiliza únicamente cookies técnicas necesarias para el funcionamiento del servicio. No usamos cookies publicitarias ni de terceros para seguimiento.") %></p>
-        <div class="overflow-x-auto border border-slate-200 rounded-lg">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-100">
-              <tr>
-                <th class="px-4 py-2 text-left font-medium text-slate-700"><%= gettext("Nombre") %></th>
-                <th class="px-4 py-2 text-left font-medium text-slate-700"><%= gettext("Finalidad") %></th>
-                <th class="px-4 py-2 text-left font-medium text-slate-700"><%= gettext("Duración") %></th>
-              </tr>
-            </thead>
-            <tbody class="text-slate-600">
-              <tr class="border-t border-slate-200">
-                <td class="px-4 py-3 font-mono text-xs">_streamflix_web_key</td>
-                <td class="px-4 py-3"><%= gettext("Sesión de usuario: mantiene que hayas iniciado sesión. Contenido firmado y necesario para el Servicio.") %></td>
-                <td class="px-4 py-3"><%= gettext("30 días") %></td>
-              </tr>
-              <tr class="border-t border-slate-200">
-                <td class="px-4 py-3 font-mono text-xs">locale</td>
-                <td class="px-4 py-3"><%= gettext("Idioma elegido (es/en) para mostrar la web en español o inglés.") %></td>
-                <td class="px-4 py-3"><%= gettext("1 año") %></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+  <div class="prose prose-slate max-w-none text-slate-700 space-y-6">
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        1. {gettext("Qué son las cookies")}
+      </h2>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">3. <%= gettext("Cómo gestionar o eliminar cookies") %></h2>
-        <p><%= gettext("Puedes configurar tu navegador para bloquear o eliminar cookies. Ten en cuenta que si bloqueas las cookies técnicas, es posible que no puedas iniciar sesión o que se pierda tu preferencia de idioma. La opción de cookies suele estar en Ajustes o Preferencias del navegador, en la sección de privacidad o seguridad.") %></p>
-      </section>
+      <p>
+        {gettext(
+          "Las cookies son pequeños archivos de texto que el sitio web guarda en tu dispositivo (ordenador, tablet o móvil) cuando lo visitas. Se usan para recordar preferencias o mantener tu sesión."
+        )}
+      </p>
+    </section>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">4. <%= gettext("Más información") %></h2>
-        <p><%= gettext("El tratamiento de tus datos personales se describe en nuestra") %> <a href="/privacy" class="text-indigo-600 hover:underline"><%= gettext("Política de privacidad") %></a>. <%= gettext("Si tienes dudas, contacta a") %> <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong> <%= gettext("en la página de") %> <a href="/contact" class="text-indigo-600 hover:underline"><%= gettext("Contacto") %></a>.</p>
-      </section>
-    </div>
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        2. {gettext("Cookies que usa este sitio")}
+      </h2>
+
+      <p class="mb-4">
+        {gettext(
+          "Este sitio utiliza únicamente cookies técnicas necesarias para el funcionamiento del servicio. No usamos cookies publicitarias ni de terceros para seguimiento."
+        )}
+      </p>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-lg">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="px-4 py-2 text-left font-medium text-slate-700">{gettext("Nombre")}</th>
+
+              <th class="px-4 py-2 text-left font-medium text-slate-700">
+                {gettext("Finalidad")}
+              </th>
+
+              <th class="px-4 py-2 text-left font-medium text-slate-700">
+                {gettext("Duración")}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="text-slate-600">
+            <tr class="border-t border-slate-200">
+              <td class="px-4 py-3 font-mono text-xs">_streamflix_web_key</td>
+
+              <td class="px-4 py-3">
+                {gettext(
+                  "Sesión de usuario: mantiene que hayas iniciado sesión. Contenido firmado y necesario para el Servicio."
+                )}
+              </td>
+
+              <td class="px-4 py-3">{gettext("30 días")}</td>
+            </tr>
+
+            <tr class="border-t border-slate-200">
+              <td class="px-4 py-3 font-mono text-xs">locale</td>
+
+              <td class="px-4 py-3">
+                {gettext("Idioma elegido (es/en) para mostrar la web en español o inglés.")}
+              </td>
+
+              <td class="px-4 py-3">{gettext("1 año")}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        3. {gettext("Cómo gestionar o eliminar cookies")}
+      </h2>
+
+      <p>
+        {gettext(
+          "Puedes configurar tu navegador para bloquear o eliminar cookies. Ten en cuenta que si bloqueas las cookies técnicas, es posible que no puedas iniciar sesión o que se pierda tu preferencia de idioma. La opción de cookies suele estar en Ajustes o Preferencias del navegador, en la sección de privacidad o seguridad."
+        )}
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        4. {gettext("Más información")}
+      </h2>
+
+      <p>
+        {gettext("El tratamiento de tus datos personales se describe en nuestra")} <a
+          href="/privacy"
+          class="text-indigo-600 hover:underline"
+        ><%= gettext("Política de privacidad") %></a>. {gettext("Si tienes dudas, contacta a")}
+        <strong>{Map.get(@legal, :owner, "Jobcelis")}</strong> {gettext("en la página de")} <a
+          href="/contact"
+          class="text-indigo-600 hover:underline"
+        ><%= gettext("Contacto") %></a>.
+      </p>
+    </section>
+  </div>
 </Layouts.public>

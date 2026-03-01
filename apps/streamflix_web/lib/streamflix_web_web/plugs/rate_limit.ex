@@ -15,11 +15,17 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
     %{max: max, window_sec: window, key_suffix: key_suffix, path_rules: path_rules}
   end
 
-  def call(conn, %{max: max, window_sec: window_sec, key_suffix: key_suffix, path_rules: path_rules}) do
+  def call(conn, %{
+        max: max,
+        window_sec: window_sec,
+        key_suffix: key_suffix,
+        path_rules: path_rules
+      }) do
     if path_rules != [] do
       case path_match(conn, path_rules) do
         nil ->
           conn
+
         {max, key_suffix} ->
           ensure_table!()
           maybe_cleanup_expired(@table, window_sec)
@@ -40,7 +46,6 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
   end
 
   defp apply_limit(conn, key, now, window_sec, max) do
-
     case check_and_inc(@table, key, now, window_sec, max) do
       :allow ->
         conn
@@ -54,7 +59,9 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
           end
 
         content_type =
-          if String.starts_with?(conn.request_path, "/api/"), do: "application/json", else: "text/plain"
+          if String.starts_with?(conn.request_path, "/api/"),
+            do: "application/json",
+            else: "text/plain"
 
         conn
         |> put_resp_content_type(content_type)
@@ -79,6 +86,7 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
       :undefined ->
         :ets.new(@table, [:set, :public, :named_table, read_concurrency: true])
         :ok
+
       _ ->
         :ok
     end

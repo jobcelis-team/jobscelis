@@ -43,10 +43,15 @@ defmodule StreamflixCore.Notifications do
 
   def mark_as_read(id) do
     case Repo.get(Notification, id) do
-      nil -> {:error, :not_found}
+      nil ->
+        {:error, :not_found}
+
       notif ->
         notif
-        |> Notification.changeset(%{read: true, read_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)})
+        |> Notification.changeset(%{
+          read: true,
+          read_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)
+        })
         |> Repo.update()
     end
   end

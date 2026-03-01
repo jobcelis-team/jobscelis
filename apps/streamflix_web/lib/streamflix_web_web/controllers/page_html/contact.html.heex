@@ -1,31 +1,65 @@
-<Layouts.public flash={@flash} current_user={@current_user} locale={@locale} legal={@legal} active_page={@active_page}>
-    <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Contacto") %></h1>
-    <p class="text-slate-600 mb-10"><%= gettext("Puedes escribirme para dudas sobre el servicio, soporte técnico o cualquier consulta.") %></p>
+<Layouts.public
+  flash={@flash}
+  current_user={@current_user}
+  locale={@locale}
+  legal={@legal}
+  active_page={@active_page}
+>
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Contacto")}</h1>
 
-    <div class="space-y-6">
-      <section class="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("Email") %></h2>
-        <%= if (email = Map.get(@legal, :contact_email)) && email != "" do %>
-          <a href={"mailto:#{email}"} class="text-indigo-600 hover:text-indigo-700 font-medium text-lg break-all"><%= email %></a>
-          <p class="text-slate-500 text-sm mt-1"><%= gettext("Respondo lo antes posible. Para temas legales o privacidad, ver también Términos y Política de privacidad.") %></p>
-        <% else %>
-          <p class="text-slate-600"><%= gettext("Consulta los Términos de uso y la Política de privacidad para datos de contacto del titular.") %></p>
-        <% end %>
-      </section>
+  <p class="text-slate-600 mb-10">
+    {gettext(
+      "Puedes escribirme para dudas sobre el servicio, soporte técnico o cualquier consulta."
+    )}
+  </p>
 
-      <section class="flex flex-wrap gap-4">
-        <%= if url = Map.get(@legal, :contact_url) do %>
-          <a href={url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-800 text-white font-medium text-sm hover:bg-slate-700 transition">
-            <.icon name="hero-code-bracket-square" class="w-5 h-5" />
-            <%= gettext("GitHub") %>
-          </a>
-        <% end %>
-        <%= if url = Map.get(@legal, :profile_url) do %>
-          <a href={url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm hover:bg-indigo-700 transition">
-            <.icon name="hero-user-circle" class="w-5 h-5" />
-            <%= gettext("Mi perfil") %>
-          </a>
-        <% end %>
-      </section>
-    </div>
+  <div class="space-y-6">
+    <section class="bg-white rounded-xl border border-slate-200 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Email")}</h2>
+
+      <%= if (email = Map.get(@legal, :contact_email)) && email != "" do %>
+        <a
+          href={"mailto:#{email}"}
+          class="text-indigo-600 hover:text-indigo-700 font-medium text-lg break-all"
+        >
+          {email}
+        </a>
+        <p class="text-slate-500 text-sm mt-1">
+          {gettext(
+            "Respondo lo antes posible. Para temas legales o privacidad, ver también Términos y Política de privacidad."
+          )}
+        </p>
+      <% else %>
+        <p class="text-slate-600">
+          {gettext(
+            "Consulta los Términos de uso y la Política de privacidad para datos de contacto del titular."
+          )}
+        </p>
+      <% end %>
+    </section>
+
+    <section class="flex flex-wrap gap-4">
+      <%= if url = Map.get(@legal, :contact_url) do %>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-800 text-white font-medium text-sm hover:bg-slate-700 transition"
+        >
+          <.icon name="hero-code-bracket-square" class="w-5 h-5" /> {gettext("GitHub")}
+        </a>
+      <% end %>
+
+      <%= if url = Map.get(@legal, :profile_url) do %>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm hover:bg-indigo-700 transition"
+        >
+          <.icon name="hero-user-circle" class="w-5 h-5" /> {gettext("Mi perfil")}
+        </a>
+      <% end %>
+    </section>
+  </div>
 </Layouts.public>

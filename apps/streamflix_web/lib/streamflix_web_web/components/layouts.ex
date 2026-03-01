@@ -19,12 +19,19 @@ defmodule StreamflixWebWeb.Layouts do
 
   def locale_toggle(assigns) do
     ~H"""
-    <span class={["flex items-center gap-1 text-sm", @class]} role="group" aria-label={gettext("Selección de idioma")}>
+    <span
+      class={["flex items-center gap-1 text-sm", @class]}
+      role="group"
+      aria-label={gettext("Selección de idioma")}
+    >
       <a
         href="/locale/es"
         data-locale="es"
         onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';"
-        class={["font-medium transition rounded px-1", @locale == "es" && "text-slate-900 underline" || "text-slate-500 hover:text-slate-700"]}
+        class={[
+          "font-medium transition rounded px-1",
+          (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"
+        ]}
         aria-current={@locale == "es" && "page"}
       >
         ES
@@ -34,7 +41,10 @@ defmodule StreamflixWebWeb.Layouts do
         href="/locale/en"
         data-locale="en"
         onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000';"
-        class={["font-medium transition rounded px-1", @locale == "en" && "text-slate-900 underline" || "text-slate-500 hover:text-slate-700"]}
+        class={[
+          "font-medium transition rounded px-1",
+          (@locale == "en" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"
+        ]}
         aria-current={@locale == "en" && "page"}
       >
         EN
@@ -61,120 +71,203 @@ defmodule StreamflixWebWeb.Layouts do
       "bg-white/95 border-b border-slate-200/80 backdrop-blur-sm z-30",
       @sticky && "sticky top-0"
     ]}>
-      <nav class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16" aria-label={gettext("Navegación principal")}>
+      <nav
+        class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16"
+        aria-label={gettext("Navegación principal")}
+      >
         <%!-- Logo --%>
-        <a href="/" class="flex items-center gap-2 text-xl font-bold text-slate-900 tracking-tight rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" aria-label={gettext("Jobcelis - Ir al inicio")}>
-          <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" />
-          Jobcelis
+        <a
+          href="/"
+          class="flex items-center gap-2 text-xl font-bold text-slate-900 tracking-tight rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          aria-label={gettext("Jobcelis - Ir al inicio")}
+        >
+          <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" /> Jobcelis
         </a>
-
         <%!-- Desktop links --%>
         <div class="hidden md:flex items-center gap-5">
-          <a href="/docs" class={["font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", @active_page == :docs && "text-indigo-600" || "text-slate-600 hover:text-slate-900"]}>
-            <.icon name="hero-book-open" class="w-4 h-4" />
-            <%= gettext("Documentación") %>
+          <a
+            href="/docs"
+            class={[
+              "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+              (@active_page == :docs && "text-indigo-600") || "text-slate-600 hover:text-slate-900"
+            ]}
+          >
+            <.icon name="hero-book-open" class="w-4 h-4" /> {gettext("Documentación")}
           </a>
-          <a href="/faq" class={["font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", @active_page == :faq && "text-indigo-600" || "text-slate-600 hover:text-slate-900"]}>
-            <.icon name="hero-question-mark-circle" class="w-4 h-4" />
-            <%= gettext("FAQ") %>
+          <a
+            href="/faq"
+            class={[
+              "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+              (@active_page == :faq && "text-indigo-600") || "text-slate-600 hover:text-slate-900"
+            ]}
+          >
+            <.icon name="hero-question-mark-circle" class="w-4 h-4" /> {gettext("FAQ")}
           </a>
-          <a href="/pricing" class={["font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", @active_page == :pricing && "text-indigo-600" || "text-slate-600 hover:text-slate-900"]}>
-            <.icon name="hero-heart" class="w-4 h-4" />
-            <%= gettext("Apoyar el proyecto") %>
+          <a
+            href="/pricing"
+            class={[
+              "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+              (@active_page == :pricing && "text-indigo-600") || "text-slate-600 hover:text-slate-900"
+            ]}
+          >
+            <.icon name="hero-heart" class="w-4 h-4" /> {gettext("Apoyar el proyecto")}
           </a>
-
           <.locale_toggle locale={@locale} class="flex items-center gap-1" />
-
           <%= if @current_user do %>
-            <.link navigate="/platform" class={["font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", @active_page == :dashboard && "text-indigo-600" || "text-slate-600 hover:text-slate-900"]}>
-              <.icon name="hero-squares-2x2" class="w-4 h-4" />
-              <%= gettext("Dashboard") %>
+            <.link
+              navigate="/platform"
+              class={[
+                "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+                (@active_page == :dashboard && "text-indigo-600") ||
+                  "text-slate-600 hover:text-slate-900"
+              ]}
+            >
+              <.icon name="hero-squares-2x2" class="w-4 h-4" /> {gettext("Dashboard")}
             </.link>
-            <.link navigate="/account" class={["font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", @active_page == :account && "text-indigo-600" || "text-slate-600 hover:text-slate-900"]}>
-              <.icon name="hero-user-circle" class="w-4 h-4" />
-              <%= gettext("Cuenta") %>
+            <.link
+              navigate="/account"
+              class={[
+                "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+                (@active_page == :account && "text-indigo-600") ||
+                  "text-slate-600 hover:text-slate-900"
+              ]}
+            >
+              <.icon name="hero-user-circle" class="w-4 h-4" /> {gettext("Cuenta")}
             </.link>
             <%= if @current_user.role in ["admin", "superadmin"] do %>
-              <a href="/admin" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                <.icon name="hero-shield-check" class="w-4 h-4" />
-                <%= gettext("Admin") %>
+              <a
+                href="/admin"
+                class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                <.icon name="hero-shield-check" class="w-4 h-4" /> {gettext("Admin")}
               </a>
             <% end %>
-            <a href="/logout" class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-              <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" />
-              <%= gettext("Cerrar sesión") %>
+
+            <a
+              href="/logout"
+              class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" /> {gettext("Cerrar sesión")}
             </a>
           <% else %>
-            <a href="/login" class="text-slate-600 hover:text-slate-900 font-medium text-sm transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-              <%= gettext("Iniciar sesión") %>
+            <a
+              href="/login"
+              class="text-slate-600 hover:text-slate-900 font-medium text-sm transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              {gettext("Iniciar sesión")}
             </a>
-            <a href="/signup" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition shadow-sm hover:shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-              <%= gettext("Registrarse") %>
+            <a
+              href="/signup"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition shadow-sm hover:shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              {gettext("Registrarse")}
             </a>
           <% end %>
         </div>
-
         <%!-- Mobile hamburger --%>
         <button
           type="button"
           class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           aria-label={gettext("Abrir menú")}
-          phx-click={JS.toggle(to: "#mobile-menu-panel") |> JS.toggle(to: "#menu-icon-open") |> JS.toggle(to: "#menu-icon-close")}
+          phx-click={
+            JS.toggle(to: "#mobile-menu-panel")
+            |> JS.toggle(to: "#menu-icon-open")
+            |> JS.toggle(to: "#menu-icon-close")
+          }
         >
           <span id="menu-icon-open"><.icon name="hero-bars-3" class="w-6 h-6" /></span>
-          <span id="menu-icon-close" class="hidden"><.icon name="hero-x-mark" class="w-6 h-6" /></span>
+          <span id="menu-icon-close" class="hidden">
+            <.icon name="hero-x-mark" class="w-6 h-6" />
+          </span>
         </button>
       </nav>
-
       <%!-- Mobile menu panel --%>
       <div class="md:hidden hidden border-t border-slate-200 bg-white" id="mobile-menu-panel">
         <div class="px-4 py-4 space-y-1">
-          <a href="/docs" class={["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition", @active_page == :docs && "bg-indigo-50 text-indigo-600" || "text-slate-700 hover:bg-slate-50"]}>
-            <.icon name="hero-book-open" class="w-5 h-5" />
-            <%= gettext("Documentación") %>
+          <a
+            href="/docs"
+            class={[
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
+              (@active_page == :docs && "bg-indigo-50 text-indigo-600") ||
+                "text-slate-700 hover:bg-slate-50"
+            ]}
+          >
+            <.icon name="hero-book-open" class="w-5 h-5" /> {gettext("Documentación")}
           </a>
-          <a href="/faq" class={["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition", @active_page == :faq && "bg-indigo-50 text-indigo-600" || "text-slate-700 hover:bg-slate-50"]}>
-            <.icon name="hero-question-mark-circle" class="w-5 h-5" />
-            <%= gettext("FAQ") %>
+          <a
+            href="/faq"
+            class={[
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
+              (@active_page == :faq && "bg-indigo-50 text-indigo-600") ||
+                "text-slate-700 hover:bg-slate-50"
+            ]}
+          >
+            <.icon name="hero-question-mark-circle" class="w-5 h-5" /> {gettext("FAQ")}
           </a>
-          <a href="/pricing" class={["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition", @active_page == :pricing && "bg-indigo-50 text-indigo-600" || "text-slate-700 hover:bg-slate-50"]}>
-            <.icon name="hero-heart" class="w-5 h-5" />
-            <%= gettext("Apoyar el proyecto") %>
+          <a
+            href="/pricing"
+            class={[
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
+              (@active_page == :pricing && "bg-indigo-50 text-indigo-600") ||
+                "text-slate-700 hover:bg-slate-50"
+            ]}
+          >
+            <.icon name="hero-heart" class="w-5 h-5" /> {gettext("Apoyar el proyecto")}
           </a>
-
           <div class="border-t border-slate-100 my-2"></div>
 
-          <div class="flex items-center gap-2 px-3 py-2">
-            <.locale_toggle locale={@locale} />
-          </div>
+          <div class="flex items-center gap-2 px-3 py-2"><.locale_toggle locale={@locale} /></div>
 
           <div class="border-t border-slate-100 my-2"></div>
 
           <%= if @current_user do %>
-            <.link navigate="/platform" class={["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition", @active_page == :dashboard && "bg-indigo-50 text-indigo-600" || "text-slate-700 hover:bg-slate-50"]}>
-              <.icon name="hero-squares-2x2" class="w-5 h-5" />
-              <%= gettext("Dashboard") %>
+            <.link
+              navigate="/platform"
+              class={[
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
+                (@active_page == :dashboard && "bg-indigo-50 text-indigo-600") ||
+                  "text-slate-700 hover:bg-slate-50"
+              ]}
+            >
+              <.icon name="hero-squares-2x2" class="w-5 h-5" /> {gettext("Dashboard")}
             </.link>
-            <.link navigate="/account" class={["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition", @active_page == :account && "bg-indigo-50 text-indigo-600" || "text-slate-700 hover:bg-slate-50"]}>
-              <.icon name="hero-user-circle" class="w-5 h-5" />
-              <%= gettext("Cuenta") %>
+            <.link
+              navigate="/account"
+              class={[
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
+                (@active_page == :account && "bg-indigo-50 text-indigo-600") ||
+                  "text-slate-700 hover:bg-slate-50"
+              ]}
+            >
+              <.icon name="hero-user-circle" class="w-5 h-5" /> {gettext("Cuenta")}
             </.link>
             <%= if @current_user.role in ["admin", "superadmin"] do %>
-              <a href="/admin" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-                <.icon name="hero-shield-check" class="w-5 h-5" />
-                <%= gettext("Admin") %>
+              <a
+                href="/admin"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+              >
+                <.icon name="hero-shield-check" class="w-5 h-5" /> {gettext("Admin")}
               </a>
             <% end %>
-            <a href="/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-              <.icon name="hero-arrow-right-on-rectangle" class="w-5 h-5" />
-              <%= gettext("Cerrar sesión") %>
+
+            <a
+              href="/logout"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+            >
+              <.icon name="hero-arrow-right-on-rectangle" class="w-5 h-5" /> {gettext("Cerrar sesión")}
             </a>
           <% else %>
-            <a href="/login" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-              <%= gettext("Iniciar sesión") %>
+            <a
+              href="/login"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+            >
+              {gettext("Iniciar sesión")}
             </a>
-            <a href="/signup" class="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition">
-              <%= gettext("Registrarse") %>
+            <a
+              href="/signup"
+              class="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition"
+            >
+              {gettext("Registrarse")}
             </a>
           <% end %>
         </div>
@@ -203,30 +296,82 @@ defmodule StreamflixWebWeb.Layouts do
               <img src={~p"/images/logo.png"} alt="" class="h-6 w-auto" width="24" height="24" />
               Jobcelis
             </a>
-            <p class="text-slate-500 text-sm mb-3"><%= gettext("Eventos, webhooks y jobs") %></p>
-            <p class="text-slate-400 text-xs">&copy; <%= Date.utc_today().year %> <%= Map.get(@legal, :owner, "Jobcelis") %>. <%= gettext("Todos los derechos reservados.") %></p>
-          </div>
+            <p class="text-slate-500 text-sm mb-3">{gettext("Eventos, webhooks y jobs")}</p>
 
+            <p class="text-slate-400 text-xs">
+              &copy; {Date.utc_today().year} {Map.get(@legal, :owner, "Jobcelis")}. {gettext(
+                "Todos los derechos reservados."
+              )}
+            </p>
+          </div>
           <%!-- Product column --%>
           <div>
-            <h3 class="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-3"><%= gettext("Producto") %></h3>
+            <h3 class="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-3">
+              {gettext("Producto")}
+            </h3>
+
             <ul class="space-y-2 text-sm">
-              <li><a href="/docs" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Documentación") %></a></li>
-              <li><a href="/faq" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("FAQ") %></a></li>
-              <li><a href="/changelog" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Changelog") %></a></li>
-              <li><a href="/pricing" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Planes") %></a></li>
+              <li>
+                <a href="/docs" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("Documentación")}
+                </a>
+              </li>
+
+              <li>
+                <a href="/faq" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("FAQ")}
+                </a>
+              </li>
+
+              <li>
+                <a href="/changelog" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("Changelog")}
+                </a>
+              </li>
+
+              <li>
+                <a href="/pricing" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("Planes")}
+                </a>
+              </li>
             </ul>
           </div>
-
           <%!-- Info column --%>
           <div>
-            <h3 class="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-3"><%= gettext("Información") %></h3>
+            <h3 class="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-3">
+              {gettext("Información")}
+            </h3>
+
             <ul class="space-y-2 text-sm">
-              <li><a href="/about" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Sobre nosotros") %></a></li>
-              <li><a href="/contact" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Contacto") %></a></li>
-              <li><a href="/terms" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Términos") %></a></li>
-              <li><a href="/privacy" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Privacidad") %></a></li>
-              <li><a href="/cookies" class="text-slate-500 hover:text-slate-700 transition"><%= gettext("Cookies") %></a></li>
+              <li>
+                <a href="/about" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("Sobre nosotros")}
+                </a>
+              </li>
+
+              <li>
+                <a href="/contact" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("Contacto")}
+                </a>
+              </li>
+
+              <li>
+                <a href="/terms" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("Términos")}
+                </a>
+              </li>
+
+              <li>
+                <a href="/privacy" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("Privacidad")}
+                </a>
+              </li>
+
+              <li>
+                <a href="/cookies" class="text-slate-500 hover:text-slate-700 transition">
+                  {gettext("Cookies")}
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -258,15 +403,12 @@ defmodule StreamflixWebWeb.Layouts do
   def public(assigns) do
     ~H"""
     <div class="min-h-screen bg-slate-50 relative flex flex-col">
-      <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
+      <a href="#main-content" class="skip-link">{gettext("Saltar al contenido")}</a>
       <.site_navbar current_user={@current_user} locale={@locale} active_page={@active_page} />
-
       <main id="main-content" class={@main_class} role="main" tabindex="-1">
         {render_slot(@inner_block)}
       </main>
-
-      <.site_footer locale={@locale} legal={@legal} />
-      <.flash_group flash={@flash} />
+      <.site_footer locale={@locale} legal={@legal} /> <.flash_group flash={@flash} />
     </div>
     """
   end
@@ -289,9 +431,16 @@ defmodule StreamflixWebWeb.Layouts do
     default: nil,
     doc: "current scope (:account, :platform, etc.)"
 
-  attr :current_user, :any, default: nil, doc: "logged-in user (for showing Admin link if admin/superadmin)"
+  attr :current_user, :any,
+    default: nil,
+    doc: "logged-in user (for showing Admin link if admin/superadmin)"
+
   attr :locale, :string, default: "en", doc: "current locale (en/es)"
-  attr :main_class, :string, default: nil, doc: "optional class for main (e.g. wider max-width for account page)"
+
+  attr :main_class, :string,
+    default: nil,
+    doc: "optional class for main (e.g. wider max-width for account page)"
+
   attr :active_page, :atom, default: nil, doc: "active page for navbar highlighting"
 
   slot :inner_block, required: true
@@ -302,15 +451,16 @@ defmodule StreamflixWebWeb.Layouts do
 
     ~H"""
     <div class="min-h-screen bg-slate-50 relative flex flex-col">
-      <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
+      <a href="#main-content" class="skip-link">{gettext("Saltar al contenido")}</a>
       <.site_navbar current_user={@current_user} locale={@locale} active_page={@active_page} />
-
-      <main id="main-content" class={@main_class || "max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1"} role="main">
+      <main
+        id="main-content"
+        class={@main_class || "max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1"}
+        role="main"
+      >
         {render_slot(@inner_block)}
       </main>
-
-      <.site_footer locale={@locale} legal={@legal} />
-      <.flash_group flash={@flash} />
+      <.site_footer locale={@locale} legal={@legal} /> <.flash_group flash={@flash} />
     </div>
     """
   end
@@ -328,9 +478,7 @@ defmodule StreamflixWebWeb.Layouts do
   def flash_group(assigns) do
     ~H"""
     <div id={@id} aria-live="polite">
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:error} flash={@flash} />
-
+      <.flash kind={:info} flash={@flash} /> <.flash kind={:error} flash={@flash} />
       <.flash
         id="client-error"
         kind={:error}
@@ -367,7 +515,6 @@ defmodule StreamflixWebWeb.Layouts do
     ~H"""
     <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
       <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
-
       <button
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}
@@ -375,7 +522,6 @@ defmodule StreamflixWebWeb.Layouts do
       >
         <.icon name="hero-computer-desktop-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
-
       <button
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}
@@ -383,7 +529,6 @@ defmodule StreamflixWebWeb.Layouts do
       >
         <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
-
       <button
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}

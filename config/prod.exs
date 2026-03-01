@@ -21,7 +21,6 @@ config :streamflix_web, StreamflixWebWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Force SSL in production
-config :streamflix_web, StreamflixWebWeb.Endpoint,
-  force_ssl: [rewrite_on: [:x_forwarded_proto]]
+config :streamflix_web, StreamflixWebWeb.Endpoint, force_ssl: [rewrite_on: [:x_forwarded_proto]]
 
 # Runtime production configuration is done in config/runtime.exs

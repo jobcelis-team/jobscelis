@@ -11,14 +11,14 @@ defmodule StreamflixAccounts.Schemas.User do
   @foreign_key_type :binary_id
 
   schema "users" do
-    field :email, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    field :name, :string
-    field :status, :string, default: "active"
-    field :role, :string, default: "user"
-    field :email_verified_at, :utc_datetime
-    field :last_login_at, :utc_datetime
+    field(:email, :string)
+    field(:password, :string, virtual: true)
+    field(:password_hash, :string)
+    field(:name, :string)
+    field(:status, :string, default: "active")
+    field(:role, :string, default: "user")
+    field(:email_verified_at, :utc_datetime)
+    field(:last_login_at, :utc_datetime)
 
     timestamps()
   end
@@ -87,6 +87,7 @@ defmodule StreamflixAccounts.Schemas.User do
     case get_change(changeset, :password) do
       nil ->
         changeset
+
       password ->
         # PBKDF2-SHA512 with 210,000 rounds (OWASP-compliant)
         put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(password))
@@ -98,26 +99,26 @@ defmodule StreamflixAccounts.Schemas.User do
   # ============================================
 
   def active(query \\ __MODULE__) do
-    from u in query, where: u.status == "active"
+    from(u in query, where: u.status == "active")
   end
 
   def by_email(query \\ __MODULE__, email) do
-    from u in query, where: u.email == ^String.downcase(email)
+    from(u in query, where: u.email == ^String.downcase(email))
   end
 
   def admin(query \\ __MODULE__) do
-    from u in query, where: u.role == "admin"
+    from(u in query, where: u.role == "admin")
   end
 
   def superadmin(query \\ __MODULE__) do
-    from u in query, where: u.role == "superadmin"
+    from(u in query, where: u.role == "superadmin")
   end
 
-  def is_admin?(%__MODULE__{} = user) do
+  def admin?(%__MODULE__{} = user) do
     user.role in ["admin", "superadmin"]
   end
 
-  def is_superadmin?(%__MODULE__{} = user) do
+  def superadmin?(%__MODULE__{} = user) do
     user.role == "superadmin"
   end
 end

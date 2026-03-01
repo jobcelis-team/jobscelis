@@ -33,6 +33,7 @@ defmodule StreamflixWebWeb.SitemapController do
   defp build_base_url(conn) do
     scheme = if conn.scheme == :https, do: "https", else: "http"
     port = conn.port
+
     port_str =
       if (scheme == "https" and port == 443) or (scheme == "http" and port == 80),
         do: "",
@@ -43,8 +44,9 @@ defmodule StreamflixWebWeb.SitemapController do
 
   defp build_sitemap_xml(base_url, paths) do
     url_entries =
-      Enum.map(paths, fn path ->
+      Enum.map_join(paths, "\n", fn path ->
         loc = if path == "/", do: base_url, else: base_url <> path
+
         """
         <url>
           <loc>#{escape_xml(loc)}</loc>
@@ -53,7 +55,6 @@ defmodule StreamflixWebWeb.SitemapController do
         </url>
         """
       end)
-      |> Enum.join("\n")
 
     """
     <?xml version="1.0" encoding="UTF-8"?>

@@ -12,12 +12,12 @@ defmodule StreamflixCore.Schemas.ProjectMember do
   @valid_statuses ~w(pending active removed)
 
   schema "project_members" do
-    field :role, :string, default: "viewer"
-    field :status, :string, default: "pending"
-    field :user_id, :binary_id
-    field :invited_by, :binary_id
+    field(:role, :string, default: "viewer")
+    field(:status, :string, default: "pending")
+    field(:user_id, :binary_id)
+    field(:invited_by, :binary_id)
 
-    belongs_to :project, StreamflixCore.Schemas.Project
+    belongs_to(:project, StreamflixCore.Schemas.Project)
 
     timestamps(type: :utc_datetime_usec)
   end

@@ -1,50 +1,116 @@
 <div class="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex flex-col">
-  <a href="#main-content" class="skip-link"><%= gettext("Saltar al contenido") %></a>
-
+  <a href="#main-content" class="skip-link">{gettext("Saltar al contenido")}</a>
   <%!-- Top bar --%>
   <div class="w-full px-6 pt-6 lg:pt-8">
-    <a href="/" class="inline-flex items-center gap-2 text-slate-400 hover:text-slate-600 text-sm transition group" aria-label={gettext("Jobcelis - Ir al inicio")}>
-      <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-      <%= gettext("Inicio") %>
+    <a
+      href="/"
+      class="inline-flex items-center gap-2 text-slate-400 hover:text-slate-600 text-sm transition group"
+      aria-label={gettext("Jobcelis - Ir al inicio")}
+    >
+      <svg
+        class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
+      </svg>
+      {gettext("Inicio")}
     </a>
   </div>
 
-  <main id="main-content" class="flex-1 flex items-center justify-center px-6 py-12" role="main" tabindex="-1">
+  <main
+    id="main-content"
+    class="flex-1 flex items-center justify-center px-6 py-12"
+    role="main"
+    tabindex="-1"
+  >
     <div class="w-full max-w-[420px]">
       <%!-- Logo --%>
       <div class="text-center mb-8">
-        <a href="/" class="inline-flex items-center gap-2.5" aria-label={gettext("Jobcelis - Ir al inicio")}>
+        <a
+          href="/"
+          class="inline-flex items-center gap-2.5"
+          aria-label={gettext("Jobcelis - Ir al inicio")}
+        >
           <img src={~p"/images/logo.png"} alt="" class="h-10 w-auto" width="40" height="40" />
           <span class="text-2xl font-bold text-slate-900 tracking-tight">Jobcelis</span>
         </a>
       </div>
-
       <%!-- Card --%>
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 px-8 py-10 sm:px-10">
         <div class="mb-7">
-          <h1 class="text-xl font-semibold text-slate-900 text-center"><%= gettext("Crear cuenta") %></h1>
-          <p class="text-slate-500 text-sm mt-1.5 text-center"><%= gettext("Regístrate en Jobcelis para usar webhooks y eventos") %></p>
+          <h1 class="text-xl font-semibold text-slate-900 text-center">
+            {gettext("Crear cuenta")}
+          </h1>
+
+          <p class="text-slate-500 text-sm mt-1.5 text-center">
+            {gettext("Regístrate en Jobcelis para usar webhooks y eventos")}
+          </p>
         </div>
 
         <%= if msg = Phoenix.Flash.get(@flash, :error) do %>
-          <div class="mb-6 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm" role="alert">
-            <svg class="w-5 h-5 shrink-0 mt-0.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
-            <span>{msg}</span>
-          </div>
-        <% end %>
-        <%= if msg = Phoenix.Flash.get(@flash, :info) do %>
-          <div class="mb-6 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm" role="alert">
-            <svg class="w-5 h-5 shrink-0 mt-0.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div
+            class="mb-6 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm"
+            role="alert"
+          >
+            <svg
+              class="w-5 h-5 shrink-0 mt-0.5 text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+              />
+            </svg>
             <span>{msg}</span>
           </div>
         <% end %>
 
-        <form action="/signup" method="post" class="space-y-5" aria-label={gettext("Formulario de registro")} data-submit-loading>
+        <%= if msg = Phoenix.Flash.get(@flash, :info) do %>
+          <div
+            class="mb-6 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm"
+            role="alert"
+          >
+            <svg
+              class="w-5 h-5 shrink-0 mt-0.5 text-emerald-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{msg}</span>
+          </div>
+        <% end %>
+
+        <form
+          action="/signup"
+          method="post"
+          class="space-y-5"
+          aria-label={gettext("Formulario de registro")}
+          data-submit-loading
+        >
           <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
           <input type="hidden" name="plan" value={@plan || "standard"} />
-
           <div>
-            <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5"><%= gettext("Nombre") %></label>
+            <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">
+              {gettext("Nombre")}
+            </label>
             <input
               id="name"
               type="text"
@@ -56,7 +122,9 @@
           </div>
 
           <div>
-            <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5"><%= gettext("Email") %></label>
+            <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">
+              {gettext("Email")}
+            </label>
             <input
               id="email"
               type="email"
@@ -69,7 +137,9 @@
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5"><%= gettext("Contraseña") %></label>
+            <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">
+              {gettext("Contraseña")}
+            </label>
             <div data-password-toggle class="relative">
               <input
                 id="password"
@@ -81,12 +151,51 @@
                 autocomplete="new-password"
                 class="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
               />
-              <button type="button" data-password-toggle-btn aria-label={gettext("Mostrar contraseña")} class="absolute right-3 inset-y-0 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none transition">
-                <svg data-icon-show class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                <svg data-icon-hide class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+              <button
+                type="button"
+                data-password-toggle-btn
+                aria-label={gettext("Mostrar contraseña")}
+                class="absolute right-3 inset-y-0 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none transition"
+              >
+                <svg
+                  data-icon-show
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  /><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                <svg
+                  data-icon-hide
+                  class="w-4 h-4 hidden"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                  />
+                </svg>
               </button>
             </div>
-            <p class="text-xs text-slate-400 mt-1.5"><%= gettext("Mínimo 8 caracteres") %></p>
+
+            <p class="text-xs text-slate-400 mt-1.5">{gettext("Mínimo 8 caracteres")}</p>
           </div>
 
           <button
@@ -95,25 +204,34 @@
             aria-label={gettext("Crear cuenta")}
             data-loading-text={gettext("Cargando...")}
           >
-            <%= gettext("Crear cuenta") %>
+            {gettext("Crear cuenta")}
           </button>
-
           <p class="text-xs text-slate-400 text-center leading-relaxed">
-            <%= gettext("Al registrarte aceptas los") %>
-            <a href="/terms" class="text-slate-500 underline underline-offset-2 hover:text-slate-700 transition"><%= gettext("Términos") %></a>
-            <%= gettext("y la") %>
-            <a href="/privacy" class="text-slate-500 underline underline-offset-2 hover:text-slate-700 transition"><%= gettext("Privacidad") %></a>.
+            {gettext("Al registrarte aceptas los")}
+            <a
+              href="/terms"
+              class="text-slate-500 underline underline-offset-2 hover:text-slate-700 transition"
+            >
+              {gettext("Términos")}
+            </a>
+            {gettext("y la")} <a
+              href="/privacy"
+              class="text-slate-500 underline underline-offset-2 hover:text-slate-700 transition"
+            ><%= gettext("Privacidad") %></a>.
           </p>
         </form>
       </div>
-
       <%!-- Bottom link --%>
       <p class="text-center text-slate-500 text-sm mt-6">
-        <%= gettext("¿Ya tienes cuenta?") %>
-        <a href="/login" class="text-indigo-600 hover:text-indigo-700 font-medium transition ml-1"><%= gettext("Inicia sesión") %></a>
+        {gettext("¿Ya tienes cuenta?")}
+        <a href="/login" class="text-indigo-600 hover:text-indigo-700 font-medium transition ml-1">
+          {gettext("Inicia sesión")}
+        </a>
       </p>
 
-      <p class="text-center text-slate-400 text-xs mt-8">&copy; <%= Date.utc_today().year %> Jobcelis</p>
+      <p class="text-center text-slate-400 text-xs mt-8">
+        &copy; {Date.utc_today().year} Jobcelis
+      </p>
     </div>
   </main>
 </div>

@@ -5,7 +5,22 @@ defmodule StreamflixCore.Platform do
   """
   import Ecto.Query
   alias StreamflixCore.Repo
-  alias StreamflixCore.Schemas.{Project, ApiKey, Webhook, WebhookEvent, Delivery, Job, JobRun, DeadLetter, Replay, SandboxEndpoint, SandboxRequest, EventSchema, BatchItem}
+
+  alias StreamflixCore.Schemas.{
+    Project,
+    ApiKey,
+    Webhook,
+    WebhookEvent,
+    Delivery,
+    Job,
+    JobRun,
+    DeadLetter,
+    Replay,
+    SandboxEndpoint,
+    SandboxRequest,
+    EventSchema,
+    BatchItem
+  }
 
   @cache :platform_cache
   @api_key_ttl :timer.seconds(60)
@@ -20,7 +35,9 @@ defmodule StreamflixCore.Platform do
     # First project for user auto-sets is_default
     is_default =
       if user_id do
-        not Repo.exists?(from(p in Project, where: p.user_id == ^user_id and p.status == "active"))
+        not Repo.exists?(
+          from(p in Project, where: p.user_id == ^user_id and p.status == "active")
+        )
       else
         false
       end
@@ -58,7 +75,7 @@ defmodule StreamflixCore.Platform do
         result =
           Project
           |> where([p], p.user_id == ^user_id and p.status == "active")
-          |> order_by([p], [desc: p.is_default, asc: p.inserted_at])
+          |> order_by([p], desc: p.is_default, asc: p.inserted_at)
           |> limit(1)
           |> Repo.one()
 
@@ -74,11 +91,18 @@ defmodule StreamflixCore.Platform do
     Repo.transaction(fn ->
       # Unset all defaults for user
       from(p in Project, where: p.user_id == ^user_id and p.is_default == true)
-      |> Repo.update_all(set: [is_default: false, updated_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)])
+      |> Repo.update_all(
+        set: [
+          is_default: false,
+          updated_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)
+        ]
+      )
 
       # Set target as default
       case Repo.get(Project, project_id) do
-        nil -> Repo.rollback(:not_found)
+        nil ->
+          Repo.rollback(:not_found)
+
         project ->
           project
           |> Project.changeset(%{is_default: true})
@@ -102,7 +126,10 @@ defmodule StreamflixCore.Platform do
         if project.is_default do
           next =
             Project
-            |> where([p], p.user_id == ^project.user_id and p.status == "active" and p.id != ^project.id)
+            |> where(
+              [p],
+              p.user_id == ^project.user_id and p.status == "active" and p.id != ^project.id
+            )
             |> order_by([p], asc: p.inserted_at)
             |> limit(1)
             |> Repo.one()
@@ -122,6 +149,7 @@ defmodule StreamflixCore.Platform do
 
   def list_projects(opts \\ []) do
     include_inactive = Keyword.get(opts, :include_inactive, false)
+
     Project
     |> maybe_filter_active(:status, include_inactive)
     |> order_by([p], desc: p.inserted_at)
@@ -130,6 +158,7 @@ defmodule StreamflixCore.Platform do
 
   def list_projects_for_user(user_id, opts \\ []) do
     include_inactive = Keyword.get(opts, :include_inactive, false)
+
     Project
     |> where([p], p.user_id == ^user_id)
     |> maybe_filter_active(:status, include_inactive)
@@ -161,14 +190,16 @@ defmodule StreamflixCore.Platform do
     allowed_ips = attrs["allowed_ips"] || attrs[:allowed_ips] || []
 
     case %ApiKey{}
-         |> ApiKey.changeset(Map.merge(attrs, %{
-           project_id: project_id,
-           prefix: prefix,
-           key_hash: key_hash,
-           name: attrs["name"] || attrs[:name] || "Default",
-           scopes: scopes,
-           allowed_ips: allowed_ips
-         }))
+         |> ApiKey.changeset(
+           Map.merge(attrs, %{
+             project_id: project_id,
+             prefix: prefix,
+             key_hash: key_hash,
+             name: attrs["name"] || attrs[:name] || "Default",
+             scopes: scopes,
+             allowed_ips: allowed_ips
+           })
+         )
          |> Repo.insert() do
       {:ok, api_key} -> {:ok, api_key, raw_key}
       err -> err
@@ -185,7 +216,7 @@ defmodule StreamflixCore.Platform do
           ApiKey
           |> where([k], k.key_hash == ^key_hash and k.status == "active")
           |> join(:inner, [k], p in Project, on: p.id == k.project_id and p.status == "active")
-          |> preload([k, p], [project: p])
+          |> preload([k, p], project: p)
           |> Repo.one()
 
         if result, do: Cachex.put(@cache, cache_key, result, ttl: @api_key_ttl)
@@ -213,7 +244,9 @@ defmodule StreamflixCore.Platform do
     # Deactivate existing keys for this project
     ApiKey
     |> where([k], k.project_id == ^project_id)
-    |> Repo.update_all(set: [status: "inactive", updated_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)])
+    |> Repo.update_all(
+      set: [status: "inactive", updated_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)]
+    )
 
     invalidate_api_key_cache()
     create_api_key(project_id, %{name: "Default", scopes: scopes, allowed_ips: allowed_ips})
@@ -341,6 +374,7 @@ defmodule StreamflixCore.Platform do
 
   def list_webhooks(project_id, opts \\ []) do
     include_inactive = Keyword.get(opts, :include_inactive, false)
+
     Webhook
     |> where([w], w.project_id == ^project_id)
     |> maybe_filter_active(:status, include_inactive)
@@ -429,21 +463,30 @@ defmodule StreamflixCore.Platform do
     raw = Map.get(body, "deliver_at") || Map.get(body, :deliver_at)
 
     case raw do
-      nil -> nil
+      nil ->
+        nil
+
       str when is_binary(str) ->
         case DateTime.from_iso8601(str) do
           {:ok, dt, _} -> DateTime.truncate(dt, :microsecond)
           _ -> nil
         end
-      _ -> nil
+
+      _ ->
+        nil
     end
   end
 
   defp extract_topic_and_payload(body) do
     case Map.get(body, "topic") || Map.get(body, :topic) do
-      nil -> {nil, body}
-      t when is_binary(t) -> {t, Map.delete(Map.new(body, fn {k, v} -> {to_string(k), v} end), "topic")}
-      _ -> {nil, body}
+      nil ->
+        {nil, body}
+
+      t when is_binary(t) ->
+        {t, Map.delete(Map.new(body, fn {k, v} -> {to_string(k), v} end), "topic")}
+
+      _ ->
+        {nil, body}
     end
   end
 
@@ -475,7 +518,10 @@ defmodule StreamflixCore.Platform do
              })
              |> Repo.insert() do
           {:ok, delivery} ->
-            Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id}))
+            Oban.insert(
+              StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id})
+            )
+
           _ ->
             :ok
         end
@@ -493,19 +539,23 @@ defmodule StreamflixCore.Platform do
 
   defp topic_matches?([], _event_topic), do: true
   defp topic_matches?(_topics, nil), do: false
+
   defp topic_matches?(topics, event_topic) when is_list(topics) do
     event_topic in topics
   end
 
   defp filters_match?([], _topic, _payload), do: true
+
   defp filters_match?(filters, topic, payload) when is_list(filters) do
     combined = Map.put(payload || %{}, "topic", topic)
     Enum.all?(filters, fn f -> filter_condition_holds?(f, combined) end)
   end
+
   defp filters_match?(_, _, _), do: true
 
   defp filter_condition_holds?(%{"path" => path, "op" => op, "value" => value}, data) do
     actual = get_in(data, String.split(path, "."))
+
     case op do
       "eq" -> actual == value
       "neq" -> actual != value
@@ -520,6 +570,7 @@ defmodule StreamflixCore.Platform do
       _ -> true
     end
   end
+
   defp filter_condition_holds?(_, _), do: true
 
   defp exists?(actual, expect_true) do
@@ -527,7 +578,9 @@ defmodule StreamflixCore.Platform do
     if expect_true == true or expect_true == "true", do: present, else: not present
   end
 
-  defp contains?(actual, value) when is_binary(actual) and is_binary(value), do: String.contains?(actual, value)
+  defp contains?(actual, value) when is_binary(actual) and is_binary(value),
+    do: String.contains?(actual, value)
+
   defp contains?(actual, value) when is_list(actual), do: value in actual
   defp contains?(_, _), do: false
 
@@ -540,6 +593,7 @@ defmodule StreamflixCore.Platform do
       _ -> false
     end
   end
+
   defp compare(_, _, _), do: false
 
   def list_events(project_id, opts \\ []) do
@@ -564,7 +618,11 @@ defmodule StreamflixCore.Platform do
 
   def list_topics_used(project_id) do
     WebhookEvent
-    |> where([e], e.project_id == ^project_id and e.status == "active" and not is_nil(e.topic) and e.topic != "")
+    |> where(
+      [e],
+      e.project_id == ^project_id and e.status == "active" and not is_nil(e.topic) and
+        e.topic != ""
+    )
     |> distinct(true)
     |> select([e], e.topic)
     |> order_by([e], asc: e.topic)
@@ -608,7 +666,9 @@ defmodule StreamflixCore.Platform do
   end
 
   defp maybe_where_event_in_subquery(query, nil), do: query
-  defp maybe_where_event_in_subquery(query, event_ids_query), do: where(query, [d], d.event_id in subquery(event_ids_query))
+
+  defp maybe_where_event_in_subquery(query, event_ids_query),
+    do: where(query, [d], d.event_id in subquery(event_ids_query))
 
   defp maybe_where(query, _field, nil), do: query
   defp maybe_where(query, field, value), do: where(query, [d], field(d, ^field) == ^value)
@@ -630,9 +690,12 @@ defmodule StreamflixCore.Platform do
 
   def retry_delivery(project_id, delivery_id) do
     case get_delivery(delivery_id) do
-      nil -> {:error, :not_found}
+      nil ->
+        {:error, :not_found}
+
       d ->
         event = d.event || get_event(d.event_id)
+
         if is_nil(event) or event.project_id != project_id do
           {:error, :not_found}
         else
@@ -648,21 +711,25 @@ defmodule StreamflixCore.Platform do
     mode = config["body_mode"] || "full"
     payload = event.payload || %{}
 
-    base = case mode do
-      "pick" ->
-        keys = config["body_pick"] || []
-        Enum.reduce(keys, %{}, fn k, acc -> Map.put(acc, k, payload[k]) end)
-      _ ->
-        payload
-    end
+    base =
+      case mode do
+        "pick" ->
+          keys = config["body_pick"] || []
+          Enum.reduce(keys, %{}, fn k, acc -> Map.put(acc, k, payload[k]) end)
+
+        _ ->
+          payload
+      end
 
     rename = config["body_rename"] || %{}
-    base = Enum.reduce(rename, base, fn {from_k, to_k}, acc ->
-      case Map.get(acc, from_k) do
-        nil -> acc
-        v -> acc |> Map.delete(from_k) |> Map.put(to_k, v)
-      end
-    end)
+
+    base =
+      Enum.reduce(rename, base, fn {from_k, to_k}, acc ->
+        case Map.get(acc, from_k) do
+          nil -> acc
+          v -> acc |> Map.delete(from_k) |> Map.put(to_k, v)
+        end
+      end)
 
     extra = config["body_extra"] || %{}
     base = Map.merge(base, extra)
@@ -678,6 +745,7 @@ defmodule StreamflixCore.Platform do
 
   def create_job(project_id, attrs) do
     attrs = Map.merge(attrs, %{"project_id" => project_id})
+
     %Job{}
     |> Job.changeset(attrs)
     |> Repo.insert()
@@ -685,6 +753,7 @@ defmodule StreamflixCore.Platform do
 
   def list_jobs(project_id, opts \\ []) do
     include_inactive = Keyword.get(opts, :include_inactive, false)
+
     Job
     |> where([j], j.project_id == ^project_id)
     |> maybe_filter_active(:status, include_inactive)
@@ -721,12 +790,14 @@ defmodule StreamflixCore.Platform do
     |> Enum.filter(fn j ->
       cfg = j.schedule_config || %{}
       type = j.schedule_type || "daily"
+
       case type do
         "daily" ->
           h = Map.get(cfg, "hour", 0)
           m = Map.get(cfg, "minute", 0)
           target_sec = h * 3600 + m * 60
           target_sec == today_sec or abs(target_sec - today_sec) < 60
+
         "weekly" ->
           dow = Map.get(cfg, "day_of_week")
           h = Map.get(cfg, "hour", 0)
@@ -735,6 +806,7 @@ defmodule StreamflixCore.Platform do
           dow_ok = dow == nil or dow == day_of_week or (dow == 0 and day_of_week == 7)
           time_ok = h == hour and min_cfg == minute
           dow_ok and time_ok
+
         "monthly" ->
           dom = Map.get(cfg, "day_of_month")
           h = Map.get(cfg, "hour", 0)
@@ -742,9 +814,11 @@ defmodule StreamflixCore.Platform do
           dom_ok = dom == nil or dom == day_of_month
           time_ok = h == hour and min_cfg == minute
           dom_ok and time_ok
+
         "cron" ->
           expr = Map.get(cfg, "expr") || Map.get(cfg, "expression")
           cron_matches?(expr, minute, hour, day_of_month, month, day_of_week)
+
         _ ->
           false
       end
@@ -752,10 +826,13 @@ defmodule StreamflixCore.Platform do
   end
 
   defp cron_matches?(nil, _min, _h, _dom, _mon, _dow), do: false
+
   defp cron_matches?(expr, min, hour, day_of_month, month, day_of_week) when is_binary(expr) do
     parts = String.split(expr, ~r/\s+/, trim: true)
+
     if length(parts) >= 5 do
       [min_s, hour_s, dom_s, mon_s, dow_s] = Enum.take(parts, 5)
+
       cron_field_match?(min_s, min, 0, 59) and
         cron_field_match?(hour_s, hour, 0, 23) and
         cron_field_match?(dom_s, day_of_month, 1, 31) and
@@ -765,9 +842,11 @@ defmodule StreamflixCore.Platform do
       false
     end
   end
+
   defp cron_matches?(_, _min, _h, _dom, _mon, _dow), do: false
 
   defp cron_field_match?("*", _val, _lo, _hi), do: true
+
   defp cron_field_match?(str, val, _lo, _hi) do
     case Integer.parse(str) do
       {n, _} -> n == val
@@ -787,6 +866,7 @@ defmodule StreamflixCore.Platform do
     Stream.iterate(start, fn dt -> DateTime.add(dt, 60, :second) end)
     |> Stream.filter(fn dt ->
       date = DateTime.to_date(dt)
+
       cron_matches?(
         cron_expr,
         dt.minute,
@@ -801,6 +881,7 @@ defmodule StreamflixCore.Platform do
 
   def list_job_runs(job_id, opts \\ []) do
     limit = Keyword.get(opts, :limit, 20)
+
     JobRun
     |> where([r], r.job_id == ^job_id)
     |> order_by([r], desc: r.executed_at)
@@ -843,17 +924,24 @@ defmodule StreamflixCore.Platform do
 
   def resolve_dead_letter(id) do
     case Repo.get(DeadLetter, id) do
-      nil -> {:error, :not_found}
+      nil ->
+        {:error, :not_found}
+
       dl ->
         dl
-        |> DeadLetter.changeset(%{resolved: true, resolved_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)})
+        |> DeadLetter.changeset(%{
+          resolved: true,
+          resolved_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)
+        })
         |> Repo.update()
     end
   end
 
   def retry_dead_letter(id, modified_payload \\ nil) do
     case Repo.get(DeadLetter, id) |> Repo.preload([:event, :webhook]) do
-      nil -> {:error, :not_found}
+      nil ->
+        {:error, :not_found}
+
       dl ->
         _payload = modified_payload || dl.original_payload
         webhook = dl.webhook
@@ -870,7 +958,10 @@ defmodule StreamflixCore.Platform do
                })
                |> Repo.insert() do
             {:ok, delivery} ->
-              Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id}))
+              Oban.insert(
+                StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id})
+              )
+
               resolve_dead_letter(id)
               {:ok, delivery}
 
@@ -895,8 +986,7 @@ defmodule StreamflixCore.Platform do
             total: count(d.id),
             success: count(fragment("CASE WHEN ? = 'success' THEN 1 END", d.status)),
             failed: count(fragment("CASE WHEN ? = 'failed' THEN 1 END", d.status)),
-            avg_latency:
-              avg(fragment("EXTRACT(EPOCH FROM ? - ?)", d.updated_at, d.inserted_at))
+            avg_latency: avg(fragment("EXTRACT(EPOCH FROM ? - ?)", d.updated_at, d.inserted_at))
           }
         )
       )
@@ -941,7 +1031,12 @@ defmodule StreamflixCore.Platform do
     {topic, payload} = extract_topic_and_payload(body)
     webhooks = list_active_webhooks_for_project(project_id)
 
-    fake_event = %{topic: topic, payload: payload, id: "simulated", occurred_at: DateTime.utc_now()}
+    fake_event = %{
+      topic: topic,
+      payload: payload,
+      id: "simulated",
+      occurred_at: DateTime.utc_now()
+    }
 
     matching = Enum.filter(webhooks, &webhook_matches_event?(&1, fake_event))
 
@@ -951,7 +1046,10 @@ defmodule StreamflixCore.Platform do
 
       signature =
         if webhook.secret_encrypted && webhook.secret_encrypted != "" do
-          sig = :crypto.mac(:hmac, :sha256, webhook.secret_encrypted, body_json) |> Base.encode64(padding: false)
+          sig =
+            :crypto.mac(:hmac, :sha256, webhook.secret_encrypted, body_json)
+            |> Base.encode64(padding: false)
+
           "sha256=#{sig}"
         else
           nil
@@ -1015,8 +1113,12 @@ defmodule StreamflixCore.Platform do
 
   def cancel_replay(id) do
     case Repo.get(Replay, id) do
-      nil -> {:error, :not_found}
-      %{status: status} when status in ["completed", "cancelled", "failed"] -> {:error, :already_finished}
+      nil ->
+        {:error, :not_found}
+
+      %{status: status} when status in ["completed", "cancelled", "failed"] ->
+        {:error, :already_finished}
+
       replay ->
         replay
         |> Replay.changeset(%{status: "cancelled"})
@@ -1040,9 +1142,12 @@ defmodule StreamflixCore.Platform do
 
   defp parse_replay_datetime(nil), do: nil
   defp parse_replay_datetime(""), do: nil
+
   defp parse_replay_datetime(str) when is_binary(str) do
     case DateTime.from_iso8601(str) do
-      {:ok, dt, _} -> DateTime.truncate(dt, :microsecond)
+      {:ok, dt, _} ->
+        DateTime.truncate(dt, :microsecond)
+
       _ ->
         case NaiveDateTime.from_iso8601(str) do
           {:ok, ndt} -> DateTime.from_naive!(ndt, "Etc/UTC") |> DateTime.truncate(:microsecond)
@@ -1050,6 +1155,7 @@ defmodule StreamflixCore.Platform do
         end
     end
   end
+
   defp parse_replay_datetime(_), do: nil
 
   # ---------- Sandbox ----------
@@ -1099,9 +1205,11 @@ defmodule StreamflixCore.Platform do
     |> case do
       {:ok, req} ->
         endpoint = Repo.get(SandboxEndpoint, endpoint_id) |> Repo.preload(:project)
+
         if endpoint do
           broadcast(endpoint.project_id, {:sandbox_request, req})
         end
+
         {:ok, req}
 
       error ->
@@ -1143,7 +1251,8 @@ defmodule StreamflixCore.Platform do
     since = DateTime.utc_now() |> DateTime.add(-days, :day) |> DateTime.truncate(:microsecond)
 
     from(d in Delivery,
-      join: e in WebhookEvent, on: e.id == d.event_id,
+      join: e in WebhookEvent,
+      on: e.id == d.event_id,
       where: e.project_id == ^project_id and d.inserted_at >= ^since,
       group_by: fragment("DATE(?)", d.inserted_at),
       order_by: fragment("DATE(?)", d.inserted_at),
@@ -1160,7 +1269,9 @@ defmodule StreamflixCore.Platform do
   @doc "Top topics by event volume"
   def top_topics(project_id, limit_count \\ 10) do
     from(e in WebhookEvent,
-      where: e.project_id == ^project_id and e.status == "active" and not is_nil(e.topic) and e.topic != "",
+      where:
+        e.project_id == ^project_id and e.status == "active" and not is_nil(e.topic) and
+          e.topic != "",
       group_by: e.topic,
       order_by: [desc: count(e.id)],
       limit: ^limit_count,
@@ -1174,7 +1285,8 @@ defmodule StreamflixCore.Platform do
     since = DateTime.utc_now() |> DateTime.add(-7, :day) |> DateTime.truncate(:microsecond)
 
     from(d in Delivery,
-      join: w in Webhook, on: w.id == d.webhook_id,
+      join: w in Webhook,
+      on: w.id == d.webhook_id,
       where: w.project_id == ^project_id and d.inserted_at >= ^since,
       group_by: [w.id, w.url],
       select: %{
@@ -1222,8 +1334,12 @@ defmodule StreamflixCore.Platform do
 
   def validate_event_payload(project_id, topic, payload) do
     case topic do
-      nil -> :ok
-      "" -> :ok
+      nil ->
+        :ok
+
+      "" ->
+        :ok
+
       t ->
         schema_record =
           EventSchema
@@ -1233,7 +1349,9 @@ defmodule StreamflixCore.Platform do
           |> Repo.one()
 
         case schema_record do
-          nil -> :ok
+          nil ->
+            :ok
+
           %{schema: json_schema} ->
             resolved = ExJsonSchema.Schema.resolve(json_schema)
 
@@ -1274,6 +1392,7 @@ defmodule StreamflixCore.Platform do
   # ---------- Helpers ----------
 
   defp maybe_filter_active(query, _field, true), do: query
+
   defp maybe_filter_active(query, field, false) do
     where(query, [x], field(x, ^field) == "active")
   end
@@ -1372,12 +1491,27 @@ defmodule StreamflixCore.Platform do
   end
 
   defp apply_cursor(query, nil, _field), do: query
+
   defp apply_cursor(query, cursor, field) do
-    case Repo.get(query |> exclude(:order_by) |> exclude(:limit) |> limit(1) |> where([x], x.id == ^cursor), cursor) do
-      nil -> query
+    case Repo.get(
+           query
+           |> exclude(:order_by)
+           |> exclude(:limit)
+           |> limit(1)
+           |> where([x], x.id == ^cursor),
+           cursor
+         ) do
+      nil ->
+        query
+
       record ->
         cursor_val = Map.get(record, field)
-        where(query, [x], field(x, ^field) < ^cursor_val or (field(x, ^field) == ^cursor_val and x.id < ^cursor))
+
+        where(
+          query,
+          [x],
+          field(x, ^field) < ^cursor_val or (field(x, ^field) == ^cursor_val and x.id < ^cursor)
+        )
     end
   end
 

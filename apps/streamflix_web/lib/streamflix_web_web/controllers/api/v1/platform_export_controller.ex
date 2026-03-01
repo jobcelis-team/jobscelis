@@ -56,7 +56,13 @@ defmodule StreamflixWebWeb.Api.V1.PlatformExportController do
         }
       end)
 
-    export(conn, rows, format, "deliveries", ~w(id event_id webhook_id status attempt_number response_status inserted_at))
+    export(
+      conn,
+      rows,
+      format,
+      "deliveries",
+      ~w(id event_id webhook_id status attempt_number response_status inserted_at)
+    )
   end
 
   def jobs(conn, params) do
@@ -99,21 +105,25 @@ defmodule StreamflixWebWeb.Api.V1.PlatformExportController do
         }
       end)
 
-    export(conn, rows, format, "audit_log", ~w(id action resource_type resource_id user_id ip_address inserted_at))
+    export(
+      conn,
+      rows,
+      format,
+      "audit_log",
+      ~w(id action resource_type resource_id user_id ip_address inserted_at)
+    )
   end
 
   defp export(conn, rows, "csv", filename, columns) do
     header = Enum.join(columns, ",") <> "\n"
 
     body =
-      Enum.map(rows, fn row ->
-        Enum.map(columns, fn col ->
+      Enum.map_join(rows, "\n", fn row ->
+        Enum.map_join(columns, ",", fn col ->
           value = Map.get(row, String.to_existing_atom(col), "")
           csv_escape(to_string(value))
         end)
-        |> Enum.join(",")
       end)
-      |> Enum.join("\n")
 
     conn
     |> put_resp_content_type("text/csv")

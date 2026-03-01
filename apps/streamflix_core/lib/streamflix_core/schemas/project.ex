@@ -9,17 +9,17 @@ defmodule StreamflixCore.Schemas.Project do
   @foreign_key_type :binary_id
 
   schema "projects" do
-    field :name, :string
-    field :status, :string, default: "active"
-    field :settings, :map, default: %{}
-    field :user_id, :binary_id
-    field :is_default, :boolean, default: false
+    field(:name, :string)
+    field(:status, :string, default: "active")
+    field(:settings, :map, default: %{})
+    field(:user_id, :binary_id)
+    field(:is_default, :boolean, default: false)
 
-    has_many :api_keys, StreamflixCore.Schemas.ApiKey
-    has_many :webhooks, StreamflixCore.Schemas.Webhook
-    has_many :webhook_events, StreamflixCore.Schemas.WebhookEvent
-    has_many :jobs, StreamflixCore.Schemas.Job
-    has_many :members, StreamflixCore.Schemas.ProjectMember
+    has_many(:api_keys, StreamflixCore.Schemas.ApiKey)
+    has_many(:webhooks, StreamflixCore.Schemas.Webhook)
+    has_many(:webhook_events, StreamflixCore.Schemas.WebhookEvent)
+    has_many(:jobs, StreamflixCore.Schemas.Job)
+    has_many(:members, StreamflixCore.Schemas.ProjectMember)
 
     timestamps(type: :utc_datetime_usec)
   end
