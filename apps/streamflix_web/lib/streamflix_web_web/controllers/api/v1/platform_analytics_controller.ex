@@ -5,6 +5,10 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
   alias StreamflixCore.Platform
   alias StreamflixWebWeb.Schemas
 
+  alias StreamflixWebWeb.Plugs.RequireScope
+
+  plug RequireScope, "analytics:read"
+
   tags(["Analytics"])
   security([%{"api_key" => []}])
 
@@ -20,7 +24,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
 
   def events_per_day(conn, params) do
     project = conn.assigns.current_project
-    days = String.to_integer(params["days"] || "30")
+    days = safe_int(params["days"], 30)
     data = Platform.events_per_day(project.id, min(days, 90))
     json(conn, %{data: data})
   end
@@ -37,7 +41,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
 
   def deliveries_per_day(conn, params) do
     project = conn.assigns.current_project
-    days = String.to_integer(params["days"] || "30")
+    days = safe_int(params["days"], 30)
     data = Platform.deliveries_per_day(project.id, min(days, 90))
     json(conn, %{data: data})
   end
@@ -61,7 +65,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
 
   def top_topics(conn, params) do
     project = conn.assigns.current_project
-    limit = String.to_integer(params["limit"] || "10")
+    limit = safe_int(params["limit"], 10)
     data = Platform.top_topics(project.id, min(limit, 50))
     json(conn, %{data: data})
   end
@@ -79,6 +83,17 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
          }}
     ]
   )
+
+  defp safe_int(nil, default), do: default
+
+  defp safe_int(val, default) when is_binary(val) do
+    case Integer.parse(val) do
+      {n, _} -> n
+      :error -> default
+    end
+  end
+
+  defp safe_int(val, _default) when is_integer(val), do: val
 
   def webhook_stats(conn, _params) do
     project = conn.assigns.current_project

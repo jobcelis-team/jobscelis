@@ -6,6 +6,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
   alias StreamflixCore.Audit
   alias StreamflixWebWeb.Schemas
 
+  alias StreamflixWebWeb.Plugs.RequireScope
+
+  plug RequireScope, "replays:read" when action in [:index, :show]
+  plug RequireScope, "replays:write" when action in [:create, :cancel]
+
   tags(["Event Replay"])
   security([%{"api_key" => []}])
 
@@ -87,9 +92,18 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
   )
 
   def show(conn, %{"id" => id}) do
+    project = conn.assigns.current_project
+
     case Platform.get_replay(id) do
-      nil -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
-      replay -> json(conn, replay_json(replay))
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      replay ->
+        if replay.project_id != project.id do
+          conn |> put_status(:not_found) |> json(%{error: "not_found"})
+        else
+          json(conn, replay_json(replay))
+        end
     end
   end
 
@@ -106,22 +120,32 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
   def cancel(conn, %{"id" => id}) do
     project = conn.assigns.current_project
 
-    case Platform.cancel_replay(id) do
-      {:ok, replay} ->
-        Audit.record("replay.cancelled",
-          user_id: project.user_id,
-          project_id: project.id,
-          resource_type: "replay",
-          resource_id: replay.id
-        )
-
-        json(conn, replay_json(replay))
-
-      {:error, :not_found} ->
+    case Platform.get_replay(id) do
+      nil ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
-      {:error, :already_finished} ->
-        conn |> put_status(:conflict) |> json(%{error: "Replay already finished"})
+      replay ->
+        if replay.project_id != project.id do
+          conn |> put_status(:not_found) |> json(%{error: "not_found"})
+        else
+          case Platform.cancel_replay(id) do
+            {:ok, cancelled} ->
+              Audit.record("replay.cancelled",
+                user_id: project.user_id,
+                project_id: project.id,
+                resource_type: "replay",
+                resource_id: cancelled.id
+              )
+
+              json(conn, replay_json(cancelled))
+
+            {:error, :not_found} ->
+              conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+            {:error, :already_finished} ->
+              conn |> put_status(:conflict) |> json(%{error: "Replay already finished"})
+          end
+        end
     end
   end
 
