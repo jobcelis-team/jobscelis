@@ -46,8 +46,8 @@ defmodule StreamflixCore.PlatformTest do
       project = insert(:project)
 
       attrs = %{
-        url: "https://example.com/webhook",
-        topics: ["order.created"]
+        "url" => "https://example.com/webhook",
+        "topics" => ["order.created"]
       }
 
       assert {:ok, webhook} = Platform.create_webhook(project.id, attrs)
