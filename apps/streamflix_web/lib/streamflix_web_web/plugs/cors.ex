@@ -33,8 +33,14 @@ defmodule StreamflixWebWeb.Plugs.CORS do
       if allowed_origin do
         conn
         |> put_resp_header("access-control-allow-origin", allowed_origin)
-        |> put_resp_header("access-control-allow-methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-        |> put_resp_header("access-control-allow-headers", "Authorization, X-Api-Key, Content-Type, Accept")
+        |> put_resp_header(
+          "access-control-allow-methods",
+          "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+        )
+        |> put_resp_header(
+          "access-control-allow-headers",
+          "Authorization, X-Api-Key, Content-Type, Accept"
+        )
         |> put_resp_header("access-control-max-age", "86400")
         |> maybe_vary_origin()
       else

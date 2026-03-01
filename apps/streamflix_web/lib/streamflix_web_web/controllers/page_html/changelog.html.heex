@@ -1,52 +1,127 @@
-<Layouts.public flash={@flash} current_user={@current_user} locale={@locale} legal={@legal} active_page={@active_page}>
-    <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Changelog") %></h1>
-    <p class="text-slate-600 mb-10"><%= gettext("Historial de cambios y novedades del proyecto. El contenido corresponde al archivo CHANGELOG.md del repositorio.") %></p>
+<Layouts.public
+  flash={@flash}
+  current_user={@current_user}
+  locale={@locale}
+  legal={@legal}
+  active_page={@active_page}
+>
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Changelog")}</h1>
 
-    <div class="space-y-10 text-slate-700">
-      <%!-- [Unreleased] - contenido real del proyecto --%>
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mb-4">[Unreleased]</h2>
-        <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2"><%= gettext("Añadido") %></h3>
-        <ul class="list-disc list-inside space-y-1 text-sm">
-          <li><%= gettext("Documentación ampliada: conceptos básicos (eventos, webhooks, entregas, jobs, topics), primeros pasos y guía de configuración de jobs y cron.") %></li>
-          <li><%= gettext("Página FAQ con preguntas frecuentes (ES/EN).") %></li>
-          <li><%= gettext("Manual de usuario en docs/MANUAL-USUARIO.md.") %></li>
-          <li><%= gettext("Índice de documentación en docs/INDICE-DOCUMENTACION.md.") %></li>
-          <li><%= gettext("CHANGELOG.md para historial de versiones.") %></li>
-          <li><%= gettext("Enlaces en footer a FAQ y documentación/guía.") %></li>
-          <li><%= gettext("Página Contacto (/contact): email de contacto, GitHub y perfil.") %></li>
-          <li><%= gettext("Página Planes y precios (/pricing): servicio gratuito; sección donaciones (PayPal, Payoneer opcionales).") %></li>
-          <li><%= gettext("Config :legal: contact_email, donation_paypal_url, donation_payoneer_url; en producción se pueden sobrescribir con variables de entorno.") %></li>
-          <li><%= gettext("Página Sobre nosotros (/about).") %></li>
-          <li><%= gettext("Política de cookies (/cookies) y página Changelog (/changelog).") %></li>
-        </ul>
-        <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2"><%= gettext("Cambiado") %></h3>
-        <ul class="list-disc list-inside space-y-1 text-sm">
-          <li><%= gettext("Nombre de producto unificado a Jobcelis (dominio jobcelis.com) en toda la aplicación.") %></li>
-          <li><%= gettext("Traducciones completas en la tabla de cron (EN).") %></li>
-        </ul>
-        <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2"><%= gettext("Corregido") %></h3>
-        <ul class="list-disc list-inside space-y-1 text-sm">
-          <li><%= gettext("Alias no usado en DeliveryWorker (Webhook).") %></li>
-          <li><%= gettext("Duplicados en archivos gettext (.po) que provocaban error de compilación.") %></li>
-        </ul>
-      </section>
+  <p class="text-slate-600 mb-10">
+    {gettext(
+      "Historial de cambios y novedades del proyecto. El contenido corresponde al archivo CHANGELOG.md del repositorio."
+    )}
+  </p>
 
-      <section>
-        <h2 class="text-xl font-semibold text-slate-900 mb-4">[0.1.0] — <%= gettext("Fecha inicial") %></h2>
-        <ul class="list-disc list-inside space-y-1 text-sm">
-          <li><%= gettext("Eventos, webhooks, entregas y jobs programados (diario, semanal, mensual, cron).") %></li>
-          <li><%= gettext("API con autenticación por API Key (Bearer / X-Api-Key).") %></li>
-          <li><%= gettext("Registro e inicio de sesión (JWT para API de auth).") %></li>
-          <li><%= gettext("Dashboard: proyecto, token, eventos, webhooks, jobs, entregas.") %></li>
-          <li><%= gettext("Panel de administración (superadmin): usuarios, proyectos, métricas.") %></li>
-          <li><%= gettext("Términos de uso y política de privacidad.") %></li>
-          <li><%= gettext("Documentación API en /docs.") %></li>
-          <li><%= gettext("Despliegue con GitHub Actions a Azure (ACR + Web App).") %></li>
-          <li><%= gettext("Soporte multidioma (ES/EN) en la interfaz.") %></li>
-        </ul>
-      </section>
-    </div>
+  <div class="space-y-10 text-slate-700">
+    <%!-- [Unreleased] - contenido real del proyecto --%>
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mb-4">[Unreleased]</h2>
 
-    <p class="text-slate-500 text-sm mt-10"><%= gettext("Formato basado en") %> <a href="https://keepachangelog.com/es-ES/1.0.0/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">Keep a Changelog</a>.</p>
+      <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Añadido")}
+      </h3>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>
+          {gettext(
+            "Documentación ampliada: conceptos básicos (eventos, webhooks, entregas, jobs, topics), primeros pasos y guía de configuración de jobs y cron."
+          )}
+        </li>
+
+        <li>{gettext("Página FAQ con preguntas frecuentes (ES/EN).")}</li>
+
+        <li>{gettext("Manual de usuario en docs/MANUAL-USUARIO.md.")}</li>
+
+        <li>{gettext("Índice de documentación en docs/INDICE-DOCUMENTACION.md.")}</li>
+
+        <li>{gettext("CHANGELOG.md para historial de versiones.")}</li>
+
+        <li>{gettext("Enlaces en footer a FAQ y documentación/guía.")}</li>
+
+        <li>{gettext("Página Contacto (/contact): email de contacto, GitHub y perfil.")}</li>
+
+        <li>
+          {gettext(
+            "Página Planes y precios (/pricing): servicio gratuito; sección donaciones (PayPal, Payoneer opcionales)."
+          )}
+        </li>
+
+        <li>
+          {gettext(
+            "Config :legal: contact_email, donation_paypal_url, donation_payoneer_url; en producción se pueden sobrescribir con variables de entorno."
+          )}
+        </li>
+
+        <li>{gettext("Página Sobre nosotros (/about).")}</li>
+
+        <li>{gettext("Política de cookies (/cookies) y página Changelog (/changelog).")}</li>
+      </ul>
+
+      <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Cambiado")}
+      </h3>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>
+          {gettext(
+            "Nombre de producto unificado a Jobcelis (dominio jobcelis.com) en toda la aplicación."
+          )}
+        </li>
+
+        <li>{gettext("Traducciones completas en la tabla de cron (EN).")}</li>
+      </ul>
+
+      <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Corregido")}
+      </h3>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>{gettext("Alias no usado en DeliveryWorker (Webhook).")}</li>
+
+        <li>
+          {gettext("Duplicados en archivos gettext (.po) que provocaban error de compilación.")}
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold text-slate-900 mb-4">
+        [0.1.0] — {gettext("Fecha inicial")}
+      </h2>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>
+          {gettext(
+            "Eventos, webhooks, entregas y jobs programados (diario, semanal, mensual, cron)."
+          )}
+        </li>
+
+        <li>{gettext("API con autenticación por API Key (Bearer / X-Api-Key).")}</li>
+
+        <li>{gettext("Registro e inicio de sesión (JWT para API de auth).")}</li>
+
+        <li>{gettext("Dashboard: proyecto, token, eventos, webhooks, jobs, entregas.")}</li>
+
+        <li>{gettext("Panel de administración (superadmin): usuarios, proyectos, métricas.")}</li>
+
+        <li>{gettext("Términos de uso y política de privacidad.")}</li>
+
+        <li>{gettext("Documentación API en /docs.")}</li>
+
+        <li>{gettext("Despliegue con GitHub Actions a Azure (ACR + Web App).")}</li>
+
+        <li>{gettext("Soporte multidioma (ES/EN) en la interfaz.")}</li>
+      </ul>
+    </section>
+  </div>
+
+  <p class="text-slate-500 text-sm mt-10">
+    {gettext("Formato basado en")} <a
+      href="https://keepachangelog.com/es-ES/1.0.0/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-indigo-600 hover:underline"
+    >Keep a Changelog</a>.
+  </p>
 </Layouts.public>

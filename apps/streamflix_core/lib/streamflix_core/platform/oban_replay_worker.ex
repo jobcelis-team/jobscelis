@@ -64,6 +64,7 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
       Enum.reduce(events, {0, replay}, fn event, {count, rep} ->
         # Check if cancelled mid-replay
         fresh = Repo.get(Replay, rep.id)
+
         if fresh && fresh.status == "cancelled" do
           {count, rep}
         else
@@ -79,7 +80,10 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
                  })
                  |> Repo.insert() do
               {:ok, delivery} ->
-                Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id}))
+                Oban.insert(
+                  StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id})
+                )
+
               _ ->
                 :ok
             end
@@ -116,6 +120,7 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
 
     # Notify user
     project = Repo.get(StreamflixCore.Schemas.Project, replay.project_id)
+
     if project && project.user_id do
       StreamflixCore.Notifications.notify_replay_completed(
         project.user_id,
@@ -124,7 +129,10 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
       )
     end
 
-    Logger.info("[ReplayWorker] Replay #{replay.id} completed: #{processed}/#{total} events processed")
+    Logger.info(
+      "[ReplayWorker] Replay #{replay.id} completed: #{processed}/#{total} events processed"
+    )
+
     :ok
   end
 
@@ -145,9 +153,12 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
 
   defp parse_datetime(nil), do: nil
   defp parse_datetime(""), do: nil
+
   defp parse_datetime(str) when is_binary(str) do
     case DateTime.from_iso8601(str) do
-      {:ok, dt, _} -> DateTime.truncate(dt, :microsecond)
+      {:ok, dt, _} ->
+        DateTime.truncate(dt, :microsecond)
+
       _ ->
         case NaiveDateTime.from_iso8601(str) do
           {:ok, ndt} -> DateTime.from_naive!(ndt, "Etc/UTC") |> DateTime.truncate(:microsecond)
@@ -155,6 +166,7 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
         end
     end
   end
+
   defp parse_datetime(_), do: nil
 
   defp broadcast_progress(project_id, replay_id, status, processed, total) do

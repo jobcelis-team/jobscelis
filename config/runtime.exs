@@ -13,8 +13,7 @@ import Config
 
 # LiveView signing salt
 if signing_salt = System.get_env("LIVE_VIEW_SIGNING_SALT") do
-  config :streamflix_web, StreamflixWebWeb.Endpoint,
-    live_view: [signing_salt: signing_salt]
+  config :streamflix_web, StreamflixWebWeb.Endpoint, live_view: [signing_salt: signing_salt]
 end
 
 # ============================================
@@ -84,9 +83,7 @@ if config_env() == :prod do
       ciphers: [
         default: {
           Cloak.Ciphers.AES.GCM,
-          tag: "AES.GCM.V1",
-          key: Base.decode64!(cloak_key),
-          iv_length: 12
+          tag: "AES.GCM.V1", key: Base.decode64!(cloak_key), iv_length: 12
         }
       ]
   end
@@ -111,14 +108,14 @@ if config_env() == :prod do
     )
 
   legal =
-    Application.get_env(:streamflix_web, :legal, [
+    Application.get_env(:streamflix_web, :legal,
       product_name: "Jobcelis",
       owner: "Jobcelis",
       contact_email: "",
       donation_paypal_url: "",
       donation_payoneer_url: "",
       donation_payphone_url: ""
-    ])
+    )
     |> Keyword.merge(env_legal)
 
   config :streamflix_web, :legal, legal

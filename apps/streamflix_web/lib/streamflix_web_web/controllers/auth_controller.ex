@@ -82,18 +82,20 @@ defmodule StreamflixWebWeb.AuthController do
           |> put_flash(:info, gettext("Bienvenido, %{name}.", name: user.name || user.email))
 
         # If "remember me" is checked, set longer session expiration
-        conn = if remember do
-          # Set session to expire in 30 days
-          put_session(conn, :remember_me, true)
-        else
-          conn
-        end
+        conn =
+          if remember do
+            # Set session to expire in 30 days
+            put_session(conn, :remember_me, true)
+          else
+            conn
+          end
 
-        redirect_to = if user.role in ["admin", "superadmin"] do
-          "/admin"
-        else
-          "/platform"
-        end
+        redirect_to =
+          if user.role in ["admin", "superadmin"] do
+            "/admin"
+          else
+            "/platform"
+          end
 
         redirect(conn, to: redirect_to)
 
@@ -148,15 +150,28 @@ defmodule StreamflixWebWeb.AuthController do
   defp validate_auth_params(params) when is_map(params) do
     email = params["email"] && to_string(params["email"]) |> String.trim() |> String.downcase()
     password = params["password"] && to_string(params["password"])
-    name = params["name"] && (params["name"] |> to_string() |> String.trim() |> String.slice(0, 255))
+
+    name =
+      params["name"] && params["name"] |> to_string() |> String.trim() |> String.slice(0, 255)
 
     cond do
-      not (is_binary(email) and is_binary(password)) -> {:error, gettext("Faltan email o contraseña")}
-      byte_size(email) > 254 -> {:error, gettext("Email demasiado largo")}
-      byte_size(password) < 8 -> {:error, gettext("La contraseña debe tener al menos 8 caracteres")}
-      byte_size(password) > 72 -> {:error, gettext("Contraseña demasiado larga")}
-      not String.match?(email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) or String.length(email) < 3 -> {:error, gettext("Email no válido")}
-      true -> {:ok, email, password, name}
+      not (is_binary(email) and is_binary(password)) ->
+        {:error, gettext("Faltan email o contraseña")}
+
+      byte_size(email) > 254 ->
+        {:error, gettext("Email demasiado largo")}
+
+      byte_size(password) < 8 ->
+        {:error, gettext("La contraseña debe tener al menos 8 caracteres")}
+
+      byte_size(password) > 72 ->
+        {:error, gettext("Contraseña demasiado larga")}
+
+      not String.match?(email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) or String.length(email) < 3 ->
+        {:error, gettext("Email no válido")}
+
+      true ->
+        {:ok, email, password, name}
     end
   end
 
@@ -165,15 +180,15 @@ defmodule StreamflixWebWeb.AuthController do
   defp format_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
       translated = Gettext.gettext(StreamflixWebWeb.Gettext, msg)
+
       Regex.replace(~r"%{(\w+)}", translated, fn _, key ->
         opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
       end)
     end)
-    |> Enum.map(fn {field, errors} ->
+    |> Enum.map_join("; ", fn {field, errors} ->
       field_label = translate_field(field)
       "#{field_label}: #{Enum.join(errors, ", ")}"
     end)
-    |> Enum.join("; ")
   end
 
   defp translate_field(:email), do: gettext("email")

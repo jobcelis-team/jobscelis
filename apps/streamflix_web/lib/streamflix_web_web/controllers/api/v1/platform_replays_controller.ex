@@ -6,16 +6,27 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
   alias StreamflixCore.Audit
   alias StreamflixWebWeb.Schemas
 
-  tags ["Event Replay"]
-  security [%{"api_key" => []}]
+  tags(["Event Replay"])
+  security([%{"api_key" => []}])
 
-  operation :create,
+  operation(:create,
     summary: "Start an event replay",
-    request_body: {"Replay filters", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{topic: %OpenApiSpex.Schema{type: :string}, from_date: %OpenApiSpex.Schema{type: :string}, to_date: %OpenApiSpex.Schema{type: :string}, webhook_id: %OpenApiSpex.Schema{type: :string}}}},
+    request_body:
+      {"Replay filters", "application/json",
+       %OpenApiSpex.Schema{
+         type: :object,
+         properties: %{
+           topic: %OpenApiSpex.Schema{type: :string},
+           from_date: %OpenApiSpex.Schema{type: :string},
+           to_date: %OpenApiSpex.Schema{type: :string},
+           webhook_id: %OpenApiSpex.Schema{type: :string}
+         }
+       }},
     responses: [
       created: {"Replay started", "application/json", Schemas.Replay},
       unprocessable_entity: {"Invalid filters", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def create(conn, params) do
     project = conn.assigns.current_project
@@ -48,11 +59,17 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
     end
   end
 
-  operation :index,
+  operation(:index,
     summary: "List event replays",
     responses: [
-      ok: {"Replays list", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{data: %OpenApiSpex.Schema{type: :array, items: Schemas.Replay}}}}
+      ok:
+        {"Replays list", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{data: %OpenApiSpex.Schema{type: :array, items: Schemas.Replay}}
+         }}
     ]
+  )
 
   def index(conn, _params) do
     project = conn.assigns.current_project
@@ -60,13 +77,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
     json(conn, %{data: Enum.map(replays, &replay_json/1)})
   end
 
-  operation :show,
+  operation(:show,
     summary: "Get replay details",
     parameters: [id: [in: :path, type: :string, description: "Replay ID"]],
     responses: [
       ok: {"Replay details", "application/json", Schemas.Replay},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def show(conn, %{"id" => id}) do
     case Platform.get_replay(id) do
@@ -75,7 +93,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
     end
   end
 
-  operation :cancel,
+  operation(:cancel,
     summary: "Cancel a running replay",
     parameters: [id: [in: :path, type: :string, description: "Replay ID"]],
     responses: [
@@ -83,6 +101,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
       not_found: {"Not found", "application/json", Schemas.ErrorResponse},
       conflict: {"Already finished", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def cancel(conn, %{"id" => id}) do
     project = conn.assigns.current_project

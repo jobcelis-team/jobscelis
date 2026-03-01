@@ -15,7 +15,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSSEController do
     Phoenix.PubSub.subscribe(StreamflixCore.PubSub, "project:#{project.id}")
 
     # Send initial connection event
-    {:ok, conn} = chunk(conn, "data: #{Jason.encode!(%{type: "connected", project_id: project.id})}\n\n")
+    {:ok, conn} =
+      chunk(conn, "data: #{Jason.encode!(%{type: "connected", project_id: project.id})}\n\n")
 
     # Schedule keepalive
     Process.send_after(self(), :keepalive, 30_000)

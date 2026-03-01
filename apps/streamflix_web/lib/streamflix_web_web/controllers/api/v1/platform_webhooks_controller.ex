@@ -5,22 +5,35 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
   alias StreamflixCore.Platform
   alias StreamflixWebWeb.Schemas
 
-  plug StreamflixWebWeb.Plugs.RequireScope, "webhooks:read" when action in [:index, :show, :health, :templates]
-  plug StreamflixWebWeb.Plugs.RequireScope, "webhooks:write" when action in [:create, :update, :delete]
+  plug StreamflixWebWeb.Plugs.RequireScope,
+       "webhooks:read" when action in [:index, :show, :health, :templates]
+
+  plug StreamflixWebWeb.Plugs.RequireScope,
+       "webhooks:write" when action in [:create, :update, :delete]
 
   action_fallback StreamflixWebWeb.FallbackController
 
-  tags ["Webhooks"]
-  security [%{"api_key" => []}]
+  tags(["Webhooks"])
+  security([%{"api_key" => []}])
 
-  operation :index,
+  operation(:index,
     summary: "List webhooks",
     parameters: [
-      include: [in: :query, type: :string, description: "Set to 'inactive' to include inactive webhooks"]
+      include: [
+        in: :query,
+        type: :string,
+        description: "Set to 'inactive' to include inactive webhooks"
+      ]
     ],
     responses: [
-      ok: {"Webhooks list", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{webhooks: %OpenApiSpex.Schema{type: :array, items: Schemas.Webhook}}}}
+      ok:
+        {"Webhooks list", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{webhooks: %OpenApiSpex.Schema{type: :array, items: Schemas.Webhook}}
+         }}
     ]
+  )
 
   def index(conn, params) do
     project = conn.assigns.current_project
@@ -29,19 +42,22 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
     json(conn, %{webhooks: Enum.map(webhooks, &webhook_json/1)})
   end
 
-  operation :show,
+  operation(:show,
     summary: "Get webhook details",
     parameters: [id: [in: :path, type: :string, description: "Webhook ID"]],
     responses: [
       ok: {"Webhook details", "application/json", Schemas.Webhook},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def show(conn, %{"id" => id}) do
     project = conn.assigns.current_project
+
     case Platform.get_webhook(id) do
       nil ->
         send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+
       w ->
         if w.project_id != project.id do
           send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
@@ -51,16 +67,18 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
     end
   end
 
-  operation :create,
+  operation(:create,
     summary: "Create a webhook",
     request_body: {"Webhook attributes", "application/json", Schemas.WebhookCreate},
     responses: [
       created: {"Webhook created", "application/json", Schemas.Webhook},
       unprocessable_entity: {"Validation errors", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def create(conn, params) do
     project = conn.assigns.current_project
+
     attrs = %{
       "url" => params["url"],
       "secret_encrypted" => params["secret"],
@@ -70,13 +88,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
       "headers" => params["headers"] || %{},
       "retry_config" => params["retry_config"] || %{}
     }
+
     case Platform.create_webhook(project.id, attrs) do
       {:ok, w} -> conn |> put_status(:created) |> json(webhook_json(w))
       {:error, changeset} -> conn |> put_status(422) |> json(%{errors: format_errors(changeset)})
     end
   end
 
-  operation :update,
+  operation(:update,
     summary: "Update a webhook",
     parameters: [id: [in: :path, type: :string, description: "Webhook ID"]],
     request_body: {"Webhook attributes", "application/json", Schemas.WebhookCreate},
@@ -85,40 +104,70 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
       not_found: {"Not found", "application/json", Schemas.ErrorResponse},
       unprocessable_entity: {"Validation errors", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def update(conn, %{"id" => id} = params) do
     project = conn.assigns.current_project
+
     case Platform.get_webhook(id) do
       nil ->
         send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+
       w ->
         if w.project_id != project.id do
           send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
         else
-          attrs = Map.take(params, ["url", "secret_encrypted", "topics", "filters", "body_config", "headers", "status", "retry_config"])
-          attrs = if Map.has_key?(params, "secret"), do: Map.put(attrs, "secret_encrypted", params["secret"]), else: attrs
+          attrs =
+            Map.take(params, [
+              "url",
+              "secret_encrypted",
+              "topics",
+              "filters",
+              "body_config",
+              "headers",
+              "status",
+              "retry_config"
+            ])
+
+          attrs =
+            if Map.has_key?(params, "secret"),
+              do: Map.put(attrs, "secret_encrypted", params["secret"]),
+              else: attrs
+
           attrs = Enum.reject(attrs, fn {_, v} -> is_nil(v) end) |> Map.new()
+
           case Platform.update_webhook(w, attrs) do
-            {:ok, updated} -> json(conn, webhook_json(updated))
-            {:error, changeset} -> conn |> put_status(422) |> json(%{errors: format_errors(changeset)})
+            {:ok, updated} ->
+              json(conn, webhook_json(updated))
+
+            {:error, changeset} ->
+              conn |> put_status(422) |> json(%{errors: format_errors(changeset)})
           end
         end
     end
   end
 
-  operation :delete,
+  operation(:delete,
     summary: "Deactivate a webhook",
     parameters: [id: [in: :path, type: :string, description: "Webhook ID"]],
     responses: [
-      ok: {"Webhook deactivated", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{status: %OpenApiSpex.Schema{type: :string}}}},
+      ok:
+        {"Webhook deactivated", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{status: %OpenApiSpex.Schema{type: :string}}
+         }},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def delete(conn, %{"id" => id}) do
     project = conn.assigns.current_project
+
     case Platform.get_webhook(id) do
       nil ->
         send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+
       w ->
         if w.project_id != project.id do
           send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
@@ -129,13 +178,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
     end
   end
 
-  operation :health,
+  operation(:health,
     summary: "Get webhook health status",
     parameters: [id: [in: :path, type: :string, description: "Webhook ID"]],
     responses: [
       ok: {"Webhook health", "application/json", Schemas.WebhookHealth},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def health(conn, %{"id" => id}) do
     project = conn.assigns.current_project
