@@ -7,7 +7,7 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
 
     socket =
       socket
-      |> assign(:page_title, "Configuración")
+      |> assign(:page_title, gettext("Configuración"))
       |> assign(:current_user_role, user.role)
 
     {:ok, socket}
