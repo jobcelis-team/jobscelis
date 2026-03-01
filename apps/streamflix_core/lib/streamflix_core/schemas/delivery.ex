@@ -10,21 +10,29 @@ defmodule StreamflixCore.Schemas.Delivery do
   @foreign_key_type :binary_id
 
   schema "deliveries" do
-    field :status, :string, default: "pending"
-    field :attempt_number, :integer, default: 0
-    field :response_status, :integer
-    field :response_body, :string
-    field :next_retry_at, :utc_datetime_usec
+    field(:status, :string, default: "pending")
+    field(:attempt_number, :integer, default: 0)
+    field(:response_status, :integer)
+    field(:response_body, :string)
+    field(:next_retry_at, :utc_datetime_usec)
 
-    belongs_to :event, StreamflixCore.Schemas.WebhookEvent
-    belongs_to :webhook, StreamflixCore.Schemas.Webhook
+    belongs_to(:event, StreamflixCore.Schemas.WebhookEvent)
+    belongs_to(:webhook, StreamflixCore.Schemas.Webhook)
 
     timestamps(type: :utc_datetime_usec)
   end
 
   def changeset(delivery, attrs) do
     delivery
-    |> cast(attrs, [:event_id, :webhook_id, :status, :attempt_number, :response_status, :response_body, :next_retry_at])
+    |> cast(attrs, [
+      :event_id,
+      :webhook_id,
+      :status,
+      :attempt_number,
+      :response_status,
+      :response_body,
+      :next_retry_at
+    ])
     |> validate_required([:event_id, :webhook_id])
     |> validate_inclusion(:status, ~w(pending success failed))
     |> foreign_key_constraint(:event_id)

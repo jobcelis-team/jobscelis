@@ -25,14 +25,15 @@ database_config =
     ]
   end
 
-config :streamflix_core, StreamflixCore.Repo,
-  database_config
-  |> Keyword.merge(
-    stacktrace: true,
-    show_sensitive_data_on_connection_error: true,
-    pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "5"),
-    log: :debug
-  )
+config :streamflix_core,
+       StreamflixCore.Repo,
+       database_config
+       |> Keyword.merge(
+         stacktrace: true,
+         show_sensitive_data_on_connection_error: true,
+         pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "5"),
+         log: :debug
+       )
 
 # ============================================
 # WEB ENDPOINT CONFIG
@@ -43,7 +44,9 @@ config :streamflix_web, StreamflixWebWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: System.get_env("SECRET_KEY_BASE") || "dev_secret_key_base_minimum_64_bytes_long_for_security_purposes_change_in_production",
+  secret_key_base:
+    System.get_env("SECRET_KEY_BASE") ||
+      "dev_secret_key_base_minimum_64_bytes_long_for_security_purposes_change_in_production",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:streamflix_web, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:streamflix_web, ~w(--watch)]}
@@ -65,7 +68,9 @@ config :streamflix_web, StreamflixWebWeb.Endpoint,
 
 config :streamflix_accounts, StreamflixAccounts.Guardian,
   issuer: "streamflix",
-  secret_key: System.get_env("GUARDIAN_SECRET_KEY") || "dev_guardian_secret_key_change_in_production_minimum_64_bytes"
+  secret_key:
+    System.get_env("GUARDIAN_SECRET_KEY") ||
+      "dev_guardian_secret_key_change_in_production_minimum_64_bytes"
 
 # ============================================
 # LOGGER

@@ -10,22 +10,30 @@ defmodule StreamflixCore.Schemas.Job do
   @foreign_key_type :binary_id
 
   schema "jobs" do
-    field :name, :string
-    field :schedule_type, :string
-    field :schedule_config, :map, default: %{}
-    field :action_type, :string
-    field :action_config, :map, default: %{}
-    field :status, :string, default: "active"
+    field(:name, :string)
+    field(:schedule_type, :string)
+    field(:schedule_config, :map, default: %{})
+    field(:action_type, :string)
+    field(:action_config, :map, default: %{})
+    field(:status, :string, default: "active")
 
-    belongs_to :project, StreamflixCore.Schemas.Project
-    has_many :job_runs, StreamflixCore.Schemas.JobRun
+    belongs_to(:project, StreamflixCore.Schemas.Project)
+    has_many(:job_runs, StreamflixCore.Schemas.JobRun)
 
     timestamps(type: :utc_datetime_usec)
   end
 
   def changeset(job, attrs) do
     job
-    |> cast(attrs, [:project_id, :name, :schedule_type, :schedule_config, :action_type, :action_config, :status])
+    |> cast(attrs, [
+      :project_id,
+      :name,
+      :schedule_type,
+      :schedule_config,
+      :action_type,
+      :action_config,
+      :status
+    ])
     |> validate_required([:project_id, :name, :schedule_type, :action_type])
     |> validate_inclusion(:status, ~w(active inactive))
     |> validate_inclusion(:schedule_type, ~w(daily weekly monthly cron))

@@ -10,7 +10,8 @@ defmodule StreamflixWebWeb.ApiSpec do
       info: %Info{
         title: "Jobcelis API",
         version: "1.0.0",
-        description: "API de eventos, webhooks y jobs. Envía JSON, nosotros enrutamos y entregamos."
+        description:
+          "API de eventos, webhooks y jobs. Envía JSON, nosotros enrutamos y entregamos."
       },
       servers: [
         %Server{url: "/", description: "Current server"}

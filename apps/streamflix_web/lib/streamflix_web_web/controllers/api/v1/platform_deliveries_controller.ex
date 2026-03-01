@@ -8,10 +8,10 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
   plug StreamflixWebWeb.Plugs.RequireScope, "deliveries:read" when action in [:index]
   plug StreamflixWebWeb.Plugs.RequireScope, "deliveries:retry" when action in [:retry]
 
-  tags ["Deliveries"]
-  security [%{"api_key" => []}]
+  tags(["Deliveries"])
+  security([%{"api_key" => []}])
 
-  operation :index,
+  operation(:index,
     summary: "List deliveries",
     parameters: [
       event_id: [in: :query, type: :string, description: "Filter by event ID"],
@@ -21,11 +21,18 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
       cursor: [in: :query, type: :string, description: "Cursor for pagination (ID of last item)"]
     ],
     responses: [
-      ok: {"Deliveries list", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{deliveries: %OpenApiSpex.Schema{type: :array, items: Schemas.Delivery}}}}
+      ok:
+        {"Deliveries list", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{deliveries: %OpenApiSpex.Schema{type: :array, items: Schemas.Delivery}}
+         }}
     ]
+  )
 
   def index(conn, params) do
     project = conn.assigns.current_project
+
     opts = [
       project_id: project.id,
       webhook_id: params["webhook_id"],
@@ -33,7 +40,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
       limit: parse_int(params["limit"], 50),
       cursor: params["cursor"]
     ]
+
     page = Platform.paginate_deliveries(opts)
+
     json(conn, %{
       deliveries: Enum.map(page.data, &delivery_json/1),
       has_next: page.has_next,
@@ -41,20 +50,30 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
     })
   end
 
-  operation :retry,
+  operation(:retry,
     summary: "Retry a delivery",
     parameters: [id: [in: :path, type: :string, description: "Delivery ID"]],
     responses: [
-      ok: {"Retry queued", "application/json", %OpenApiSpex.Schema{type: :object, properties: %{status: %OpenApiSpex.Schema{type: :string}}}},
+      ok:
+        {"Retry queued", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{status: %OpenApiSpex.Schema{type: :string}}
+         }},
       not_found: {"Not found", "application/json", Schemas.ErrorResponse}
     ]
+  )
 
   def retry(conn, %{"id" => id}) do
     project = conn.assigns.current_project
+
     case Platform.get_delivery(id) do
-      nil -> send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+      nil ->
+        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+
       d ->
         event = d.event || StreamflixCore.Platform.get_event(d.event_id)
+
         if is_nil(event) or event.project_id != project.id do
           send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
         else
@@ -80,11 +99,13 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
   end
 
   defp parse_int(nil, default), do: default
+
   defp parse_int(s, default) when is_binary(s) do
     case Integer.parse(s) do
       {n, _} -> n
       _ -> default
     end
   end
+
   defp parse_int(_, default), do: default
 end

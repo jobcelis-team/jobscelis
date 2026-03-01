@@ -9,11 +9,11 @@ defmodule StreamflixCore.Schemas.JobRun do
   @foreign_key_type :binary_id
 
   schema "job_runs" do
-    field :executed_at, :utc_datetime_usec
-    field :status, :string
-    field :result, :map
+    field(:executed_at, :utc_datetime_usec)
+    field(:status, :string)
+    field(:result, :map)
 
-    belongs_to :job, StreamflixCore.Schemas.Job
+    belongs_to(:job, StreamflixCore.Schemas.Job)
 
     timestamps(type: :utc_datetime_usec)
   end

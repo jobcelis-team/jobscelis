@@ -1,31 +1,66 @@
-<Layouts.public flash={@flash} current_user={@current_user} locale={@locale} legal={@legal} active_page={@active_page}>
-    <h1 class="text-3xl font-bold text-slate-900 mb-2"><%= gettext("Sobre nosotros") %></h1>
-    <p class="text-slate-600 mb-10"><%= gettext("%{product} es un servicio gratuito de eventos y webhooks creado y mantenido por una sola persona. Sin empresa: proyecto personal.", product: Map.get(@legal, :product_name, "Jobcelis")) %></p>
+<Layouts.public
+  flash={@flash}
+  current_user={@current_user}
+  locale={@locale}
+  legal={@legal}
+  active_page={@active_page}
+>
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Sobre nosotros")}</h1>
 
-    <div class="space-y-6">
-      <section class="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 class="text-lg font-semibold text-slate-900 mb-2"><%= gettext("Titular del servicio") %></h2>
-        <p class="text-slate-700 text-lg font-medium"><%= Map.get(@legal, :owner, "Jobcelis") %></p>
-        <p class="text-slate-600 text-sm mt-1"><%= gettext("Desarrollador y responsable de %{product}. Puedes contactarme o conocerme mejor en los enlaces siguientes.", product: Map.get(@legal, :product_name, "Jobcelis")) %></p>
-      </section>
+  <p class="text-slate-600 mb-10">
+    {gettext(
+      "%{product} es un servicio gratuito de eventos y webhooks creado y mantenido por una sola persona. Sin empresa: proyecto personal.",
+      product: Map.get(@legal, :product_name, "Jobcelis")
+    )}
+  </p>
 
-      <section class="flex flex-wrap gap-4">
-        <%= if url = Map.get(@legal, :contact_url) do %>
-          <a href={url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-800 text-white font-medium text-sm hover:bg-slate-700 transition">
-            <.icon name="hero-code-bracket-square" class="w-5 h-5" />
-            <%= gettext("GitHub") %>
-          </a>
-        <% end %>
-        <%= if url = Map.get(@legal, :profile_url) do %>
-          <a href={url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm hover:bg-indigo-700 transition">
-            <.icon name="hero-user-circle" class="w-5 h-5" />
-            <%= gettext("Mi perfil") %>
-          </a>
-        <% end %>
-      </section>
+  <div class="space-y-6">
+    <section class="bg-white rounded-xl border border-slate-200 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Titular del servicio")}</h2>
 
-      <section class="pt-4 border-t border-slate-200">
-        <p class="text-slate-600 text-sm"><%= gettext("Para dudas legales, uso del servicio o privacidad, consulta los") %> <a href="/terms" class="text-indigo-600 hover:underline"><%= gettext("Términos de uso") %></a> <%= gettext("y la") %> <a href="/privacy" class="text-indigo-600 hover:underline"><%= gettext("Política de privacidad") %></a>. <%= gettext("Ahí encontrarás también la forma de contactar al titular.") %></p>
-      </section>
-    </div>
+      <p class="text-slate-700 text-lg font-medium">{Map.get(@legal, :owner, "Jobcelis")}</p>
+
+      <p class="text-slate-600 text-sm mt-1">
+        {gettext(
+          "Desarrollador y responsable de %{product}. Puedes contactarme o conocerme mejor en los enlaces siguientes.",
+          product: Map.get(@legal, :product_name, "Jobcelis")
+        )}
+      </p>
+    </section>
+
+    <section class="flex flex-wrap gap-4">
+      <%= if url = Map.get(@legal, :contact_url) do %>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-800 text-white font-medium text-sm hover:bg-slate-700 transition"
+        >
+          <.icon name="hero-code-bracket-square" class="w-5 h-5" /> {gettext("GitHub")}
+        </a>
+      <% end %>
+
+      <%= if url = Map.get(@legal, :profile_url) do %>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm hover:bg-indigo-700 transition"
+        >
+          <.icon name="hero-user-circle" class="w-5 h-5" /> {gettext("Mi perfil")}
+        </a>
+      <% end %>
+    </section>
+
+    <section class="pt-4 border-t border-slate-200">
+      <p class="text-slate-600 text-sm">
+        {gettext("Para dudas legales, uso del servicio o privacidad, consulta los")}
+        <a href="/terms" class="text-indigo-600 hover:underline">{gettext("Términos de uso")}</a> {gettext(
+          "y la"
+        )} <a href="/privacy" class="text-indigo-600 hover:underline"><%= gettext("Política de privacidad") %></a>. {gettext(
+          "Ahí encontrarás también la forma de contactar al titular."
+        )}
+      </p>
+    </section>
+  </div>
 </Layouts.public>

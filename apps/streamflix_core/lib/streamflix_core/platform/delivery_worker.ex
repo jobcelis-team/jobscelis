@@ -106,6 +106,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
   defp format_response_body(%{body: body}) when is_binary(body) do
     if String.length(body) > 500, do: String.slice(body, 0, 500) <> "...", else: body
   end
+
   defp format_response_body(%{body: body}), do: inspect(body)
 
   defp mark_success(delivery, status, _resp) do
@@ -193,7 +194,9 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         )
       end
 
-      Logger.warning("[DeliveryWorker] Delivery #{delivery.id} moved to Dead Letter Queue after #{delivery.attempt_number} attempts")
+      Logger.warning(
+        "[DeliveryWorker] Delivery #{delivery.id} moved to Dead Letter Queue after #{delivery.attempt_number} attempts"
+      )
     end
   end
 

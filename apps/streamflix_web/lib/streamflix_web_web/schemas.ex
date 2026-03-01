@@ -3,6 +3,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule Event do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "Event",
       type: :object,
@@ -19,6 +20,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule EventCreate do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "EventCreate",
       type: :object,
@@ -32,6 +34,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule EventResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "EventResponse",
       type: :object,
@@ -43,6 +46,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule Webhook do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "Webhook",
       type: :object,
@@ -62,6 +66,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule WebhookCreate do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "WebhookCreate",
       type: :object,
@@ -80,24 +85,29 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule WebhookHealth do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "WebhookHealth",
       type: :object,
       properties: %{
         webhook_id: %Schema{type: :string, format: :uuid},
         url: %Schema{type: :string},
-        health: %Schema{type: :object, properties: %{
-          status: %Schema{type: :string, enum: ["healthy", "degraded", "failing", "unknown"]},
-          success_rate: %Schema{type: :number, format: :float},
-          last_attempt_at: %Schema{type: :string, format: :"date-time", nullable: true},
-          last_response_status: %Schema{type: :integer, nullable: true}
-        }}
+        health: %Schema{
+          type: :object,
+          properties: %{
+            status: %Schema{type: :string, enum: ["healthy", "degraded", "failing", "unknown"]},
+            success_rate: %Schema{type: :number, format: :float},
+            last_attempt_at: %Schema{type: :string, format: :"date-time", nullable: true},
+            last_response_status: %Schema{type: :integer, nullable: true}
+          }
+        }
       }
     })
   end
 
   defmodule Delivery do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "Delivery",
       type: :object,
@@ -112,6 +122,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule DeadLetter do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "DeadLetter",
       type: :object,
@@ -133,12 +144,16 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule Replay do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "Replay",
       type: :object,
       properties: %{
         id: %Schema{type: :string, format: :uuid},
-        status: %Schema{type: :string, enum: ["pending", "running", "completed", "failed", "cancelled"]},
+        status: %Schema{
+          type: :string,
+          enum: ["pending", "running", "completed", "failed", "cancelled"]
+        },
         filters: %Schema{type: :object},
         total_events: %Schema{type: :integer},
         processed_events: %Schema{type: :integer},
@@ -151,6 +166,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule SandboxEndpoint do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "SandboxEndpoint",
       type: :object,
@@ -167,6 +183,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule AuditLogEntry do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "AuditLogEntry",
       type: :object,
@@ -185,20 +202,28 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule AnalyticsTimeSeries do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "AnalyticsTimeSeries",
       type: :object,
       properties: %{
-        data: %Schema{type: :array, items: %Schema{type: :object, properties: %{
-          date: %Schema{type: :string, format: :date},
-          count: %Schema{type: :integer}
-        }}}
+        data: %Schema{
+          type: :array,
+          items: %Schema{
+            type: :object,
+            properties: %{
+              date: %Schema{type: :string, format: :date},
+              count: %Schema{type: :integer}
+            }
+          }
+        }
       }
     })
   end
 
   defmodule HealthResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "HealthResponse",
       type: :object,
@@ -212,6 +237,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule ErrorResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "ErrorResponse",
       type: :object,
@@ -225,25 +251,30 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule ProjectResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "ProjectResponse",
       type: :object,
       properties: %{
-        data: %Schema{type: :object, properties: %{
-          id: %Schema{type: :string, format: :uuid},
-          name: %Schema{type: :string},
-          status: %Schema{type: :string},
-          is_default: %Schema{type: :boolean},
-          settings: %Schema{type: :object},
-          inserted_at: %Schema{type: :string, format: :"date-time"},
-          updated_at: %Schema{type: :string, format: :"date-time"}
-        }}
+        data: %Schema{
+          type: :object,
+          properties: %{
+            id: %Schema{type: :string, format: :uuid},
+            name: %Schema{type: :string},
+            status: %Schema{type: :string},
+            is_default: %Schema{type: :boolean},
+            settings: %Schema{type: :object},
+            inserted_at: %Schema{type: :string, format: :"date-time"},
+            updated_at: %Schema{type: :string, format: :"date-time"}
+          }
+        }
       }
     })
   end
 
   defmodule ProjectList do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "ProjectList",
       type: :object,
@@ -255,6 +286,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule ProjectCreate do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "ProjectCreate",
       type: :object,
@@ -270,6 +302,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule ApiKeyResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "ApiKeyResponse",
       type: :object,
@@ -288,24 +321,29 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule EventSchemaResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "EventSchemaResponse",
       type: :object,
       properties: %{
-        data: %Schema{type: :object, properties: %{
-          id: %Schema{type: :string, format: :uuid},
-          topic: %Schema{type: :string},
-          schema: %Schema{type: :object},
-          version: %Schema{type: :integer},
-          status: %Schema{type: :string},
-          inserted_at: %Schema{type: :string, format: :"date-time"}
-        }}
+        data: %Schema{
+          type: :object,
+          properties: %{
+            id: %Schema{type: :string, format: :uuid},
+            topic: %Schema{type: :string},
+            schema: %Schema{type: :object},
+            version: %Schema{type: :integer},
+            status: %Schema{type: :string},
+            inserted_at: %Schema{type: :string, format: :"date-time"}
+          }
+        }
       }
     })
   end
 
   defmodule EventSchemaList do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "EventSchemaList",
       type: :object,
@@ -317,6 +355,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule EventSchemaCreate do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "EventSchemaCreate",
       type: :object,
@@ -331,6 +370,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule EventSchemaValidate do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "EventSchemaValidate",
       type: :object,
@@ -344,6 +384,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule EventSchemaValidateResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "EventSchemaValidateResponse",
       type: :object,
@@ -358,6 +399,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule PaginatedResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "PaginatedResponse",
       type: :object,
@@ -373,6 +415,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule BatchConfig do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "BatchConfig",
       type: :object,
@@ -388,6 +431,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule ExportParams do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "ExportParams",
       type: :object,
@@ -402,6 +446,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule WebhookTemplate do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "WebhookTemplate",
       type: :object,
@@ -419,12 +464,16 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule CronPreviewResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "CronPreviewResponse",
       type: :object,
       properties: %{
         expression: %Schema{type: :string},
-        next_executions: %Schema{type: :array, items: %Schema{type: :string, format: :"date-time"}}
+        next_executions: %Schema{
+          type: :array,
+          items: %Schema{type: :string, format: :"date-time"}
+        }
       }
     })
   end
@@ -433,25 +482,30 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule MemberResponse do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "MemberResponse",
       type: :object,
       properties: %{
-        data: %Schema{type: :object, properties: %{
-          id: %Schema{type: :string, format: :uuid},
-          project_id: %Schema{type: :string, format: :uuid},
-          user_id: %Schema{type: :string, format: :uuid},
-          role: %Schema{type: :string, enum: ["owner", "editor", "viewer"]},
-          status: %Schema{type: :string, enum: ["pending", "active", "removed"]},
-          invited_by: %Schema{type: :string, format: :uuid, nullable: true},
-          inserted_at: %Schema{type: :string, format: :"date-time"}
-        }}
+        data: %Schema{
+          type: :object,
+          properties: %{
+            id: %Schema{type: :string, format: :uuid},
+            project_id: %Schema{type: :string, format: :uuid},
+            user_id: %Schema{type: :string, format: :uuid},
+            role: %Schema{type: :string, enum: ["owner", "editor", "viewer"]},
+            status: %Schema{type: :string, enum: ["pending", "active", "removed"]},
+            invited_by: %Schema{type: :string, format: :uuid, nullable: true},
+            inserted_at: %Schema{type: :string, format: :"date-time"}
+          }
+        }
       }
     })
   end
 
   defmodule MemberList do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "MemberList",
       type: :object,
@@ -463,6 +517,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule MemberInvite do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "MemberInvite",
       type: :object,
@@ -476,6 +531,7 @@ defmodule StreamflixWebWeb.Schemas do
 
   defmodule MemberUpdate do
     require OpenApiSpex
+
     OpenApiSpex.schema(%{
       title: "MemberUpdate",
       type: :object,
