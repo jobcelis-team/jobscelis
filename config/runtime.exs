@@ -33,23 +33,26 @@ if config_env() == :prod do
 
   # prepare: :unnamed necesario con Supabase pooler (PgBouncer); si no, "prepared statement does not exist"
   # ssl: opciones en :ssl (ssl_opts está deprecado)
+  # En Alpine, :public_key.cacerts_get() falla (Unknown CA). Usar cacertfile directamente.
+  ssl_opts =
+    if File.exists?("/etc/ssl/certs/ca-certificates.crt") do
+      [
+        verify: :verify_peer,
+        cacertfile: ~c"/etc/ssl/certs/ca-certificates.crt",
+        server_name_indication: String.to_charlist(URI.parse(database_url).host),
+        customize_hostname_check: [
+          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+        ]
+      ]
+    else
+      [verify: :verify_none]
+    end
+
   config :streamflix_core, StreamflixCore.Repo,
     url: database_url,
     pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
-    ssl:
-      if File.exists?("/etc/ssl/certs/ca-certificates.crt") do
-        [
-          verify: :verify_peer,
-          cacertfile: ~c"/etc/ssl/certs/ca-certificates.crt",
-          server_name_indication: String.to_charlist(URI.parse(database_url).host),
-          customize_hostname_check: [
-            match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
-          ]
-        ]
-      else
-        [verify: :verify_none]
-      end,
+    ssl: ssl_opts,
     prepare: :unnamed
 
   # Secret Key Base
