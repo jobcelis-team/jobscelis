@@ -1,8 +1,7 @@
 defmodule StreamflixAccountsTest do
   use ExUnit.Case
-  doctest StreamflixAccounts
 
-  test "greets the world" do
-    assert StreamflixAccounts.hello() == :world
+  test "guardian is configured" do
+    assert StreamflixAccounts.Guardian.config(:issuer) == "streamflix"
   end
 end
