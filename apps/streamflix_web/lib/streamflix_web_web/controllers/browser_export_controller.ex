@@ -71,8 +71,13 @@ defmodule StreamflixWebWeb.BrowserExportController do
           }
         end)
 
-      export(conn, rows, format, "deliveries",
-        ~w(id event_id webhook_id status attempt_number response_status inserted_at))
+      export(
+        conn,
+        rows,
+        format,
+        "deliveries",
+        ~w(id event_id webhook_id status attempt_number response_status inserted_at)
+      )
     else
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Unauthorized"})
@@ -123,8 +128,13 @@ defmodule StreamflixWebWeb.BrowserExportController do
           }
         end)
 
-      export(conn, rows, format, "audit_log",
-        ~w(id action resource_type resource_id user_id ip_address inserted_at))
+      export(
+        conn,
+        rows,
+        format,
+        "audit_log",
+        ~w(id action resource_type resource_id user_id ip_address inserted_at)
+      )
     else
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Unauthorized"})
