@@ -41,7 +41,7 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
     payload = cfg["payload"] || %{}
     payload = maybe_substitute_date(payload)
     if is_binary(url) and url != "" do
-      case Req.post(url, json: payload, receive_timeout: 15_000) do
+      case Req.post(url, json: payload, receive_timeout: 15_000, finch: StreamflixCore.Finch) do
         {:ok, %{status: status}} -> record_run(job, "success", %{response_status: status})
         {:error, reason} -> record_run(job, "failed", %{error: inspect(reason)})
       end
@@ -64,11 +64,26 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
   defp maybe_substitute_date(v), do: v
 
   defp record_run(job, status, result) do
-    JobRun.changeset(%JobRun{}, %{
-      job_id: job.id,
-      executed_at: DateTime.utc_now() |> DateTime.truncate(:microsecond),
-      status: status,
-      result: result
-    }) |> Repo.insert()
+    run_result =
+      JobRun.changeset(%JobRun{}, %{
+        job_id: job.id,
+        executed_at: DateTime.utc_now() |> DateTime.truncate(:microsecond),
+        status: status,
+        result: result
+      }) |> Repo.insert()
+
+    if status == "failed" and job.project do
+      project = job.project
+
+      if project.user_id do
+        StreamflixCore.Notifications.notify_job_failed(
+          project.user_id,
+          project.id,
+          job.name
+        )
+      end
+    end
+
+    run_result
   end
 end

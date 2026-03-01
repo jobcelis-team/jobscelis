@@ -31,7 +31,7 @@ defmodule StreamflixCore.Platform.Scheduler do
     {:noreply, state}
   end
 
-  defp schedule_next do
+  defp schedule_next() do
     Process.send_after(self(), :tick, @interval)
   end
 end

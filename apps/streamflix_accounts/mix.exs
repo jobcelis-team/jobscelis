@@ -33,7 +33,10 @@ defmodule StreamflixAccounts.MixProject do
 
       # Authentication
       {:guardian, "~> 2.4"},
-      # Using pbkdf2 instead of bcrypt (pure Elixir, no C compiler needed)
+      # PBKDF2-SHA512 with 210,000 rounds (OWASP-compliant)
+      # To upgrade to Argon2: add {:argon2_elixir, "~> 4.1"} and update
+      # User.hash_password/1 + Authentication.verify_password/2
+      # Requires C compiler — won't compile on Windows paths with spaces.
       {:pbkdf2_elixir, "~> 2.2"},
 
       # Utilities
