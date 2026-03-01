@@ -67,21 +67,15 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
   def retry(conn, %{"id" => id}) do
     project = conn.assigns.current_project
 
-    case Platform.get_delivery(id) do
-      nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+    case Platform.retry_delivery(project.id, id) do
+      {:ok, _updated} ->
+        json(conn, %{status: "retry_queued"})
 
-      d ->
-        event = d.event || StreamflixCore.Platform.get_event(d.event_id)
+      {:error, :not_found} ->
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
-        if is_nil(event) or event.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
-        else
-          # Reset delivery to pending and enqueue Oban
-          StreamflixCore.Platform.update_delivery_to_pending(d)
-          Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: d.id}))
-          send_resp(conn, 200, Jason.encode!(%{status: "retry_queued"}))
-        end
+      {:error, _reason} ->
+        conn |> put_status(422) |> json(%{error: "Could not retry delivery"})
     end
   end
 

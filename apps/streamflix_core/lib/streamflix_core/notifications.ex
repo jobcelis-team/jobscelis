@@ -114,6 +114,17 @@ defmodule StreamflixCore.Notifications do
     })
   end
 
+  def notify_team_invite(user_id, project_id, role, member_id) do
+    create(%{
+      user_id: user_id,
+      project_id: project_id,
+      type: "team_invite",
+      title: "Invitación a proyecto",
+      message: "Has sido invitado a un proyecto como #{role}.",
+      metadata: %{"project_id" => project_id, "member_id" => member_id}
+    })
+  end
+
   # --- PubSub ---
 
   def subscribe(user_id) do
