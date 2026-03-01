@@ -41,7 +41,6 @@ defmodule StreamflixCore.Factory do
       id: Ecto.UUID.generate(),
       status: "pending",
       attempt_number: 0,
-      max_attempts: 4,
       response_status: nil,
       response_body: nil
     }
