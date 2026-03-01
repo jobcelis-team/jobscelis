@@ -11,7 +11,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
 
     socket =
       socket
-      |> assign(:page_title, "Admin Dashboard")
+      |> assign(:page_title, gettext("Panel de administración"))
       |> assign(:current_user_role, user.role)
       |> assign(:stats, get_stats())
       |> assign(:recent_users, get_recent_users())

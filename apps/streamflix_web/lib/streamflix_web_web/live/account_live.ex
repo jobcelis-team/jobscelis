@@ -849,7 +849,7 @@ defmodule StreamflixWebWeb.AccountLive do
                   <.input
                     field={@email_form["new_email"]}
                     type="email"
-                    placeholder="nuevo@ejemplo.com"
+                    placeholder={gettext("nuevo@ejemplo.com")}
                     class={@input_class}
                   />
                 </div>

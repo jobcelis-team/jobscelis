@@ -11,7 +11,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
 
     socket =
       socket
-      |> assign(:page_title, "Usuarios")
+      |> assign(:page_title, gettext("Usuarios"))
       |> assign(:users, [])
       |> assign(:loading, true)
       |> assign(:search, "")
