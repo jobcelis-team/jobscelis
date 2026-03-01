@@ -36,11 +36,6 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
   end
 
   @impl true
-  def handle_event("logout", _, socket) do
-    {:noreply, redirect(socket, to: "/logout", external: true)}
-  end
-
-  @impl true
   def render(assigns) do
     ~H"""
     <.admin_layout active="dashboard" current_user_role={@current_user_role}>
@@ -312,13 +307,12 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
           <.link navigate="/platform" class="text-gray-400 hover:text-white text-sm transition">
             {gettext("Ir al dashboard")}
           </.link>
-          <button
-            phx-click="logout"
-            phx-disable-with={gettext("Cargando...")}
-            class="block mt-2 text-gray-400 hover:text-white w-full text-left text-sm transition disabled:opacity-70"
+          <a
+            href="/logout"
+            class="block mt-2 text-gray-400 hover:text-white text-sm transition"
           >
             {gettext("Cerrar sesión")}
-          </button>
+          </a>
         </div>
       </aside>
       <%!-- Content area --%>
