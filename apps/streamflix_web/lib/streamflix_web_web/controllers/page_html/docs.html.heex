@@ -69,6 +69,33 @@
 
         <div class="border-t border-slate-200 pt-4">
           <p class="font-bold text-slate-700 uppercase tracking-wider mb-2 px-2 text-xs">
+            {gettext("Cuenta y plataforma")}
+          </p>
+
+          <div class="space-y-0.5">
+            <a
+              href="#account-management"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Gestión de cuenta")}
+            </a>
+            <a
+              href="#password-recovery"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Recuperar contraseña")}
+            </a>
+            <a
+              href="#dashboard-overview"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Dashboard")}
+            </a>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-4">
+          <p class="font-bold text-slate-700 uppercase tracking-wider mb-2 px-2 text-xs">
             {gettext("Rutas públicas (Auth)")}
           </p>
 
@@ -3592,6 +3619,390 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
               {gettext(
                 "Asegúrate de incluir tu IP actual antes de activar el allowlist, de lo contrario perderás acceso. Puedes gestionar las IPs desde el panel del dashboard."
               )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <%!-- ═══════════════════════════════════════════════════ --%>
+      <%!-- CUENTA Y PLATAFORMA                                --%>
+      <%!-- ═══════════════════════════════════════════════════ --%>
+
+      <section id="account-management" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">
+              {gettext("Gestión de cuenta")}
+            </h2>
+
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Perfil, seguridad y configuración de tu cuenta de usuario.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <p class="text-slate-700 leading-relaxed">
+              {gettext(
+                "Desde la página de cuenta (/account) puedes gestionar todos los aspectos de tu perfil y seguridad. Todas las acciones sensibles requieren confirmar tu contraseña actual."
+              )}
+            </p>
+
+            <div class="space-y-8">
+              <%!-- Verificar email --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
+                    {gettext("Verificación")}
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    {gettext("Verificar email")}
+                  </code>
+                </div>
+
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Al registrarte se envía un correo de verificación a tu dirección de email. Puedes reenviar el enlace desde /account. El enlace de verificación expira en 7 días."
+                  )}
+                </p>
+
+                <div class="rounded-lg bg-indigo-50 border border-indigo-200 p-3 text-sm text-indigo-800">
+                  {gettext(
+                    "Rate limit: solo puedes solicitar un correo de verificación cada 5 minutos para evitar spam."
+                  )}
+                </div>
+              </div>
+
+              <%!-- Cambiar email --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
+                    {gettext("Modificar")}
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    {gettext("Cambiar email")}
+                  </code>
+                </div>
+
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Puedes cambiar tu dirección de email desde /account. Debes confirmar tu contraseña actual y el nuevo email debe ser único (no estar registrado por otro usuario)."
+                  )}
+                </p>
+              </div>
+
+              <%!-- Cambiar contraseña --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
+                    {gettext("Modificar")}
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    {gettext("Cambiar contraseña")}
+                  </code>
+                </div>
+
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Cambia tu contraseña desde /account. Debes ingresar tu contraseña actual y la nueva contraseña (mínimo 8 caracteres con mayúsculas, minúsculas y números)."
+                  )}
+                </p>
+              </div>
+
+              <%!-- Eliminar cuenta --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
+                    {gettext("Peligro")}
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    {gettext("Eliminar cuenta")}
+                  </code>
+                </div>
+
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Puedes eliminar permanentemente tu cuenta desde /account. Esta acción requiere confirmar tu contraseña y es irreversible: se eliminan todos tus datos, proyectos, webhooks y eventos asociados."
+                  )}
+                </p>
+
+                <div class="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-800">
+                  {gettext(
+                    "Advertencia: la eliminación de cuenta es permanente. No se puede deshacer. Asegúrate de exportar tus datos antes si los necesitas."
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="password-recovery" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">
+              {gettext("Recuperar contraseña")}
+            </h2>
+
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Flujo completo para restablecer tu contraseña si la olvidaste.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-5">
+            <p class="text-slate-700 leading-relaxed">
+              {gettext(
+                "Si olvidaste tu contraseña puedes restablecerla desde la página de login. El proceso es seguro y protegido con rate limiting."
+              )}
+            </p>
+
+            <ul class="text-slate-700 space-y-4">
+              <li class="flex gap-3">
+                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">
+                  1
+                </span>
+                <span>
+                  <strong>{gettext("Solicitar enlace:")}</strong>
+                  {gettext(
+                    "Ve a /forgot-password e ingresa tu email registrado. Recibirás un correo con un enlace para restablecer tu contraseña."
+                  )}
+                </span>
+              </li>
+
+              <li class="flex gap-3">
+                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">
+                  2
+                </span>
+                <span>
+                  <strong>{gettext("Revisar correo:")}</strong>
+                  {gettext(
+                    "Revisa tu bandeja de entrada (y la carpeta de spam). El correo llega en el idioma que tengas seleccionado en la plataforma."
+                  )}
+                </span>
+              </li>
+
+              <li class="flex gap-3">
+                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">
+                  3
+                </span>
+                <span>
+                  <strong>{gettext("Crear nueva contraseña:")}</strong>
+                  {gettext(
+                    "Haz clic en el enlace del correo. Se abrirá un formulario donde puedes ingresar tu nueva contraseña (mínimo 8 caracteres)."
+                  )}
+                </span>
+              </li>
+
+              <li class="flex gap-3">
+                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">
+                  4
+                </span>
+                <span>
+                  <strong>{gettext("Iniciar sesión:")}</strong>
+                  {gettext(
+                    "Una vez restablecida, serás redirigido al login para ingresar con tu nueva contraseña."
+                  )}
+                </span>
+              </li>
+            </ul>
+
+            <div class="space-y-4 mt-4">
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  {gettext("Seguridad del flujo")}
+                </p>
+
+                <ul class="text-slate-700 text-sm space-y-2">
+                  <li>
+                    {gettext("El enlace de restablecimiento expira en 60 minutos.")}
+                  </li>
+                  <li>
+                    {gettext("Solo se puede solicitar un correo de recuperación cada 5 minutos.")}
+                  </li>
+                  <li>
+                    {gettext(
+                      "El mensaje siempre dice \"si tu correo está registrado\" para no revelar si un email existe en el sistema."
+                    )}
+                  </li>
+                  <li>
+                    {gettext("Los tokens se eliminan automáticamente tras usarse o expirar.")}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dashboard-overview" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">
+              {gettext("Dashboard")}
+            </h2>
+
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Panel visual para gestionar tu plataforma de webhooks y eventos.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <p class="text-slate-700 leading-relaxed">
+              {gettext(
+                "El dashboard (/platform) es la interfaz principal donde gestionas todo sin necesidad de usar la API. Todas las funcionalidades de la API están disponibles visualmente."
+              )}
+            </p>
+
+            <div class="space-y-4">
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                  {gettext("Pestañas disponibles")}
+                </p>
+
+                <ul class="text-slate-700 text-sm space-y-3">
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Eventos")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Envía eventos de prueba, lista todos los eventos con filtros por topic, y visualiza el payload de cada uno."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Webhooks")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Crea, edita y elimina webhooks. Configura URL destino, topics, secreto HMAC, reintentos, batch y filtros."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Entregas")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Monitorea cada intento de entrega: status HTTP, duración, headers de respuesta. Reintenta entregas fallidas."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Jobs")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Programa tareas recurrentes (cron) o puntuales. Ejecutan webhooks, HTTP requests o eventos en el schedule definido."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Dead Letters")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Cola de entregas que fallaron tras todos los reintentos. Puedes reintentar o marcar como resueltas."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Replays")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Re-envía eventos históricos a webhooks. Útil para recuperar datos tras un downtime o migrar a un nuevo endpoint."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Schemas")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Define JSON Schemas para validar el payload de tus eventos. Los eventos que no cumplan el schema serán rechazados."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Sandbox")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Crea endpoints de prueba para recibir webhooks sin necesidad de un servidor propio. Inspecciona cada petición recibida."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Analíticas")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Gráficos de eventos por día, entregas por día, top topics y estadísticas por webhook."
+                      )}
+                    </span>
+                  </li>
+
+                  <li class="flex gap-3">
+                    <span class="font-semibold text-indigo-600 min-w-[100px]">
+                      {gettext("Audit Log")}
+                    </span>
+                    <span>
+                      {gettext(
+                        "Registro inmutable de todas las acciones realizadas en tu proyecto: quién hizo qué y cuándo."
+                      )}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                  {gettext("Funciones adicionales del dashboard")}
+                </p>
+
+                <ul class="text-slate-700 text-sm space-y-2">
+                  <li>
+                    <strong>{gettext("Exportar datos:")}</strong>
+                    {gettext(
+                      "Descarga eventos, entregas, jobs o audit log en formato CSV o JSON directamente desde el navegador."
+                    )}
+                  </li>
+                  <li>
+                    <strong>{gettext("Notificaciones:")}</strong>
+                    {gettext(
+                      "Campana de notificaciones con alertas en tiempo real sobre invitaciones a proyectos y eventos del sistema."
+                    )}
+                  </li>
+                  <li>
+                    <strong>{gettext("Multi-proyecto:")}</strong>
+                    {gettext(
+                      "Cambia entre proyectos desde el selector del dashboard. Cada proyecto tiene sus propios webhooks, eventos y configuración."
+                    )}
+                  </li>
+                  <li>
+                    <strong>{gettext("Idioma:")}</strong>
+                    {gettext(
+                      "Cambia entre español e inglés en cualquier momento. La interfaz y los correos se adaptan al idioma seleccionado."
+                    )}
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

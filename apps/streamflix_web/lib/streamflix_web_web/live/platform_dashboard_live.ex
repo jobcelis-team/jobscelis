@@ -90,7 +90,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:job_runs_modal, nil)
       |> assign(:job_form, nil)
       |> assign(:cron_preview, [])
-      |> assign(:page_title, "Jobcelis Dashboard")
+      |> assign(:page_title, gettext("Dashboard"))
       |> assign(:active_page, :dashboard)
       |> assign(:webhook_modal, nil)
       |> assign(:webhook_form, %{"url" => "", "topics" => "", "secret" => ""})
@@ -1436,7 +1436,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
           <%!-- ===== TAB NAVIGATION ===== --%>
           <div class="border-b border-slate-200 mb-6 sm:mb-8 overflow-x-auto">
-            <nav class="-mb-px flex gap-1 sm:gap-6 lg:gap-8 min-w-max" aria-label="Tabs">
+            <nav
+              class="-mb-px flex gap-1 sm:gap-6 lg:gap-8 min-w-max"
+              aria-label={gettext("Pestañas")}
+            >
               <button
                 type="button"
                 phx-click="switch_tab"
@@ -2151,7 +2154,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 name="webhook[url]"
                 value={@webhook_form["url"]}
                 required
-                placeholder="https://example.com/webhook"
+                placeholder={gettext("https://ejemplo.com/webhook")}
                 class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
@@ -2166,7 +2169,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 type="text"
                 name="webhook[topics]"
                 value={@webhook_form["topics"]}
-                placeholder="user.created, order.paid"
+                placeholder={gettext("user.created, order.paid")}
                 class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
@@ -3217,7 +3220,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                       name="action_topic"
                       value={p["action_topic"]}
                       class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="mi.topic"
+                      placeholder={gettext("mi.topic")}
                     />
                   </div>
                   <div>
