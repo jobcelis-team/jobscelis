@@ -47,7 +47,7 @@
       }
     </script>
 
-    <.live_title default="Jobcelis" suffix=" · Eventos, webhooks y jobs">
+    <.live_title default="Jobcelis" suffix={" · " <> gettext("Eventos, webhooks y jobs")}>
       {assigns[:page_title]}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />

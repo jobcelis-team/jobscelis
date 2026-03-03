@@ -218,7 +218,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
           <p class="text-gray-600">{gettext("Usuario")}: {@user_email || "—"}</p>
 
           <p class="text-sm text-gray-500 mt-1 break-all">
-            ID: {@project.id} · {gettext("Estado")}: {@project.status}
+            {gettext("ID")}: {@project.id} · {gettext("Estado")}: {@project.status}
           </p>
         </div>
 
