@@ -170,6 +170,7 @@ defmodule StreamflixAccounts do
 
   def get_user(id), do: Repo.get(User, id)
   def get_user!(id), do: Repo.get!(User, id)
+
   def get_user_by_email(email) do
     Repo.get_by(User, email_hash: String.downcase(email))
   end
@@ -178,7 +179,9 @@ defmodule StreamflixAccounts do
     user |> User.changeset(attrs) |> Repo.update()
   end
 
-  def authenticate(email, password, opts \\ []), do: Authentication.authenticate(email, password, opts)
+  def authenticate(email, password, opts \\ []),
+    do: Authentication.authenticate(email, password, opts)
+
   def generate_token(user), do: Authentication.generate_token(user)
   def verify_token(token), do: Authentication.verify_token(token)
 

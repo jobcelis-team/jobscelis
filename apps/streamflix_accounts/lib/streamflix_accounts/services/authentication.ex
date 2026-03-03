@@ -41,6 +41,7 @@ defmodule StreamflixAccounts.Services.Authentication do
               {:ok, user}
             else
               user = increment_failed_attempts(user)
+
               audit_login(user, "user.login_failed", opts, %{attempts: user.failed_login_attempts})
 
               if user.failed_login_attempts >= User.max_failed_attempts() do

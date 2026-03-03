@@ -26,7 +26,16 @@ defmodule StreamflixCore.Schemas.WebhookEvent do
 
   def changeset(event, attrs) do
     event
-    |> cast(attrs, [:project_id, :topic, :payload, :status, :occurred_at, :deliver_at, :payload_hash, :idempotency_key])
+    |> cast(attrs, [
+      :project_id,
+      :topic,
+      :payload,
+      :status,
+      :occurred_at,
+      :deliver_at,
+      :payload_hash,
+      :idempotency_key
+    ])
     |> validate_required([:project_id, :payload, :occurred_at])
     |> validate_inclusion(:status, ~w(active inactive))
     |> foreign_key_constraint(:project_id)

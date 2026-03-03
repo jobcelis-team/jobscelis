@@ -9,10 +9,10 @@ defmodule StreamflixCore.Schemas.UptimeCheck do
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "uptime_checks" do
-    field :status, :string
-    field :checks, :map, default: %{}
-    field :response_time_ms, :integer
-    field :metadata, :map, default: %{}
+    field(:status, :string)
+    field(:checks, :map, default: %{})
+    field(:response_time_ms, :integer)
+    field(:metadata, :map, default: %{})
 
     timestamps(updated_at: false)
   end

@@ -12,8 +12,15 @@ defmodule StreamflixWebWeb.Schemas do
         topic: %Schema{type: :string, example: "order.created"},
         payload: %Schema{type: :object},
         status: %Schema{type: :string, enum: ["active", "inactive"]},
-        payload_hash: %Schema{type: :string, description: "SHA-256 hex digest of the canonical payload"},
-        idempotency_key: %Schema{type: :string, nullable: true, description: "Client-provided deduplication key"},
+        payload_hash: %Schema{
+          type: :string,
+          description: "SHA-256 hex digest of the canonical payload"
+        },
+        idempotency_key: %Schema{
+          type: :string,
+          nullable: true,
+          description: "Client-provided deduplication key"
+        },
         occurred_at: %Schema{type: :string, format: :"date-time"},
         inserted_at: %Schema{type: :string, format: :"date-time"}
       }
@@ -29,7 +36,11 @@ defmodule StreamflixWebWeb.Schemas do
       properties: %{
         topic: %Schema{type: :string, example: "order.created"},
         payload: %Schema{type: :object, description: "Any JSON object"},
-        idempotency_key: %Schema{type: :string, nullable: true, description: "Optional deduplication key (unique per project)"}
+        idempotency_key: %Schema{
+          type: :string,
+          nullable: true,
+          description: "Optional deduplication key (unique per project)"
+        }
       },
       example: %{topic: "order.created", amount: 150, currency: "USD"}
     })
@@ -43,7 +54,10 @@ defmodule StreamflixWebWeb.Schemas do
       type: :object,
       properties: %{
         event_id: %Schema{type: :string, format: :uuid},
-        payload_hash: %Schema{type: :string, description: "SHA-256 hex digest of the canonical payload"}
+        payload_hash: %Schema{
+          type: :string,
+          description: "SHA-256 hex digest of the canonical payload"
+        }
       }
     })
   end

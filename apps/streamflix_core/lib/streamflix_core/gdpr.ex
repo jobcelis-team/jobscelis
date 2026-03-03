@@ -27,14 +27,21 @@ defmodule StreamflixCore.GDPR do
     user_id = user.id
 
     Ecto.Multi.new()
-    |> Ecto.Multi.insert(:audit_erasure, AuditLog.changeset(%AuditLog{}, %{
-      action: "gdpr.erasure",
-      metadata: %{erased_email_hash: :crypto.hash(:sha256, user.email) |> Base.encode16(case: :lower)},
-      ip_address: "[system]"
-    }))
-    |> Ecto.Multi.update_all(:pseudonymize_audit, fn _ ->
-      from(a in AuditLog, where: a.user_id == ^user_id)
-    end, set: [user_id: nil, ip_address: "[redacted]"])
+    |> Ecto.Multi.insert(
+      :audit_erasure,
+      AuditLog.changeset(%AuditLog{}, %{
+        action: "gdpr.erasure",
+        metadata: %{
+          erased_email_hash: :crypto.hash(:sha256, user.email) |> Base.encode16(case: :lower)
+        },
+        ip_address: "[system]"
+      })
+    )
+    |> Ecto.Multi.update_all(
+      :pseudonymize_audit,
+      fn _ ->
+        from(a in AuditLog, where: a.user_id == ^user_id)
+      end, set: [user_id: nil, ip_address: "[redacted]"])
     |> Ecto.Multi.delete_all(:delete_memberships, fn _ ->
       from(m in ProjectMember, where: m.user_id == ^user_id)
     end)
@@ -138,54 +145,67 @@ defmodule StreamflixCore.GDPR do
     projects = Repo.all(from(p in Project, where: p.user_id == ^user_id))
     project_ids = Enum.map(projects, & &1.id)
 
-    webhooks = if project_ids != [] do
-      Repo.all(from(w in StreamflixCore.Schemas.Webhook, where: w.project_id in ^project_ids))
-    else
-      []
-    end
+    webhooks =
+      if project_ids != [] do
+        Repo.all(from(w in StreamflixCore.Schemas.Webhook, where: w.project_id in ^project_ids))
+      else
+        []
+      end
 
-    events_count = if project_ids != [] do
-      Repo.one(from(e in StreamflixCore.Schemas.WebhookEvent, where: e.project_id in ^project_ids, select: count(e.id)))
-    else
-      0
-    end
+    events_count =
+      if project_ids != [] do
+        Repo.one(
+          from(e in StreamflixCore.Schemas.WebhookEvent,
+            where: e.project_id in ^project_ids,
+            select: count(e.id)
+          )
+        )
+      else
+        0
+      end
 
-    deliveries_count = if project_ids != [] do
-      Repo.one(
-        from(d in StreamflixCore.Schemas.Delivery,
-          join: e in StreamflixCore.Schemas.WebhookEvent, on: d.event_id == e.id,
-          where: e.project_id in ^project_ids,
-          select: count(d.id))
+    deliveries_count =
+      if project_ids != [] do
+        Repo.one(
+          from(d in StreamflixCore.Schemas.Delivery,
+            join: e in StreamflixCore.Schemas.WebhookEvent,
+            on: d.event_id == e.id,
+            where: e.project_id in ^project_ids,
+            select: count(d.id)
+          )
+        )
+      else
+        0
+      end
+
+    jobs =
+      if project_ids != [] do
+        Repo.all(from(j in StreamflixCore.Schemas.Job, where: j.project_id in ^project_ids))
+      else
+        []
+      end
+
+    notifications =
+      Repo.all(
+        from(n in StreamflixCore.Schemas.Notification,
+          where: n.user_id == ^user_id,
+          order_by: [desc: n.inserted_at],
+          limit: 100
+        )
       )
-    else
-      0
-    end
 
-    jobs = if project_ids != [] do
-      Repo.all(from(j in StreamflixCore.Schemas.Job, where: j.project_id in ^project_ids))
-    else
-      []
-    end
-
-    notifications = Repo.all(
-      from(n in StreamflixCore.Schemas.Notification,
-        where: n.user_id == ^user_id,
-        order_by: [desc: n.inserted_at],
-        limit: 100)
-    )
-
-    audit_entries = Repo.all(
-      from(a in AuditLog,
-        where: a.user_id == ^user_id,
-        order_by: [desc: a.inserted_at],
-        limit: 200)
-    )
+    audit_entries =
+      Repo.all(
+        from(a in AuditLog,
+          where: a.user_id == ^user_id,
+          order_by: [desc: a.inserted_at],
+          limit: 200
+        )
+      )
 
     consents = list_consents(user_id)
 
-    memberships = Repo.all(
-      from(m in ProjectMember, where: m.user_id == ^user_id)
-    )
+    memberships = Repo.all(from(m in ProjectMember, where: m.user_id == ^user_id))
 
     %{
       exported_at: DateTime.utc_now() |> DateTime.to_iso8601(),
@@ -199,35 +219,72 @@ defmodule StreamflixCore.GDPR do
         email_verified_at: to_iso(user.email_verified_at),
         created_at: to_iso(user.inserted_at)
       },
-      projects: Enum.map(projects, fn p ->
-        %{id: p.id, name: p.name, status: p.status, is_default: p.is_default, created_at: to_iso(p.inserted_at)}
-      end),
-      webhooks: Enum.map(webhooks, fn w ->
-        %{id: w.id, url: w.url, status: w.status, project_id: w.project_id, created_at: to_iso(w.inserted_at)}
-      end),
+      projects:
+        Enum.map(projects, fn p ->
+          %{
+            id: p.id,
+            name: p.name,
+            status: p.status,
+            is_default: p.is_default,
+            created_at: to_iso(p.inserted_at)
+          }
+        end),
+      webhooks:
+        Enum.map(webhooks, fn w ->
+          %{
+            id: w.id,
+            url: w.url,
+            status: w.status,
+            project_id: w.project_id,
+            created_at: to_iso(w.inserted_at)
+          }
+        end),
       events_count: events_count,
       deliveries_count: deliveries_count,
-      jobs: Enum.map(jobs, fn j ->
-        %{id: j.id, name: j.name, status: j.status, schedule_type: j.schedule_type, project_id: j.project_id}
-      end),
-      notifications: Enum.map(notifications, fn n ->
-        %{id: n.id, type: n.type, title: n.title, read: n.read, created_at: to_iso(n.inserted_at)}
-      end),
-      audit_entries: Enum.map(audit_entries, fn a ->
-        %{id: a.id, action: a.action, resource_type: a.resource_type, ip_address: a.ip_address, created_at: to_iso(a.inserted_at)}
-      end),
-      consents: Enum.map(consents, fn c ->
-        %{
-          id: c.id,
-          purpose: c.purpose,
-          version: c.version,
-          granted_at: to_iso(c.granted_at),
-          revoked_at: to_iso(c.revoked_at)
-        }
-      end),
-      memberships: Enum.map(memberships, fn m ->
-        %{id: m.id, project_id: m.project_id, role: m.role, status: m.status}
-      end)
+      jobs:
+        Enum.map(jobs, fn j ->
+          %{
+            id: j.id,
+            name: j.name,
+            status: j.status,
+            schedule_type: j.schedule_type,
+            project_id: j.project_id
+          }
+        end),
+      notifications:
+        Enum.map(notifications, fn n ->
+          %{
+            id: n.id,
+            type: n.type,
+            title: n.title,
+            read: n.read,
+            created_at: to_iso(n.inserted_at)
+          }
+        end),
+      audit_entries:
+        Enum.map(audit_entries, fn a ->
+          %{
+            id: a.id,
+            action: a.action,
+            resource_type: a.resource_type,
+            ip_address: a.ip_address,
+            created_at: to_iso(a.inserted_at)
+          }
+        end),
+      consents:
+        Enum.map(consents, fn c ->
+          %{
+            id: c.id,
+            purpose: c.purpose,
+            version: c.version,
+            granted_at: to_iso(c.granted_at),
+            revoked_at: to_iso(c.revoked_at)
+          }
+        end),
+      memberships:
+        Enum.map(memberships, fn m ->
+          %{id: m.id, project_id: m.project_id, role: m.role, status: m.status}
+        end)
     }
   end
 

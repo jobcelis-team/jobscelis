@@ -33,7 +33,15 @@ defmodule StreamflixAccounts.Schemas.User do
   end
 
   @required_fields [:email]
-  @optional_fields [:name, :status, :role, :email_verified_at, :last_login_at, :failed_login_attempts, :locked_at]
+  @optional_fields [
+    :name,
+    :status,
+    :role,
+    :email_verified_at,
+    :last_login_at,
+    :failed_login_attempts,
+    :locked_at
+  ]
 
   @max_failed_attempts 5
   @lockout_duration_minutes 15
