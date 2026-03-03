@@ -173,7 +173,7 @@ defmodule StreamflixCore.Platform.Backup do
             blob.name
           end)
 
-        if length(deleted) > 0 do
+        if deleted != [] do
           Logger.info("[Backup] Limpieza Azure: #{length(deleted)} backups antiguos eliminados")
         end
 
@@ -331,7 +331,7 @@ defmodule StreamflixCore.Platform.Backup do
             file
           end)
 
-        if length(deleted) > 0 do
+        if deleted != [] do
           Logger.info("[Backup] Limpieza: #{length(deleted)} backups antiguos eliminados")
         end
 
