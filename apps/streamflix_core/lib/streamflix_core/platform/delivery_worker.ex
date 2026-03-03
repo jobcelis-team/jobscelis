@@ -45,9 +45,20 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         {:ok, delivery}
 
       d ->
-        case StreamflixCore.CircuitBreaker.check_circuit(d.webhook) do
-          :ok -> do_deliver(d)
-          {:error, :circuit_open} -> {:error, :circuit_open}
+        # GDPR: skip delivery if project owner has restricted/objected processing
+        project = Repo.get(StreamflixCore.Schemas.Project, d.event.project_id)
+
+        if project && !Platform.user_processing_allowed?(project.user_id) do
+          Logger.info(
+            "[DeliveryWorker] Skipping delivery #{delivery_id}, user processing restricted"
+          )
+
+          {:ok, delivery}
+        else
+          case StreamflixCore.CircuitBreaker.check_circuit(d.webhook) do
+            :ok -> do_deliver(d)
+            {:error, :circuit_open} -> {:error, :circuit_open}
+          end
         end
     end
   end

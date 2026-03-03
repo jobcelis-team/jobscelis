@@ -1,7 +1,7 @@
 defmodule StreamflixCore.GDPR do
   @moduledoc """
   GDPR compliance: data erasure (right to be forgotten), consent management,
-  and personal data export (DSAR).
+  processing restriction (Art. 18), objection (Art. 21), and personal data export (DSAR).
   """
   import Ecto.Query
   alias StreamflixCore.Repo
@@ -9,6 +9,57 @@ defmodule StreamflixCore.GDPR do
   alias StreamflixCore.Schemas.ProjectMember
 
   @cache :platform_cache
+
+  # ── Art. 18 — Restriction of processing ──────────────────────────
+
+  @doc """
+  Restrict processing for a user (GDPR Art. 18).
+  Sets status to "restricted", records restricted_at and reason.
+  """
+  def restrict_processing(user, reason) do
+    user
+    |> Ecto.Changeset.change(%{
+      status: "restricted",
+      restricted_at: DateTime.utc_now() |> DateTime.truncate(:microsecond),
+      restriction_reason: reason
+    })
+    |> Repo.update()
+  end
+
+  @doc """
+  Lift processing restriction for a user.
+  Restores status to "active" and clears restriction fields.
+  """
+  def lift_restriction(user) do
+    user
+    |> Ecto.Changeset.change(%{
+      status: "active",
+      restricted_at: nil,
+      restriction_reason: nil
+    })
+    |> Repo.update()
+  end
+
+  # ── Art. 21 — Right to object ────────────────────────────────────
+
+  @doc """
+  Record a user's objection to data processing (GDPR Art. 21).
+  Sets processing_consent to false.
+  """
+  def object_to_processing(user) do
+    user
+    |> Ecto.Changeset.change(%{processing_consent: false})
+    |> Repo.update()
+  end
+
+  @doc """
+  Restore a user's processing consent after objection withdrawal.
+  """
+  def restore_processing_consent(user) do
+    user
+    |> Ecto.Changeset.change(%{processing_consent: true})
+    |> Repo.update()
+  end
 
   # ── Erasure (Right to be forgotten) ──────────────────────────────
 
@@ -18,10 +69,12 @@ defmodule StreamflixCore.GDPR do
   Uses Ecto.Multi to ensure atomicity:
   1. Record erasure in audit log (system action)
   2. Pseudonymize existing audit logs for the user
-  3. Delete project_members referencing this user
-  4. Hard-delete all projects owned by user (cascades api_keys, webhooks, events, etc.)
-  5. Delete user (cascades user_tokens and notifications automatically)
-  6. Invalidate Cachex
+  3. Anonymize notifications (user_id=nil, title/message="[redacted]")
+  4. Delete consents, user_sessions, password_history
+  5. Delete project_members referencing this user
+  6. Hard-delete all projects owned by user (cascades api_keys, webhooks, events, etc.)
+  7. Delete user (cascades user_tokens and notifications automatically)
+  8. Invalidate Cachex
   """
   def erase_user(user) do
     user_id = user.id
@@ -44,6 +97,22 @@ defmodule StreamflixCore.GDPR do
       end,
       set: [user_id: nil, ip_address: "[redacted]"]
     )
+    |> Ecto.Multi.update_all(
+      :anonymize_notifications,
+      fn _ ->
+        from(n in "notifications", where: n.user_id == type(^user_id, :binary_id))
+      end,
+      set: [user_id: nil, title: "[redacted]", message: "[redacted]"]
+    )
+    |> Ecto.Multi.delete_all(:delete_consents, fn _ ->
+      from(c in Consent, where: c.user_id == ^user_id)
+    end)
+    |> Ecto.Multi.delete_all(:delete_sessions, fn _ ->
+      from(s in "user_sessions", where: s.user_id == type(^user_id, :binary_id))
+    end)
+    |> Ecto.Multi.delete_all(:delete_password_history, fn _ ->
+      from(p in "password_history", where: p.user_id == type(^user_id, :binary_id))
+    end)
     |> Ecto.Multi.delete_all(:delete_memberships, fn _ ->
       from(m in ProjectMember, where: m.user_id == ^user_id)
     end)
@@ -138,8 +207,8 @@ defmodule StreamflixCore.GDPR do
   # ── Data export (DSAR) ───────────────────────────────────────────
 
   @doc """
-  Collect all personal data for a user (GDPR Art. 15 — Subject Access Request).
-  Returns a map with profile, projects, webhooks, events count, consents, audit entries, etc.
+  Collect all personal data for a user (GDPR Art. 15 + Art. 20 — Subject Access Request).
+  Returns a v2 format map with full events/deliveries lists, sessions, and GDPR fields.
   """
   def collect_user_data(user) do
     user_id = user.id
@@ -154,30 +223,32 @@ defmodule StreamflixCore.GDPR do
         []
       end
 
-    events_count =
+    events =
       if project_ids != [] do
-        Repo.one(
+        Repo.all(
           from(e in StreamflixCore.Schemas.WebhookEvent,
             where: e.project_id in ^project_ids,
-            select: count(e.id)
+            order_by: [desc: e.inserted_at],
+            limit: 500
           )
         )
       else
-        0
+        []
       end
 
-    deliveries_count =
+    deliveries =
       if project_ids != [] do
-        Repo.one(
+        Repo.all(
           from(d in StreamflixCore.Schemas.Delivery,
             join: e in StreamflixCore.Schemas.WebhookEvent,
             on: d.event_id == e.id,
             where: e.project_id in ^project_ids,
-            select: count(d.id)
+            order_by: [desc: d.inserted_at],
+            limit: 500
           )
         )
       else
-        0
+        []
       end
 
     jobs =
@@ -209,7 +280,26 @@ defmodule StreamflixCore.GDPR do
 
     memberships = Repo.all(from(m in ProjectMember, where: m.user_id == ^user_id))
 
+    sessions =
+      Repo.all(
+        from(s in "user_sessions",
+          where: s.user_id == type(^user_id, :binary_id),
+          order_by: [desc: s.inserted_at],
+          limit: 100,
+          select: %{
+            id: s.id,
+            token_jti: s.token_jti,
+            device_info: s.device_info,
+            last_activity_at: s.last_activity_at,
+            revoked_at: s.revoked_at,
+            inserted_at: s.inserted_at
+          }
+        )
+      )
+
     %{
+      format: "v2",
+      schema_version: "2.0",
       exported_at: DateTime.utc_now() |> DateTime.to_iso8601(),
       profile: %{
         id: user.id,
@@ -217,6 +307,8 @@ defmodule StreamflixCore.GDPR do
         name: user.name,
         role: user.role,
         status: user.status,
+        processing_consent: Map.get(user, :processing_consent, true),
+        restricted_at: to_iso(Map.get(user, :restricted_at)),
         mfa_enabled: user.mfa_enabled || false,
         email_verified_at: to_iso(user.email_verified_at),
         created_at: to_iso(user.inserted_at)
@@ -241,8 +333,26 @@ defmodule StreamflixCore.GDPR do
             created_at: to_iso(w.inserted_at)
           }
         end),
-      events_count: events_count,
-      deliveries_count: deliveries_count,
+      events:
+        Enum.map(events, fn e ->
+          %{
+            id: e.id,
+            topic: e.topic,
+            project_id: e.project_id,
+            created_at: to_iso(e.inserted_at)
+          }
+        end),
+      deliveries:
+        Enum.map(deliveries, fn d ->
+          %{
+            id: d.id,
+            status: d.status,
+            event_id: d.event_id,
+            webhook_id: d.webhook_id,
+            attempt_number: d.attempt_number,
+            created_at: to_iso(d.inserted_at)
+          }
+        end),
       jobs:
         Enum.map(jobs, fn j ->
           %{
@@ -286,6 +396,17 @@ defmodule StreamflixCore.GDPR do
       memberships:
         Enum.map(memberships, fn m ->
           %{id: m.id, project_id: m.project_id, role: m.role, status: m.status}
+        end),
+      sessions:
+        Enum.map(sessions, fn s ->
+          %{
+            id: s.id,
+            token_jti: s.token_jti,
+            device_info: s.device_info,
+            last_activity_at: to_iso(s.last_activity_at),
+            revoked_at: to_iso(s.revoked_at),
+            created_at: to_iso(s.inserted_at)
+          }
         end)
     }
   end

@@ -6214,3 +6214,238 @@ msgstr "Clasificación de datos"
 #, elixir-autogen, elixir-format
 msgid "Los datos se clasifican en 4 niveles: Público, Interno, Confidencial y Restringido. Todos los campos PII (nivel Confidencial) requieren cifrado AES-256-GCM. Los secretos y credenciales (nivel Restringido) usan cifrado o hash unidireccional. Consulta docs/DATA_CLASSIFICATION.md para el inventario completo."
 msgstr "Los datos se clasifican en 4 niveles: Público, Interno, Confidencial y Restringido. Todos los campos PII (nivel Confidencial) requieren cifrado AES-256-GCM. Los secretos y credenciales (nivel Restringido) usan cifrado o hash unidireccional. Consulta docs/DATA_CLASSIFICATION.md para el inventario completo."
+
+## GDPR Compliance — Art. 18 + Art. 21
+
+msgid "Procesamiento restringido"
+msgstr "Procesamiento restringido"
+
+msgid "Tu cuenta tiene el procesamiento restringido (RGPD Art. 18). Los webhooks y eventos no se procesarán hasta que levantes la restricción."
+msgstr "Tu cuenta tiene el procesamiento restringido (RGPD Art. 18). Los webhooks y eventos no se procesarán hasta que levantes la restricción."
+
+msgid "Levantar restricción"
+msgstr "Levantar restricción"
+
+msgid "Restringir procesamiento"
+msgstr "Restringir procesamiento"
+
+msgid "Congela el procesamiento de tus datos sin eliminarlos (RGPD Art. 18)."
+msgstr "Congela el procesamiento de tus datos sin eliminarlos (RGPD Art. 18)."
+
+msgid "Restringir"
+msgstr "Restringir"
+
+msgid "Consentimiento de procesamiento"
+msgstr "Consentimiento de procesamiento"
+
+msgid "Ejerce tu derecho de oposición al procesamiento de datos (RGPD Art. 21)."
+msgstr "Ejerce tu derecho de oposición al procesamiento de datos (RGPD Art. 21)."
+
+msgid "Objetar procesamiento"
+msgstr "Objetar procesamiento"
+
+msgid "Procesamiento objetado"
+msgstr "Procesamiento objetado"
+
+msgid "¿Objetar el procesamiento de tus datos?"
+msgstr "¿Objetar el procesamiento de tus datos?"
+
+msgid "¿Restaurar el consentimiento de procesamiento?"
+msgstr "¿Restaurar el consentimiento de procesamiento?"
+
+msgid "¿Levantar la restricción de procesamiento?"
+msgstr "¿Levantar la restricción de procesamiento?"
+
+msgid "Al restringir el procesamiento, los webhooks y eventos dejarán de procesarse. Puedes revertir esta acción en cualquier momento."
+msgstr "Al restringir el procesamiento, los webhooks y eventos dejarán de procesarse. Puedes revertir esta acción en cualquier momento."
+
+msgid "Procesamiento restringido correctamente."
+msgstr "Procesamiento restringido correctamente."
+
+msgid "Restricción de procesamiento levantada."
+msgstr "Restricción de procesamiento levantada."
+
+msgid "No se pudo restringir el procesamiento."
+msgstr "No se pudo restringir el procesamiento."
+
+msgid "No se pudo levantar la restricción."
+msgstr "No se pudo levantar la restricción."
+
+msgid "Consentimiento de procesamiento restaurado."
+msgstr "Consentimiento de procesamiento restaurado."
+
+msgid "Oposición al procesamiento registrada."
+msgstr "Oposición al procesamiento registrada."
+
+msgid "No se pudo actualizar el consentimiento."
+msgstr "No se pudo actualizar el consentimiento."
+
+msgid "Restricción de procesamiento (Art. 18)"
+msgstr "Restricción de procesamiento (Art. 18)"
+
+msgid "Puedes restringir el procesamiento de tus datos sin eliminarlos. Mientras la restricción esté activa, no se procesarán webhooks ni eventos."
+msgstr "Puedes restringir el procesamiento de tus datos sin eliminarlos. Mientras la restricción esté activa, no se procesarán webhooks ni eventos."
+
+msgid "Sección «Cuenta» → «Protección de datos» → «Restringir procesamiento»"
+msgstr "Sección «Cuenta» → «Protección de datos» → «Restringir procesamiento»"
+
+msgid "Derecho de oposición (Art. 21)"
+msgstr "Derecho de oposición (Art. 21)"
+
+msgid "Puedes objetar al procesamiento de tus datos personales. Los workers y webhooks dejarán de procesar datos mientras la oposición esté activa."
+msgstr "Puedes objetar al procesamiento de tus datos personales. Los workers y webhooks dejarán de procesar datos mientras la oposición esté activa."
+
+msgid "Sección «Cuenta» → «Protección de datos» → «Objetar procesamiento»"
+msgstr "Sección «Cuenta» → «Protección de datos» → «Objetar procesamiento»"
+
+#: lib/streamflix_web_web/components/layouts.ex
+msgid "Este sitio usa solo cookies técnicas necesarias para el funcionamiento del servicio (sesión y preferencia de idioma). No usamos cookies de seguimiento ni analíticas."
+msgstr "Este sitio usa solo cookies técnicas necesarias para el funcionamiento del servicio (sesión y preferencia de idioma). No usamos cookies de seguimiento ni analíticas."
+
+#: lib/streamflix_web_web/components/layouts.ex
+msgid "Entendido"
+msgstr "Entendido"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Registro de actividades (Art. 30)"
+msgstr "Registro de actividades (Art. 30)"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Registro de actividades de tratamiento de datos personales según el Artículo 30 del RGPD (ROPA)."
+msgstr "Registro de actividades de tratamiento de datos personales según el Artículo 30 del RGPD (ROPA)."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Este registro documenta todas las actividades de tratamiento de datos personales, incluyendo propósitos, bases legales, categorías de datos y periodos de retención. Documento completo disponible en docs/ROPA.md."
+msgstr "Este registro documenta todas las actividades de tratamiento de datos personales, incluyendo propósitos, bases legales, categorías de datos y periodos de retención. Documento completo disponible en docs/ROPA.md."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Actividades de tratamiento"
+msgstr "Actividades de tratamiento"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Actividad"
+msgstr "Actividad"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Base legal"
+msgstr "Base legal"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Retención"
+msgstr "Retención"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Registro y autenticación"
+msgstr "Registro y autenticación"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Mientras la cuenta esté activa"
+msgstr "Mientras la cuenta esté activa"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Eventos y webhooks"
+msgstr "Eventos y webhooks"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "90 días (entregas)"
+msgstr "90 días (entregas)"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Registro de auditoría"
+msgstr "Registro de auditoría"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "90 días"
+msgstr "90 días"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "7 días"
+msgstr "7 días"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Registro de consentimientos"
+msgstr "Registro de consentimientos"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Indefinido (obligación legal)"
+msgstr "Indefinido (obligación legal)"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Comunicaciones por email"
+msgstr "Comunicaciones por email"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "No se almacenan"
+msgstr "No se almacenan"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Sub-procesadores"
+msgstr "Sub-procesadores"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Proveedor"
+msgstr "Proveedor"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Servicio"
+msgstr "Servicio"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Ubicación"
+msgstr "Ubicación"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Base de datos PostgreSQL"
+msgstr "Base de datos PostgreSQL"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Envío de emails transaccionales"
+msgstr "Envío de emails transaccionales"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Proceso de notificación en 72 horas (Art. 33)"
+msgstr "Proceso de notificación en 72 horas (Art. 33)"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Cuando se detecta una brecha con severidad critical o high, se activa el proceso de notificación a la autoridad de control en un máximo de 72 horas."
+msgstr "Cuando se detecta una brecha con severidad critical o high, se activa el proceso de notificación a la autoridad de control en un máximo de 72 horas."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Detección automática y clasificación de severidad (critical/high/medium)."
+msgstr "Detección automática y clasificación de severidad (critical/high/medium)."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Investigación: revisión de audit logs, alcance e impacto."
+msgstr "Investigación: revisión de audit logs, alcance e impacto."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Preparación de la notificación y aplicación de medidas de contención."
+msgstr "Preparación de la notificación y aplicación de medidas de contención."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Envío de notificación a la autoridad de control."
+msgstr "Envío de notificación a la autoridad de control."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Notificación a usuarios afectados (Art. 34)"
+msgstr "Notificación a usuarios afectados (Art. 34)"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Cuando la brecha supone un alto riesgo para los derechos y libertades de los usuarios, se notifica directamente a los afectados. Aplica en casos de:"
+msgstr "Cuando la brecha supone un alto riesgo para los derechos y libertades de los usuarios, se notifica directamente a los afectados. Aplica en casos de:"
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Exfiltración confirmada de datos personales."
+msgstr "Exfiltración confirmada de datos personales."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Acceso no autorizado a cuentas de usuario."
+msgstr "Acceso no autorizado a cuentas de usuario."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "Compromiso de credenciales."
+msgstr "Compromiso de credenciales."
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex
+msgid "La notificación incluye: descripción del incidente, datos afectados, medidas adoptadas y recomendaciones para el usuario. Proceso completo documentado en docs/BREACH_NOTIFICATION.md."
+msgstr "La notificación incluye: descripción del incidente, datos afectados, medidas adoptadas y recomendaciones para el usuario. Proceso completo documentado en docs/BREACH_NOTIFICATION.md."

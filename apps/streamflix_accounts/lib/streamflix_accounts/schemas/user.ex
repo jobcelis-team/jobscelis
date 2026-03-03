@@ -23,6 +23,11 @@ defmodule StreamflixAccounts.Schemas.User do
     field(:failed_login_attempts, :integer, default: 0)
     field(:locked_at, :utc_datetime_usec)
 
+    # GDPR
+    field(:processing_consent, :boolean, default: true)
+    field(:restricted_at, :utc_datetime_usec)
+    field(:restriction_reason, :string)
+
     # MFA / TOTP
     field(:mfa_enabled, :boolean, default: false)
     field(:mfa_secret, StreamflixCore.Encrypted.Binary)
@@ -40,7 +45,10 @@ defmodule StreamflixAccounts.Schemas.User do
     :email_verified_at,
     :last_login_at,
     :failed_login_attempts,
-    :locked_at
+    :locked_at,
+    :processing_consent,
+    :restricted_at,
+    :restriction_reason
   ]
 
   @max_failed_attempts 5
@@ -62,8 +70,16 @@ defmodule StreamflixAccounts.Schemas.User do
     |> validate_required(@required_fields)
     |> validate_email()
     |> validate_inclusion(:role, ["user", "admin", "moderator", "superadmin"])
+    |> validate_inclusion(:status, ["active", "inactive", "restricted"])
     |> unique_constraint(:email_hash, message: "already registered")
     |> put_encrypted_email()
+  end
+
+  @doc "Changeset for GDPR-specific operations (restriction, objection)."
+  def gdpr_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:status, :processing_consent, :restricted_at, :restriction_reason])
+    |> validate_inclusion(:status, ["active", "inactive", "restricted"])
   end
 
   @doc """
@@ -103,6 +119,17 @@ defmodule StreamflixAccounts.Schemas.User do
     user
     |> cast(attrs, [:mfa_enabled, :mfa_secret, :mfa_backup_codes, :mfa_enabled_at])
   end
+
+  # ============================================
+  # GDPR HELPERS
+  # ============================================
+
+  def restricted?(%__MODULE__{status: "restricted"}), do: true
+  def restricted?(%__MODULE__{}), do: false
+
+  def processing_allowed?(%__MODULE__{status: "restricted"}), do: false
+  def processing_allowed?(%__MODULE__{processing_consent: false}), do: false
+  def processing_allowed?(%__MODULE__{}), do: true
 
   # ============================================
   # VALIDATIONS

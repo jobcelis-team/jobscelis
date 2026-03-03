@@ -200,6 +200,22 @@ Hooks.Chart = {
   },
 };
 
+// Cookie consent banner hook — informative only (technical cookies)
+Hooks.CookieBanner = {
+  mounted() {
+    if (!localStorage.getItem("cookie_consent_dismissed")) {
+      this.el.classList.remove("hidden");
+    }
+    const btn = this.el.querySelector("#cookie-accept-btn");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        localStorage.setItem("cookie_consent_dismissed", "1");
+        this.el.classList.add("hidden");
+      });
+    }
+  },
+};
+
 // Infinite scroll hook for content lists
 Hooks.InfiniteScroll = {
   mounted() {
