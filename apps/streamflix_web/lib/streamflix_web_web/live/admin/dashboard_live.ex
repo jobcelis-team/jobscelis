@@ -234,7 +234,9 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
 
           <%= if @current_user_role do %>
             <span class={"inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium #{if @current_user_role == "superadmin", do: "bg-amber-600 text-white", else: "bg-gray-600 text-gray-200"}"}>
-              {if @current_user_role == "superadmin", do: gettext("Superadmin"), else: gettext("Admin")}
+              {if @current_user_role == "superadmin",
+                do: gettext("Superadmin"),
+                else: gettext("Admin")}
             </span>
           <% end %>
         </div>

@@ -1387,7 +1387,9 @@
 
           <div class="p-8 space-y-6">
             <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm">
-              <p class="font-medium text-slate-800 mb-2">{gettext("schedule_type + schedule_config")}</p>
+              <p class="font-medium text-slate-800 mb-2">
+                {gettext("schedule_type + schedule_config")}
+              </p>
 
               <ul
                 class="text-slate-600 space-y-1 list-disc list-inside"
@@ -1405,7 +1407,9 @@
                 <li><strong>cron:</strong> {"expr": "0 0 * * *"} (min hour day month dow)</li>
               </ul>
 
-              <p class="font-medium text-slate-800 mt-3 mb-2">{gettext("action_type + action_config")}</p>
+              <p class="font-medium text-slate-800 mt-3 mb-2">
+                {gettext("action_type + action_config")}
+              </p>
 
               <ul
                 class="text-slate-600 space-y-1 list-disc list-inside"
@@ -4756,14 +4760,18 @@ curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" \
                       <td class="py-2 px-3 text-slate-600">
                         {gettext("Base de datos PostgreSQL")}
                       </td>
-                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">{gettext("US (AWS)")}</td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("US (AWS)")}
+                      </td>
                     </tr>
                     <tr>
                       <td class="py-2 px-3 text-slate-700 font-medium">{gettext("Resend")}</td>
                       <td class="py-2 px-3 text-slate-600">
                         {gettext("Envío de emails transaccionales")}
                       </td>
-                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">{gettext("US")}</td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("US")}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
