@@ -41,7 +41,9 @@ defmodule StreamflixCore.GDPR do
       :pseudonymize_audit,
       fn _ ->
         from(a in AuditLog, where: a.user_id == ^user_id)
-      end, set: [user_id: nil, ip_address: "[redacted]"])
+      end,
+      set: [user_id: nil, ip_address: "[redacted]"]
+    )
     |> Ecto.Multi.delete_all(:delete_memberships, fn _ ->
       from(m in ProjectMember, where: m.user_id == ^user_id)
     end)
