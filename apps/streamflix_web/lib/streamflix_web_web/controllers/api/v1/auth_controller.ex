@@ -50,8 +50,10 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
 
     case StreamflixAccounts.register_user(attrs) do
       {:ok, user, opts} ->
-        {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
+        {:ok, token, claims} = StreamflixAccounts.generate_token(user)
         api_key = Keyword.get(opts, :api_key)
+        audit_opts = conn_audit_opts(conn, "api")
+        StreamflixAccounts.create_session(user.id, claims["jti"], audit_opts)
 
         conn
         |> put_status(:created)
@@ -66,7 +68,9 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
         })
 
       {:ok, user} ->
-        {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
+        {:ok, token, claims} = StreamflixAccounts.generate_token(user)
+        audit_opts = conn_audit_opts(conn, "api")
+        StreamflixAccounts.create_session(user.id, claims["jti"], audit_opts)
 
         conn
         |> put_status(:created)
@@ -112,31 +116,127 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
 
   @doc """
   Authenticates a user and returns a token.
+  If MFA is enabled, returns mfa_required: true with a short-lived MFA challenge token.
   """
   def login(conn, %{"email" => email, "password" => password}) do
-    case StreamflixAccounts.authenticate(email, password) do
+    opts = conn_audit_opts(conn, "api")
+
+    case StreamflixAccounts.authenticate(email, password, opts) do
       {:ok, user} ->
-        {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
+        if user.mfa_enabled do
+          # Generate a short-lived MFA challenge token (5 min TTL)
+          {:ok, mfa_token, _claims} =
+            StreamflixAccounts.Guardian.encode_and_sign(
+              user,
+              %{"type" => "mfa_challenge"},
+              ttl: {5, :minute}
+            )
 
-        # Update last login
-        StreamflixAccounts.update_user(user, %{last_login_at: DateTime.utc_now()})
+          conn
+          |> put_status(:ok)
+          |> json(%{
+            mfa_required: true,
+            mfa_token: mfa_token
+          })
+        else
+          {:ok, token, claims} = StreamflixAccounts.generate_token(user)
+          StreamflixAccounts.create_session(user.id, claims["jti"], opts)
+          StreamflixAccounts.update_user(user, %{last_login_at: DateTime.utc_now()})
 
-        conn
-        |> put_status(:ok)
-        |> json(%{
-          user: %{
-            id: user.id,
-            email: user.email,
-            name: user.name
-          },
-          token: token
-        })
+          conn
+          |> put_status(:ok)
+          |> json(%{
+            user: %{id: user.id, email: user.email, name: user.name},
+            token: token
+          })
+        end
 
       {:error, :invalid_credentials} ->
         conn
         |> put_status(:unauthorized)
         |> json(%{error: "Invalid email or password"})
+
+      {:error, :account_locked} ->
+        conn
+        |> put_status(423)
+        |> json(%{error: "Account temporarily locked due to multiple failed login attempts. Try again in 15 minutes."})
+
+      {:error, :account_inactive} ->
+        conn
+        |> put_status(:forbidden)
+        |> json(%{error: "Account is inactive"})
     end
+  end
+
+  @doc """
+  Verify MFA code for API login. Accepts mfa_token + code.
+  """
+  def verify_mfa(conn, %{"mfa_token" => mfa_token, "code" => code}) do
+    case StreamflixAccounts.Guardian.decode_and_verify(mfa_token) do
+      {:ok, %{"type" => "mfa_challenge"} = claims} ->
+        case StreamflixAccounts.Guardian.resource_from_claims(claims) do
+          {:ok, user} ->
+            if StreamflixAccounts.verify_mfa_code(user, String.trim(code)) do
+              StreamflixCore.Audit.record("user.mfa_verified",
+                user_id: user.id,
+                resource_type: "user",
+                resource_id: user.id,
+                metadata: %{method: "totp_api"}
+              )
+
+              {:ok, token, claims} = StreamflixAccounts.generate_token(user)
+              audit_opts = conn_audit_opts(conn, "api")
+              StreamflixAccounts.create_session(user.id, claims["jti"], audit_opts)
+              StreamflixAccounts.update_user(user, %{last_login_at: DateTime.utc_now()})
+
+              conn
+              |> put_status(:ok)
+              |> json(%{
+                user: %{id: user.id, email: user.email, name: user.name},
+                token: token
+              })
+            else
+              StreamflixCore.Audit.record("user.mfa_failed",
+                user_id: user.id,
+                resource_type: "user",
+                resource_id: user.id,
+                metadata: %{method: "totp_api"}
+              )
+
+              conn
+              |> put_status(:unauthorized)
+              |> json(%{error: "Invalid MFA code"})
+            end
+
+          _ ->
+            conn |> put_status(:unauthorized) |> json(%{error: "Invalid MFA token"})
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Invalid or expired MFA token"})
+    end
+  end
+
+  def verify_mfa(conn, _params) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "mfa_token and code are required"})
+  end
+
+  defp conn_audit_opts(conn, method) do
+    ip =
+      case Plug.Conn.get_req_header(conn, "x-forwarded-for") do
+        [forwarded | _] -> forwarded |> String.split(",") |> List.first() |> String.trim()
+        _ -> conn.remote_ip |> :inet.ntoa() |> to_string()
+      end
+
+    user_agent =
+      case Plug.Conn.get_req_header(conn, "user-agent") do
+        [ua | _] -> ua
+        _ -> nil
+      end
+
+    [ip_address: ip, user_agent: user_agent, method: method]
   end
 
   operation(:refresh,

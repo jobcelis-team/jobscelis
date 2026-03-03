@@ -10,6 +10,10 @@ defmodule StreamflixAccounts do
   alias StreamflixAccounts.Schemas.User
   alias StreamflixAccounts.Schemas.UserToken
   alias StreamflixAccounts.Services.Authentication
+  alias StreamflixAccounts.Services.MFA
+  alias StreamflixAccounts.Schemas.PasswordHistory
+  alias StreamflixAccounts.Schemas.UserSession
+  alias StreamflixAccounts.PasswordPolicy
 
   # ---------- USER ----------
 
@@ -40,6 +44,11 @@ defmodule StreamflixAccounts do
             _ ->
               nil
           end
+
+        StreamflixCore.GDPR.register_signup_consents(user.id)
+
+        # Save initial password hash to history
+        save_password_to_history(user.id, user.password_hash)
 
         if api_key_raw do
           {:ok, user, [api_key: api_key_raw]}
@@ -93,9 +102,25 @@ defmodule StreamflixAccounts do
       when is_binary(current_password) and is_binary(new_password) do
     case Authentication.authenticate(user.email, current_password) do
       {:ok, _} ->
-        user
-        |> User.password_changeset(%{password: new_password})
-        |> Repo.update()
+        # Check against last 5 passwords in history
+        history_hashes = get_password_history_hashes(user.id, 5)
+
+        if PasswordPolicy.password_in_history?(new_password, history_hashes) do
+          {:error, :password_recently_used}
+        else
+          old_hash = user.password_hash
+
+          case user
+               |> User.password_changeset(%{password: new_password})
+               |> Repo.update() do
+            {:ok, updated_user} ->
+              save_password_to_history(user.id, old_hash)
+              {:ok, updated_user}
+
+            error ->
+              error
+          end
+        end
 
       {:error, _} ->
         {:error, :wrong_password}
@@ -145,15 +170,51 @@ defmodule StreamflixAccounts do
 
   def get_user(id), do: Repo.get(User, id)
   def get_user!(id), do: Repo.get!(User, id)
-  def get_user_by_email(email), do: Repo.get_by(User, email: String.downcase(email))
+  def get_user_by_email(email) do
+    Repo.get_by(User, email_hash: String.downcase(email))
+  end
 
   def update_user(%User{} = user, attrs) do
     user |> User.changeset(attrs) |> Repo.update()
   end
 
-  def authenticate(email, password), do: Authentication.authenticate(email, password)
+  def authenticate(email, password, opts \\ []), do: Authentication.authenticate(email, password, opts)
   def generate_token(user), do: Authentication.generate_token(user)
   def verify_token(token), do: Authentication.verify_token(token)
+
+  # ---------- MFA / TOTP ----------
+
+  @doc "Generate a new TOTP secret and otpauth URI for MFA setup."
+  def setup_mfa(%User{} = user) do
+    secret = MFA.generate_secret()
+    uri = MFA.generate_otpauth_uri(secret, user.email)
+    {:ok, secret, uri}
+  end
+
+  @doc "Enable MFA after user confirms with a valid TOTP code."
+  def enable_mfa(%User{} = user, secret, code) do
+    MFA.enable_mfa(user, secret, code)
+  end
+
+  @doc "Disable MFA (requires current password)."
+  def disable_mfa(%User{} = user, password) do
+    MFA.disable_mfa(user, password)
+  end
+
+  @doc "Verify a 6-digit TOTP code for login."
+  def verify_mfa_code(%User{} = user, code) do
+    MFA.verify_code(user.mfa_secret, code)
+  end
+
+  @doc "Verify a backup code (consumes it on success)."
+  def verify_mfa_backup_code(%User{} = user, code) do
+    MFA.verify_backup_code(user, code)
+  end
+
+  @doc "Regenerate backup codes for a user with MFA enabled."
+  def regenerate_backup_codes(%User{} = user) do
+    MFA.regenerate_backup_codes(user)
+  end
 
   # ---------- PASSWORD RESET ----------
 
@@ -203,18 +264,28 @@ defmodule StreamflixAccounts do
   def reset_user_password(token, new_password) do
     case verify_reset_password_token(token) do
       {:ok, user} ->
-        result =
-          user
-          |> User.password_changeset(%{password: new_password})
-          |> Repo.update()
+        # Check against last 5 passwords in history
+        history_hashes = get_password_history_hashes(user.id, 5)
 
-        case result do
-          {:ok, updated_user} ->
-            Repo.delete_all(UserToken.by_user_and_contexts_query(user, ["reset_password"]))
-            {:ok, updated_user}
+        if PasswordPolicy.password_in_history?(new_password, history_hashes) do
+          {:error, :password_recently_used}
+        else
+          old_hash = user.password_hash
 
-          {:error, changeset} ->
-            {:error, changeset}
+          result =
+            user
+            |> User.password_changeset(%{password: new_password})
+            |> Repo.update()
+
+          case result do
+            {:ok, updated_user} ->
+              save_password_to_history(user.id, old_hash)
+              Repo.delete_all(UserToken.by_user_and_contexts_query(user, ["reset_password"]))
+              {:ok, updated_user}
+
+            {:error, changeset} ->
+              {:error, changeset}
+          end
         end
 
       {:error, reason} ->
@@ -288,11 +359,7 @@ defmodule StreamflixAccounts do
   def delete_user(%User{} = user, current_password) when is_binary(current_password) do
     case Authentication.authenticate(user.email, current_password) do
       {:ok, _} ->
-        Repo.delete_all(
-          UserToken.by_user_and_contexts_query(user, ["reset_password", "confirm_email"])
-        )
-
-        Repo.delete(user)
+        StreamflixCore.GDPR.erase_user(user)
 
       {:error, _} ->
         {:error, :wrong_password}
@@ -313,6 +380,122 @@ defmodule StreamflixAccounts do
   end
 
   def update_name(_, _), do: {:error, :invalid}
+
+  # ---------- PASSWORD HISTORY (private) ----------
+
+  defp save_password_to_history(user_id, password_hash) when is_binary(password_hash) do
+    %PasswordHistory{}
+    |> PasswordHistory.changeset(%{user_id: user_id, password_hash: password_hash})
+    |> Repo.insert()
+  end
+
+  defp save_password_to_history(_user_id, _), do: :ok
+
+  defp get_password_history_hashes(user_id, limit) do
+    import Ecto.Query
+
+    PasswordHistory
+    |> where([ph], ph.user_id == ^user_id)
+    |> order_by([ph], desc: ph.inserted_at)
+    |> limit(^limit)
+    |> select([ph], ph.password_hash)
+    |> Repo.all()
+  end
+
+  # ---------- SESSIONS ----------
+
+  def create_session(user_id, jti, opts \\ []) do
+    %UserSession{}
+    |> UserSession.changeset(%{
+      user_id: user_id,
+      token_jti: jti,
+      ip_address: opts[:ip_address],
+      user_agent: opts[:user_agent],
+      device_info: parse_device_info(opts[:user_agent]),
+      last_activity_at: DateTime.utc_now()
+    })
+    |> Repo.insert()
+  end
+
+  def list_sessions(user_id) do
+    import Ecto.Query
+
+    UserSession
+    |> UserSession.for_user(user_id)
+    |> UserSession.active()
+    |> order_by([s], desc: s.last_activity_at)
+    |> Repo.all()
+  end
+
+  def revoke_session(session_id, user_id) do
+    import Ecto.Query
+
+    case Repo.get_by(UserSession, id: session_id, user_id: user_id) do
+      nil ->
+        {:error, :not_found}
+
+      session ->
+        session
+        |> Ecto.Changeset.change(revoked_at: DateTime.utc_now())
+        |> Repo.update()
+    end
+  end
+
+  def revoke_all_sessions(user_id, opts \\ []) do
+    import Ecto.Query
+    except_jti = Keyword.get(opts, :except_jti)
+
+    query =
+      UserSession
+      |> UserSession.for_user(user_id)
+      |> UserSession.active()
+
+    query =
+      if except_jti do
+        from(s in query, where: s.token_jti != ^except_jti)
+      else
+        query
+      end
+
+    {count, _} = Repo.update_all(query, set: [revoked_at: DateTime.utc_now()])
+    {:ok, count}
+  end
+
+  def revoke_session_by_jti(user_id, jti) when is_binary(jti) do
+    case UserSession |> UserSession.for_user(user_id) |> UserSession.by_jti(jti) |> Repo.one() do
+      nil -> :ok
+      session -> session |> Ecto.Changeset.change(revoked_at: DateTime.utc_now()) |> Repo.update()
+    end
+  end
+
+  def revoke_session_by_jti(_user_id, _jti), do: :ok
+
+  def session_revoked?(nil), do: false
+
+  def session_revoked?(jti) do
+    case UserSession |> UserSession.by_jti(jti) |> Repo.one() do
+      nil -> false
+      session -> not is_nil(session.revoked_at)
+    end
+  end
+
+  def parse_device_info(nil), do: "Desktop"
+
+  def parse_device_info(ua) when is_binary(ua) do
+    ua_lower = String.downcase(ua)
+
+    cond do
+      String.contains?(ua_lower, ["mobile", "iphone", "android"]) and
+          not String.contains?(ua_lower, ["tablet", "ipad"]) ->
+        "Mobile"
+
+      String.contains?(ua_lower, ["tablet", "ipad"]) ->
+        "Tablet"
+
+      true ->
+        "Desktop"
+    end
+  end
 
   def deactivate_user(user_id) do
     case get_user(user_id) do

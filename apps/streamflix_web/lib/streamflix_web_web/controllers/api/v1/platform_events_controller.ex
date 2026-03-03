@@ -33,8 +33,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
 
     case Platform.create_event(project.id, body) do
       {:ok, event} ->
-        resp = %{event_id: event.id}
+        resp = %{event_id: event.id, payload_hash: event.payload_hash}
         resp = if event.deliver_at, do: Map.put(resp, :deliver_at, event.deliver_at), else: resp
+        resp = if event.idempotency_key, do: Map.put(resp, :idempotency_key, event.idempotency_key), else: resp
 
         conn
         |> put_status(:accepted)
@@ -214,6 +215,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
       status: e.status,
       occurred_at: e.occurred_at,
       deliver_at: e.deliver_at,
+      payload_hash: e.payload_hash,
+      idempotency_key: e.idempotency_key,
       inserted_at: e.inserted_at
     }
   end

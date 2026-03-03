@@ -30,11 +30,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformExportController do
           topic: e.topic,
           status: e.status,
           occurred_at: to_string(e.occurred_at),
-          payload: Jason.encode!(e.payload || %{})
+          payload: Jason.encode!(e.payload || %{}),
+          payload_hash: e.payload_hash || ""
         }
       end)
 
-    export(conn, rows, format, "events", ~w(id topic status occurred_at payload))
+    export(conn, rows, format, "events", ~w(id topic status occurred_at payload payload_hash))
   end
 
   def deliveries(conn, params) do
