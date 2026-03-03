@@ -141,17 +141,29 @@ defmodule StreamflixCore.GDPR do
 
   @purposes ~w(terms privacy data_processing marketing)
 
-  @doc "Grant a consent for a specific purpose."
+  @doc "Grant a consent for a specific purpose. Idempotent: returns existing active consent if one exists."
   def grant_consent(user_id, purpose, opts \\ []) when purpose in @purposes do
-    %Consent{}
-    |> Consent.changeset(%{
-      user_id: user_id,
-      purpose: purpose,
-      granted_at: DateTime.utc_now() |> DateTime.truncate(:microsecond),
-      ip_address: opts[:ip_address] || "[unknown]",
-      version: opts[:version] || "1.0"
-    })
-    |> Repo.insert()
+    existing =
+      Consent
+      |> where([c], c.user_id == ^user_id and c.purpose == ^purpose and is_nil(c.revoked_at))
+      |> limit(1)
+      |> Repo.one()
+
+    case existing do
+      %Consent{} = consent ->
+        {:ok, consent}
+
+      nil ->
+        %Consent{}
+        |> Consent.changeset(%{
+          user_id: user_id,
+          purpose: purpose,
+          granted_at: DateTime.utc_now() |> DateTime.truncate(:microsecond),
+          ip_address: opts[:ip_address] || "[unknown]",
+          version: opts[:version] || "1.0"
+        })
+        |> Repo.insert()
+    end
   end
 
   @doc "Revoke a consent (sets revoked_at)."
