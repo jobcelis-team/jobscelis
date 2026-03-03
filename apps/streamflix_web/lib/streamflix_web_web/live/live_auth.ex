@@ -49,14 +49,24 @@ defmodule StreamflixWebWeb.LiveAuth do
         assign(socket, :current_user, nil)
 
       token ->
-        case StreamflixAccounts.verify_token(token) do
-          {:ok, user, _claims} ->
-            assign(socket, :current_user, user)
+        if session_expired?(session) do
+          assign(socket, :current_user, nil)
+        else
+          case StreamflixAccounts.verify_token(token) do
+            {:ok, user, _claims} ->
+              assign(socket, :current_user, user)
 
-          {:error, _reason} ->
-            assign(socket, :current_user, nil)
+            {:error, _reason} ->
+              assign(socket, :current_user, nil)
+          end
         end
     end
+  end
+
+  defp session_expired?(session) do
+    last_activity = session["last_activity_at"]
+    timeout = Application.get_env(:streamflix_web, :session_timeout_seconds, 1800)
+    is_integer(last_activity) and System.system_time(:second) - last_activity > timeout
   end
 
   defp check_admin(user) do

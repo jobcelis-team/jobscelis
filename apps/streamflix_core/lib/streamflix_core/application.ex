@@ -22,6 +22,26 @@ defmodule StreamflixCore.Application do
     Logger.info("[StreamflixCore] Starting application...")
     Logger.info("[StreamflixCore] Node: #{Node.self()}")
 
-    Supervisor.start_link(children, opts)
+    result = Supervisor.start_link(children, opts)
+
+    # Run initial health check so the dashboard shows correct status immediately
+    schedule_initial_health_check()
+
+    result
+  end
+
+  defp schedule_initial_health_check do
+    Task.Supervisor.start_child(StreamflixCore.TaskSupervisor, fn ->
+      # Small delay to ensure all services are fully initialized
+      Process.sleep(3_000)
+
+      case StreamflixCore.Uptime.perform_health_check() do
+        {:ok, check} ->
+          Logger.info("[StreamflixCore] Initial health check: #{check.status}")
+
+        {:error, reason} ->
+          Logger.warning("[StreamflixCore] Initial health check failed: #{inspect(reason)}")
+      end
+    end)
   end
 end

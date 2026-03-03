@@ -93,6 +93,31 @@ if config_env() == :prod do
       ]
   end
 
+  # HMAC secret for deterministic hashing (email lookups)
+  hmac_secret = System.get_env("HMAC_SECRET") || System.get_env("CLOAK_KEY") ||
+    raise "environment variable HMAC_SECRET is missing."
+
+  config :streamflix_core, StreamflixCore.Hashed.HMAC,
+    algorithm: :sha512,
+    secret: hmac_secret
+
+  # Backup configuration (production overrides)
+  if backup_path = System.get_env("BACKUP_PATH") do
+    config :streamflix_core, :backup,
+      enabled: System.get_env("BACKUP_ENABLED", "true") == "true",
+      backup_path: backup_path,
+      retention_days: String.to_integer(System.get_env("BACKUP_RETENTION_DAYS") || "30"),
+      pg_dump_path: System.get_env("PG_DUMP_PATH") || "pg_dump"
+  end
+
+  # Azure Blob Storage for backups (uses existing AZURE_STORAGE_* vars)
+  if azure_account = System.get_env("AZURE_STORAGE_ACCOUNT") do
+    config :streamflix_core, :azure_storage,
+      account: azure_account,
+      key: System.get_env("AZURE_STORAGE_KEY"),
+      container_backups: System.get_env("AZURE_CONTAINER_BACKUPS") || "backups"
+  end
+
   # Erlang Distribution Cookie
   if cookie = System.get_env("NODE_COOKIE") do
     Node.set_cookie(String.to_atom(cookie))

@@ -20,6 +20,11 @@ defmodule StreamflixCore.Schemas.Webhook do
     field(:retry_config, :map, default: %{})
     field(:batch_config, :map)
 
+    # Circuit breaker fields
+    field(:circuit_state, :string, default: "closed")
+    field(:circuit_opened_at, :utc_datetime_usec)
+    field(:consecutive_failures, :integer, default: 0)
+
     belongs_to(:project, StreamflixCore.Schemas.Project)
     has_many(:deliveries, StreamflixCore.Schemas.Delivery)
 
@@ -38,7 +43,10 @@ defmodule StreamflixCore.Schemas.Webhook do
       :body_config,
       :headers,
       :retry_config,
-      :batch_config
+      :batch_config,
+      :circuit_state,
+      :circuit_opened_at,
+      :consecutive_failures
     ])
     |> validate_required([:project_id, :url])
     |> validate_inclusion(:status, ~w(active inactive))

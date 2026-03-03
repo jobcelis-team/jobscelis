@@ -8,6 +8,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
   alias StreamflixCore.Platform
   alias StreamflixCore.Audit
   alias StreamflixCore.Teams
+  alias StreamflixCore.GDPR
 
   @max_export 10_000
 
@@ -41,11 +42,12 @@ defmodule StreamflixWebWeb.BrowserExportController do
             topic: e.topic,
             status: e.status,
             occurred_at: to_string(e.occurred_at),
-            payload: Jason.encode!(e.payload || %{})
+            payload: Jason.encode!(e.payload || %{}),
+            payload_hash: e.payload_hash || ""
           }
         end)
 
-      export(conn, rows, format, "events", ~w(id topic status occurred_at payload))
+      export(conn, rows, format, "events", ~w(id topic status occurred_at payload payload_hash))
     else
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Unauthorized"})
@@ -135,6 +137,22 @@ defmodule StreamflixWebWeb.BrowserExportController do
         "audit_log",
         ~w(id action resource_type resource_id user_id ip_address inserted_at)
       )
+    else
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Unauthorized"})
+    end
+  end
+
+  def my_data(conn, _params) do
+    with {:ok, user} <- require_auth(conn) do
+      data = GDPR.collect_user_data(user)
+
+      Audit.record("gdpr.data_export", user_id: user.id)
+
+      conn
+      |> put_resp_content_type("application/json")
+      |> put_resp_header("content-disposition", "attachment; filename=\"my-data.json\"")
+      |> json(%{data: data})
     else
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Unauthorized"})

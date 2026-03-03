@@ -9,6 +9,7 @@ defmodule StreamflixWebWeb.Router do
     plug :fetch_live_flash
     plug StreamflixWebWeb.Plugs.SetLocale
     plug StreamflixWebWeb.Plugs.MaybeLoadCurrentUser
+    plug StreamflixWebWeb.Plugs.SessionTimeout
     plug :put_root_layout, html: {StreamflixWebWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
@@ -23,7 +24,8 @@ defmodule StreamflixWebWeb.Router do
       path_rules: [
         {"POST", "/api/v1/auth/login", 15},
         {"POST", "/api/v1/auth/register", 5},
-        {"POST", "/api/v1/auth/refresh", 30}
+        {"POST", "/api/v1/auth/refresh", 30},
+        {"POST", "/api/v1/auth/mfa/verify", 10}
       ],
       window_sec: 60
 
@@ -34,7 +36,9 @@ defmodule StreamflixWebWeb.Router do
     plug StreamflixWebWeb.Plugs.RateLimit,
       path_rules: [
         {"POST", "/login", 5},
-        {"POST", "/signup", 3}
+        {"POST", "/signup", 3},
+        {"POST", "/mfa/verify", 10},
+        {"POST", "/mfa/verify-backup", 5}
       ],
       window_sec: 60
   end
@@ -121,6 +125,9 @@ defmodule StreamflixWebWeb.Router do
     get "/changelog", PageController, :changelog
     post "/login", AuthController, :login
     post "/signup", AuthController, :register
+    get "/mfa/verify", MfaController, :show
+    post "/mfa/verify", MfaController, :verify
+    post "/mfa/verify-backup", MfaController, :verify_backup
     delete "/logout", AuthController, :logout
     get "/logout", AuthController, :logout
     get "/forgot-password", PageController, :forgot_password
@@ -140,6 +147,7 @@ defmodule StreamflixWebWeb.Router do
     post "/auth/register", AuthController, :register
     post "/auth/login", AuthController, :login
     post "/auth/refresh", AuthController, :refresh
+    post "/auth/mfa/verify", AuthController, :verify_mfa
   end
 
   # ============================================
@@ -247,6 +255,9 @@ defmodule StreamflixWebWeb.Router do
     get "/invitations/pending", PlatformMembersController, :pending
     post "/invitations/:id/accept", PlatformMembersController, :accept
     post "/invitations/:id/reject", PlatformMembersController, :reject
+
+    # GDPR — Data export (DSAR)
+    get "/me/data", GDPRController, :export_my_data
   end
 
   # ============================================
@@ -274,6 +285,7 @@ defmodule StreamflixWebWeb.Router do
     get "/export/deliveries", BrowserExportController, :deliveries
     get "/export/jobs", BrowserExportController, :jobs
     get "/export/audit-log", BrowserExportController, :audit_log
+    get "/export/my-data", BrowserExportController, :my_data
   end
 
   # ============================================

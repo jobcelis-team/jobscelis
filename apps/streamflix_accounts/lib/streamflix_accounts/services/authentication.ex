@@ -5,12 +5,14 @@ defmodule StreamflixAccounts.Services.Authentication do
 
   alias StreamflixAccounts.Schemas.User
   alias StreamflixCore.Repo
+  alias StreamflixCore.Audit
 
   @doc """
   Authenticates a user with email and password.
+  opts: [ip_address: string, user_agent: string, method: string]
   """
-  def authenticate(email, password) do
-    user = Repo.get_by(User, email: String.downcase(email))
+  def authenticate(email, password, opts \\ []) do
+    user = Repo.get_by(User, email_hash: String.downcase(email))
 
     case user do
       nil ->
@@ -24,14 +26,105 @@ defmodule StreamflixAccounts.Services.Authentication do
           Pbkdf2.no_user_verify()
           {:error, :account_inactive}
         else
-          if Pbkdf2.verify_pass(password, user.password_hash) do
-            maybe_rehash(user, password)
-            {:ok, user}
+          # Check if account is locked
+          if User.locked?(user) do
+            audit_login(user, "user.login_failed", opts, %{reason: "account_locked"})
+            {:error, :account_locked}
           else
-            {:error, :invalid_credentials}
+            # Auto-unlock if lockout expired
+            user = maybe_auto_unlock(user)
+
+            if Pbkdf2.verify_pass(password, user.password_hash) do
+              reset_failed_attempts(user)
+              maybe_rehash(user, password)
+              audit_login(user, "user.login", opts)
+              {:ok, user}
+            else
+              user = increment_failed_attempts(user)
+              audit_login(user, "user.login_failed", opts, %{attempts: user.failed_login_attempts})
+
+              if user.failed_login_attempts >= User.max_failed_attempts() do
+                lock_account(user, opts)
+                {:error, :account_locked}
+              else
+                {:error, :invalid_credentials}
+              end
+            end
           end
         end
     end
+  end
+
+  defp maybe_auto_unlock(%User{locked_at: nil} = user), do: user
+
+  defp maybe_auto_unlock(%User{} = user) do
+    if User.locked?(user) do
+      user
+    else
+      # Lock expired — reset
+      {:ok, user} =
+        user
+        |> Ecto.Changeset.change(failed_login_attempts: 0, locked_at: nil)
+        |> Repo.update()
+
+      Audit.record("user.unlocked",
+        user_id: user.id,
+        resource_type: "user",
+        resource_id: user.id,
+        metadata: %{reason: "lockout_expired"}
+      )
+
+      user
+    end
+  end
+
+  defp increment_failed_attempts(%User{} = user) do
+    new_count = (user.failed_login_attempts || 0) + 1
+
+    {:ok, user} =
+      user
+      |> Ecto.Changeset.change(failed_login_attempts: new_count)
+      |> Repo.update()
+
+    user
+  end
+
+  defp reset_failed_attempts(%User{failed_login_attempts: 0}), do: :ok
+
+  defp reset_failed_attempts(%User{} = user) do
+    user
+    |> Ecto.Changeset.change(failed_login_attempts: 0, locked_at: nil)
+    |> Repo.update()
+  end
+
+  defp lock_account(%User{} = user, opts) do
+    {:ok, _user} =
+      user
+      |> Ecto.Changeset.change(locked_at: DateTime.utc_now())
+      |> Repo.update()
+
+    Audit.record("user.locked",
+      user_id: user.id,
+      resource_type: "user",
+      resource_id: user.id,
+      metadata: %{
+        failed_attempts: user.failed_login_attempts,
+        lockout_minutes: User.lockout_duration_minutes()
+      },
+      ip_address: opts[:ip_address],
+      user_agent: opts[:user_agent]
+    )
+  end
+
+  defp audit_login(user, action, opts, metadata \\ %{}) do
+    Audit.record(action,
+      user_id: user.id,
+      resource_type: "user",
+      resource_id: user.id,
+      metadata: Map.merge(metadata, %{method: opts[:method] || "password"}),
+      ip_address: opts[:ip_address],
+      user_agent: opts[:user_agent]
+    )
   end
 
   # Re-hash with current config if the stored hash used fewer rounds.
@@ -73,9 +166,15 @@ defmodule StreamflixAccounts.Services.Authentication do
   def verify_token(token) do
     case StreamflixAccounts.Guardian.decode_and_verify(token) do
       {:ok, claims} ->
-        case StreamflixAccounts.Guardian.resource_from_claims(claims) do
-          {:ok, user} -> {:ok, user, claims}
-          error -> error
+        jti = claims["jti"]
+
+        if StreamflixAccounts.session_revoked?(jti) do
+          {:error, :session_revoked}
+        else
+          case StreamflixAccounts.Guardian.resource_from_claims(claims) do
+            {:ok, user} -> {:ok, user, claims}
+            error -> error
+          end
         end
 
       error ->

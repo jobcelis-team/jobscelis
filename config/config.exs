@@ -25,6 +25,9 @@ config :streamflix_core, StreamflixCore.Repo,
 
 config :streamflix_web, StreamflixWebWeb.Gettext, default_locale: "en"
 
+# Session timeout: 30 minutes of inactivity
+config :streamflix_web, :session_timeout_seconds, 1800
+
 # Marca y titular legal (copyright, términos, contacto, donaciones). Servicio de Vladimir Celi.
 config :streamflix_web, :legal,
   product_name: "Jobcelis",
@@ -79,10 +82,14 @@ config :streamflix_core, StreamflixCore.Vault,
     default: {
       Cloak.Ciphers.AES.GCM,
       tag: "AES.GCM.V1",
-      key: Base.decode64!("dGVzdF9rZXlfMzJfYnl0ZXNfbG9uZ19mb3JfZGV2"),
+      key: Base.decode64!("aTAO0zb80FzEJB4HnBnhhqEmFd0CJXWdKZBwlGMMT0c="),
       iv_length: 12
     }
   ]
+
+config :streamflix_core, StreamflixCore.Hashed.HMAC,
+  algorithm: :sha512,
+  secret: "dev_hmac_secret_change_in_production_at_least_32_chars"
 
 # ============================================
 # LOGGER CONFIG
@@ -97,6 +104,25 @@ config :logger, :console,
 # ============================================
 
 config :phoenix, :json_library, Jason
+
+# ============================================
+# AZURE BLOB STORAGE (Backups)
+# ============================================
+
+config :streamflix_core, :azure_storage,
+  account: nil,
+  key: nil,
+  container_backups: "backups"
+
+# ============================================
+# BACKUP CONFIG (pg_dump automated backups)
+# ============================================
+
+config :streamflix_core, :backup,
+  enabled: true,
+  backup_path: Path.expand("../priv/backups", __DIR__),
+  retention_days: 30,
+  pg_dump_path: "pg_dump"
 
 # ============================================
 # OBAN CONFIG (Background Jobs) - estilo whisper_vtt
@@ -118,7 +144,11 @@ config :streamflix_core, Oban,
      crontab: [
        {"* * * * *", StreamflixCore.Platform.ObanDelayedEventsWorker},
        {"* * * * *", StreamflixCore.Platform.ObanBatchWorker},
-       {"0 3 * * 0", StreamflixCore.Platform.ObanPurgeWorker}
+       {"0 3 * * 0", StreamflixCore.Platform.ObanPurgeWorker},
+       {"0 2 * * *", StreamflixCore.Platform.ObanBackupWorker},
+       {"*/5 * * * *", StreamflixCore.Platform.ObanUptimeWorker},
+       {"*/5 * * * *", StreamflixCore.Platform.ObanBreachDetectionWorker},
+       {"0 4 * * *", StreamflixCore.Platform.ObanSessionCleanupWorker}
      ]}
   ]
 

@@ -11,20 +11,42 @@ defmodule StreamflixAccounts.Schemas.User do
   @foreign_key_type :binary_id
 
   schema "users" do
-    field(:email, :string)
+    field(:email, StreamflixCore.Encrypted.Binary)
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
-    field(:name, :string)
+    field(:name, StreamflixCore.Encrypted.Binary)
+    field(:email_hash, StreamflixCore.Hashed.HMAC)
     field(:status, :string, default: "active")
     field(:role, :string, default: "user")
     field(:email_verified_at, :utc_datetime)
     field(:last_login_at, :utc_datetime)
+    field(:failed_login_attempts, :integer, default: 0)
+    field(:locked_at, :utc_datetime_usec)
+
+    # MFA / TOTP
+    field(:mfa_enabled, :boolean, default: false)
+    field(:mfa_secret, StreamflixCore.Encrypted.Binary)
+    field(:mfa_backup_codes, {:array, :string}, default: [])
+    field(:mfa_enabled_at, :utc_datetime)
 
     timestamps()
   end
 
   @required_fields [:email]
-  @optional_fields [:name, :status, :role, :email_verified_at, :last_login_at]
+  @optional_fields [:name, :status, :role, :email_verified_at, :last_login_at, :failed_login_attempts, :locked_at]
+
+  @max_failed_attempts 5
+  @lockout_duration_minutes 15
+
+  def max_failed_attempts, do: @max_failed_attempts
+  def lockout_duration_minutes, do: @lockout_duration_minutes
+
+  def locked?(%__MODULE__{locked_at: nil}), do: false
+
+  def locked?(%__MODULE__{locked_at: locked_at}) do
+    cutoff = DateTime.add(DateTime.utc_now(), -@lockout_duration_minutes * 60, :second)
+    DateTime.compare(locked_at, cutoff) == :gt
+  end
 
   def changeset(user, attrs) do
     user
@@ -32,7 +54,8 @@ defmodule StreamflixAccounts.Schemas.User do
     |> validate_required(@required_fields)
     |> validate_email()
     |> validate_inclusion(:role, ["user", "admin", "moderator", "superadmin"])
-    |> unique_constraint(:email, message: "already registered")
+    |> unique_constraint(:email_hash, message: "already registered")
+    |> put_encrypted_email()
   end
 
   @doc """
@@ -44,7 +67,8 @@ defmodule StreamflixAccounts.Schemas.User do
     |> cast(attrs, [:email])
     |> validate_required([:email])
     |> validate_email()
-    |> unique_constraint(:email, message: "already registered")
+    |> unique_constraint(:email_hash, message: "already registered")
+    |> put_encrypted_email()
   end
 
   def registration_changeset(user, attrs) do
@@ -64,6 +88,14 @@ defmodule StreamflixAccounts.Schemas.User do
     |> hash_password()
   end
 
+  @doc """
+  Changeset for enabling/disabling MFA. Kept separate from changeset/2 to prevent accidental updates.
+  """
+  def mfa_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:mfa_enabled, :mfa_secret, :mfa_backup_codes, :mfa_enabled_at])
+  end
+
   # ============================================
   # VALIDATIONS
   # ============================================
@@ -81,6 +113,21 @@ defmodule StreamflixAccounts.Schemas.User do
     |> validate_format(:password, ~r/[a-z]/, message: "must have at least one lowercase letter")
     |> validate_format(:password, ~r/[A-Z]/, message: "must have at least one uppercase letter")
     |> validate_format(:password, ~r/[0-9]/, message: "must have at least one digit")
+    |> validate_not_common_password()
+  end
+
+  defp validate_not_common_password(changeset) do
+    case get_change(changeset, :password) do
+      nil ->
+        changeset
+
+      password ->
+        if StreamflixAccounts.PasswordPolicy.common_password?(password) do
+          add_error(changeset, :password, "is too common and easily guessed")
+        else
+          changeset
+        end
+    end
   end
 
   defp hash_password(changeset) do
@@ -94,6 +141,16 @@ defmodule StreamflixAccounts.Schemas.User do
     end
   end
 
+  defp put_encrypted_email(changeset) do
+    case get_change(changeset, :email) do
+      nil ->
+        changeset
+
+      email ->
+        put_change(changeset, :email_hash, String.downcase(email))
+    end
+  end
+
   # ============================================
   # QUERIES
   # ============================================
@@ -103,7 +160,7 @@ defmodule StreamflixAccounts.Schemas.User do
   end
 
   def by_email(query \\ __MODULE__, email) do
-    from(u in query, where: u.email == ^String.downcase(email))
+    from(u in query, where: u.email_hash == ^String.downcase(email))
   end
 
   def admin(query \\ __MODULE__) do

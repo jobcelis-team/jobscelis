@@ -1,0 +1,178 @@
+<div class="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex flex-col">
+  <a href="#main-content" class="skip-link">{gettext("Saltar al contenido")}</a>
+
+  <div class="w-full px-6 pt-6 lg:pt-8">
+    <a
+      href="/login"
+      class="inline-flex items-center gap-2 text-slate-400 hover:text-slate-600 text-sm transition group"
+      aria-label={gettext("Volver al inicio de sesión")}
+    >
+      <svg
+        class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
+      </svg>
+      {gettext("Volver")}
+    </a>
+  </div>
+
+  <main
+    id="main-content"
+    class="flex-1 flex items-center justify-center px-6 py-12"
+    role="main"
+    tabindex="-1"
+  >
+    <div class="w-full max-w-[420px]">
+      <%!-- Logo --%>
+      <div class="text-center mb-8">
+        <a
+          href="/"
+          class="inline-flex items-center gap-2.5"
+          aria-label={gettext("Jobcelis - Ir al inicio")}
+        >
+          <img src={~p"/images/logo.png"} alt="" class="h-10 w-auto" width="40" height="40" />
+          <span class="text-2xl font-bold text-slate-900 tracking-tight">Jobcelis</span>
+        </a>
+      </div>
+
+      <%!-- Card --%>
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 px-8 py-10 sm:px-10">
+        <div class="mb-7 text-center">
+          <%!-- Shield icon --%>
+          <div class="mx-auto w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+              />
+            </svg>
+          </div>
+
+          <h1 class="text-xl font-semibold text-slate-900">
+            {gettext("Verificación en dos pasos")}
+          </h1>
+          <p class="text-slate-500 text-sm mt-1.5">
+            {gettext("Ingresa el código de 6 dígitos de tu aplicación de autenticación.")}
+          </p>
+        </div>
+
+        <%= if msg = Phoenix.Flash.get(@flash, :error) do %>
+          <div
+            class="mb-6 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm"
+            role="alert"
+          >
+            <svg
+              class="w-5 h-5 shrink-0 mt-0.5 text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+              />
+            </svg>
+            <span>{msg}</span>
+          </div>
+        <% end %>
+
+        <%!-- TOTP code form --%>
+        <form
+          action="/mfa/verify"
+          method="post"
+          class="space-y-5"
+          data-submit-loading
+          aria-label={gettext("Formulario de verificación MFA")}
+          id="mfa-totp-form"
+        >
+          <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+          <div>
+            <label for="mfa-code" class="block text-sm font-medium text-slate-700 mb-1.5">
+              {gettext("Código de verificación")}
+            </label>
+            <input
+              id="mfa-code"
+              type="text"
+              name="code"
+              inputmode="numeric"
+              pattern="[0-9]{6}"
+              maxlength="6"
+              autocomplete="one-time-code"
+              autofocus
+              required
+              placeholder="000000"
+              class="w-full px-3.5 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white py-2.5 rounded-lg font-medium text-sm transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            data-loading-text={gettext("Verificando...")}
+          >
+            {gettext("Verificar")}
+          </button>
+        </form>
+
+        <%!-- Divider --%>
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-slate-200"></div>
+          </div>
+          <div class="relative flex justify-center text-xs">
+            <span class="bg-white px-3 text-slate-400">{gettext("o")}</span>
+          </div>
+        </div>
+
+        <%!-- Backup code form --%>
+        <form
+          action="/mfa/verify-backup"
+          method="post"
+          class="space-y-4"
+          data-submit-loading
+          aria-label={gettext("Formulario de código de recuperación")}
+          id="mfa-backup-form"
+        >
+          <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+          <div>
+            <label for="backup-code" class="block text-sm font-medium text-slate-700 mb-1.5">
+              {gettext("Código de recuperación")}
+            </label>
+            <input
+              id="backup-code"
+              type="text"
+              name="code"
+              autocomplete="off"
+              placeholder={gettext("Ingresa un código de recuperación")}
+              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-white hover:bg-slate-50 text-slate-700 py-2.5 rounded-lg font-medium text-sm transition-all border border-slate-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            data-loading-text={gettext("Verificando...")}
+          >
+            {gettext("Usar código de recuperación")}
+          </button>
+        </form>
+      </div>
+
+      <p class="text-center text-slate-400 text-xs mt-8">
+        &copy; {Date.utc_today().year} Jobcelis
+      </p>
+    </div>
+  </main>
+</div>

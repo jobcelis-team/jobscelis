@@ -14,7 +14,7 @@ defmodule StreamflixCore.Schemas.SandboxRequest do
     field(:headers, :map, default: %{})
     field(:body, :string)
     field(:query_params, :map, default: %{})
-    field(:ip, :string)
+    field(:ip, StreamflixCore.Encrypted.Binary)
 
     belongs_to(:endpoint, StreamflixCore.Schemas.SandboxEndpoint)
 

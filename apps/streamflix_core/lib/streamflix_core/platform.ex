@@ -402,6 +402,28 @@ defmodule StreamflixCore.Platform do
   # ---------- Events (webhook_events) ----------
 
   def create_event(project_id, body) when is_map(body) do
+    # Extract idempotency_key before topic/payload extraction
+    idempotency_key =
+      Map.get(body, "idempotency_key") || Map.get(body, :idempotency_key)
+
+    # Idempotency: return existing event if key already used
+    if idempotency_key do
+      case Repo.one(
+             from(e in WebhookEvent,
+               where: e.project_id == ^project_id and e.idempotency_key == ^idempotency_key
+             )
+           ) do
+        %WebhookEvent{} = existing -> {:ok, existing}
+        nil -> do_create_event(project_id, body, idempotency_key)
+      end
+    else
+      do_create_event(project_id, body, nil)
+    end
+  end
+
+  def create_event(_project_id, _), do: {:error, :invalid_payload}
+
+  defp do_create_event(project_id, body, idempotency_key) do
     {topic, payload} = extract_topic_and_payload(body)
     occurred_at = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
@@ -414,13 +436,20 @@ defmodule StreamflixCore.Platform do
     # Parse deliver_at for delayed events
     deliver_at = parse_deliver_at(body)
 
+    # Compute SHA256 hash of canonical payload
+    payload_hash =
+      :crypto.hash(:sha256, Jason.encode!(payload))
+      |> Base.encode16(case: :lower)
+
     attrs = %{
       project_id: project_id,
       topic: topic,
       payload: payload,
       status: "active",
       occurred_at: occurred_at,
-      deliver_at: deliver_at
+      deliver_at: deliver_at,
+      payload_hash: payload_hash,
+      idempotency_key: idempotency_key
     }
 
     with {:ok, event} <- insert_event(attrs) do
@@ -435,8 +464,6 @@ defmodule StreamflixCore.Platform do
   catch
     {:error, {:schema_validation, _errors}} = err -> err
   end
-
-  def create_event(_project_id, _), do: {:error, :invalid_payload}
 
   defp parse_deliver_at(body) do
     raw = Map.get(body, "deliver_at") || Map.get(body, :deliver_at)

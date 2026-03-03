@@ -64,6 +64,9 @@ defmodule StreamflixWeb.MixProject do
       # i18n
       {:gettext, "~> 0.26"},
 
+      # QR code generation (MFA setup)
+      {:eqrcode, "~> 0.2"},
+
       # Utilities
       {:jason, "~> 1.4"},
       {:dns_cluster, "~> 0.1"},

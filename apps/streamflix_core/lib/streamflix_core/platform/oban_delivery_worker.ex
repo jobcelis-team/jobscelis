@@ -26,6 +26,7 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
     else
       case StreamflixCore.Platform.DeliveryWorker.run(delivery_id) do
         {:ok, _} -> :ok
+        {:error, :circuit_open} -> {:snooze, 300}
         {:error, _} -> :error
       end
     end

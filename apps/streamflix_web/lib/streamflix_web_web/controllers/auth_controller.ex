@@ -69,40 +69,29 @@ defmodule StreamflixWebWeb.AuthController do
   end
 
   defp do_login(conn, email, password, remember) do
-    case StreamflixAccounts.authenticate(email, password) do
+    opts = conn_audit_opts(conn, "web")
+
+    case StreamflixAccounts.authenticate(email, password, opts) do
       {:ok, user} ->
-        {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
-
-        # Update last login
-        StreamflixAccounts.update_user(user, %{last_login_at: DateTime.utc_now()})
-
-        conn =
+        if user.mfa_enabled do
+          # MFA required — store user ID in session for verification step
           conn
-          |> put_session(:user_token, token)
-          |> put_session(:user_id, user.id)
-          |> put_flash(:info, gettext("Bienvenido, %{name}.", name: user.name || user.email))
-
-        # If "remember me" is checked, set longer session expiration
-        conn =
-          if remember do
-            # Set session to expire in 30 days
-            put_session(conn, :remember_me, true)
-          else
-            conn
-          end
-
-        redirect_to =
-          if user.role in ["admin", "superadmin"] do
-            "/admin"
-          else
-            "/platform"
-          end
-
-        redirect(conn, to: redirect_to)
+          |> put_session(:mfa_user_id, user.id)
+          |> put_session(:mfa_remember, remember)
+          |> put_session(:mfa_started_at, System.system_time(:second))
+          |> redirect(to: "/mfa/verify")
+        else
+          complete_login(conn, user, remember)
+        end
 
       {:error, :invalid_credentials} ->
         conn
         |> put_flash(:error, gettext("Email o contraseña incorrectos"))
+        |> redirect(to: "/login")
+
+      {:error, :account_locked} ->
+        conn
+        |> put_flash(:error, gettext("Tu cuenta ha sido bloqueada temporalmente por múltiples intentos fallidos. Intenta de nuevo en %{minutes} minutos.", minutes: 15))
         |> redirect(to: "/login")
 
       {:error, :account_inactive} ->
@@ -112,10 +101,77 @@ defmodule StreamflixWebWeb.AuthController do
     end
   end
 
+  @doc false
+  def complete_login(conn, user, remember) do
+    {:ok, token, claims} = StreamflixAccounts.generate_token(user)
+    jti = claims["jti"]
+
+    # Create session record
+    audit_opts = conn_audit_opts(conn, "web")
+
+    StreamflixAccounts.create_session(user.id, jti,
+      ip_address: audit_opts[:ip_address],
+      user_agent: audit_opts[:user_agent]
+    )
+
+    # Update last login
+    StreamflixAccounts.update_user(user, %{last_login_at: DateTime.utc_now()})
+
+    conn =
+      conn
+      |> delete_session(:mfa_user_id)
+      |> delete_session(:mfa_remember)
+      |> delete_session(:mfa_started_at)
+      |> put_session(:user_token, token)
+      |> put_session(:user_id, user.id)
+      |> put_session(:current_jti, jti)
+      |> put_session(:last_activity_at, System.system_time(:second))
+      |> put_flash(:info, gettext("Bienvenido, %{name}.", name: user.name || user.email))
+
+    conn =
+      if remember do
+        put_session(conn, :remember_me, true)
+      else
+        conn
+      end
+
+    redirect_to =
+      if user.role in ["admin", "superadmin"] do
+        "/admin"
+      else
+        "/platform"
+      end
+
+    redirect(conn, to: redirect_to)
+  end
+
+  defp conn_audit_opts(conn, method) do
+    ip =
+      case Plug.Conn.get_req_header(conn, "x-forwarded-for") do
+        [forwarded | _] -> forwarded |> String.split(",") |> List.first() |> String.trim()
+        _ -> conn.remote_ip |> :inet.ntoa() |> to_string()
+      end
+
+    user_agent =
+      case Plug.Conn.get_req_header(conn, "user-agent") do
+        [ua | _] -> ua
+        _ -> nil
+      end
+
+    [ip_address: ip, user_agent: user_agent, method: method]
+  end
+
   @doc """
   Handles user logout.
   """
   def logout(conn, _params) do
+    user_id = get_session(conn, :user_id)
+    current_jti = get_session(conn, :current_jti)
+
+    if user_id && current_jti do
+      StreamflixAccounts.revoke_session_by_jti(user_id, current_jti)
+    end
+
     conn
     |> clear_session()
     |> put_flash(:info, gettext("Has cerrado sesión correctamente"))
@@ -187,6 +243,14 @@ defmodule StreamflixWebWeb.AuthController do
             |> put_flash(:error, gettext("El enlace ha expirado o no es válido."))
             |> redirect(to: "/forgot-password")
 
+          {:error, :password_recently_used} ->
+            conn
+            |> put_flash(
+              :error,
+              gettext("Esta contraseña fue usada recientemente. Elige una diferente.")
+            )
+            |> redirect(to: "/reset-password/#{token}")
+
           {:error, %Ecto.Changeset{} = changeset} ->
             errors = format_errors(changeset)
 
@@ -239,7 +303,16 @@ defmodule StreamflixWebWeb.AuthController do
   end
 
   defp do_register_success(conn, user, opts) do
-    {:ok, token, _claims} = StreamflixAccounts.generate_token(user)
+    {:ok, token, claims} = StreamflixAccounts.generate_token(user)
+    jti = claims["jti"]
+
+    # Create session record
+    audit_opts = conn_audit_opts(conn, "web")
+
+    StreamflixAccounts.create_session(user.id, jti,
+      ip_address: audit_opts[:ip_address],
+      user_agent: audit_opts[:user_agent]
+    )
 
     # Send email verification
     case StreamflixAccounts.generate_email_confirmation_token(user) do
@@ -255,6 +328,7 @@ defmodule StreamflixWebWeb.AuthController do
       conn
       |> put_session(:user_token, token)
       |> put_session(:user_id, user.id)
+      |> put_session(:current_jti, jti)
       |> put_flash(:info, gettext("Cuenta creada. Revisa tu correo para verificar tu email."))
 
     conn =

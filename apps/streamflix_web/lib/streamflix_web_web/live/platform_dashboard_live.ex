@@ -95,6 +95,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:webhook_modal, nil)
       |> assign(:webhook_form, %{"url" => "", "topics" => "", "secret" => ""})
       |> assign(:confirm_regenerate_token, false)
+      |> assign(:uptime_status, load_uptime_status())
+      |> assign(:uptime_stats, load_uptime_stats())
 
     if connected?(socket) do
       if project, do: Platform.subscribe(project.id)
@@ -1239,7 +1241,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         />
                         <button
                           type="submit"
-                          class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium"
+                          phx-disable-with={gettext("Creando...")}
+                          class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {gettext("Crear")}
                         </button>
@@ -1629,6 +1632,39 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       </section>
     </div>
 
+    <%!-- System Health Status --%>
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class={[
+            "inline-block w-3 h-3 rounded-full",
+            uptime_dot_color(@uptime_status)
+          ]}>
+          </span>
+          <h2 class="text-base lg:text-lg font-semibold text-slate-900">
+            {gettext("Estado del sistema")}
+          </h2>
+          <span class={[
+            "px-2 py-0.5 rounded-full text-xs font-medium",
+            uptime_badge_color(@uptime_status)
+          ]}>
+            {uptime_label(@uptime_status)}
+          </span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
+            24h: {@uptime_stats.last_24h.uptime_percent}%
+          </span>
+          <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
+            7d: {@uptime_stats.last_7d.uptime_percent}%
+          </span>
+          <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
+            30d: {@uptime_stats.last_30d.uptime_percent}%
+          </span>
+        </div>
+      </div>
+    </section>
+
     <%!-- Row 2: Recent Events (full width) --%>
     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
       <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-4">
@@ -1887,8 +1923,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         <button
                           phx-click="delete_event_schema"
                           phx-value-id={s.id}
+                          phx-disable-with={gettext("Eliminando...")}
                           data-confirm={gettext("¿Eliminar este schema?")}
-                          class="text-red-600 hover:text-red-700 text-xs font-medium"
+                          class="text-red-600 hover:text-red-700 text-xs font-medium disabled:opacity-50"
                         >
                           {gettext("Eliminar")}
                         </button>
@@ -2575,8 +2612,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             <button
               phx-click="delete_project"
               phx-value-id={@project.id}
+              phx-disable-with={gettext("Eliminando...")}
               data-confirm={gettext("¿Eliminar este proyecto? Esta acción no se puede deshacer.")}
-              class="text-red-600 hover:text-red-700 text-xs font-medium"
+              class="text-red-600 hover:text-red-700 text-xs font-medium disabled:opacity-50"
             >
               {gettext("Eliminar proyecto")}
             </button>
@@ -2692,7 +2730,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                     type="button"
                     phx-click="delete_sandbox"
                     phx-value-id={ep.id}
-                    class="ml-1 text-slate-400 hover:text-red-500"
+                    phx-disable-with="..."
+                    class="ml-1 text-slate-400 hover:text-red-500 disabled:opacity-50"
                     title={gettext("Eliminar")}
                   >
                     <.icon name="hero-x-mark" class="w-3.5 h-3.5" />
@@ -2840,7 +2879,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                                 phx-click="update_member_role"
                                 phx-value-id={m.id}
                                 phx-value-role="editor"
-                                class="text-indigo-600 hover:text-indigo-700 text-xs font-medium"
+                                phx-disable-with={gettext("Actualizando...")}
+                                class="text-indigo-600 hover:text-indigo-700 text-xs font-medium disabled:opacity-50"
                               >
                                 {gettext("Promover")}
                               </button>
@@ -2850,7 +2890,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                                 phx-click="update_member_role"
                                 phx-value-id={m.id}
                                 phx-value-role="viewer"
-                                class="text-amber-600 hover:text-amber-700 text-xs font-medium"
+                                phx-disable-with={gettext("Actualizando...")}
+                                class="text-amber-600 hover:text-amber-700 text-xs font-medium disabled:opacity-50"
                               >
                                 {gettext("Degradar")}
                               </button>
@@ -2858,8 +2899,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                             <button
                               phx-click="remove_member"
                               phx-value-id={m.id}
+                              phx-disable-with={gettext("Removiendo...")}
                               data-confirm={gettext("¿Remover este miembro?")}
-                              class="text-red-600 hover:text-red-700 text-xs font-medium"
+                              class="text-red-600 hover:text-red-700 text-xs font-medium disabled:opacity-50"
                             >
                               {gettext("Remover")}
                             </button>
@@ -3856,4 +3898,34 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   defp format_changeset_errors(_), do: gettext("Error desconocido")
+
+  defp uptime_dot_color(%{status: "healthy"}), do: "bg-emerald-500"
+  defp uptime_dot_color(%{status: "degraded"}), do: "bg-amber-500"
+  defp uptime_dot_color(%{status: "unhealthy"}), do: "bg-red-500"
+  defp uptime_dot_color(_), do: "bg-slate-400"
+
+  defp uptime_badge_color(%{status: "healthy"}), do: "bg-emerald-100 text-emerald-800"
+  defp uptime_badge_color(%{status: "degraded"}), do: "bg-amber-100 text-amber-800"
+  defp uptime_badge_color(%{status: "unhealthy"}), do: "bg-red-100 text-red-800"
+  defp uptime_badge_color(_), do: "bg-slate-100 text-slate-600"
+
+  defp uptime_label(%{status: "healthy"}), do: gettext("Saludable")
+  defp uptime_label(%{status: "degraded"}), do: gettext("Degradado")
+  defp uptime_label(%{status: "unhealthy"}), do: gettext("No saludable")
+  defp uptime_label(_), do: gettext("Desconocido")
+
+  defp load_uptime_status do
+    case StreamflixCore.Uptime.latest_check() do
+      nil -> %{status: "unknown", checks: %{}}
+      check -> check
+    end
+  end
+
+  defp load_uptime_stats do
+    %{
+      last_24h: StreamflixCore.Uptime.calculate_uptime(:last_24h),
+      last_7d: StreamflixCore.Uptime.calculate_uptime(:last_7d),
+      last_30d: StreamflixCore.Uptime.calculate_uptime(:last_30d)
+    }
+  end
 end

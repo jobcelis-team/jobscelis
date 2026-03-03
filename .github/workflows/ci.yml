@@ -66,6 +66,12 @@ jobs:
       - name: Run Sobelow (security)
         run: mix sobelow --exit low --app-dir apps/streamflix_web
 
+      - name: Audit dependencies (CVEs)
+        run: mix deps.audit
+
+      - name: Check retired packages
+        run: mix hex.audit
+
       - name: Setup database
         run: mix ecto.create && mix ecto.migrate
 
