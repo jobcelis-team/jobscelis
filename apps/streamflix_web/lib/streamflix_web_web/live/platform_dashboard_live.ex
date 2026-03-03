@@ -132,11 +132,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             )
 
             events = [event | Platform.list_events(project.id, limit: 19)]
-            put_flash(socket, :info, gettext("Event sent. ID: %{id}", id: event.id))
+            put_flash(socket, :info, gettext("Evento enviado. ID: %{id}", id: event.id))
             assign(socket, :events, events)
 
           {:error, _} ->
-            put_flash(socket, :error, gettext("Failed to send event"))
+            put_flash(socket, :error, gettext("Error al enviar el evento"))
             socket
         end
 
@@ -1653,13 +1653,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         </div>
         <div class="flex flex-wrap gap-2">
           <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
-            24h: {@uptime_stats.last_24h.uptime_percent}%
+            {gettext("24h")}: {@uptime_stats.last_24h.uptime_percent}%
           </span>
           <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
-            7d: {@uptime_stats.last_7d.uptime_percent}%
+            {gettext("7d")}: {@uptime_stats.last_7d.uptime_percent}%
           </span>
           <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
-            30d: {@uptime_stats.last_30d.uptime_percent}%
+            {gettext("30d")}: {@uptime_stats.last_30d.uptime_percent}%
           </span>
         </div>
       </div>
@@ -1675,7 +1675,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                ID
+                {gettext("ID")}
               </th>
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
                 {gettext("Topic")}
@@ -1725,7 +1725,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                URL
+                {gettext("URL")}
               </th>
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
                 {gettext("Salud")}
@@ -1799,7 +1799,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                ID
+                {gettext("ID")}
               </th>
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
                 {gettext("Topic")}
@@ -2053,7 +2053,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                URL
+                {gettext("URL")}
               </th>
               <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 hidden sm:table-cell">
                 {gettext("Topics")}
@@ -2200,7 +2200,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           </div>
           <form phx-submit="save_webhook" class="px-6 pb-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">URL</label>
+              <label class="block text-sm font-medium text-slate-700 mb-1">{gettext("URL")}</label>
               <input
                 type="url"
                 name="webhook[url]"

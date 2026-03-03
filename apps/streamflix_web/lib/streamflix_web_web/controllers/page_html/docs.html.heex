@@ -718,7 +718,7 @@
                 </p>
 
                 <div class="min-w-0 overflow-x-auto rounded-lg">
-                  <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre">curl -X POST "BASE_URL/api/v1/events" -H "Authorization: Bearer TU_TOKEN" -H "Content-Type: application/json" -d '<%= "{\"topic\":\"test\",\"message\":\"" %><%= gettext("Hello") %><%= "\"}" %>'</pre>
+                  <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre">curl -X POST "BASE_URL/api/v1/events" -H "Authorization: Bearer TU_TOKEN" -H "Content-Type: application/json" -d '<%= "{\"topic\":\"test\",\"message\":\"" %><%= gettext("Hola") %><%= "\"}" %>'</pre>
                 </div>
               </div>
             </div>
@@ -1007,7 +1007,7 @@
               </p>
               <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono">curl -X POST "<%= @base_url %>/api/v1/auth/refresh" \
   -H "Content-Type: application/json" \
-  -d '<%= "{\"token\":\"" %><%= gettext("YOUR_JWT_HERE") %><%= "\"}" %>'</pre>
+  -d '<%= "{\"token\":\"" %><%= gettext("TU_JWT_AQUI") %><%= "\"}" %>'</pre>
             </div>
           </div>
         </div>
@@ -1387,7 +1387,7 @@
 
           <div class="p-8 space-y-6">
             <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm">
-              <p class="font-medium text-slate-800 mb-2">schedule_type + schedule_config</p>
+              <p class="font-medium text-slate-800 mb-2">{gettext("schedule_type + schedule_config")}</p>
 
               <ul
                 class="text-slate-600 space-y-1 list-disc list-inside"
@@ -1405,7 +1405,7 @@
                 <li><strong>cron:</strong> {"expr": "0 0 * * *"} (min hour day month dow)</li>
               </ul>
 
-              <p class="font-medium text-slate-800 mt-3 mb-2">action_type + action_config</p>
+              <p class="font-medium text-slate-800 mt-3 mb-2">{gettext("action_type + action_config")}</p>
 
               <ul
                 class="text-slate-600 space-y-1 list-disc list-inside"
@@ -1782,7 +1782,7 @@
               <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono">curl -X PATCH "<%= @base_url %>/api/v1/project" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '<%= "{\"name\":\"" %><%= gettext("My Project") %><%= "\",\"settings\":{\"timezone\":\"Europe/Madrid\"}}" %>'</pre>
+  -d '<%= "{\"name\":\"" %><%= gettext("Mi Proyecto") %><%= "\",\"settings\":{\"timezone\":\"Europe/Madrid\"}}" %>'</pre>
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
@@ -2683,7 +2683,7 @@
 
           <div class="p-8">
             <ul class="text-slate-700 space-y-2">
-              <li><strong>200</strong> OK</li>
+              <li><strong>200</strong> {gettext("OK (éxito)")}</li>
 
               <li><strong>201</strong> {gettext("Created (recurso creado)")}</li>
 
@@ -3194,7 +3194,7 @@
                 </p>
 
                 <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                  {gettext("Ejemplo")} (JavaScript)
+                  {gettext("Ejemplo (JavaScript)")}
                 </p>
                 <pre
                   class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
@@ -4752,18 +4752,18 @@ curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" \
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     <tr>
-                      <td class="py-2 px-3 text-slate-700 font-medium">Supabase</td>
+                      <td class="py-2 px-3 text-slate-700 font-medium">{gettext("Supabase")}</td>
                       <td class="py-2 px-3 text-slate-600">
                         {gettext("Base de datos PostgreSQL")}
                       </td>
-                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">US (AWS)</td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">{gettext("US (AWS)")}</td>
                     </tr>
                     <tr>
-                      <td class="py-2 px-3 text-slate-700 font-medium">Resend</td>
+                      <td class="py-2 px-3 text-slate-700 font-medium">{gettext("Resend")}</td>
                       <td class="py-2 px-3 text-slate-600">
                         {gettext("Envío de emails transaccionales")}
                       </td>
-                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">US</td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">{gettext("US")}</td>
                     </tr>
                   </tbody>
                 </table>

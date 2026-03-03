@@ -1522,7 +1522,7 @@ defmodule StreamflixWebWeb.AccountLive do
                             </svg>
                         <% end %>
                         <span>
-                          {session.device_info || "Desktop"}
+                          {session.device_info || gettext("Escritorio")}
                           <%= if @current_jti && session.token_jti == @current_jti do %>
                             <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">
                               {gettext("Esta sesión")}

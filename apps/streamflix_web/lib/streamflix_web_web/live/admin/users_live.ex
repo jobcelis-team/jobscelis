@@ -337,7 +337,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
 
                   <%= if @current_user_role == "superadmin" do %>
                     <option value="superadmin" selected={@editing_user.role == "superadmin"}>
-                      Superadmin
+                      {gettext("Superadmin")}
                     </option>
                   <% end %>
                 </select>

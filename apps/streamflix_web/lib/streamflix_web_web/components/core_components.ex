@@ -72,7 +72,7 @@ defmodule StreamflixWebWeb.CoreComponents do
           <p>{msg}</p>
         </div>
         <div class="flex-1" />
-        <button type="button" class="group self-start cursor-pointer" aria-label={gettext("close")}>
+        <button type="button" class="group self-start cursor-pointer" aria-label={gettext("cerrar")}>
           <.icon name="hero-x-mark" class="size-5 opacity-40 group-hover:opacity-70" />
         </button>
       </div>
@@ -435,7 +435,7 @@ defmodule StreamflixWebWeb.CoreComponents do
         <tr>
           <th :for={col <- @col}>{col[:label]}</th>
 
-          <th :if={@action != []}><span class="sr-only">{gettext("Actions")}</span></th>
+          <th :if={@action != []}><span class="sr-only">{gettext("Acciones")}</span></th>
         </tr>
       </thead>
 

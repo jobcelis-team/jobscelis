@@ -99,7 +99,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
             <thead class="bg-gray-50">
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Worker
+                  {gettext("Worker")}
                 </th>
 
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -234,7 +234,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
 
           <%= if @current_user_role do %>
             <span class={"inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium #{if @current_user_role == "superadmin", do: "bg-amber-600 text-white", else: "bg-gray-600 text-gray-200"}"}>
-              {if @current_user_role == "superadmin", do: "Superadmin", else: gettext("Admin")}
+              {if @current_user_role == "superadmin", do: gettext("Superadmin"), else: gettext("Admin")}
             </span>
           <% end %>
         </div>
