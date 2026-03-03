@@ -47,7 +47,7 @@ msgstr ""
 msgid "1 año"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1678
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1682
 #, elixir-autogen, elixir-format
 msgid "1-7 (1=Lun, 7=Dom)"
 msgstr ""
@@ -67,7 +67,7 @@ msgstr ""
 msgid "API Token"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2653
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2654
 #, elixir-autogen, elixir-format
 msgid "API con API Key:"
 msgstr ""
@@ -77,13 +77,13 @@ msgstr ""
 msgid "API con autenticación por API Key (Bearer / X-Api-Key)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2664
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2665
 #, elixir-autogen, elixir-format
 msgid "API de auth (JWT):"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:171
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:328
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:330
 #, elixir-autogen, elixir-format
 msgid "Abrir menú"
 msgstr ""
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Accede a tu cuenta de Jobcelis"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2690
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2691
 #, elixir-autogen, elixir-format
 msgid "Accepted (evento aceptado)"
 msgstr ""
@@ -153,13 +153,13 @@ msgstr ""
 msgid "Activo"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1778
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2801
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1779
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2802
 #, elixir-autogen, elixir-format
 msgid "Actualiza el proyecto. Body: name, settings (objeto). Respuesta: id, name, status."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1508
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1512
 #, elixir-autogen, elixir-format
 msgid "Actualiza un job. Body: name, schedule_type, schedule_config, action_type, action_config, status."
 msgstr ""
@@ -190,8 +190,8 @@ msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:142
 #: lib/streamflix_web_web/components/layouts.ex:249
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:237
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:339
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:239
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:341
 #, elixir-autogen, elixir-format
 msgid "Admin"
 msgstr ""
@@ -227,8 +227,8 @@ msgid "Alias para enviar un evento. Mismo body que POST /events. Respuesta 202: 
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:218
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2343
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4047
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2344
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4048
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2629
 #, elixir-autogen, elixir-format
 msgid "Analíticas"
@@ -247,8 +247,8 @@ msgid "Apoyar el proyecto"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:224
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2456
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4058
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2457
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4059
 #, elixir-autogen, elixir-format
 msgid "Audit Log"
 msgstr ""
@@ -301,12 +301,12 @@ msgstr ""
 msgid "CORS"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1587
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1591
 #, elixir-autogen, elixir-format
 msgid "Cada día a la misma hora. Configuración: hour (0-23), minute (0-59). Ejemplo: 14:30 → {\"hour\": 14, \"minute\": 30}."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2212
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2213
 #, elixir-autogen, elixir-format
 msgid "Cada sandbox genera una URL única (ej: /sandbox/abc123) que acepta cualquier método HTTP. Todas las peticiones recibidas se guardan y se pueden inspeccionar en tiempo real desde el Dashboard."
 msgstr ""
@@ -321,7 +321,7 @@ msgstr ""
 msgid "Cambiado"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3795
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3796
 #: lib/streamflix_web_web/live/account_live.ex:942
 #: lib/streamflix_web_web/live/account_live.ex:2111
 #, elixir-autogen, elixir-format
@@ -340,13 +340,13 @@ msgstr ""
 msgid "Cambios"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1627
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5378
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1631
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5383
 #, elixir-autogen, elixir-format
 msgid "Campo"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2183
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2184
 #, elixir-autogen, elixir-format
 msgid "Cancela un replay en progreso. Solo funciona si el replay está en estado pending o running."
 msgstr ""
@@ -407,7 +407,7 @@ msgstr ""
 #: lib/streamflix_web_web/components/layouts.ex:150
 #: lib/streamflix_web_web/components/layouts.ex:257
 #: lib/streamflix_web_web/live/account_live.ex:1070
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:314
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:316
 #, elixir-autogen, elixir-format
 msgid "Cerrar sesión"
 msgstr ""
@@ -445,8 +445,8 @@ msgid "Configura URLs de destino. Opcional: topics (array), filters (path, op, v
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:45
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4353
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:302
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4354
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:304
 #: lib/streamflix_web_web/live/admin/settings_live.ex:10
 #: lib/streamflix_web_web/live/admin/settings_live.ex:21
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1499
@@ -455,7 +455,7 @@ msgid "Configuración"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:158
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1570
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1574
 #, elixir-autogen, elixir-format
 msgid "Configurar jobs y cron"
 msgstr ""
@@ -475,7 +475,7 @@ msgstr ""
 msgid "Conservamos los datos mientras mantengas la cuenta activa. Puedes solicitar la baja y el borrado de tus datos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1921
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1922
 #, elixir-autogen, elixir-format
 msgid "Consulta el estado de salud de un webhook: tasa de éxito, último intento y código de respuesta."
 msgstr ""
@@ -485,7 +485,7 @@ msgstr ""
 msgid "Consulta los Términos de uso y la Política de privacidad para datos de contacto del titular."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1742
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1743
 #, elixir-autogen, elixir-format
 msgid "Consulta y actualiza el proyecto; gestiona el API Key. Todas las rutas requieren API Key."
 msgstr ""
@@ -559,7 +559,7 @@ msgstr ""
 msgid "Correo actualizado correctamente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2203
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2204
 #, elixir-autogen, elixir-format
 msgid "Crea URLs temporales para recibir y inspeccionar peticiones HTTP. Ideal para probar webhooks sin un servidor propio."
 msgstr ""
@@ -574,17 +574,17 @@ msgstr ""
 msgid "Crea un job (opcional)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1456
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1460
 #, elixir-autogen, elixir-format
 msgid "Crea un job. Body: name, schedule_type, schedule_config, action_type, action_config. Respuesta 201: objeto job."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2135
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2136
 #, elixir-autogen, elixir-format
 msgid "Crea un replay. Body opcional: topic, from_date (o from), to_date (o to), webhook_id. Sin filtros re-envía todos los eventos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2249
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2250
 #, elixir-autogen, elixir-format
 msgid "Crea un sandbox endpoint. Body: name (requerido). Respuesta incluye slug y url para recibir peticiones."
 msgstr ""
@@ -622,7 +622,7 @@ msgstr ""
 msgid "Crear endpoint"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2688
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2689
 #, elixir-autogen, elixir-format
 msgid "Created (recurso creado)"
 msgstr ""
@@ -650,13 +650,13 @@ msgstr ""
 msgid "Cuenta"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2680
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2681
 #, elixir-autogen, elixir-format
 msgid "Códigos HTTP que devuelve la API."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:429
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2677
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2678
 #, elixir-autogen, elixir-format
 msgid "Códigos de respuesta"
 msgstr ""
@@ -684,10 +684,10 @@ msgstr ""
 #: lib/streamflix_web_web/components/layouts.ex:125
 #: lib/streamflix_web_web/components/layouts.ex:232
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:92
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3935
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4973
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3936
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4978
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:43
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:255
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:257
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:93
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1212
 #, elixir-autogen, elixir-format
@@ -715,13 +715,13 @@ msgid "Datos y privacidad"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:191
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1970
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1971
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2372
 #, elixir-autogen, elixir-format
 msgid "Dead Letter Queue"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4957
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4962
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:3734
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:3913
 #, elixir-autogen, elixir-format
@@ -733,7 +733,7 @@ msgstr ""
 msgid "Desactiva el evento (soft delete). Respuesta 200: status: \"inactive\"."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1530
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1534
 #, elixir-autogen, elixir-format
 msgid "Desactiva el job. Respuesta 200: status: \"inactive\"."
 msgstr ""
@@ -782,7 +782,7 @@ msgstr ""
 msgid "Despliegue con GitHub Actions a Azure (ACR + Web App)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2021
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2022
 #, elixir-autogen, elixir-format
 msgid "Detalle de un dead letter: payload original, último error, código de respuesta, estado de resolución."
 msgstr ""
@@ -792,7 +792,7 @@ msgstr ""
 msgid "Detalle de un evento y sus deliveries. Sustituye EVENT_ID por el id del evento."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2163
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2164
 #, elixir-autogen, elixir-format
 msgid "Detalle de un replay: estado (pending, running, completed, failed, cancelled), filtros, total de eventos y progreso."
 msgstr ""
@@ -802,22 +802,22 @@ msgstr ""
 msgid "Detalle de un webhook (id, url, status, topics, filters, etc.)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1490
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1494
 #, elixir-autogen, elixir-format
 msgid "Detalle del job y runs recientes. Respuesta incluye recent_runs."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1939
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1940
 #, elixir-autogen, elixir-format
 msgid "Devuelve el health score del webhook: status (healthy, degraded, failing, unknown), success_rate (0-1), last_attempt_at y last_response_status."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1819
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1820
 #, elixir-autogen, elixir-format
 msgid "Devuelve el prefix del token actual (no el valor completo) y un mensaje de uso."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1759
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1760
 #, elixir-autogen, elixir-format
 msgid "Devuelve el proyecto: id, name, status, settings."
 msgstr ""
@@ -859,12 +859,12 @@ msgstr ""
 msgid "Duración"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1676
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1680
 #, elixir-autogen, elixir-format
 msgid "Día de la semana"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1660
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1664
 #, elixir-autogen, elixir-format
 msgid "Día del mes"
 msgstr ""
@@ -929,13 +929,13 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1099
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1127
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1151
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2743
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2764
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2993
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3055
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3103
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3148
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3275
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2744
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2765
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2994
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3056
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3104
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3149
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3276
 #, elixir-autogen, elixir-format
 msgid "Ejemplo"
 msgstr ""
@@ -950,7 +950,7 @@ msgstr ""
 msgid "El Servicio, su marca, diseño, código y documentación son propiedad de"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2468
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2469
 #, elixir-autogen, elixir-format
 msgid "El audit log registra automáticamente: creación/eliminación de eventos, webhooks, sandbox endpoints, replays, regeneración de tokens y más. Los registros son inmutables y no se pueden modificar ni eliminar."
 msgstr ""
@@ -992,7 +992,7 @@ msgstr ""
 msgid "El responsable del tratamiento de los datos personales que recogemos a través del servicio"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1871
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1872
 #, elixir-autogen, elixir-format
 msgid "El simulador no crea eventos ni entregas. Solo evalúa las reglas de tus webhooks (topics, filters) y te muestra cuáles recibirían el payload."
 msgstr ""
@@ -1028,7 +1028,7 @@ msgstr ""
 msgid "El webhook está inactivo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2284
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2285
 #, elixir-autogen, elixir-format
 msgid "Elimina un sandbox endpoint y todas sus peticiones almacenadas."
 msgstr ""
@@ -1085,7 +1085,7 @@ msgstr ""
 msgid "En el Dashboard, Webhooks → Crear. Pon una URL que pueda recibir POST (puedes usar webhook.site). Opcional: elige un topic (ej. test) para que solo los eventos con ese topic lleguen a esa URL. Guarda y envía otro evento de prueba."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1726
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1727
 #, elixir-autogen, elixir-format
 msgid "En el Dashboard, al crear o editar un job, elige \"Cron\" como tipo y escribe la expresión en el campo (ej. 0 0 * * *). La hora se interpreta en el servidor; si necesitas otra zona horaria, configúrala en tu proyecto cuando esté disponible."
 msgstr ""
@@ -1115,7 +1115,7 @@ msgstr ""
 msgid "En producción la base URL será tu dominio (ej. https://api.tudominio.com). Los ejemplos curl que ves en cada ruta ya incluyen esta base."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2511
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2512
 #, elixir-autogen, elixir-format
 msgid "Endpoint público para verificar el estado del sistema. No requiere autenticación."
 msgstr ""
@@ -1147,7 +1147,7 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:146
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1317
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3981
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3982
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2268
 #, elixir-autogen, elixir-format
 msgid "Entregas"
@@ -1163,7 +1163,7 @@ msgstr ""
 msgid "Entregas por webhook (7d)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1973
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1974
 #, elixir-autogen, elixir-format
 msgid "Entregas que agotaron todos los reintentos. Puedes reintentar con payload modificado o marcarlas como resueltas."
 msgstr ""
@@ -1173,7 +1173,7 @@ msgstr ""
 msgid "Entregas que agotaron todos los reintentos. Puedes reintentar o descartar."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2386
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2387
 #, elixir-autogen, elixir-format
 msgid "Entregas realizadas por día. Query: days (1-90, default 30). Respuesta: array de {date, count}."
 msgstr ""
@@ -1325,7 +1325,7 @@ msgstr ""
 msgid "Estado"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2430
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2431
 #, elixir-autogen, elixir-format
 msgid "Estadísticas por webhook: total de entregas, exitosas, fallidas y tasa de éxito."
 msgstr ""
@@ -1346,7 +1346,7 @@ msgid "Estos son los conceptos que necesitas para usar Jobcelis. No hace falta s
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:197
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2088
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2089
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1948
 #, elixir-autogen, elixir-format
 msgid "Event Replay"
@@ -1365,7 +1365,7 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:134
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:459
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1019
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3959
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3960
 #: lib/streamflix_web_web/controllers/page_html/home.html.heex:97
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1475
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2646
@@ -1378,7 +1378,7 @@ msgstr ""
 msgid "Eventos (total)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2364
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2365
 #, elixir-autogen, elixir-format
 msgid "Eventos creados por día. Query: days (1-90, default 30). Respuesta: array de {date, count}."
 msgstr ""
@@ -1421,7 +1421,7 @@ msgstr ""
 msgid "Exitosas"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1615
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1619
 #, elixir-autogen, elixir-format
 msgid "Expresiones cron: qué significa cada campo"
 msgstr ""
@@ -1431,7 +1431,7 @@ msgstr ""
 msgid "Expresión cron"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1608
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1612
 #, elixir-autogen, elixir-format
 msgid "Expresión de 5 campos para máxima flexibilidad. Formato: minuto hora día_mes mes día_semana. Ver tabla abajo."
 msgstr ""
@@ -1501,7 +1501,7 @@ msgstr ""
 msgid "Finalidad y legitimación"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2631
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2632
 #, elixir-autogen, elixir-format
 msgid "Formas de usar la aplicación"
 msgstr ""
@@ -1614,7 +1614,7 @@ msgid "Headers permitidos en peticiones cross-origin:"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:230
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2508
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2509
 #, elixir-autogen, elixir-format
 msgid "Health Check"
 msgstr ""
@@ -1629,7 +1629,7 @@ msgstr ""
 msgid "Historial de cambios y novedades del proyecto. El contenido corresponde al archivo CHANGELOG.md del repositorio."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1652
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1656
 #, elixir-autogen, elixir-format
 msgid "Hora"
 msgstr ""
@@ -1713,7 +1713,7 @@ msgid "Introducción"
 msgstr ""
 
 #: lib/streamflix_web_web/live/account_live.ex:990
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:308
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:310
 #, elixir-autogen, elixir-format
 msgid "Ir al dashboard"
 msgstr ""
@@ -1781,7 +1781,7 @@ msgid "Jobcelis reintenta automáticamente con pausas (1 min, 5 min, 15 min, 1 h
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:152
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3992
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3993
 #: lib/streamflix_web_web/live/admin/projects_live.ex:267
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1491
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2453
@@ -1864,12 +1864,12 @@ msgstr ""
 msgid "Las cookies son pequeños archivos de texto que el sitio web guarda en tu dispositivo (ordenador, tablet o móvil) cuando lo visitas. Se usan para recordar preferencias o mantener tu sesión."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1982
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1983
 #, elixir-autogen, elixir-format
 msgid "Las entregas van al DLQ cuando fallan todos los reintentos automáticos (1 min → 5 min → 15 min → 1 h). Desde aquí puedes reintentar manualmente o marcar como resueltas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1997
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1998
 #, elixir-autogen, elixir-format
 msgid "Lista dead letters. Query: resolved=true para ver las resueltas. Máximo 50 resultados."
 msgstr ""
@@ -1879,12 +1879,12 @@ msgstr ""
 msgid "Lista deliveries. Query: event_id, webhook_id, status, limit (1-100). Respuesta: deliveries (array)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1548
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1552
 #, elixir-autogen, elixir-format
 msgid "Lista ejecuciones del job. Query: limit (1-100). Respuesta: runs (array)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2483
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2484
 #, elixir-autogen, elixir-format
 msgid "Lista el audit log del proyecto. Query opcionales: action (ej: event.created, webhook.deleted), resource_type (ej: event, webhook). Ordenado por fecha descendente."
 msgstr ""
@@ -1894,27 +1894,27 @@ msgstr ""
 msgid "Lista eventos. Query: topic, limit (1-100), include=inactive. Respuesta: events (array)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1431
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1435
 #, elixir-autogen, elixir-format
 msgid "Lista jobs del proyecto. Query: include=inactive. Respuesta: jobs (array)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1798
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1799
 #, elixir-autogen, elixir-format
 msgid "Lista los topics usados por tu proyecto (eventos activos). Útil para configurar filtros de webhooks. Respuesta: topics (array)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2304
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2305
 #, elixir-autogen, elixir-format
 msgid "Lista todas las peticiones recibidas en un sandbox: método, path, headers, body, query params e IP."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2116
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2117
 #, elixir-autogen, elixir-format
 msgid "Lista todos los replays del proyecto con su estado y progreso."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2229
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2230
 #, elixir-autogen, elixir-format
 msgid "Lista todos los sandbox endpoints del proyecto."
 msgstr ""
@@ -1934,7 +1934,7 @@ msgstr ""
 msgid "Los enlaces de donación estarán disponibles próximamente. Si deseas donar ya, escríbeme a"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1573
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1577
 #, elixir-autogen, elixir-format
 msgid "Los jobs se programan de cuatro formas: diario, semanal, mensual o con una expresión cron. Aquí te explicamos cada una y cómo escribir expresiones cron si eliges esa opción."
 msgstr ""
@@ -1944,7 +1944,7 @@ msgstr ""
 msgid "Manual de usuario en docs/MANUAL-USUARIO.md."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2071
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2072
 #, elixir-autogen, elixir-format
 msgid "Marca un dead letter como resuelto sin reintentar. Respuesta: status: \"resolved\"."
 msgstr ""
@@ -1964,7 +1964,7 @@ msgstr ""
 msgid "Mensual"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1668
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1672
 #, elixir-autogen, elixir-format
 msgid "Mes"
 msgstr ""
@@ -1975,7 +1975,7 @@ msgstr ""
 msgid "Mi perfil"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1644
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1648
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:3178
 #, elixir-autogen, elixir-format
 msgid "Minuto"
@@ -2010,7 +2010,7 @@ msgstr ""
 msgid "Más información"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5381
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5386
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2761
 #, elixir-autogen, elixir-format
 msgid "Método"
@@ -2026,7 +2026,7 @@ msgstr ""
 msgid "Métodos: GET, POST, PUT, PATCH, DELETE, OPTIONS. Las peticiones preflight (OPTIONS) reciben 200 con los headers CORS."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2346
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2347
 #, elixir-autogen, elixir-format
 msgid "Métricas y estadísticas del proyecto: eventos por día, entregas, topics populares y rendimiento por webhook."
 msgstr ""
@@ -2058,7 +2058,7 @@ msgstr ""
 msgid "Ningún webhook matchearía con este evento."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2693
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2694
 #, elixir-autogen, elixir-format
 msgid "No autorizado (API Key o JWT inválido o faltante)"
 msgstr ""
@@ -2150,7 +2150,7 @@ msgstr ""
 msgid "Nos reservamos el derecho de suspender o dar de baja cuentas que incumplan estos términos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5053
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5058
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1298
 #, elixir-autogen, elixir-format
 msgid "Notificaciones"
@@ -2352,13 +2352,13 @@ msgstr ""
 msgid "Proyecto y token"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1738
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1739
 #, elixir-autogen, elixir-format
 msgid "Proyecto, topics y token"
 msgstr ""
 
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:54
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:283
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:285
 #: lib/streamflix_web_web/live/admin/projects_live.ex:11
 #: lib/streamflix_web_web/live/admin/projects_live.ex:48
 #: lib/streamflix_web_web/live/admin/projects_live.ex:129
@@ -2366,7 +2366,7 @@ msgstr ""
 msgid "Proyectos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1862
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1863
 #, elixir-autogen, elixir-format
 msgid "Prueba qué webhooks coincidirían con un evento sin enviarlo realmente (dry-run)."
 msgstr ""
@@ -2416,7 +2416,7 @@ msgstr ""
 msgid "Puedes usar el Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1685
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1689
 #, elixir-autogen, elixir-format
 msgid "Puedes usar un número concreto, un asterisco (*) para \"cualquier valor\", o rangos (ej. 1-5 para lunes a viernes). Ejemplos:"
 msgstr ""
@@ -2456,7 +2456,7 @@ msgstr ""
 msgid "Qué son las cookies"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2091
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2092
 #, elixir-autogen, elixir-format
 msgid "Re-envía eventos históricos a tus webhooks. Útil para recuperar datos o probar cambios en webhooks."
 msgstr ""
@@ -2466,7 +2466,7 @@ msgstr ""
 msgid "Recogemos los datos que nos facilitas al registrarte (correo electrónico, nombre si lo indicas y contraseña cifrada), así como los datos de uso del Servicio (eventos, webhooks, jobs que configuras) necesarios para prestar el servicio."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2696
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2697
 #, elixir-autogen, elixir-format
 msgid "Recurso no encontrado"
 msgstr ""
@@ -2496,7 +2496,7 @@ msgstr ""
 msgid "Refresca el JWT. Body: token (JWT actual)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1839
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1840
 #, elixir-autogen, elixir-format
 msgid "Regenera el API Key. El token anterior deja de funcionar. Respuesta incluye token (valor completo) y message. Guarda el token; no se vuelve a mostrar."
 msgstr ""
@@ -2538,7 +2538,7 @@ msgstr ""
 msgid "Registro e inicio de sesión (JWT para API de auth)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2459
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2460
 #, elixir-autogen, elixir-format
 msgid "Registro inmutable de todas las acciones realizadas en el proyecto: quién, qué, cuándo."
 msgstr ""
@@ -2568,7 +2568,7 @@ msgstr ""
 msgid "Regístrate gratis. Sin tarjeta. Crea tu proyecto, obtén tu token y empieza a enviar eventos en minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2043
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2044
 #, elixir-autogen, elixir-format
 msgid "Reintenta una entrega fallida. Opcionalmente envía un payload modificado en el body."
 msgstr ""
@@ -2644,11 +2644,11 @@ msgstr ""
 msgid "Respuesta 201: user (id, email, name), token (JWT)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1898
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1948
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2260
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2439
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2541
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1899
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1949
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2261
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2440
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2542
 #, elixir-autogen, elixir-format
 msgid "Respuesta ejemplo:"
 msgstr ""
@@ -2744,13 +2744,13 @@ msgid "Salud"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:212
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4036
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4037
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2703
 #, elixir-autogen, elixir-format
 msgid "Sandbox"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2200
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2201
 #, elixir-autogen, elixir-format
 msgid "Sandbox (RequestBin)"
 msgstr ""
@@ -2805,7 +2805,7 @@ msgstr ""
 msgid "Si tienes dudas, contacta a"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1631
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1635
 #, elixir-autogen, elixir-format
 msgid "Significado"
 msgstr ""
@@ -2815,7 +2815,7 @@ msgstr ""
 msgid "Sigue estos pasos para tener todo funcionando en pocos minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1887
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1888
 #, elixir-autogen, elixir-format
 msgid "Simula un evento. Body: cualquier JSON con topic opcional. Respuesta: simulation: true, matching_webhooks (cantidad) y results (array con detalle de cada webhook que coincide)."
 msgstr ""
@@ -2825,7 +2825,7 @@ msgstr ""
 msgid "Simulador"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1859
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1860
 #, elixir-autogen, elixir-format
 msgid "Simulador de webhooks"
 msgstr ""
@@ -2943,7 +2943,7 @@ msgstr ""
 msgid "Tipo de acción"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1581
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1585
 #, elixir-autogen, elixir-format
 msgid "Tipos de programación (schedule_type)"
 msgstr ""
@@ -3008,7 +3008,7 @@ msgstr ""
 msgid "Topics"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2408
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2409
 #, elixir-autogen, elixir-format
 msgid "Topics más usados. Query: limit (1-50, default 10). Respuesta: array de {topic, count}."
 msgstr ""
@@ -3028,7 +3028,7 @@ msgstr ""
 msgid "Tras iniciar sesión, entra en el Dashboard. En la sección API Token verás el token (o su prefijo). Si acabas de registrarte, el token completo se mostró una vez al crear el proyecto; guárdalo. Puedes regenerar el token desde el Dashboard; el anterior dejará de funcionar."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1849
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1850
 #, elixir-autogen, elixir-format
 msgid "Tras regenerar, usa el nuevo token en las siguientes peticiones."
 msgstr ""
@@ -3087,7 +3087,7 @@ msgstr ""
 msgid "URL del endpoint:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2325
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2326
 #, elixir-autogen, elixir-format
 msgid "URL pública para enviar peticiones de prueba. Acepta cualquier método HTTP (GET, POST, PUT, DELETE, etc.). No requiere autenticación."
 msgstr ""
@@ -3097,12 +3097,12 @@ msgstr ""
 msgid "URLs de destino, filtros (topic, amount, status), body_config (full, pick, rename, extra)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1594
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1598
 #, elixir-autogen, elixir-format
 msgid "Un día de la semana a una hora. day_of_week: 1 = Lunes, 7 = Domingo. Ejemplo: Lunes 09:00 → {\"day_of_week\": 1, \"hour\": 9, \"minute\": 0}."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1601
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1605
 #, elixir-autogen, elixir-format
 msgid "Un día del mes a una hora. day_of_month: 1-31. Ejemplo: Día 1 a las 00:00 → {\"day_of_month\": 1, \"hour\": 0, \"minute\": 0}."
 msgstr ""
@@ -3117,7 +3117,7 @@ msgstr ""
 msgid "Un job es una tarea que se ejecuta automáticamente en un horario que tú defines: cada día a una hora, cada semana un día concreto, cada mes, o con una expresión cron (por ejemplo \"cada 15 minutos\" o \"todos los lunes a las 9:00\"). Cuando se ejecuta, el job puede hacer una de dos cosas: emitir un evento interno (que luego pasa por tus webhooks) o hacer un POST a una URL que tú indiques. Así no necesitas tener un cron en tu servidor: Jobcelis hace la llamada por ti."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2100
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2101
 #, elixir-autogen, elixir-format
 msgid "Un replay toma eventos existentes (filtrados por topic, fecha, webhook) y crea nuevas entregas. El progreso se puede seguir en tiempo real desde el Dashboard."
 msgstr ""
@@ -3142,7 +3142,7 @@ msgstr ""
 msgid "Una entrega a %{url} agotó todos los reintentos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1619
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1623
 #, elixir-autogen, elixir-format
 msgid "Una expresión cron tiene 5 campos separados por espacio, en este orden:"
 msgstr ""
@@ -3202,7 +3202,7 @@ msgid "Usuario no encontrado"
 msgstr ""
 
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:48
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:269
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:271
 #: lib/streamflix_web_web/live/admin/users_live.ex:14
 #: lib/streamflix_web_web/live/admin/users_live.ex:151
 #, elixir-autogen, elixir-format
@@ -3219,12 +3219,12 @@ msgstr ""
 msgid "Utilizamos cookies técnicas necesarias para la sesión, el idioma y el correcto funcionamiento del Servicio."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2699
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2700
 #, elixir-autogen, elixir-format
 msgid "Validación fallida (body o parámetros incorrectos)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1635
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1639
 #, elixir-autogen, elixir-format
 msgid "Valores"
 msgstr ""
@@ -3255,7 +3255,7 @@ msgstr ""
 msgid "Volver al panel principal"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2642
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2643
 #, elixir-autogen, elixir-format
 msgid "Web:"
 msgstr ""
@@ -3267,7 +3267,7 @@ msgid "Webhook"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:185
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1918
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1919
 #, elixir-autogen, elixir-format
 msgid "Webhook Health"
 msgstr ""
@@ -3300,7 +3300,7 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:140
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:465
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1166
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3970
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3971
 #: lib/streamflix_web_web/controllers/page_html/home.html.heex:124
 #: lib/streamflix_web_web/live/admin/projects_live.ex:246
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1483
@@ -3340,7 +3340,7 @@ msgstr ""
 msgid "daily, weekly, monthly o cron. Emitir evento o POST a URL."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2653
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2654
 #, elixir-autogen, elixir-format
 msgid "desde cualquier backend o frontend (SPA, móvil, otro dominio gracias a CORS) usa la API Key para enviar eventos, gestionar webhooks, listar deliveries y jobs."
 msgstr ""
@@ -3399,7 +3399,7 @@ msgstr ""
 msgid "op: eq, neq, gte, lte, gt, lt, in, not_in, exists, contains. Ejemplo:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2664
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2665
 #, elixir-autogen, elixir-format
 msgid "para tu app propia (móvil o SPA), usa /auth/register, /auth/login y /auth/refresh para mantener sesión con JWT."
 msgstr ""
@@ -3409,7 +3409,7 @@ msgstr ""
 msgid "perfil"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2642
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2643
 #, elixir-autogen, elixir-format
 msgid "registro e inicio de sesión; Dashboard para proyecto, token, eventos y webhooks; enviar eventos de prueba desde el dashboard."
 msgstr ""
@@ -3536,7 +3536,7 @@ msgstr ""
 msgid "Última actualización"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2600
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2601
 #, elixir-autogen, elixir-format
 msgid "Abrir Swagger UI"
 msgstr ""
@@ -3546,17 +3546,17 @@ msgstr ""
 msgid "Cola"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2565
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2566
 #, elixir-autogen, elixir-format
 msgid "Documentación interactiva auto-generada de toda la API. Prueba endpoints directamente desde el navegador."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2614
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2615
 #, elixir-autogen, elixir-format
 msgid "Especificación OpenAPI en formato JSON. Útil para generar clientes SDK automáticamente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2590
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2591
 #, elixir-autogen, elixir-format
 msgid "Interfaz Swagger UI interactiva. Abre en el navegador para explorar y probar todos los endpoints."
 msgstr ""
@@ -3586,13 +3586,13 @@ msgstr ""
 msgid "Jobs recientes (Oban)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2574
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2575
 #, elixir-autogen, elixir-format
 msgid "La especificación OpenAPI 3.x se genera automáticamente desde el código. Incluye todos los endpoints, parámetros, schemas y ejemplos."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:236
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2562
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2563
 #, elixir-autogen, elixir-format
 msgid "OpenAPI / Swagger"
 msgstr ""
@@ -3602,47 +3602,47 @@ msgstr ""
 msgid "Sin jobs recientes"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2879
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2880
 #, elixir-autogen, elixir-format
 msgid "Acceso total"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2724
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2725
 #, elixir-autogen, elixir-format
 msgid "Autenticación: JWT (Bearer token). Las rutas de proyecto usan el pipeline de auth JWT, no API Key."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3233
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3234
 #, elixir-autogen, elixir-format
 msgid "Autenticación: JWT. Roles disponibles: owner (dueño, acceso total), editor (lectura/escritura), viewer (solo lectura)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2921
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2922
 #, elixir-autogen, elixir-format
 msgid "CRUD jobs"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2907
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2908
 #, elixir-autogen, elixir-format
 msgid "CRUD webhooks"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3144
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3145
 #, elixir-autogen, elixir-format
 msgid "Conexión HTTP unidireccional. Ideal para dashboards y monitoreo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3191
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3192
 #, elixir-autogen, elixir-format
 msgid "Conexión bidireccional vía Phoenix Channels. Autenticación con API Key."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2758
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2759
 #, elixir-autogen, elixir-format
 msgid "Crea un nuevo proyecto. El primer proyecto se marca como default automáticamente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2989
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2990
 #, elixir-autogen, elixir-format
 msgid "Crea un schema para un topic."
 msgstr ""
@@ -3660,7 +3660,7 @@ msgstr ""
 msgid "Crear"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2893
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2894
 #, elixir-autogen, elixir-format
 msgid "Crear/eliminar eventos"
 msgstr ""
@@ -3675,7 +3675,7 @@ msgstr ""
 msgid "Editor"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3097
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3098
 #, elixir-autogen, elixir-format
 msgid "El evento se crea inmediatamente (202 Accepted) pero las entregas a webhooks se retrasan hasta deliver_at."
 msgstr ""
@@ -3695,7 +3695,7 @@ msgstr ""
 msgid "Equipos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3223
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3224
 #, elixir-autogen, elixir-format
 msgid "Equipos / Colaboradores"
 msgstr ""
@@ -3730,20 +3730,20 @@ msgstr ""
 msgid "Error al remover miembro."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2842
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2843
 #, elixir-autogen, elixir-format
 msgid "Establece un proyecto como default. El dashboard lo cargará primero."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:263
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2950
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2951
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1851
 #, elixir-autogen, elixir-format
 msgid "Event Schemas"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:269
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3073
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3074
 #, elixir-autogen, elixir-format
 msgid "Eventos diferidos"
 msgstr ""
@@ -3753,17 +3753,17 @@ msgstr ""
 msgid "Expansión"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2716
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2717
 #, elixir-autogen, elixir-format
 msgid "Gestiona múltiples proyectos desde una sola cuenta. Cada proyecto tiene sus propios webhooks, eventos y API keys."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3082
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3083
 #, elixir-autogen, elixir-format
 msgid "Incluye el campo 'deliver_at' (ISO 8601) al enviar un evento. La entrega se ejecutará cuando llegue la hora."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3227
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3228
 #, elixir-autogen, elixir-format
 msgid "Invita usuarios a tus proyectos con roles diferenciados."
 msgstr ""
@@ -3788,37 +3788,37 @@ msgstr ""
 msgid "JSON inválido para el schema."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2959
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2960
 #, elixir-autogen, elixir-format
 msgid "La validación es opt-in: si no hay schema para un topic, el evento pasa sin validar. Si hay schema y el payload no cumple, se rechaza con 422."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2928
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2929
 #, elixir-autogen, elixir-format
 msgid "Leer entregas"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2886
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2887
 #, elixir-autogen, elixir-format
 msgid "Leer eventos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2914
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2915
 #, elixir-autogen, elixir-format
 msgid "Leer jobs"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2900
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2901
 #, elixir-autogen, elixir-format
 msgid "Leer webhooks"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2858
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2859
 #, elixir-autogen, elixir-format
 msgid "Limita los permisos de cada API Key con scopes granulares."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2739
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2740
 #, elixir-autogen, elixir-format
 msgid "Lista todos tus proyectos (propios + donde eres miembro)."
 msgstr ""
@@ -3839,7 +3839,7 @@ msgid "Miembro removido."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:251
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2713
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2714
 #, elixir-autogen, elixir-format
 msgid "Multi-proyecto"
 msgstr ""
@@ -3854,12 +3854,12 @@ msgstr ""
 msgid "Nuevo proyecto..."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2864
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2865
 #, elixir-autogen, elixir-format
 msgid "Por defecto, las API Keys tienen scope '*' (acceso total). Puedes restringirlas a operaciones específicas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3076
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3077
 #, elixir-autogen, elixir-format
 msgid "Programa eventos para que se entreguen en el futuro."
 msgstr ""
@@ -3870,7 +3870,7 @@ msgstr ""
 msgid "Programado"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2704
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2705
 #, elixir-autogen, elixir-format
 msgid "Prohibido (scope insuficiente)"
 msgstr ""
@@ -3895,12 +3895,12 @@ msgstr ""
 msgid "Proyecto eliminado."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3125
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3126
 #, elixir-autogen, elixir-format
 msgid "Recibe eventos en tiempo real vía SSE o WebSocket."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2935
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2936
 #, elixir-autogen, elixir-format
 msgid "Reintentar entregas"
 msgstr ""
@@ -3910,7 +3910,7 @@ msgstr ""
 msgid "Remover"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3213
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3214
 #, elixir-autogen, elixir-format
 msgid "Requiere scope 'events:read' en la API Key."
 msgstr ""
@@ -3937,22 +3937,22 @@ msgid "Schema no encontrado."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:257
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2855
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2856
 #, elixir-autogen, elixir-format
 msgid "Scopes de API Key"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2871
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2872
 #, elixir-autogen, elixir-format
 msgid "Scopes disponibles"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3139
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3140
 #, elixir-autogen, elixir-format
 msgid "Server-Sent Events (SSE)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2941
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2942
 #, elixir-autogen, elixir-format
 msgid "Si una API Key no tiene el scope requerido, recibirá un 403 Forbidden."
 msgstr ""
@@ -3977,7 +3977,7 @@ msgstr ""
 msgid "Streaming SSE/WS"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3121
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3122
 #, elixir-autogen, elixir-format
 msgid "Streaming en tiempo real"
 msgstr ""
@@ -3992,12 +3992,12 @@ msgstr ""
 msgid "Usuario no encontrado con ese email."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2953
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2954
 #, elixir-autogen, elixir-format
 msgid "Valida los payloads de eventos con JSON Schema antes de aceptarlos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3049
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3050
 #, elixir-autogen, elixir-format
 msgid "Validación dry-run: prueba si un payload cumpliría el schema sin enviar el evento."
 msgstr ""
@@ -4012,7 +4012,7 @@ msgstr ""
 msgid "Viewer"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3187
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3188
 #, elixir-autogen, elixir-format
 msgid "WebSocket"
 msgstr ""
@@ -4027,145 +4027,145 @@ msgstr ""
 msgid "¿Remover este miembro?"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3303
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3304
 #, elixir-autogen, elixir-format
 msgid "Actualiza el rol de un miembro. Body: role (editor, viewer)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3174
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3175
 #, elixir-autogen, elixir-format
 msgid "Cada 30 segundos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2823
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2824
 #, elixir-autogen, elixir-format
 msgid "Desactiva el proyecto (soft delete). No se puede eliminar el proyecto default."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3032
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3033
 #, elixir-autogen, elixir-format
 msgid "Desactiva el schema. Respuesta 200: status: \"inactive\"."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2784
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2785
 #, elixir-autogen, elixir-format
 msgid "Detalle de un proyecto. Respuesta: id, name, status, settings, is_default."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3015
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3016
 #, elixir-autogen, elixir-format
 msgid "Detalle de un schema. Respuesta: id, topic, schema, version, status."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3167
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3168
 #, elixir-autogen, elixir-format
 msgid "Estado de entrega actualizado"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3153
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3154
 #, elixir-autogen, elixir-format
 msgid "Formato de mensajes:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2974
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2975
 #, elixir-autogen, elixir-format
 msgid "Lista los schemas del proyecto. Respuesta: schemas (array)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3250
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3251
 #, elixir-autogen, elixir-format
 msgid "Lista miembros del proyecto. Respuesta: members (array con id, user_id, role, status)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3160
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3161
 #, elixir-autogen, elixir-format
 msgid "Nuevo evento recibido"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3325
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3326
 #, elixir-autogen, elixir-format
 msgid "Remueve un miembro del proyecto. No se puede remover al owner."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3463
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3464
 #, elixir-autogen, elixir-format
 msgid "Agrupa múltiples eventos en una sola entrega para reducir llamadas HTTP."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3714
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3715
 #, elixir-autogen, elixir-format
 msgid "Asegúrate de incluir tu IP actual antes de activar el allowlist, de lo contrario perderás acceso. Puedes gestionar las IPs desde el panel del dashboard."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3692
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3693
 #, elixir-autogen, elixir-format
 msgid "Añade una capa extra de seguridad permitiendo que tu API key solo funcione desde IPs específicas. Si la lista está vacía, cualquier IP puede usar la key."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:302
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3460
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3461
 #, elixir-autogen, elixir-format
 msgid "Batch Events"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3700
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3701
 #, elixir-autogen, elixir-format
 msgid "Configura allowed_ips al crear o regenerar tu API key desde el dashboard. Las IPs se verifican usando el header X-Forwarded-For (load balancers/proxies) o la IP de conexión directa."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3469
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3470
 #, elixir-autogen, elixir-format
 msgid "Configura batch_config en tu webhook para acumular eventos y enviarlos juntos. El sistema agrupa automáticamente los eventos y los entrega cuando se cumple la ventana de tiempo o el tamaño máximo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3598
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3599
 #, elixir-autogen, elixir-format
 msgid "Configuraciones predefinidas para integraciones populares."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3484
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3485
 #, elixir-autogen, elixir-format
 msgid "Crea un webhook con batch_config habilitado. Campos: enabled (bool), window_seconds (int, ventana de acumulación), max_batch_size (int, máximo de eventos por lote)."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:320
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3642
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3643
 #, elixir-autogen, elixir-format
 msgid "Cron preview"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3520
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3521
 #, elixir-autogen, elixir-format
 msgid "Descarga tus datos para análisis externo. Todos los endpoints de exportación soportan el parámetro format=csv o format=json (default)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3706
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3707
 #, elixir-autogen, elixir-format
 msgid "Ejemplo de IPs permitidas: [\"203.0.113.10\", \"198.51.100.0/24\"]. Si una petición llega desde una IP no autorizada, recibirá un 403 Forbidden."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3449
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3450
 #, elixir-autogen, elixir-format
 msgid "El cursor es un valor opaco. No lo modifiques; simplemente pasa el next_cursor de la respuesta anterior para obtener la página siguiente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3418
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3419
 #, elixir-autogen, elixir-format
 msgid "En lugar de offset/page, usa cursores para recorrer resultados de forma estable y performante. Los endpoints GET /events y GET /deliveries soportan paginación cursor."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3514
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3515
 #, elixir-autogen, elixir-format
 msgid "Exporta eventos, entregas, jobs y audit log en formato CSV o JSON."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3537
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3538
 #, elixir-autogen, elixir-format
 msgid "Exporta eventos. Formatos: csv, json. Parámetros opcionales: days (default 30)."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:308
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3511
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3512
 #: lib/streamflix_web_web/live/account_live.ex:1641
 #, elixir-autogen, elixir-format
 msgid "Exportar datos"
@@ -4177,74 +4177,74 @@ msgid "Extras"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:326
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3683
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3684
 #, elixir-autogen, elixir-format
 msgid "IP Allowlist"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3621
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3622
 #, elixir-autogen, elixir-format
 msgid "Lista las plantillas disponibles: slack, discord, telegram, generic_json, custom. Cada una incluye name, description, headers y body_config."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3500
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3501
 #, elixir-autogen, elixir-format
 msgid "Los eventos se acumulan en una cola interna. Cada minuto, el worker verifica si la ventana expiró o se alcanzó el tamaño máximo y envía el lote completo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3556
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3557
 #, elixir-autogen, elixir-format
 msgid "Mismos parámetros para entregas, jobs y audit log. Todos soportan format=csv|json y days=N."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:296
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3407
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3408
 #, elixir-autogen, elixir-format
 msgid "Paginación cursor"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3410
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3411
 #, elixir-autogen, elixir-format
 msgid "Paginación eficiente basada en cursor para listas grandes de eventos y entregas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3668
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3669
 #, elixir-autogen, elixir-format
 msgid "Parámetros: expression (cron expression), count (número de ejecuciones a mostrar, default 5). Respuesta: expression, next_executions (array de timestamps)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3435
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3436
 #, elixir-autogen, elixir-format
 msgid "Parámetros: limit (máx 100, default 20), cursor (opaque string del campo next_cursor). Respuesta: data (array), has_next (boolean), next_cursor (string|null)."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:314
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3595
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3596
 #, elixir-autogen, elixir-format
 msgid "Plantillas webhook"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3645
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3646
 #, elixir-autogen, elixir-format
 msgid "Previsualiza las próximas ejecuciones de una expresión cron."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3686
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3687
 #, elixir-autogen, elixir-format
 msgid "Restringe el acceso a tu API key por dirección IP."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3631
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3632
 #, elixir-autogen, elixir-format
 msgid "Usa los campos de la plantilla al crear un webhook. Por ejemplo, para Slack usa los headers y body_config de la plantilla 'slack' al hacer POST /api/v1/webhooks."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3604
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3605
 #, elixir-autogen, elixir-format
 msgid "Usa plantillas para crear webhooks preconfigurados para Slack, Discord, Telegram y más. Cada plantilla incluye headers, body_config y transformaciones listas para usar."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3651
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3652
 #, elixir-autogen, elixir-format
 msgid "Valida y previsualiza cuándo se ejecutará tu job cron antes de crearlo. Útil para verificar expresiones complejas."
 msgstr ""
@@ -4274,7 +4274,7 @@ msgstr ""
 msgid "Sin restricción (cualquier IP)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3582
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3583
 #, elixir-autogen, elixir-format
 msgid "Estas rutas son usadas automáticamente por los botones de exportación del Dashboard. No requieren API Key."
 msgstr ""
@@ -4284,7 +4284,7 @@ msgstr ""
 msgid "Has sido invitado a un proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3269
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3270
 #, elixir-autogen, elixir-format
 msgid "Invita a un usuario al proyecto. Requiere rol owner o editor. Puedes usar user_id o email."
 msgstr ""
@@ -4294,7 +4294,7 @@ msgstr ""
 msgid "Invitación a proyecto"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3285
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3286
 #, elixir-autogen, elixir-format
 msgid "O por email"
 msgstr ""
@@ -4309,7 +4309,7 @@ msgstr ""
 msgid "Query param (para descargas desde el navegador)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3577
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3578
 #, elixir-autogen, elixir-format
 msgid "Rutas de exportación para el navegador (Dashboard). Usan autenticación de sesión, sin API Key. Los mismos parámetros format=csv|json aplican."
 msgstr ""
@@ -4355,7 +4355,7 @@ msgstr ""
 msgid "¿Eliminar este proyecto? Esta acción no se puede deshacer."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3367
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3368
 #, elixir-autogen, elixir-format
 msgid "Acepta una invitación pendiente. Solo el usuario invitado puede aceptarla. Cambia el status a 'active'."
 msgstr ""
@@ -4439,7 +4439,7 @@ msgstr ""
 msgid "Eliminando..."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3813
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3814
 #: lib/streamflix_web_web/live/account_live.ex:1030
 #: lib/streamflix_web_web/live/account_live.ex:2357
 #, elixir-autogen, elixir-format
@@ -4456,7 +4456,7 @@ msgstr ""
 msgid "Eliminar permanentemente tu cuenta y datos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3396
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3397
 #, elixir-autogen, elixir-format
 msgid "En el dashboard, busca la sección 'Equipo'. Puedes invitar por email, cambiar roles y remover miembros desde la interfaz. Las invitaciones pendientes aparecen como banner y en las notificaciones."
 msgstr ""
@@ -4526,7 +4526,7 @@ msgstr ""
 msgid "Ingresa una contraseña válida."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3333
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3334
 #, elixir-autogen, elixir-format
 msgid "Invitaciones"
 msgstr ""
@@ -4557,7 +4557,7 @@ msgstr ""
 msgid "Las contraseñas no coinciden."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3348
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3349
 #, elixir-autogen, elixir-format
 msgid "Lista las invitaciones pendientes del usuario autenticado. Devuelve id, role, project_id y project_name."
 msgstr ""
@@ -4587,7 +4587,7 @@ msgstr ""
 msgid "Nombre actualizado correctamente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3386
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3387
 #, elixir-autogen, elixir-format
 msgid "Rechaza una invitación pendiente. Solo el usuario invitado puede rechazarla. Cambia el status a 'removed'."
 msgstr ""
@@ -4599,7 +4599,7 @@ msgid "Rechazar"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:86
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3838
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3839
 #: lib/streamflix_web_web/controllers/page_html/forgot_password.html.heex:36
 #, elixir-autogen, elixir-format
 msgid "Recuperar contraseña"
@@ -4740,57 +4740,57 @@ msgstr ""
 msgid "Debes esperar 5 minutos entre cada solicitud de correo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3824
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3825
 #, elixir-autogen, elixir-format
 msgid "Advertencia: la eliminación de cuenta es permanente. No se puede deshacer. Asegúrate de exportar tus datos antes si los necesitas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3758
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3759
 #, elixir-autogen, elixir-format
 msgid "Al registrarte se envía un correo de verificación a tu dirección de email. Puedes reenviar el enlace desde /account. El enlace de verificación expira en 7 días."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4095
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4096
 #, elixir-autogen, elixir-format
 msgid "Cambia entre español e inglés en cualquier momento. La interfaz y los correos se adaptan al idioma seleccionado."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4089
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4090
 #, elixir-autogen, elixir-format
 msgid "Cambia entre proyectos desde el selector del dashboard. Cada proyecto tiene sus propios webhooks, eventos y configuración."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3800
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3801
 #, elixir-autogen, elixir-format
 msgid "Cambia tu contraseña desde /account. Debes ingresar tu contraseña actual y la nueva contraseña (mínimo 8 caracteres con mayúsculas, minúsculas y números)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3777
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3778
 #, elixir-autogen, elixir-format
 msgid "Cambiar email"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4083
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4084
 #, elixir-autogen, elixir-format
 msgid "Campana de notificaciones con alertas en tiempo real sobre invitaciones a proyectos y eventos del sistema."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4006
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4007
 #, elixir-autogen, elixir-format
 msgid "Cola de entregas que fallaron tras todos los reintentos. Puedes reintentar o marcar como resueltas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4039
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4040
 #, elixir-autogen, elixir-format
 msgid "Crea endpoints de prueba para recibir webhooks sin necesidad de un servidor propio. Inspecciona cada petición recibida."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3973
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3974
 #, elixir-autogen, elixir-format
 msgid "Crea, edita y elimina webhooks. Configura URL destino, topics, secreto HMAC, reintentos, batch y filtros."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3883
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3884
 #, elixir-autogen, elixir-format
 msgid "Crear nueva contraseña:"
 msgstr ""
@@ -4800,220 +4800,220 @@ msgstr ""
 msgid "Cuenta y plataforma"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4003
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4004
 #, elixir-autogen, elixir-format
 msgid "Dead Letters"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4028
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4029
 #, elixir-autogen, elixir-format
 msgid "Define JSON Schemas para validar el payload de tus eventos. Los eventos que no cumplan el schema serán rechazados."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4077
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4078
 #, elixir-autogen, elixir-format
 msgid "Descarga eventos, entregas, jobs o audit log en formato CSV o JSON directamente desde el navegador."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3740
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3741
 #, elixir-autogen, elixir-format
 msgid "Desde la página de cuenta (/account) puedes gestionar todos los aspectos de tu perfil y seguridad. Todas las acciones sensibles requieren confirmar tu contraseña actual."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3945
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3946
 #, elixir-autogen, elixir-format
 msgid "El dashboard (/platform) es la interfaz principal donde gestionas todo sin necesidad de usar la API. Todas las funcionalidades de la API están disponibles visualmente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3911
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3912
 #, elixir-autogen, elixir-format
 msgid "El enlace de restablecimiento expira en 60 minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3917
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3918
 #, elixir-autogen, elixir-format
 msgid "El mensaje siempre dice \"si tu correo está registrado\" para no revelar si un email existe en el sistema."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3962
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3963
 #, elixir-autogen, elixir-format
 msgid "Envía eventos de prueba, lista todos los eventos con filtros por topic, y visualiza el payload de cada uno."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4076
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4077
 #, elixir-autogen, elixir-format
 msgid "Exportar datos:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3842
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3843
 #, elixir-autogen, elixir-format
 msgid "Flujo completo para restablecer tu contraseña si la olvidaste."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4071
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4072
 #, elixir-autogen, elixir-format
 msgid "Funciones adicionales del dashboard"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:80
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3730
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3731
 #, elixir-autogen, elixir-format
 msgid "Gestión de cuenta"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4050
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4051
 #, elixir-autogen, elixir-format
 msgid "Gráficos de eventos por día, entregas por día, top topics y estadísticas por webhook."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3884
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3885
 #, elixir-autogen, elixir-format
 msgid "Haz clic en el enlace del correo. Se abrirá un formulario donde puedes ingresar tu nueva contraseña (mínimo 8 caracteres)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4094
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4095
 #, elixir-autogen, elixir-format
 msgid "Idioma:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3895
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3896
 #, elixir-autogen, elixir-format
 msgid "Iniciar sesión:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3922
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3923
 #, elixir-autogen, elixir-format
 msgid "Los tokens se eliminan automáticamente tras usarse o expirar."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3774
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3792
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3775
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3793
 #, elixir-autogen, elixir-format
 msgid "Modificar"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3984
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3985
 #, elixir-autogen, elixir-format
 msgid "Monitorea cada intento de entrega: status HTTP, duración, headers de respuesta. Reintenta entregas fallidas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4088
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4089
 #, elixir-autogen, elixir-format
 msgid "Multi-proyecto:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4082
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4083
 #, elixir-autogen, elixir-format
 msgid "Notificaciones:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3939
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3940
 #, elixir-autogen, elixir-format
 msgid "Panel visual para gestionar tu plataforma de webhooks y eventos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3810
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3811
 #, elixir-autogen, elixir-format
 msgid "Peligro"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3734
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3735
 #, elixir-autogen, elixir-format
 msgid "Perfil, seguridad y configuración de tu cuenta de usuario."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3953
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3954
 #, elixir-autogen, elixir-format
 msgid "Pestañas disponibles"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3995
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3996
 #, elixir-autogen, elixir-format
 msgid "Programa tareas recurrentes (cron) o puntuales. Ejecutan webhooks, HTTP requests o eventos en el schedule definido."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3782
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3783
 #, elixir-autogen, elixir-format
 msgid "Puedes cambiar tu dirección de email desde /account. Debes confirmar tu contraseña actual y el nuevo email debe ser único (no estar registrado por otro usuario)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3818
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3819
 #, elixir-autogen, elixir-format
 msgid "Puedes eliminar permanentemente tu cuenta desde /account. Esta acción requiere confirmar tu contraseña y es irreversible: se eliminan todos tus datos, proyectos, webhooks y eventos asociados."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3764
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3765
 #, elixir-autogen, elixir-format
 msgid "Rate limit: solo puedes solicitar un correo de verificación cada 5 minutos para evitar spam."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4017
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4018
 #, elixir-autogen, elixir-format
 msgid "Re-envía eventos históricos a webhooks. Útil para recuperar datos tras un downtime o migrar a un nuevo endpoint."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4061
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4062
 #, elixir-autogen, elixir-format
 msgid "Registro inmutable de todas las acciones realizadas en tu proyecto: quién hizo qué y cuándo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4014
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4015
 #, elixir-autogen, elixir-format
 msgid "Replays"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3872
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3873
 #, elixir-autogen, elixir-format
 msgid "Revisa tu bandeja de entrada (y la carpeta de spam). El correo llega en el idioma que tengas seleccionado en la plataforma."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3871
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3872
 #, elixir-autogen, elixir-format
 msgid "Revisar correo:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4025
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4026
 #, elixir-autogen, elixir-format
 msgid "Schemas"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3906
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4306
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3907
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4307
 #, elixir-autogen, elixir-format
 msgid "Seguridad del flujo"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3848
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3849
 #, elixir-autogen, elixir-format
 msgid "Si olvidaste tu contraseña puedes restablecerla desde la página de login. El proceso es seguro y protegido con rate limiting."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3859
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3860
 #, elixir-autogen, elixir-format
 msgid "Solicitar enlace:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3914
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3915
 #, elixir-autogen, elixir-format
 msgid "Solo se puede solicitar un correo de recuperación cada 5 minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3896
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3897
 #, elixir-autogen, elixir-format
 msgid "Una vez restablecida, serás redirigido al login para ingresar con tu nueva contraseña."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3860
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3861
 #, elixir-autogen, elixir-format
 msgid "Ve a /forgot-password e ingresa tu email registrado. Recibirás un correo con un enlace para restablecer tu contraseña."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3750
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3751
 #, elixir-autogen, elixir-format
 msgid "Verificación"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3753
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3754
 #, elixir-autogen, elixir-format
 msgid "Verificar email"
 msgstr ""
@@ -5048,49 +5048,49 @@ msgstr ""
 msgid "user.created, order.paid"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4135
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4136
 #, elixir-autogen, elixir-format
 msgid "5 intentos fallidos: la cuenta se bloquea por 15 minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4198
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4199
 #, elixir-autogen, elixir-format
 msgid "Aplica a sesiones web (browser). Tokens JWT de API tienen su propia expiración (7 días)."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:340
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4108
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4109
 #, elixir-autogen, elixir-format
 msgid "Bloqueo de cuenta"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4142
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4143
 #, elixir-autogen, elixir-format
 msgid "Bloqueo expirado: se desbloquea automáticamente en el siguiente intento."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4192
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4193
 #, elixir-autogen, elixir-format
 msgid "Cada request HTTP actualiza el timestamp de última actividad."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4127
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4188
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4128
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4189
 #, elixir-autogen, elixir-format
 msgid "Comportamiento"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4131
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4132
 #, elixir-autogen, elixir-format
 msgid "Contraseña incorrecta: se incrementa el contador de intentos fallidos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4180
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4181
 #, elixir-autogen, elixir-format
 msgid "Después de 30 minutos sin actividad, la sesión web expira automáticamente. El usuario es redirigido a la página de login con un mensaje informativo. Las sesiones de API (JWT) no se ven afectadas por este timeout."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4119
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4120
 #, elixir-autogen, elixir-format
 msgid "Después de 5 intentos fallidos consecutivos, la cuenta se bloquea por 15 minutos. El bloqueo se desactiva automáticamente al expirar. Cada intento fallido y cada bloqueo se registra en el audit log."
 msgstr ""
@@ -5100,37 +5100,37 @@ msgstr ""
 msgid "El token actual dejará de funcionar inmediatamente. Asegúrate de actualizar tus integraciones con el nuevo token."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2533
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2534
 #, elixir-autogen, elixir-format
 msgid "Estados posibles: healthy (todo OK), degraded (BD OK pero Oban o caché caídos), unhealthy (BD caída)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4171
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4172
 #, elixir-autogen, elixir-format
 msgid "Las sesiones web se invalidan automáticamente después de un período de inactividad para proteger cuentas desatendidas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4202
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4203
 #, elixir-autogen, elixir-format
 msgid "LiveView también verifica el timeout al montar componentes."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4137
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4138
 #, elixir-autogen, elixir-format
 msgid "Login durante bloqueo: respuesta HTTP 423 (API) o mensaje flash (web)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4146
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4147
 #, elixir-autogen, elixir-format
 msgid "Login exitoso: el contador se reinicia a 0."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4110
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4111
 #, elixir-autogen, elixir-format
 msgid "Protección contra ataques de fuerza bruta. Tras múltiples intentos fallidos de login, la cuenta se bloquea temporalmente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4152
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4153
 #, elixir-autogen, elixir-format
 msgid "Respuesta API (cuenta bloqueada)"
 msgstr ""
@@ -5140,7 +5140,7 @@ msgstr ""
 msgid "Seguridad"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4195
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4196
 #, elixir-autogen, elixir-format
 msgid "Si pasan más de 30 minutos sin actividad, la sesión se invalida."
 msgstr ""
@@ -5151,7 +5151,7 @@ msgid "Sí, regenerar"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:346
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4169
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4170
 #, elixir-autogen, elixir-format
 msgid "Timeout de sesión"
 msgstr ""
@@ -5166,7 +5166,7 @@ msgstr ""
 msgid "Tu sesión ha expirado por inactividad. Inicia sesión de nuevo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2528
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2529
 #, elixir-autogen, elixir-format
 msgid "Verifica el estado de la base de datos, Oban (jobs) y Cachex (caché). Respuesta 200 si todo está bien o degradado, 503 si la BD está caída. Útil para load balancers y monitoring."
 msgstr ""
@@ -5398,213 +5398,213 @@ msgstr ""
 msgid "Ya guardé mis códigos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4237
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4238
 #, elixir-autogen, elixir-format
 msgid "Activar: Cuenta → Autenticación de dos factores → Escanear QR → Confirmar código"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4214
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4215
 #, elixir-autogen, elixir-format
 msgid "Autenticación multifactor con códigos TOTP de 6 dígitos. Compatible con Google Authenticator, Authy, y cualquier app TOTP."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4321
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4322
 #, elixir-autogen, elixir-format
 msgid "Cada código de recuperación se consume al usarlo (un solo uso)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4323
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4324
 #, elixir-autogen, elixir-format
 msgid "Desactivar MFA requiere la contraseña actual."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4252
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4253
 #, elixir-autogen, elixir-format
 msgid "Desactivar: Cuenta → Desactivar MFA → Confirmar con contraseña"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4316
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4317
 #, elixir-autogen, elixir-format
 msgid "El secreto TOTP se cifra con AES-256-GCM en la base de datos (Cloak)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4309
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4310
 #, elixir-autogen, elixir-format
 msgid "El token MFA expira en 5 minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4259
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4260
 #, elixir-autogen, elixir-format
 msgid "Flujo API"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4233
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4234
 #, elixir-autogen, elixir-format
 msgid "Flujo web (browser)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4242
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4243
 #, elixir-autogen, elixir-format
 msgid "Login: Email + contraseña → si MFA activo, se pide código de 6 dígitos → Dashboard"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4311
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4312
 #, elixir-autogen, elixir-format
 msgid "Los códigos de recuperación se almacenan como SHA-256 (nunca en texto plano)."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:352
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4212
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4213
 #, elixir-autogen, elixir-format
 msgid "MFA / TOTP"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4224
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4225
 #, elixir-autogen, elixir-format
 msgid "MFA agrega una capa extra de seguridad. Después de ingresar tu contraseña, necesitas un código temporal de tu aplicación de autenticación. También se generan 10 códigos de recuperación de un solo uso."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4247
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4248
 #, elixir-autogen, elixir-format
 msgid "Recuperación: Si no tienes acceso a tu app, usa un código de recuperación"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4297
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4298
 #, elixir-autogen, elixir-format
 msgid "Respuesta exitosa"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4279
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4280
 #, elixir-autogen, elixir-format
 msgid "Respuesta si MFA está activo"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4261
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4262
 #, elixir-autogen, elixir-format
 msgid "Si el usuario tiene MFA activo, el login devuelve un token temporal de verificación."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4324
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4325
 #, elixir-autogen, elixir-format
 msgid "Todos los eventos MFA se registran en el audit log."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4275
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4293
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4427
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4495
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4541
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4545
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4571
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4575
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4813
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4837
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4276
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4294
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4428
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4496
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4542
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4546
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4572
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4576
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4818
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4842
 #, elixir-autogen, elixir-format
 msgid "https://tu-dominio.com"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4435
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4436
 #, elixir-autogen, elixir-format
 msgid "Auditoría"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4336
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4337
 #, elixir-autogen, elixir-format
 msgid "Backup automatizado de la base de datos con pg_dump. Ejecutado diariamente a las 2:00 AM UTC vía Oban cron."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:358
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4334
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4335
 #, elixir-autogen, elixir-format
 msgid "Backups automáticos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4438
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4439
 #, elixir-autogen, elixir-format
 msgid "Cada backup exitoso se registra como system.backup_completed en el audit log."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4379
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4380
 #, elixir-autogen, elixir-format
 msgid "Directorio de almacenamiento"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4380
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4381
 #, elixir-autogen, elixir-format
 msgid "Días de retención"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4424
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4425
 #, elixir-autogen, elixir-format
 msgid "El endpoint /health incluye el estado del último backup."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4364
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4365
 #, elixir-autogen, elixir-format
 msgid "Formato: pg_dump --format=custom con compresión nivel 6."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4356
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4357
 #, elixir-autogen, elixir-format
 msgid "Habilitado por defecto en todos los entornos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4378
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4379
 #, elixir-autogen, elixir-format
 msgid "Habilitar/deshabilitar backups"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4422
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4423
 #, elixir-autogen, elixir-format
 msgid "Health check"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4363
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4364
 #, elixir-autogen, elixir-format
 msgid "Horario: diariamente a las 2:00 AM UTC (Oban cron)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4448
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4449
 #, elixir-autogen, elixir-format
 msgid "La limpieza de backups antiguos se registra en los logs del sistema."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4443
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4444
 #, elixir-autogen, elixir-format
 msgid "Los fallos se registran como system.backup_failed con el detalle del error."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4429
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4430
 #, elixir-autogen, elixir-format
 msgid "Respuesta incluye"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4416
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4417
 #, elixir-autogen, elixir-format
 msgid "Restaurar desde archivo de backup"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4413
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4414
 #, elixir-autogen, elixir-format
 msgid "Restaurar un backup"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4362
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4363
 #, elixir-autogen, elixir-format
 msgid "Retención: BACKUP_RETENTION_DAYS (por defecto 30 días)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4381
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4382
 #, elixir-autogen, elixir-format
 msgid "Ruta al binario pg_dump"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4358
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4359
 #, elixir-autogen, elixir-format
 msgid "Ruta de almacenamiento: configurable vía BACKUP_PATH (producción) o config.exs (desarrollo)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4375
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4376
 #, elixir-autogen, elixir-format
 msgid "Variables de entorno"
 msgstr ""
@@ -5619,7 +5619,7 @@ msgstr ""
 msgid "30d"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4693
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4694
 #, elixir-autogen, elixir-format
 msgid "7 días"
 msgstr ""
@@ -5629,48 +5629,48 @@ msgstr ""
 msgid "7d"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4682
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4715
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4683
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4716
 #, elixir-autogen, elixir-format
 msgid "90 días"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4671
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4672
 #, elixir-autogen, elixir-format
 msgid "90 días (entregas)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5160
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5165
 #, elixir-autogen, elixir-format
 msgid "Acceso no autorizado a cuentas de usuario."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4641
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4642
 #, elixir-autogen, elixir-format
 msgid "Actividad"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4634
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4635
 #, elixir-autogen, elixir-format
 msgid "Actividades de tratamiento"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4899
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4904
 #, elixir-autogen, elixir-format
 msgid "Al cambiar o restablecer la contraseña, se verifica contra las últimas 5 contraseñas utilizadas. Si coincide, se rechaza el cambio."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4584
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4585
 #, elixir-autogen, elixir-format
 msgid "Al eliminar tu cuenta desde «Cuenta» → «Eliminar cuenta», se borran permanentemente:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4871
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4876
 #, elixir-autogen, elixir-format
 msgid "Al menos una letra minúscula, una mayúscula y un dígito."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4504
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4505
 #, elixir-autogen, elixir-format
 msgid "Al registrarte se otorgan consentimientos para: Términos de uso, Política de privacidad y Procesamiento de datos. Puedes consultar y revocar cada consentimiento desde la sección «Cuenta»."
 msgstr ""
@@ -5680,82 +5680,82 @@ msgstr ""
 msgid "Al restringir el procesamiento, los webhooks y eventos dejarán de procesarse. Puedes revertir esta acción en cualquier momento."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4387
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4388
 #, elixir-autogen, elixir-format
 msgid "Almacenamiento en la nube"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4366
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4367
 #, elixir-autogen, elixir-format
 msgid "Almacenamiento: nube con redundancia (producción) o disco local (desarrollo)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4907
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4912
 #, elixir-autogen, elixir-format
 msgid "Aplica tanto al cambio desde la cuenta como al restablecimiento por token."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5089
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5094
 #, elixir-autogen, elixir-format
 msgid "Ataque coordinado"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5317
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5322
 #, elixir-autogen, elixir-format
 msgid "Audit trail completo para cada operación de sesión"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4757
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4758
 #, elixir-autogen, elixir-format
 msgid "Base de datos PostgreSQL"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4644
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4645
 #, elixir-autogen, elixir-format
 msgid "Base legal"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4885
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4890
 #, elixir-autogen, elixir-format
 msgid "Blacklist de contraseñas comunes"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5099
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5104
 #, elixir-autogen, elixir-format
 msgid "Bloqueos de cuenta"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4940
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4945
 #, elixir-autogen, elixir-format
 msgid "Cache en memoria (Cachex)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4905
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4910
 #, elixir-autogen, elixir-format
 msgid "Cada cambio exitoso guarda el hash anterior en el historial."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4509
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4510
 #, elixir-autogen, elixir-format
 msgid "Cada consentimiento registra fecha, versión y dirección IP."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4790
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4795
 #, elixir-autogen, elixir-format
 msgid "Cada evento incluye un hash SHA-256 del payload canónico. Opcionalmente puedes enviar una clave de idempotencia para evitar eventos duplicados."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5206
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5211
 #, elixir-autogen, elixir-format
 msgid "Cada inicio de sesión (web o API) crea un registro de sesión vinculado al JWT. Las sesiones registran IP, User-Agent y tipo de dispositivo. Los usuarios pueden ver todas sus sesiones activas desde la página de cuenta y revocar sesiones individuales o cerrar todas las demás sesiones."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5368
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5373
 #, elixir-autogen, elixir-format
 msgid "Campos protegidos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5216
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5221
 #, elixir-autogen, elixir-format
 msgid "Características"
 msgstr ""
@@ -5765,49 +5765,49 @@ msgstr ""
 msgid "Cerrar todas las demás sesiones"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5273
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5278
 #, elixir-autogen, elixir-format
 msgid "Cerrar todas las demás sesiones (mantiene la actual)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4781
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4786
 #, elixir-autogen, elixir-format
 msgid "Checksums SHA-256 para verificar integridad del payload y claves de idempotencia para deduplicación."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:412
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5346
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5351
 #, elixir-autogen, elixir-format
 msgid "Cifrado de datos PII"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:394
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4987
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4992
 #, elixir-autogen, elixir-format
 msgid "Circuit breaker"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5458
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5463
 #, elixir-autogen, elixir-format
 msgid "Clasificación de datos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4822
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4827
 #, elixir-autogen, elixir-format
 msgid "Clave de idempotencia"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5161
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5166
 #, elixir-autogen, elixir-format
 msgid "Compromiso de credenciales."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4720
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4721
 #, elixir-autogen, elixir-format
 msgid "Comunicaciones por email"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4936
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4941
 #, elixir-autogen, elixir-format
 msgid "Conexión a PostgreSQL"
 msgstr ""
@@ -5832,7 +5832,7 @@ msgstr ""
 msgid "Consentimiento revocado."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4501
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4502
 #: lib/streamflix_web_web/live/account_live.ex:1731
 #, elixir-autogen, elixir-format
 msgid "Consentimientos"
@@ -5843,53 +5843,53 @@ msgstr ""
 msgid "Contraseña incorrecta."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5196
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5201
 #, elixir-autogen, elixir-format
 msgid "Control de sesiones activas con revocación individual y masiva"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5100
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5105
 #, elixir-autogen, elixir-format
 msgid "Cualquier bloqueo de cuenta por exceso de intentos fallidos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5154
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5159
 #, elixir-autogen, elixir-format
 msgid "Cuando la brecha supone un alto riesgo para los derechos y libertades de los usuarios, se notifica directamente a los afectados. Aplica en casos de:"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5110
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5115
 #, elixir-autogen, elixir-format
 msgid "Cuando se detecta una anomalía, se registra en el audit log como 'security.anomaly_detected' y se notifica a todos los administradores activos. Esto cumple con los requisitos de GDPR Art. 33 sobre detección temprana de brechas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5121
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5126
 #, elixir-autogen, elixir-format
 msgid "Cuando se detecta una brecha con severidad critical o high, se activa el proceso de notificación a la autoridad de control en un máximo de 72 horas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4470
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4471
 #, elixir-autogen, elixir-format
 msgid "Cumplimos con el Reglamento General de Protección de Datos (RGPD). Los usuarios pueden exportar sus datos, gestionar consentimientos y eliminar su cuenta completa en cualquier momento."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4551
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4552
 #, elixir-autogen, elixir-format
 msgid "Derecho de oposición (Art. 21)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4581
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4582
 #: lib/streamflix_web_web/controllers/page_html/privacy.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "Derecho de supresión"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4461
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4462
 #, elixir-autogen, elixir-format
 msgid "Derechos GDPR/RGPD: exportación de datos personales, gestión de consentimientos y derecho de supresión."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4481
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4482
 #, elixir-autogen, elixir-format
 msgid "Descarga una copia completa de todos tus datos personales en formato JSON. Incluye perfil, proyectos, webhooks, conteos de eventos/entregas, jobs, notificaciones, registros de auditoría y consentimientos."
 msgstr ""
@@ -5904,37 +5904,37 @@ msgstr ""
 msgid "Desconocido"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5204
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5356
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5209
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5361
 #, elixir-autogen, elixir-format
 msgid "Descripción"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4486
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4527
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4559
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4487
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4528
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4560
 #, elixir-autogen, elixir-format
 msgid "Desde el navegador"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5012
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5017
 #, elixir-autogen, elixir-format
 msgid "Después de 5 minutos, se permite una entrega de prueba (estado half-open)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5128
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5133
 #, elixir-autogen, elixir-format
 msgid "Detección automática y clasificación de severidad (critical/high/medium)."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:400
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4709
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5068
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4710
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5073
 #, elixir-autogen, elixir-format
 msgid "Detección de brechas"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5245
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5250
 #, elixir-autogen, elixir-format
 msgid "Detección de dispositivo: Desktop, Mobile, Tablet"
 msgstr ""
@@ -5944,7 +5944,7 @@ msgstr ""
 msgid "Dispositivo"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3197
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3198
 #, elixir-autogen, elixir-format
 msgid "Ejemplo (JavaScript)"
 msgstr ""
@@ -5954,32 +5954,32 @@ msgstr ""
 msgid "Ejerce tu derecho de oposición al procesamiento de datos (RGPD Art. 21)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4801
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4806
 #, elixir-autogen, elixir-format
 msgid "El campo payload_hash se genera automáticamente al crear un evento. Es el hash SHA-256 hexadecimal (lowercase) del JSON canónico del payload."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4975
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4980
 #, elixir-autogen, elixir-format
 msgid "El dashboard muestra el estado actual del sistema con indicadores de uptime para las últimas 24 horas, 7 días y 30 días. Los administradores reciben notificaciones automáticas cuando el estado es degradado o no saludable."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5056
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5061
 #, elixir-autogen, elixir-format
 msgid "El dueño del proyecto recibe notificaciones cuando un circuit breaker se abre o se cierra. Esto permite actuar rápidamente ante problemas en endpoints de destino."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4904
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4909
 #, elixir-autogen, elixir-format
 msgid "El historial se crea automáticamente al registrarse."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4924
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4929
 #, elixir-autogen, elixir-format
 msgid "El sistema verifica automáticamente su estado cada 5 minutos y registra métricas de disponibilidad."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4390
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4391
 #, elixir-autogen, elixir-format
 msgid "En producción, los backups se transfieren automáticamente a almacenamiento remoto seguro. Si la transferencia falla, el archivo se conserva localmente como respaldo."
 msgstr ""
@@ -5989,17 +5989,17 @@ msgstr ""
 msgid "Entendido"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4825
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4830
 #, elixir-autogen, elixir-format
 msgid "Envía idempotency_key en el body para deduplicar eventos. Si ya existe un evento con la misma clave en el proyecto, se retorna el evento existente sin crear uno nuevo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4764
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4767
 #, elixir-autogen, elixir-format
 msgid "Envío de emails transaccionales"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5144
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5149
 #, elixir-autogen, elixir-format
 msgid "Envío de notificación a la autoridad de control."
 msgstr ""
@@ -6030,17 +6030,17 @@ msgstr ""
 msgid "Estado del sistema"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4941
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4946
 #, elixir-autogen, elixir-format
 msgid "Estado del último backup"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5031
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5036
 #, elixir-autogen, elixir-format
 msgid "Estados del circuito"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4947
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4952
 #, elixir-autogen, elixir-format
 msgid "Estados del sistema"
 msgstr ""
@@ -6050,7 +6050,7 @@ msgstr ""
 msgid "Este consentimiento ya fue revocado."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4626
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4627
 #, elixir-autogen, elixir-format
 msgid "Este registro documenta todas las actividades de tratamiento de datos personales, incluyendo propósitos, bases legales, categorías de datos y periodos de retención. Documento completo disponible en docs/ROPA.md."
 msgstr ""
@@ -6065,17 +6065,17 @@ msgstr ""
 msgid "Evento enviado. ID: %{id}"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4665
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4666
 #, elixir-autogen, elixir-format
 msgid "Eventos y webhooks"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5159
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5164
 #, elixir-autogen, elixir-format
 msgid "Exfiltración confirmada de datos personales."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5093
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5098
 #, elixir-autogen, elixir-format
 msgid "Exfiltración de datos"
 msgstr ""
@@ -6085,7 +6085,7 @@ msgstr ""
 msgid "Exportación de datos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4478
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4479
 #, elixir-autogen, elixir-format
 msgid "Exportar datos personales (DSAR)"
 msgstr ""
@@ -6095,12 +6095,12 @@ msgstr ""
 msgid "Exportar mis datos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5083
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5088
 #, elixir-autogen, elixir-format
 msgid "Fuerza bruta por IP"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4998
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5003
 #, elixir-autogen, elixir-format
 msgid "Funcionamiento"
 msgstr ""
@@ -6111,13 +6111,13 @@ msgid "Gestión de consentimientos"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:406
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4687
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5194
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4688
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5199
 #, elixir-autogen, elixir-format
 msgid "Gestión de sesiones"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4896
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4901
 #, elixir-autogen, elixir-format
 msgid "Historial de contraseñas"
 msgstr ""
@@ -6139,7 +6139,7 @@ msgstr ""
 msgid "IP"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4704
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4705
 #, elixir-autogen, elixir-format
 msgid "Indefinido (obligación legal)"
 msgstr ""
@@ -6150,7 +6150,7 @@ msgid "Ingresa tu contraseña"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:376
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4779
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4784
 #, elixir-autogen, elixir-format
 msgid "Integridad de eventos"
 msgstr ""
@@ -6161,7 +6161,7 @@ msgstr ""
 msgid "Intentando reconectar"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5134
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5139
 #, elixir-autogen, elixir-format
 msgid "Investigación: revisión de audit logs, alcance e impacto."
 msgstr ""
@@ -6171,27 +6171,27 @@ msgstr ""
 msgid "Keep a Changelog"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4965
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4970
 #, elixir-autogen, elixir-format
 msgid "La base de datos no responde. El sistema no puede operar normalmente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4840
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4845
 #, elixir-autogen, elixir-format
 msgid "La clave es única por proyecto (partial unique index)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5164
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5169
 #, elixir-autogen, elixir-format
 msgid "La notificación incluye: descripción del incidente, datos afectados, medidas adoptadas y recomendaciones para el usuario. Proceso completo documentado en docs/BREACH_NOTIFICATION.md."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4399
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4400
 #, elixir-autogen, elixir-format
 msgid "La política de retención aplica tanto al almacenamiento remoto como al local."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4513
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4514
 #, elixir-autogen, elixir-format
 msgid "La revocación se registra en el audit log."
 msgstr ""
@@ -6202,32 +6202,32 @@ msgstr ""
 msgid "Levantar restricción"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5303
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5308
 #, elixir-autogen, elixir-format
 msgid "Limpieza automática de sesiones expiradas (7 días)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4396
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4397
 #, elixir-autogen, elixir-format
 msgid "Los backups en la nube están cifrados en reposo y en tránsito."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4345
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4346
 #, elixir-autogen, elixir-format
 msgid "Los backups se generan automáticamente cada día. Se comprimen en formato custom de pg_dump. En producción, se almacenan de forma segura en la nube con redundancia. En desarrollo, se guardan localmente. Los backups antiguos se eliminan según la política de retención (30 días por defecto)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4511
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4512
 #, elixir-autogen, elixir-format
 msgid "Los consentimientos revocados se mantienen como registro histórico."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5461
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5466
 #, elixir-autogen, elixir-format
 msgid "Los datos se clasifican en 4 niveles: Público, Interno, Confidencial y Restringido. Todos los campos PII (nivel Confidencial) requieren cifrado AES-256-GCM. Los secretos y credenciales (nivel Restringido) usan cifrado o hash unidireccional. Consulta docs/DATA_CLASSIFICATION.md para el inventario completo."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4597
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4598
 #, elixir-autogen, elixir-format
 msgid "Los registros de auditoría se pseudonimizan (se elimina identificador e IP)."
 msgstr ""
@@ -6237,53 +6237,53 @@ msgstr ""
 msgid "Marketing"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4594
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4595
 #, elixir-autogen, elixir-format
 msgid "Membresías de equipos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1785
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1786
 #, elixir-autogen, elixir-format
 msgid "Mi Proyecto"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5007
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5012
 #, elixir-autogen, elixir-format
 msgid "Mientras está abierto, las entregas se posponen 5 minutos (no consumen reintentos)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4660
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4661
 #, elixir-autogen, elixir-format
 msgid "Mientras la cuenta esté activa"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5070
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5075
 #, elixir-autogen, elixir-format
 msgid "Monitoreo automatizado de seguridad que detecta anomalías analizando los logs de auditoría cada 5 minutos."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:388
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4921
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4926
 #, elixir-autogen, elixir-format
 msgid "Monitoreo de disponibilidad"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5084
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5089
 #, elixir-autogen, elixir-format
 msgid "Más de 20 intentos de login fallidos desde la misma IP en 10 minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5094
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5099
 #, elixir-autogen, elixir-format
 msgid "Más de 5 exportaciones de datos por el mismo usuario en 10 minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5090
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5095
 #, elixir-autogen, elixir-format
 msgid "Más de 50 intentos de login fallidos globales en 10 minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4870
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4875
 #, elixir-autogen, elixir-format
 msgid "Mínimo 8 caracteres, máximo 72."
 msgstr ""
@@ -6293,23 +6293,23 @@ msgstr ""
 msgid "No encontramos la conexión a internet"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4878
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4883
 #, elixir-autogen, elixir-format
 msgid "No puede coincidir con las últimas 5 contraseñas usadas (historial)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4873
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4878
 #, elixir-autogen, elixir-format
 msgid "No puede ser una contraseña común (blacklist de +150 contraseñas populares)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4964
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4969
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:3914
 #, elixir-autogen, elixir-format
 msgid "No saludable"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4726
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4727
 #, elixir-autogen, elixir-format
 msgid "No se almacenan"
 msgstr ""
@@ -6339,17 +6339,17 @@ msgstr ""
 msgid "No se pudo revocar el consentimiento."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5036
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5041
 #, elixir-autogen, elixir-format
 msgid "Normal. Las entregas se procesan sin restricción."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5151
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5156
 #, elixir-autogen, elixir-format
 msgid "Notificación a usuarios afectados (Art. 34)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2686
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2687
 #, elixir-autogen, elixir-format
 msgid "OK (éxito)"
 msgstr ""
@@ -6364,23 +6364,23 @@ msgstr ""
 msgid "Oposición al procesamiento registrada."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5040
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5045
 #, elixir-autogen, elixir-format
 msgid "Pausado. Las entregas se posponen automáticamente."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:382
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4855
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4860
 #, elixir-autogen, elixir-format
 msgid "Política de contraseñas"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5138
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5143
 #, elixir-autogen, elixir-format
 msgid "Preparación de la notificación y aplicación de medidas de contención."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4938
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4943
 #, elixir-autogen, elixir-format
 msgid "Procesador de trabajos en segundo plano"
 msgstr ""
@@ -6405,7 +6405,7 @@ msgstr ""
 msgid "Procesamiento restringido correctamente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5118
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5123
 #, elixir-autogen, elixir-format
 msgid "Proceso de notificación en 72 horas (Art. 33)"
 msgstr ""
@@ -6416,28 +6416,28 @@ msgid "Propósito"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:364
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4459
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4460
 #: lib/streamflix_web_web/live/account_live.ex:1593
 #, elixir-autogen, elixir-format
 msgid "Protección de datos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5348
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5353
 #, elixir-autogen, elixir-format
 msgid "Protección de información personal identificable con cifrado AES-256-GCM"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4989
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4994
 #, elixir-autogen, elixir-format
 msgid "Protege el sistema pausando automáticamente las entregas a webhooks que fallan repetidamente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4743
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4744
 #, elixir-autogen, elixir-format
 msgid "Proveedor"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5044
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5049
 #, elixir-autogen, elixir-format
 msgid "Prueba. Se permite una entrega para verificar si el destino se recuperó."
 msgstr ""
@@ -6457,53 +6457,53 @@ msgstr ""
 msgid "Puedes eliminar tu cuenta desde la sección «Cuenta». Al hacerlo, se borran permanentemente todos tus proyectos, webhooks, eventos, entregas, jobs, notificaciones y tokens. Los registros de auditoría se pseudonimizan (se elimina tu identificador y dirección IP). Esta acción es irreversible."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4554
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4555
 #, elixir-autogen, elixir-format
 msgid "Puedes objetar al procesamiento de tus datos personales. Los workers y webhooks dejarán de procesar datos mientras la oposición esté activa."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4522
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4523
 #, elixir-autogen, elixir-format
 msgid "Puedes restringir el procesamiento de tus datos sin eliminarlos. Mientras la restricción esté activa, no se procesarán webhooks ni eventos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5231
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5236
 #, elixir-autogen, elixir-format
 msgid "Registro automático de sesión en login (web y API)"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:370
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4614
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4615
 #, elixir-autogen, elixir-format
 msgid "Registro de actividades (Art. 30)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4617
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4618
 #, elixir-autogen, elixir-format
 msgid "Registro de actividades de tratamiento de datos personales según el Artículo 30 del RGPD (ROPA)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4676
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4677
 #, elixir-autogen, elixir-format
 msgid "Registro de auditoría"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4698
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4699
 #, elixir-autogen, elixir-format
 msgid "Registro de consentimientos"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4654
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4655
 #, elixir-autogen, elixir-format
 msgid "Registro y autenticación"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5079
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5084
 #, elixir-autogen, elixir-format
 msgid "Reglas de detección"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4858
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4863
 #, elixir-autogen, elixir-format
 msgid "Reglas de seguridad para contraseñas: requisitos mínimos, blacklist de contraseñas comunes e historial de contraseñas."
 msgstr ""
@@ -6513,17 +6513,17 @@ msgstr ""
 msgid "Removiendo..."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4867
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4872
 #, elixir-autogen, elixir-format
 msgid "Requisitos de contraseña"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4762
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4765
 #, elixir-autogen, elixir-format
 msgid "Resend"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5107
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5112
 #, elixir-autogen, elixir-format
 msgid "Respuesta automática"
 msgstr ""
@@ -6533,7 +6533,7 @@ msgstr ""
 msgid "Restableciendo..."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4519
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4520
 #, elixir-autogen, elixir-format
 msgid "Restricción de procesamiento (Art. 18)"
 msgstr ""
@@ -6555,12 +6555,12 @@ msgstr ""
 msgid "Restringir procesamiento"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4647
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4648
 #, elixir-autogen, elixir-format
 msgid "Retención"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5259
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5264
 #, elixir-autogen, elixir-format
 msgid "Revocación individual de sesiones"
 msgstr ""
@@ -6576,12 +6576,12 @@ msgstr ""
 msgid "Revocar"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4798
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4803
 #, elixir-autogen, elixir-format
 msgid "SHA-256 Payload Hash"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4952
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4957
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:3912
 #, elixir-autogen, elixir-format
 msgid "Saludable"
@@ -6592,32 +6592,32 @@ msgstr ""
 msgid "Se cerraron %{count} sesiones."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4888
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4893
 #, elixir-autogen, elixir-format
 msgid "Se verifica que la contraseña no esté en una lista de contraseñas comunes compilada en tiempo de build. La verificación es case-insensitive."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4489
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4490
 #, elixir-autogen, elixir-format
 msgid "Sección «Cuenta» → «Protección de datos» → «Exportar datos»"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4562
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4563
 #, elixir-autogen, elixir-format
 msgid "Sección «Cuenta» → «Protección de datos» → «Objetar procesamiento»"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4530
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4531
 #, elixir-autogen, elixir-format
 msgid "Sección «Cuenta» → «Protección de datos» → «Restringir procesamiento»"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4746
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4747
 #, elixir-autogen, elixir-format
 msgid "Servicio"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4958
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4963
 #, elixir-autogen, elixir-format
 msgid "Servicios secundarios con problemas (Oban o cache). La funcionalidad principal sigue disponible."
 msgstr ""
@@ -6632,22 +6632,22 @@ msgstr ""
 msgid "Sesión cerrada."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4842
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4847
 #, elixir-autogen, elixir-format
 msgid "Si la clave ya existe, se retorna el evento original con status 202."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5017
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5022
 #, elixir-autogen, elixir-format
 msgid "Si la prueba es exitosa, el circuito se cierra y las entregas continúan normalmente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5022
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5027
 #, elixir-autogen, elixir-format
 msgid "Si la prueba falla, el circuito vuelve a abrirse por otros 5 minutos."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4404
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4405
 #, elixir-autogen, elixir-format
 msgid "Sin almacenamiento remoto configurado, los backups se guardan solo en disco local."
 msgstr ""
@@ -6662,17 +6662,17 @@ msgstr ""
 msgid "Sin sesiones activas."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4736
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4737
 #, elixir-autogen, elixir-format
 msgid "Sub-procesadores"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4755
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4756
 #, elixir-autogen, elixir-format
 msgid "Supabase"
 msgstr ""
 
-#: lib/streamflix_web_web/live/admin/dashboard_live.ex:237
+#: lib/streamflix_web_web/live/admin/dashboard_live.ex:238
 #: lib/streamflix_web_web/live/admin/users_live.ex:340
 #, elixir-autogen, elixir-format
 msgid "Superadmin"
@@ -6683,32 +6683,32 @@ msgstr ""
 msgid "TU_JWT_AQUI"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5375
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5380
 #, elixir-autogen, elixir-format
 msgid "Tabla"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5358
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5363
 #, elixir-autogen, elixir-format
 msgid "Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con PBKDF2-SHA512 (210.000 rondas)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4953
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4958
 #, elixir-autogen, elixir-format
 msgid "Todos los servicios funcionando correctamente."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4590
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4591
 #, elixir-autogen, elixir-format
 msgid "Todos tus proyectos y sus datos asociados (webhooks, eventos, entregas, jobs, API keys)."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4595
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4596
 #, elixir-autogen, elixir-format
 msgid "Tokens de sesión y notificaciones."
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5002
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5007
 #, elixir-autogen, elixir-format
 msgid "Tras 5 fallos consecutivos en un webhook, el circuit breaker se abre."
 msgstr ""
@@ -6725,34 +6725,34 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4766
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4770
 #, elixir-autogen, elixir-format
 msgid "US"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4759
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4761
 #, elixir-autogen, elixir-format
 msgid "US (AWS)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4749
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4750
 #, elixir-autogen, elixir-format
 msgid "Ubicación"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4933
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4938
 #, elixir-autogen, elixir-format
 msgid "Verificaciones realizadas"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5287
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5292
 #, elixir-autogen, elixir-format
 msgid "Verificación de revocación en cada request (token rechazado si sesión revocada)"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4491
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4532
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4564
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4492
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4533
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4565
 #, elixir-autogen, elixir-format
 msgid "Vía API"
 msgstr ""
@@ -6767,7 +6767,7 @@ msgstr ""
 msgid "[Sin publicar]"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1408
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1411
 #, elixir-autogen, elixir-format
 msgid "action_type + action_config"
 msgstr ""
@@ -6792,7 +6792,7 @@ msgstr ""
 msgid "nombre"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1390
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1391
 #, elixir-autogen, elixir-format
 msgid "schedule_type + schedule_config"
 msgstr ""
@@ -6838,7 +6838,37 @@ msgstr ""
 msgid "Última actividad"
 msgstr ""
 
-#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4844
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4849
 #, elixir-autogen, elixir-format
 msgid "Útil para reintentos seguros desde el cliente."
+msgstr ""
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1717
+#, elixir-autogen, elixir-format
+msgid "Cada 15 minutos."
+msgstr ""
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1712
+#, elixir-autogen, elixir-format
+msgid "Días laborables (Lun–Vie) a las 09:00."
+msgstr ""
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1722
+#, elixir-autogen, elixir-format
+msgid "El día 1 de cada mes a las 00:00."
+msgstr ""
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1707
+#, elixir-autogen, elixir-format
+msgid "Solo los lunes a las 09:00."
+msgstr ""
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1702
+#, elixir-autogen, elixir-format
+msgid "Todos los días a las 09:00."
+msgstr ""
+
+#: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1697
+#, elixir-autogen, elixir-format
+msgid "Todos los días a medianoche (00:00)."
 msgstr ""
