@@ -91,7 +91,13 @@ defmodule StreamflixWebWeb.AuthController do
 
       {:error, :account_locked} ->
         conn
-        |> put_flash(:error, gettext("Tu cuenta ha sido bloqueada temporalmente por múltiples intentos fallidos. Intenta de nuevo en %{minutes} minutos.", minutes: 15))
+        |> put_flash(
+          :error,
+          gettext(
+            "Tu cuenta ha sido bloqueada temporalmente por múltiples intentos fallidos. Intenta de nuevo en %{minutes} minutos.",
+            minutes: 15
+          )
+        )
         |> redirect(to: "/login")
 
       {:error, :account_inactive} ->

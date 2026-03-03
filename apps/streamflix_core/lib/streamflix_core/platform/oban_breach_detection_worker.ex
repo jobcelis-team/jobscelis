@@ -34,7 +34,10 @@ defmodule StreamflixCore.Platform.ObanBreachDetectionWorker do
       )
 
       notify_admins(anomalies)
-      Logger.warning("[BreachDetection] #{length(anomalies)} anomalies detected: #{inspect(anomalies)}")
+
+      Logger.warning(
+        "[BreachDetection] #{length(anomalies)} anomalies detected: #{inspect(anomalies)}"
+      )
     end
 
     :ok
@@ -111,7 +114,8 @@ defmodule StreamflixCore.Platform.ObanBreachDetectionWorker do
         user_id: user_id,
         type: "security_anomaly",
         title: "Anomalía de seguridad detectada",
-        message: "Se detectaron #{length(anomalies)} anomalías en los últimos #{@window_minutes} min: #{summary}",
+        message:
+          "Se detectaron #{length(anomalies)} anomalías en los últimos #{@window_minutes} min: #{summary}",
         metadata: %{"anomalies" => anomalies}
       })
     end)

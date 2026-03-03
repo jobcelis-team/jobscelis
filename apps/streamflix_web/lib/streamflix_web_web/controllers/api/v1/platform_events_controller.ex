@@ -35,7 +35,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
       {:ok, event} ->
         resp = %{event_id: event.id, payload_hash: event.payload_hash}
         resp = if event.deliver_at, do: Map.put(resp, :deliver_at, event.deliver_at), else: resp
-        resp = if event.idempotency_key, do: Map.put(resp, :idempotency_key, event.idempotency_key), else: resp
+
+        resp =
+          if event.idempotency_key,
+            do: Map.put(resp, :idempotency_key, event.idempotency_key),
+            else: resp
 
         conn
         |> put_status(:accepted)

@@ -96,12 +96,18 @@ defmodule StreamflixCore.Platform.Backup do
               {:ok, Map.put(result, :storage, "azure")}
 
             {:error, reason} ->
-              Logger.warning("[Backup] Fallo al subir a Azure: #{inspect(reason)}. Se conserva archivo local.")
+              Logger.warning(
+                "[Backup] Fallo al subir a Azure: #{inspect(reason)}. Se conserva archivo local."
+              )
+
               {:ok, Map.put(result, :storage, "local")}
           end
 
         {:error, reason} ->
-          Logger.warning("[Backup] No se pudo leer archivo para subir a Azure: #{inspect(reason)}")
+          Logger.warning(
+            "[Backup] No se pudo leer archivo para subir a Azure: #{inspect(reason)}"
+          )
+
           {:ok, Map.put(result, :storage, "local")}
       end
     else
@@ -117,12 +123,13 @@ defmodule StreamflixCore.Platform.Backup do
       {:ok, blobs} ->
         case Enum.sort_by(blobs, & &1.name, :desc) do
           [latest | _] ->
-            {:ok, %{
-              filename: latest.name,
-              size: latest.size,
-              storage: "azure",
-              last_modified: latest.last_modified
-            }}
+            {:ok,
+             %{
+               filename: latest.name,
+               size: latest.size,
+               storage: "azure",
+               last_modified: latest.last_modified
+             }}
 
           [] ->
             {:ok, nil}
@@ -249,15 +256,20 @@ defmodule StreamflixCore.Platform.Backup do
   defp run_pg_dump(pg_dump_path, filepath, db_env) do
     # pg_dump con gzip piped
     args = [
-      "-h", db_env.host,
-      "-p", db_env.port,
-      "-U", db_env.username,
-      "-d", db_env.database,
+      "-h",
+      db_env.host,
+      "-p",
+      db_env.port,
+      "-U",
+      db_env.username,
+      "-d",
+      db_env.database,
       "--no-owner",
       "--no-acl",
       "--format=custom",
       "--compress=6",
-      "-f", filepath
+      "-f",
+      filepath
     ]
 
     env = [{"PGPASSWORD", db_env.password}]

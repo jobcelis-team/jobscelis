@@ -159,7 +159,10 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
       {:error, :account_locked} ->
         conn
         |> put_status(423)
-        |> json(%{error: "Account temporarily locked due to multiple failed login attempts. Try again in 15 minutes."})
+        |> json(%{
+          error:
+            "Account temporarily locked due to multiple failed login attempts. Try again in 15 minutes."
+        })
 
       {:error, :account_inactive} ->
         conn

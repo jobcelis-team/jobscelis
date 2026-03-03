@@ -483,12 +483,13 @@ defmodule StreamflixWebWeb.AccountLive do
       {:error, :invalid_code} ->
         {:noreply,
          assign(socket, :mfa_setup_errors, [
-           gettext("Código incorrecto. Verifica tu aplicación de autenticación e inténtalo de nuevo.")
+           gettext(
+             "Código incorrecto. Verifica tu aplicación de autenticación e inténtalo de nuevo."
+           )
          ])}
 
       {:error, _} ->
-        {:noreply,
-         assign(socket, :mfa_setup_errors, [gettext("No se pudo activar MFA.")])}
+        {:noreply, assign(socket, :mfa_setup_errors, [gettext("No se pudo activar MFA.")])}
     end
   end
 
@@ -552,8 +553,7 @@ defmodule StreamflixWebWeb.AccountLive do
          assign(socket, :mfa_disable_errors, [gettext("La contraseña no es correcta.")])}
 
       {:error, _} ->
-        {:noreply,
-         assign(socket, :mfa_disable_errors, [gettext("No se pudo desactivar MFA.")])}
+        {:noreply, assign(socket, :mfa_disable_errors, [gettext("No se pudo desactivar MFA.")])}
     end
   end
 
@@ -985,8 +985,18 @@ defmodule StreamflixWebWeb.AccountLive do
         <div class="mt-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
             <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
-              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              <svg
+                class="w-5 h-5 text-indigo-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+                />
               </svg>
               {gettext("Autenticación de dos factores")}
             </h2>
@@ -998,13 +1008,25 @@ defmodule StreamflixWebWeb.AccountLive do
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="flex items-center gap-3">
                   <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      class="w-5 h-5 text-emerald-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   </div>
                   <div>
                     <p class="text-base font-medium text-slate-800">{gettext("MFA activado")}</p>
-                    <p class="text-sm text-slate-500">{gettext("Tu cuenta está protegida con autenticación de dos factores.")}</p>
+                    <p class="text-sm text-slate-500">
+                      {gettext("Tu cuenta está protegida con autenticación de dos factores.")}
+                    </p>
                   </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
@@ -1014,7 +1036,12 @@ defmodule StreamflixWebWeb.AccountLive do
                     class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"
+                      />
                     </svg>
                     {gettext("Regenerar códigos")}
                   </button>
@@ -1024,7 +1051,12 @@ defmodule StreamflixWebWeb.AccountLive do
                     class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-200 bg-white text-red-700 text-sm font-medium hover:bg-red-50 transition"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                      />
                     </svg>
                     {gettext("Desactivar MFA")}
                   </button>
@@ -1035,17 +1067,33 @@ defmodule StreamflixWebWeb.AccountLive do
               <%= if @mfa_step == :backup_codes and @mfa_backup_codes do %>
                 <div class="mt-6 p-5 bg-amber-50 border border-amber-200 rounded-xl">
                   <div class="flex items-start gap-3 mb-4">
-                    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                    <svg
+                      class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"
+                      />
                     </svg>
                     <div>
                       <p class="font-medium text-amber-900">{gettext("Códigos de recuperación")}</p>
-                      <p class="text-sm text-amber-700 mt-1">{gettext("Guarda estos códigos en un lugar seguro. Cada código solo se puede usar una vez.")}</p>
+                      <p class="text-sm text-amber-700 mt-1">
+                        {gettext(
+                          "Guarda estos códigos en un lugar seguro. Cada código solo se puede usar una vez."
+                        )}
+                      </p>
                     </div>
                   </div>
                   <div class="grid grid-cols-2 gap-2">
                     <%= for code <- @mfa_backup_codes do %>
-                      <code class="bg-white px-3 py-2 rounded-lg border border-amber-200 text-sm font-mono text-slate-800 text-center">{code}</code>
+                      <code class="bg-white px-3 py-2 rounded-lg border border-amber-200 text-sm font-mono text-slate-800 text-center">
+                        {code}
+                      </code>
                     <% end %>
                   </div>
                   <div class="mt-4 flex justify-end">
@@ -1059,20 +1107,31 @@ defmodule StreamflixWebWeb.AccountLive do
                   </div>
                 </div>
               <% end %>
-
             <% else %>
               <%!-- MFA is OFF --%>
               <%= if @mfa_step == nil do %>
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div class="flex items-center gap-3">
                     <div class="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                      <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                      <svg
+                        class="w-5 h-5 text-slate-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                        />
                       </svg>
                     </div>
                     <div>
                       <p class="text-base font-medium text-slate-800">{gettext("MFA desactivado")}</p>
-                      <p class="text-sm text-slate-500">{gettext("Agrega una capa extra de seguridad a tu cuenta.")}</p>
+                      <p class="text-sm text-slate-500">
+                        {gettext("Agrega una capa extra de seguridad a tu cuenta.")}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -1081,7 +1140,12 @@ defmodule StreamflixWebWeb.AccountLive do
                     class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+                      />
                     </svg>
                     {gettext("Activar MFA")}
                   </button>
@@ -1093,7 +1157,9 @@ defmodule StreamflixWebWeb.AccountLive do
                 <div class="space-y-6">
                   <div class="text-center">
                     <p class="text-sm text-slate-600 mb-4">
-                      {gettext("Escanea este código QR con tu aplicación de autenticación (Google Authenticator, Authy, etc.)")}
+                      {gettext(
+                        "Escanea este código QR con tu aplicación de autenticación (Google Authenticator, Authy, etc.)"
+                      )}
                     </p>
                     <div class="inline-block p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
                       {raw(@mfa_qr_svg)}
@@ -1113,7 +1179,10 @@ defmodule StreamflixWebWeb.AccountLive do
                   <%!-- Verify code --%>
                   <form phx-submit="confirm_mfa_setup" class="space-y-4">
                     <div>
-                      <label for="mfa_setup_code" class="block text-sm font-medium text-slate-700 mb-1.5">
+                      <label
+                        for="mfa_setup_code"
+                        class="block text-sm font-medium text-slate-700 mb-1.5"
+                      >
                         {gettext("Ingresa el código de 6 dígitos para confirmar")}
                       </label>
                       <input
@@ -1132,9 +1201,22 @@ defmodule StreamflixWebWeb.AccountLive do
                     </div>
 
                     <%= if @mfa_setup_errors != [] do %>
-                      <div class="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3" role="alert">
-                        <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                      <div
+                        class="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                        role="alert"
+                      >
+                        <svg
+                          class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                          />
                         </svg>
                         <div class="text-sm text-red-700">
                           <%= for error <- @mfa_setup_errors do %>
@@ -1168,17 +1250,33 @@ defmodule StreamflixWebWeb.AccountLive do
               <%= if @mfa_step == :backup_codes and @mfa_backup_codes do %>
                 <div class="p-5 bg-amber-50 border border-amber-200 rounded-xl">
                   <div class="flex items-start gap-3 mb-4">
-                    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                    <svg
+                      class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"
+                      />
                     </svg>
                     <div>
                       <p class="font-medium text-amber-900">{gettext("Códigos de recuperación")}</p>
-                      <p class="text-sm text-amber-700 mt-1">{gettext("Guarda estos códigos en un lugar seguro. Cada código solo se puede usar una vez. No podrás verlos de nuevo.")}</p>
+                      <p class="text-sm text-amber-700 mt-1">
+                        {gettext(
+                          "Guarda estos códigos en un lugar seguro. Cada código solo se puede usar una vez. No podrás verlos de nuevo."
+                        )}
+                      </p>
                     </div>
                   </div>
                   <div class="grid grid-cols-2 gap-2">
                     <%= for code <- @mfa_backup_codes do %>
-                      <code class="bg-white px-3 py-2 rounded-lg border border-amber-200 text-sm font-mono text-slate-800 text-center">{code}</code>
+                      <code class="bg-white px-3 py-2 rounded-lg border border-amber-200 text-sm font-mono text-slate-800 text-center">
+                        {code}
+                      </code>
                     <% end %>
                   </div>
                   <div class="mt-4 flex justify-end">
@@ -1204,8 +1302,18 @@ defmodule StreamflixWebWeb.AccountLive do
         <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
-              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+              <svg
+                class="w-5 h-5 text-indigo-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"
+                />
               </svg>
               {gettext("Sesiones activas")}
             </h2>
@@ -1217,7 +1325,12 @@ defmodule StreamflixWebWeb.AccountLive do
                 class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs sm:text-sm font-medium hover:bg-red-100 hover:border-red-300 transition"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                  />
                 </svg>
                 {gettext("Cerrar todas las demás sesiones")}
               </button>
@@ -1229,11 +1342,21 @@ defmodule StreamflixWebWeb.AccountLive do
             <table class="min-w-full text-sm">
               <thead>
                 <tr class="border-b border-slate-200">
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Dispositivo")}</th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">{gettext("IP")}</th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">{gettext("Última actividad")}</th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Fecha")}</th>
-                  <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Acción")}</th>
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                    {gettext("Dispositivo")}
+                  </th>
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
+                    {gettext("IP")}
+                  </th>
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
+                    {gettext("Última actividad")}
+                  </th>
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                    {gettext("Fecha")}
+                  </th>
+                  <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                    {gettext("Acción")}
+                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -1243,28 +1366,62 @@ defmodule StreamflixWebWeb.AccountLive do
                       <div class="flex items-center gap-2">
                         <%= case session.device_info do %>
                           <% "Mobile" -> %>
-                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                            <svg
+                              class="w-4 h-4 text-slate-400 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
+                              />
                             </svg>
                           <% "Tablet" -> %>
-                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
+                            <svg
+                              class="w-4 h-4 text-slate-400 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z"
+                              />
                             </svg>
                           <% _ -> %>
-                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+                            <svg
+                              class="w-4 h-4 text-slate-400 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"
+                              />
                             </svg>
                         <% end %>
                         <span>
                           {session.device_info || "Desktop"}
                           <%= if @current_jti && session.token_jti == @current_jti do %>
-                            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">{gettext("Esta sesión")}</span>
+                            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">
+                              {gettext("Esta sesión")}
+                            </span>
                           <% end %>
                         </span>
                       </div>
                     </td>
                     <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
-                      <span class="truncate max-w-[8rem] inline-block">{session.ip_address || "—"}</span>
+                      <span class="truncate max-w-[8rem] inline-block">
+                        {session.ip_address || "—"}
+                      </span>
                     </td>
                     <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
                       <%= if session.last_activity_at do %>
@@ -1313,7 +1470,12 @@ defmodule StreamflixWebWeb.AccountLive do
         <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
           <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
             <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+              />
             </svg>
             {gettext("Protección de datos")}
           </h2>
@@ -1323,14 +1485,21 @@ defmodule StreamflixWebWeb.AccountLive do
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h3 class="text-sm font-semibold text-slate-800">{gettext("Exportar mis datos")}</h3>
-              <p class="text-sm text-slate-500 mt-0.5">{gettext("Descarga una copia de todos tus datos personales (RGPD Art. 15).")}</p>
+              <p class="text-sm text-slate-500 mt-0.5">
+                {gettext("Descarga una copia de todos tus datos personales (RGPD Art. 15).")}
+              </p>
             </div>
             <a
               href="/export/my-data"
               class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                />
               </svg>
               {gettext("Exportar datos")}
             </a>
@@ -1343,10 +1512,18 @@ defmodule StreamflixWebWeb.AccountLive do
               <table class="min-w-full text-sm">
                 <thead>
                   <tr class="border-b border-slate-200">
-                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Propósito")}</th>
-                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">{gettext("Fecha")}</th>
-                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Estado")}</th>
-                    <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Acción")}</th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                      {gettext("Propósito")}
+                    </th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
+                      {gettext("Fecha")}
+                    </th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                      {gettext("Estado")}
+                    </th>
+                    <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                      {gettext("Acción")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -1354,11 +1531,16 @@ defmodule StreamflixWebWeb.AccountLive do
                     <tr class="hover:bg-slate-50">
                       <td class="py-2.5 px-3 text-slate-700 font-medium">
                         <%= case consent.purpose do %>
-                          <% "terms" -> %> {gettext("Términos de uso")}
-                          <% "privacy" -> %> {gettext("Política de privacidad")}
-                          <% "data_processing" -> %> {gettext("Procesamiento de datos")}
-                          <% "marketing" -> %> {gettext("Marketing")}
-                          <% _ -> %> {consent.purpose}
+                          <% "terms" -> %>
+                            {gettext("Términos de uso")}
+                          <% "privacy" -> %>
+                            {gettext("Política de privacidad")}
+                          <% "data_processing" -> %>
+                            {gettext("Procesamiento de datos")}
+                          <% "marketing" -> %>
+                            {gettext("Marketing")}
+                          <% _ -> %>
+                            {consent.purpose}
                         <% end %>
                       </td>
                       <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
@@ -1935,7 +2117,10 @@ defmodule StreamflixWebWeb.AccountLive do
       <%!-- MODAL: Disable MFA                                           --%>
       <%!-- ══════════════════════════════════════════════════════════════ --%>
       <%= if @show_mfa_disable_modal do %>
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="mfa-disable-modal-container">
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          id="mfa-disable-modal-container"
+        >
           <div
             class="absolute inset-0 bg-black/50 backdrop-blur-sm"
             phx-click="close_mfa_disable_modal"
@@ -1950,8 +2135,18 @@ defmodule StreamflixWebWeb.AccountLive do
             <div class="px-6 pt-6 pb-4">
               <div class="flex items-start gap-3">
                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  <svg
+                    class="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                    />
                   </svg>
                 </div>
                 <div>
@@ -1966,7 +2161,10 @@ defmodule StreamflixWebWeb.AccountLive do
             </div>
             <form phx-submit="disable_mfa" class="px-6 pb-6">
               <div>
-                <label for="mfa_disable_password" class="block text-sm font-medium text-slate-700 mb-1.5">
+                <label
+                  for="mfa_disable_password"
+                  class="block text-sm font-medium text-slate-700 mb-1.5"
+                >
                   {gettext("Contraseña actual")}
                 </label>
                 <input
@@ -1979,7 +2177,10 @@ defmodule StreamflixWebWeb.AccountLive do
                 />
               </div>
               <%= if @mfa_disable_errors != [] do %>
-                <div class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3" role="alert">
+                <div
+                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                  role="alert"
+                >
                   <div class="text-sm text-red-700">
                     <%= for error <- @mfa_disable_errors do %>
                       <p>{error}</p>

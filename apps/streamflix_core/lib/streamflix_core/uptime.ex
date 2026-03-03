@@ -118,6 +118,10 @@ defmodule StreamflixCore.Uptime do
   end
 
   defp period_to_datetime(:last_24h), do: DateTime.utc_now() |> DateTime.add(-24 * 3600, :second)
-  defp period_to_datetime(:last_7d), do: DateTime.utc_now() |> DateTime.add(-7 * 24 * 3600, :second)
-  defp period_to_datetime(:last_30d), do: DateTime.utc_now() |> DateTime.add(-30 * 24 * 3600, :second)
+
+  defp period_to_datetime(:last_7d),
+    do: DateTime.utc_now() |> DateTime.add(-7 * 24 * 3600, :second)
+
+  defp period_to_datetime(:last_30d),
+    do: DateTime.utc_now() |> DateTime.add(-30 * 24 * 3600, :second)
 end

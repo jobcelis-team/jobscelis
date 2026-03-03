@@ -54,7 +54,12 @@ defmodule StreamflixCore.Services.AzureStorage do
         {"Authorization", "SharedKey #{account}:#{signature}"}
       ]
 
-    case Req.put(url, headers: headers, body: body, connect_options: [timeout: 30_000], receive_timeout: 120_000) do
+    case Req.put(url,
+           headers: headers,
+           body: body,
+           connect_options: [timeout: 30_000],
+           receive_timeout: 120_000
+         ) do
       {:ok, %{status: 201} = resp} ->
         Logger.info("[AzureStorage] Blob subido: #{container}/#{blob_name}")
         {:ok, resp}
@@ -103,7 +108,11 @@ defmodule StreamflixCore.Services.AzureStorage do
       {"Authorization", "SharedKey #{account}:#{signature}"}
     ]
 
-    case Req.get(url, headers: headers, connect_options: [timeout: 15_000], receive_timeout: 30_000) do
+    case Req.get(url,
+           headers: headers,
+           connect_options: [timeout: 15_000],
+           receive_timeout: 30_000
+         ) do
       {:ok, %{status: 200, body: body}} ->
         {:ok, parse_blob_list(body)}
 
@@ -142,7 +151,11 @@ defmodule StreamflixCore.Services.AzureStorage do
       {"Authorization", "SharedKey #{account}:#{signature}"}
     ]
 
-    case Req.delete(url, headers: headers, connect_options: [timeout: 15_000], receive_timeout: 30_000) do
+    case Req.delete(url,
+           headers: headers,
+           connect_options: [timeout: 15_000],
+           receive_timeout: 30_000
+         ) do
       {:ok, %{status: 202}} ->
         Logger.info("[AzureStorage] Blob eliminado: #{container}/#{blob_name}")
         :ok
@@ -174,7 +187,13 @@ defmodule StreamflixCore.Services.AzureStorage do
     DateTime.utc_now() |> Calendar.strftime("%a, %d %b %Y %H:%M:%S GMT")
   end
 
-  defp build_string_to_sign(method, content_length, content_type, headers_map, canonicalized_resource) do
+  defp build_string_to_sign(
+         method,
+         content_length,
+         content_type,
+         headers_map,
+         canonicalized_resource
+       ) do
     cl = if content_length == 0, do: "", else: to_string(content_length)
 
     canonicalized_headers =
@@ -185,17 +204,28 @@ defmodule StreamflixCore.Services.AzureStorage do
 
     [
       method,
-      "",                     # Content-Encoding
-      "",                     # Content-Language
-      cl,                     # Content-Length
-      "",                     # Content-MD5
-      content_type,           # Content-Type
-      "",                     # Date
-      "",                     # If-Modified-Since
-      "",                     # If-Match
-      "",                     # If-None-Match
-      "",                     # If-Unmodified-Since
-      "",                     # Range
+      # Content-Encoding
+      "",
+      # Content-Language
+      "",
+      # Content-Length
+      cl,
+      # Content-MD5
+      "",
+      # Content-Type
+      content_type,
+      # Date
+      "",
+      # If-Modified-Since
+      "",
+      # If-Match
+      "",
+      # If-None-Match
+      "",
+      # If-Unmodified-Since
+      "",
+      # Range
+      "",
       canonicalized_headers,
       canonicalized_resource
     ]

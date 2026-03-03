@@ -94,8 +94,9 @@ if config_env() == :prod do
   end
 
   # HMAC secret for deterministic hashing (email lookups)
-  hmac_secret = System.get_env("HMAC_SECRET") || System.get_env("CLOAK_KEY") ||
-    raise "environment variable HMAC_SECRET is missing."
+  hmac_secret =
+    System.get_env("HMAC_SECRET") || System.get_env("CLOAK_KEY") ||
+      raise "environment variable HMAC_SECRET is missing."
 
   config :streamflix_core, StreamflixCore.Hashed.HMAC,
     algorithm: :sha512,
