@@ -500,6 +500,38 @@ defmodule StreamflixAccounts do
     end
   end
 
+  # ---------- GDPR: Restriction (Art. 18) + Objection (Art. 21) ----------
+
+  @doc "Restrict processing for a user (requires password confirmation)."
+  def restrict_user(%User{} = user, current_password) when is_binary(current_password) do
+    case Authentication.authenticate(user.email, current_password) do
+      {:ok, _} ->
+        StreamflixCore.GDPR.restrict_processing(user, "user_requested")
+
+      {:error, _} ->
+        {:error, :wrong_password}
+    end
+  end
+
+  def restrict_user(_, _), do: {:error, :invalid}
+
+  @doc "Lift processing restriction for a user."
+  def lift_restriction(%User{} = user) do
+    StreamflixCore.GDPR.lift_restriction(user)
+  end
+
+  @doc "Record user's objection to data processing (Art. 21)."
+  def object_to_processing(%User{} = user) do
+    StreamflixCore.GDPR.object_to_processing(user)
+  end
+
+  @doc "Restore user's processing consent after objection withdrawal."
+  def restore_processing_consent(%User{} = user) do
+    StreamflixCore.GDPR.restore_processing_consent(user)
+  end
+
+  # ---------- USER STATUS ----------
+
   def deactivate_user(user_id) do
     case get_user(user_id) do
       nil -> {:error, :not_found}

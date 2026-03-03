@@ -402,22 +402,29 @@ defmodule StreamflixCore.Platform do
   # ---------- Events (webhook_events) ----------
 
   def create_event(project_id, body) when is_map(body) do
-    # Extract idempotency_key before topic/payload extraction
-    idempotency_key =
-      Map.get(body, "idempotency_key") || Map.get(body, :idempotency_key)
+    # GDPR: check if project owner allows processing
+    project = get_project(project_id)
 
-    # Idempotency: return existing event if key already used
-    if idempotency_key do
-      case Repo.one(
-             from(e in WebhookEvent,
-               where: e.project_id == ^project_id and e.idempotency_key == ^idempotency_key
-             )
-           ) do
-        %WebhookEvent{} = existing -> {:ok, existing}
-        nil -> do_create_event(project_id, body, idempotency_key)
-      end
+    if project && !user_processing_allowed?(project.user_id) do
+      {:error, :processing_restricted}
     else
-      do_create_event(project_id, body, nil)
+      # Extract idempotency_key before topic/payload extraction
+      idempotency_key =
+        Map.get(body, "idempotency_key") || Map.get(body, :idempotency_key)
+
+      # Idempotency: return existing event if key already used
+      if idempotency_key do
+        case Repo.one(
+               from(e in WebhookEvent,
+                 where: e.project_id == ^project_id and e.idempotency_key == ^idempotency_key
+               )
+             ) do
+          %WebhookEvent{} = existing -> {:ok, existing}
+          nil -> do_create_event(project_id, body, idempotency_key)
+        end
+      else
+        do_create_event(project_id, body, nil)
+      end
     end
   end
 
@@ -1514,4 +1521,24 @@ defmodule StreamflixCore.Platform do
   defp broadcast(project_id, message) do
     Phoenix.PubSub.broadcast(@pubsub, "project:#{project_id}", message)
   end
+
+  @doc false
+  def user_processing_allowed?(user_id) when is_binary(user_id) do
+    case Repo.one(
+           from(u in "users",
+             where: u.id == type(^user_id, :binary_id),
+             select: %{
+               status: u.status,
+               processing_consent: u.processing_consent
+             }
+           )
+         ) do
+      nil -> true
+      %{status: "restricted"} -> false
+      %{processing_consent: false} -> false
+      _ -> true
+    end
+  end
+
+  def user_processing_allowed?(_), do: true
 end

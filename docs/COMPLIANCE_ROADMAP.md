@@ -1,7 +1,7 @@
 # Compliance Roadmap: SOC 2, GDPR, HIPAA
 
 > **Fecha:** 2026-03-07
-> **Estado:** En progreso — SOC 2 ~95%, GDPR nivel 1-2 completados
+> **Estado:** En progreso — SOC 2 ~95%, GDPR ~90% (Art. 15-21 + cookies + ROPA + notificación 72h)
 > **Costo:** $0 — solo tiempo de desarrollo
 > **Estimación total:** ~27-30 días de trabajo
 
@@ -128,21 +128,21 @@ Aplica si procesamos datos de personas en la UE.
 
 | Derecho | Estado actual | Solución self-hosted | Esfuerzo |
 |---|---|---|---|
-| **Acceso (Art. 15)** | Parcial — export de eventos/deliveries pero no de datos personales del usuario | Endpoint `GET /api/v1/me/data` que exporte TODO: perfil, eventos, webhooks, audit entries, sesiones | ~1-2 días |
-| **Rectificación (Art. 16)** | Parcial — se puede editar perfil | Verificar que se puede editar TODOS los campos personales. Registrar cambios en audit log | ~0.5 días |
-| **Supresión (Art. 17)** | Parcial — eliminar cuenta existe | Implementar "derecho al olvido" completo: anonimizar (no borrar) registros en audit log, eventos, deliveries. Reemplazar datos personales con `[DELETED]` | ~2 días |
-| **Portabilidad (Art. 20)** | Parcial — CSV/JSON export existe | Asegurar formato máquina-readable estándar (JSON-LD o similar). Incluir TODOS los datos personales | ~1 día |
-| **Oposición (Art. 21)** | No existe | Flag `processing_consent` en usuario. Respetar en todos los workers/jobs | ~1 día |
-| **Limitación (Art. 18)** | No existe | Estado `restricted` en usuario que congela procesamiento sin borrar datos | ~1 día |
+| ~~**Acceso (Art. 15)**~~ | ~~Parcial~~ → DSAR v2 completo: perfil, eventos (500), deliveries (500), sesiones (100), GDPR fields | ~~Endpoint `GET /api/v1/me/data`~~ | ~~1-2 días~~ **DONE** |
+| ~~**Rectificación (Art. 16)**~~ | Se puede editar perfil (nombre, email, contraseña). Cambios registrados en audit log | Verificado completo | ~~0.5 días~~ **DONE** |
+| ~~**Supresión (Art. 17)**~~ | Erasure completo: anonimiza audit logs, notifications; elimina consents, sessions, password_history, memberships, projects + cascade | ~~Derecho al olvido~~ | ~~2 días~~ **DONE** |
+| ~~**Portabilidad (Art. 20)**~~ | DSAR v2 con format/schema_version, eventos y deliveries completos, sesiones | ~~Formato máquina-readable~~ | ~~1 día~~ **DONE** |
+| ~~**Oposición (Art. 21)**~~ | `processing_consent` flag + enforcement en create_event y DeliveryWorker | ~~Flag processing_consent~~ | ~~1 día~~ **DONE** |
+| ~~**Limitación (Art. 18)**~~ | Estado `restricted` + restricted_at/reason + enforcement en workers | ~~Estado restricted~~ | ~~1 día~~ **DONE** |
 
 ### Bases legales y consentimiento
 
 | Requisito | Solución self-hosted | Esfuerzo |
 |---|---|---|
 | **Registro de consentimiento** | Tabla `consents` (user_id, purpose, granted_at, revoked_at, ip, version). Registrar cada aceptación | ~1-2 días |
-| **Banner de cookies** | LiveView component que muestre aviso y registre consentimiento antes de setear cookies no esenciales | ~1 día |
+| ~~**Banner de cookies**~~ | ~~Componente informativo (solo cookies técnicas: sesión + locale). Dismiss con localStorage. Sin opt-in (ePrivacy exempt)~~ | ~~1 día~~ **DONE** |
 | **Política de privacidad** | Página `/privacy` con texto gettext bilingüe. Incluir: datos recopilados, base legal, retención, derechos | ~1 día (documentación) |
-| **Registro de actividades (Art. 30)** | Documento/tabla que liste: categorías de datos, propósitos, bases legales, retención, destinatarios | ~1 día (documentación) |
+| ~~**Registro de actividades (Art. 30)**~~ | ~~ROPA completo en `docs/ROPA.md`: 7 actividades, sub-procesadores, medidas Art. 32, derechos. Sección en /docs~~ | ~~1 día~~ **DONE** |
 
 ### Seguridad del tratamiento (Art. 32)
 
@@ -158,7 +158,7 @@ Aplica si procesamos datos de personas en la UE.
 | Requisito | Solución self-hosted | Esfuerzo |
 |---|---|---|
 | ~~**Detección de brechas**~~ | ~~Monitor que detecte: login masivo fallido, export masivo, acceso desde IP inusual. Alertar vía webhook interno~~ | ~~2-3 días~~ **DONE** |
-| **Notificación en 72h** | Plantilla de notificación + proceso documentado + endpoint interno para disparar alerta | ~1 día (documentación + template) |
+| ~~**Notificación en 72h**~~ | ~~Proceso documentado en `docs/BREACH_NOTIFICATION.md`: timeline 4 fases, templates Art. 33/34, clasificación de severidad (critical/high/medium) en el worker~~ | ~~1 día~~ **DONE** |
 
 ---
 
@@ -274,8 +274,8 @@ HIPAA es el MAS estricto. Aplica si manejamos PHI (Protected Health Information)
 
 | Framework | Cobertura actual | Después de implementar todo |
 |---|---|---|
-| **SOC 2** | ~80% | ~95% |
-| **GDPR** | ~40% | ~90% |
+| **SOC 2** | ~95% | ~95% |
+| **GDPR** | ~90% | ~95% |
 | **HIPAA** | ~35% | ~85% |
 
 > **Nota:** El 100% en HIPAA y SOC2 requiere auditoría externa y controles organizacionales
