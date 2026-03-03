@@ -199,8 +199,7 @@ defmodule StreamflixCore.Services.AzureStorage do
     canonicalized_headers =
       headers_map
       |> Enum.sort_by(fn {k, _v} -> k end)
-      |> Enum.map(fn {k, v} -> "#{k}:#{v}" end)
-      |> Enum.join("\n")
+      |> Enum.map_join("\n", fn {k, v} -> "#{k}:#{v}" end)
 
     [
       method,
