@@ -14,7 +14,8 @@ defmodule StreamflixWebWeb.Plugs.ValidateAuthParams do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    if String.ends_with?(conn.request_path, "/auth/refresh") do
+    if String.ends_with?(conn.request_path, "/auth/refresh") or
+         String.ends_with?(conn.request_path, "/auth/mfa/verify") do
       conn
     else
       validate(conn)

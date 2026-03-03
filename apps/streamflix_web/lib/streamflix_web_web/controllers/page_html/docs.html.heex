@@ -329,6 +329,86 @@
         </div>
 
         <div class="border-t border-slate-200 pt-4">
+          <p class="font-bold text-slate-700 uppercase tracking-wider mb-2 px-2 text-xs">
+            {gettext("Seguridad")}
+          </p>
+          <div class="space-y-0.5">
+            <a
+              href="#account-lockout"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Bloqueo de cuenta")}
+            </a>
+            <a
+              href="#session-timeout"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Timeout de sesión")}
+            </a>
+            <a
+              href="#mfa-totp"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("MFA / TOTP")}
+            </a>
+            <a
+              href="#backups"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Backups automáticos")}
+            </a>
+            <a
+              href="#data-protection"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Protección de datos")}
+            </a>
+            <a
+              href="#event-integrity"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Integridad de eventos")}
+            </a>
+            <a
+              href="#password-policy"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Política de contraseñas")}
+            </a>
+            <a
+              href="#uptime-monitoring"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Monitoreo de disponibilidad")}
+            </a>
+            <a
+              href="#circuit-breaker"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Circuit breaker")}
+            </a>
+            <a
+              href="#breach-detection"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Detección de brechas")}
+            </a>
+            <a
+              href="#session-management"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Gestión de sesiones")}
+            </a>
+            <a
+              href="#data-encryption"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Cifrado de datos PII")}
+            </a>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-4">
           <div class="space-y-0.5">
             <a
               href="#usage"
@@ -2440,7 +2520,12 @@
 
               <p class="text-slate-700 text-sm mb-3">
                 {gettext(
-                  "Verifica la conectividad con la base de datos. Respuesta 200 si todo está bien, 503 si hay problemas. Útil para load balancers y monitoring."
+                  "Verifica el estado de la base de datos, Oban (jobs) y Cachex (caché). Respuesta 200 si todo está bien o degradado, 503 si la BD está caída. Útil para load balancers y monitoring."
+                )}
+              </p>
+              <p class="text-slate-700 text-sm mb-3">
+                {gettext(
+                  "Estados posibles: healthy (todo OK), degraded (BD OK pero Oban o caché caídos), unhealthy (BD caída)."
                 )}
               </p>
               <pre
@@ -2453,8 +2538,12 @@
                 phx-no-curly-interpolation
               >{
   "status": "healthy",
-  "database": "ok",
-  "timestamp": "2026-02-28T15:30:00Z"
+  "checks": {
+    "database": "ok",
+    "oban": "ok",
+    "cache": "ok"
+  },
+  "timestamp": "2026-03-02T15:30:00Z"
 }</pre>
             </div>
           </div>
@@ -4003,6 +4092,673 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   </li>
                 </ul>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="account-lockout" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Bloqueo de cuenta")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext(
+                "Protección contra ataques de fuerza bruta. Tras múltiples intentos fallidos de login, la cuenta se bloquea temporalmente."
+              )}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext(
+                  "Después de 5 intentos fallidos consecutivos, la cuenta se bloquea por 15 minutos. El bloqueo se desactiva automáticamente al expirar. Cada intento fallido y cada bloqueo se registra en el audit log."
+                )}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Comportamiento")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Contraseña incorrecta: se incrementa el contador de intentos fallidos.")}</li>
+                <li>{gettext("5 intentos fallidos: la cuenta se bloquea por 15 minutos.")}</li>
+                <li>{gettext("Login durante bloqueo: respuesta HTTP 423 (API) o mensaje flash (web).")}</li>
+                <li>{gettext("Bloqueo expirado: se desbloquea automáticamente en el siguiente intento.")}</li>
+                <li>{gettext("Login exitoso: el contador se reinicia a 0.")}</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Respuesta API (cuenta bloqueada)")}</h3>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >HTTP 423 Locked
+{
+  "error": "Account temporarily locked due to multiple failed login attempts. Try again in 15 minutes."
+}</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="session-timeout" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Timeout de sesión")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext(
+                "Las sesiones web se invalidan automáticamente después de un período de inactividad para proteger cuentas desatendidas."
+              )}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext(
+                  "Después de 30 minutos sin actividad, la sesión web expira automáticamente. El usuario es redirigido a la página de login con un mensaje informativo. Las sesiones de API (JWT) no se ven afectadas por este timeout."
+                )}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Comportamiento")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Cada request HTTP actualiza el timestamp de última actividad.")}</li>
+                <li>{gettext("Si pasan más de 30 minutos sin actividad, la sesión se invalida.")}</li>
+                <li>{gettext("Aplica a sesiones web (browser). Tokens JWT de API tienen su propia expiración (7 días).")}</li>
+                <li>{gettext("LiveView también verifica el timeout al montar componentes.")}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mfa-totp" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("MFA / TOTP")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Autenticación multifactor con códigos TOTP de 6 dígitos. Compatible con Google Authenticator, Authy, y cualquier app TOTP.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <%!-- Overview --%>
+            <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext("MFA agrega una capa extra de seguridad. Después de ingresar tu contraseña, necesitas un código temporal de tu aplicación de autenticación. También se generan 10 códigos de recuperación de un solo uso.")}
+              </p>
+            </div>
+
+            <%!-- Web flow --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Flujo web (browser)")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Activar: Cuenta → Autenticación de dos factores → Escanear QR → Confirmar código")}</li>
+                <li>{gettext("Login: Email + contraseña → si MFA activo, se pide código de 6 dígitos → Dashboard")}</li>
+                <li>{gettext("Recuperación: Si no tienes acceso a tu app, usa un código de recuperación")}</li>
+                <li>{gettext("Desactivar: Cuenta → Desactivar MFA → Confirmar con contraseña")}</li>
+              </ul>
+            </div>
+
+            <%!-- API flow --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Flujo API")}</h3>
+              <p class="text-slate-600 text-sm mb-4">
+                {gettext("Si el usuario tiene MFA activo, el login devuelve un token temporal de verificación.")}
+              </p>
+
+              <%!-- Step 1: Login --%>
+              <div class="mb-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">1</span>
+                  <h4 class="font-medium text-slate-800 text-sm">POST /api/v1/auth/login</h4>
+                </div>
+                <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                  <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code>curl -X POST <%= gettext("https://tu-dominio.com") %>/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '<%= ~s({"email": "user@example.com", "password": "secreto123"}) %>'
+
+# <%= gettext("Respuesta si MFA está activo") %>:
+<%= ~s({"mfa_required": true, "mfa_token": "eyJ..."}) %></code></pre>
+                </div>
+              </div>
+
+              <%!-- Step 2: Verify MFA --%>
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">2</span>
+                  <h4 class="font-medium text-slate-800 text-sm">POST /api/v1/auth/mfa/verify</h4>
+                </div>
+                <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                  <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code>curl -X POST <%= gettext("https://tu-dominio.com") %>/api/v1/auth/mfa/verify \
+  -H "Content-Type: application/json" \
+  -d '<%= ~s({"mfa_token": "eyJ...", "code": "123456"}) %>'
+
+# <%= gettext("Respuesta exitosa") %>:
+<%= ~s({"user": {"id": "...", "email": "..."}, "token": "eyJ..."}) %></code></pre>
+                </div>
+              </div>
+            </div>
+
+            <%!-- Security details --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Seguridad del flujo")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("El token MFA expira en 5 minutos.")}</li>
+                <li>{gettext("Los códigos de recuperación se almacenan como SHA-256 (nunca en texto plano).")}</li>
+                <li>{gettext("El secreto TOTP se cifra con AES-256-GCM en la base de datos (Cloak).")}</li>
+                <li>{gettext("Cada código de recuperación se consume al usarlo (un solo uso).")}</li>
+                <li>{gettext("Desactivar MFA requiere la contraseña actual.")}</li>
+                <li>{gettext("Todos los eventos MFA se registran en el audit log.")}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="backups" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Backups automáticos")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Backup automatizado de la base de datos con pg_dump. Ejecutado diariamente a las 2:00 AM UTC vía Oban cron.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext("Los backups se generan automáticamente cada día. Se comprimen en formato custom de pg_dump. En producción, se almacenan de forma segura en la nube con redundancia. En desarrollo, se guardan localmente. Los backups antiguos se eliminan según la política de retención (30 días por defecto).")}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Configuración")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Habilitado por defecto en todos los entornos.")}</li>
+                <li>{gettext("Ruta de almacenamiento: configurable vía BACKUP_PATH (producción) o config.exs (desarrollo).")}</li>
+                <li>{gettext("Retención: BACKUP_RETENTION_DAYS (por defecto 30 días).")}</li>
+                <li>{gettext("Horario: diariamente a las 2:00 AM UTC (Oban cron).")}</li>
+                <li>{gettext("Formato: pg_dump --format=custom con compresión nivel 6.")}</li>
+                <li>{gettext("Almacenamiento: nube con redundancia (producción) o disco local (desarrollo).")}</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Variables de entorno")}</h3>
+              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code>BACKUP_ENABLED=true              # <%= gettext("Habilitar/deshabilitar backups") %>
+BACKUP_PATH=/var/backups/streamflix  # <%= gettext("Directorio de almacenamiento") %>
+BACKUP_RETENTION_DAYS=30         # <%= gettext("Días de retención") %>
+PG_DUMP_PATH=/usr/bin/pg_dump    # <%= gettext("Ruta al binario pg_dump") %></code></pre>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Almacenamiento en la nube")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("En producción, los backups se transfieren automáticamente a almacenamiento remoto seguro. Si la transferencia falla, el archivo se conserva localmente como respaldo.")}
+              </p>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Los backups en la nube están cifrados en reposo y en tránsito.")}</li>
+                <li>{gettext("La política de retención aplica tanto al almacenamiento remoto como al local.")}</li>
+                <li>{gettext("Sin almacenamiento remoto configurado, los backups se guardan solo en disco local.")}</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Restaurar un backup")}</h3>
+              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code># <%= gettext("Restaurar desde archivo de backup") %>
+pg_restore -h HOST -p PORT -U USER -d DATABASE --no-owner --clean backup_file.sql.gz</code></pre>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Health check")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("El endpoint /health incluye el estado del último backup.")}
+              </p>
+              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code>curl <%= gettext("https://tu-dominio.com") %>/health
+
+# <%= gettext("Respuesta incluye") %>:
+<%= ~s["backup": "ok (streamflix_20260303_020000.sql.gz)"] %></code></pre>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Auditoría")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Cada backup exitoso se registra como system.backup_completed en el audit log.")}</li>
+                <li>{gettext("Los fallos se registran como system.backup_failed con el detalle del error.")}</li>
+                <li>{gettext("La limpieza de backups antiguos se registra en los logs del sistema.")}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+      <%!-- ========== PROTECCIÓN DE DATOS (GDPR) ========== --%>
+      <section id="data-protection" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Protección de datos")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Derechos GDPR/RGPD: exportación de datos personales, gestión de consentimientos y derecho de supresión.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext("Cumplimos con el Reglamento General de Protección de Datos (RGPD). Los usuarios pueden exportar sus datos, gestionar consentimientos y eliminar su cuenta completa en cualquier momento.")}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Exportar datos personales (DSAR)")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Descarga una copia completa de todos tus datos personales en formato JSON. Incluye perfil, proyectos, webhooks, conteos de eventos/entregas, jobs, notificaciones, registros de auditoría y consentimientos.")}
+              </p>
+              <p class="text-slate-700 text-sm font-medium mb-2">{gettext("Desde el navegador")}:</p>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Sección «Cuenta» → «Protección de datos» → «Exportar datos»")}
+              </p>
+              <p class="text-slate-700 text-sm font-medium mb-2">{gettext("Vía API")}:</p>
+              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code># GET /api/v1/me/data
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  <%= gettext("https://tu-dominio.com") %>/api/v1/me/data</code></pre>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Consentimientos")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Al registrarte se otorgan consentimientos para: Términos de uso, Política de privacidad y Procesamiento de datos. Puedes consultar y revocar cada consentimiento desde la sección «Cuenta».")}
+              </p>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Cada consentimiento registra fecha, versión y dirección IP.")}</li>
+                <li>{gettext("Los consentimientos revocados se mantienen como registro histórico.")}</li>
+                <li>{gettext("La revocación se registra en el audit log.")}</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Derecho de supresión")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Al eliminar tu cuenta desde «Cuenta» → «Eliminar cuenta», se borran permanentemente:")}
+              </p>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Todos tus proyectos y sus datos asociados (webhooks, eventos, entregas, jobs, API keys).")}</li>
+                <li>{gettext("Membresías de equipos.")}</li>
+                <li>{gettext("Tokens de sesión y notificaciones.")}</li>
+                <li>{gettext("Los registros de auditoría se pseudonimizan (se elimina identificador e IP).")}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="event-integrity" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Integridad de eventos")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Checksums SHA-256 para verificar integridad del payload y claves de idempotencia para deduplicación.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext("Cada evento incluye un hash SHA-256 del payload canónico. Opcionalmente puedes enviar una clave de idempotencia para evitar eventos duplicados.")}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("SHA-256 Payload Hash")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("El campo payload_hash se genera automáticamente al crear un evento. Es el hash SHA-256 hexadecimal (lowercase) del JSON canónico del payload.")}
+              </p>
+              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre
+                  class="text-sm text-slate-100 font-mono whitespace-pre"
+                  phx-no-curly-interpolation
+                ># POST /api/v1/events — response incluye payload_hash
+curl -X POST -H "X-API-Key: YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"topic":"order.created","amount":150}' \
+  <%= gettext("https://tu-dominio.com") %>/api/v1/events
+
+# Response:
+# {"event_id":"...","payload_hash":"a1b2c3d4..."}</pre>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Clave de idempotencia")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Envía idempotency_key en el body para deduplicar eventos. Si ya existe un evento con la misma clave en el proyecto, se retorna el evento existente sin crear uno nuevo.")}
+              </p>
+              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre
+                  class="text-sm text-slate-100 font-mono whitespace-pre"
+                  phx-no-curly-interpolation
+                ># POST con idempotency_key — la segunda llamada retorna el mismo evento
+curl -X POST -H "X-API-Key: YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"topic":"order.created","amount":150,"idempotency_key":"order-123-abc"}' \
+  <%= gettext("https://tu-dominio.com") %>/api/v1/events</pre>
+              </div>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2 mt-4">
+                <li>{gettext("La clave es única por proyecto (partial unique index).")}</li>
+                <li>{gettext("Si la clave ya existe, se retorna el evento original con status 202.")}</li>
+                <li>{gettext("Útil para reintentos seguros desde el cliente.")}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="password-policy" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Política de contraseñas")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Reglas de seguridad para contraseñas: requisitos mínimos, blacklist de contraseñas comunes e historial de contraseñas.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Requisitos de contraseña")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Mínimo 8 caracteres, máximo 72.")}</li>
+                <li>{gettext("Al menos una letra minúscula, una mayúscula y un dígito.")}</li>
+                <li>{gettext("No puede ser una contraseña común (blacklist de +150 contraseñas populares).")}</li>
+                <li>{gettext("No puede coincidir con las últimas 5 contraseñas usadas (historial).")}</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Blacklist de contraseñas comunes")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Se verifica que la contraseña no esté en una lista de contraseñas comunes compilada en tiempo de build. La verificación es case-insensitive.")}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Historial de contraseñas")}</h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Al cambiar o restablecer la contraseña, se verifica contra las últimas 5 contraseñas utilizadas. Si coincide, se rechaza el cambio.")}
+              </p>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("El historial se crea automáticamente al registrarse.")}</li>
+                <li>{gettext("Cada cambio exitoso guarda el hash anterior en el historial.")}</li>
+                <li>{gettext("Aplica tanto al cambio desde la cuenta como al restablecimiento por token.")}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="uptime-monitoring" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Monitoreo de disponibilidad")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("El sistema verifica automáticamente su estado cada 5 minutos y registra métricas de disponibilidad.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Verificaciones realizadas")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li><strong>Database</strong> — {gettext("Conexión a PostgreSQL")}</li>
+                <li><strong>Oban</strong> — {gettext("Procesador de trabajos en segundo plano")}</li>
+                <li><strong>Cache</strong> — {gettext("Cache en memoria (Cachex)")}</li>
+                <li><strong>Backup</strong> — {gettext("Estado del último backup")}</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Estados del sistema")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>
+                  <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>
+                  <strong>{gettext("Saludable")}</strong> — {gettext("Todos los servicios funcionando correctamente.")}
+                </li>
+                <li>
+                  <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>
+                  <strong>{gettext("Degradado")}</strong> — {gettext("Servicios secundarios con problemas (Oban o cache). La funcionalidad principal sigue disponible.")}
+                </li>
+                <li>
+                  <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-1"></span>
+                  <strong>{gettext("No saludable")}</strong> — {gettext("La base de datos no responde. El sistema no puede operar normalmente.")}
+                </li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Dashboard")}</h3>
+              <p class="text-slate-600 text-sm">
+                {gettext("El dashboard muestra el estado actual del sistema con indicadores de uptime para las últimas 24 horas, 7 días y 30 días. Los administradores reciben notificaciones automáticas cuando el estado es degradado o no saludable.")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="circuit-breaker" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Circuit breaker")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Protege el sistema pausando automáticamente las entregas a webhooks que fallan repetidamente.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Funcionamiento")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Tras 5 fallos consecutivos en un webhook, el circuit breaker se abre.")}</li>
+                <li>{gettext("Mientras está abierto, las entregas se posponen 5 minutos (no consumen reintentos).")}</li>
+                <li>{gettext("Después de 5 minutos, se permite una entrega de prueba (estado half-open).")}</li>
+                <li>{gettext("Si la prueba es exitosa, el circuito se cierra y las entregas continúan normalmente.")}</li>
+                <li>{gettext("Si la prueba falla, el circuito vuelve a abrirse por otros 5 minutos.")}</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Estados del circuito")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>
+                  <strong>closed</strong> — {gettext("Normal. Las entregas se procesan sin restricción.")}
+                </li>
+                <li>
+                  <strong>open</strong> — {gettext("Pausado. Las entregas se posponen automáticamente.")}
+                </li>
+                <li>
+                  <strong>half_open</strong> — {gettext("Prueba. Se permite una entrega para verificar si el destino se recuperó.")}
+                </li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Notificaciones")}</h3>
+              <p class="text-slate-600 text-sm">
+                {gettext("El dueño del proyecto recibe notificaciones cuando un circuit breaker se abre o se cierra. Esto permite actuar rápidamente ante problemas en endpoints de destino.")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="breach-detection" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Detección de brechas")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Monitoreo automatizado de seguridad que detecta anomalías analizando los logs de auditoría cada 5 minutos.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Reglas de detección")}</h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>
+                  <strong>{gettext("Fuerza bruta por IP")}</strong> — {gettext("Más de 20 intentos de login fallidos desde la misma IP en 10 minutos.")}
+                </li>
+                <li>
+                  <strong>{gettext("Ataque coordinado")}</strong> — {gettext("Más de 50 intentos de login fallidos globales en 10 minutos.")}
+                </li>
+                <li>
+                  <strong>{gettext("Exfiltración de datos")}</strong> — {gettext("Más de 5 exportaciones de datos por el mismo usuario en 10 minutos.")}
+                </li>
+                <li>
+                  <strong>{gettext("Bloqueos de cuenta")}</strong> — {gettext("Cualquier bloqueo de cuenta por exceso de intentos fallidos.")}
+                </li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Respuesta automática")}</h3>
+              <p class="text-slate-600 text-sm">
+                {gettext("Cuando se detecta una anomalía, se registra en el audit log como 'security.anomaly_detected' y se notifica a todos los administradores activos. Esto cumple con los requisitos de GDPR Art. 33 sobre detección temprana de brechas.")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- Session Management                                           --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <section id="session-management" class="mb-14 scroll-mt-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Gestión de sesiones")}</h2>
+            <p class="text-slate-500 text-sm mt-0.5">{gettext("Control de sesiones activas con revocación individual y masiva")}</p>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">{gettext("Descripción")}</h3>
+              <p class="text-slate-600 text-sm leading-relaxed">
+                {gettext("Cada inicio de sesión (web o API) crea un registro de sesión vinculado al JWT. Las sesiones registran IP, User-Agent y tipo de dispositivo. Los usuarios pueden ver todas sus sesiones activas desde la página de cuenta y revocar sesiones individuales o cerrar todas las demás sesiones.")}
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">{gettext("Características")}</h3>
+              <ul class="text-slate-600 text-sm space-y-2">
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                  {gettext("Registro automático de sesión en login (web y API)")}
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                  {gettext("Detección de dispositivo: Desktop, Mobile, Tablet")}
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                  {gettext("Revocación individual de sesiones")}
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                  {gettext("Cerrar todas las demás sesiones (mantiene la actual)")}
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                  {gettext("Verificación de revocación en cada request (token rechazado si sesión revocada)")}
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                  {gettext("Limpieza automática de sesiones expiradas (7 días)")}
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                  {gettext("Audit trail completo para cada operación de sesión")}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- PII Data Encryption                                          --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <section id="data-encryption" class="mb-14 scroll-mt-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Cifrado de datos PII")}</h2>
+            <p class="text-slate-500 text-sm mt-0.5">{gettext("Protección de información personal identificable con cifrado AES-256-GCM")}</p>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">{gettext("Descripción")}</h3>
+              <p class="text-slate-600 text-sm leading-relaxed">
+                {gettext("Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con PBKDF2-SHA512 (210.000 rondas).")}
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">{gettext("Campos protegidos")}</h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-slate-200">
+                      <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Tabla")}</th>
+                      <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Campo")}</th>
+                      <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Método")}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr><td class="py-2 px-3 text-slate-700">users</td><td class="py-2 px-3 text-slate-600">email</td><td class="py-2 px-3"><code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">AES-256-GCM</code></td></tr>
+                    <tr><td class="py-2 px-3 text-slate-700">users</td><td class="py-2 px-3 text-slate-600">email_hash</td><td class="py-2 px-3"><code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">HMAC-SHA512</code></td></tr>
+                    <tr><td class="py-2 px-3 text-slate-700">users</td><td class="py-2 px-3 text-slate-600">name</td><td class="py-2 px-3"><code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">AES-256-GCM</code></td></tr>
+                    <tr><td class="py-2 px-3 text-slate-700">audit_logs</td><td class="py-2 px-3 text-slate-600">ip_address</td><td class="py-2 px-3"><code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">AES-256-GCM</code></td></tr>
+                    <tr><td class="py-2 px-3 text-slate-700">audit_logs</td><td class="py-2 px-3 text-slate-600">user_agent</td><td class="py-2 px-3"><code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">AES-256-GCM</code></td></tr>
+                    <tr><td class="py-2 px-3 text-slate-700">consents</td><td class="py-2 px-3 text-slate-600">ip_address</td><td class="py-2 px-3"><code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">AES-256-GCM</code></td></tr>
+                    <tr><td class="py-2 px-3 text-slate-700">sandbox_requests</td><td class="py-2 px-3 text-slate-600">ip</td><td class="py-2 px-3"><code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">AES-256-GCM</code></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">{gettext("Clasificación de datos")}</h3>
+              <p class="text-slate-600 text-sm leading-relaxed">
+                {gettext("Los datos se clasifican en 4 niveles: Público, Interno, Confidencial y Restringido. Todos los campos PII (nivel Confidencial) requieren cifrado AES-256-GCM. Los secretos y credenciales (nivel Restringido) usan cifrado o hash unidireccional. Consulta docs/DATA_CLASSIFICATION.md para el inventario completo.")}
+              </p>
             </div>
           </div>
         </div>

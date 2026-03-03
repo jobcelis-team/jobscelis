@@ -45,7 +45,10 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         {:ok, delivery}
 
       d ->
-        do_deliver(d)
+        case StreamflixCore.CircuitBreaker.check_circuit(d.webhook) do
+          :ok -> do_deliver(d)
+          {:error, :circuit_open} -> {:error, :circuit_open}
+        end
     end
   end
 
@@ -123,6 +126,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
 
     case result do
       {:ok, d} ->
+        if delivery.webhook, do: StreamflixCore.CircuitBreaker.record_success(delivery.webhook)
         broadcast_delivery(d)
         {:ok, d}
 
@@ -146,6 +150,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     |> Repo.update()
     |> case do
       {:ok, d} ->
+        if delivery.webhook, do: StreamflixCore.CircuitBreaker.record_failure(delivery.webhook)
         broadcast_delivery(d)
 
         # Move to Dead Letter Queue if all retries exhausted

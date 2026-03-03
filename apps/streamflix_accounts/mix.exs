@@ -39,6 +39,9 @@ defmodule StreamflixAccounts.MixProject do
       # Requires C compiler — won't compile on Windows paths with spaces.
       {:pbkdf2_elixir, "~> 2.2"},
 
+      # MFA / TOTP
+      {:nimble_totp, "~> 1.0"},
+
       # Utilities
       {:jason, "~> 1.4"}
     ]

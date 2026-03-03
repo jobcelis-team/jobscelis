@@ -15,8 +15,8 @@ defmodule StreamflixCore.Schemas.AuditLog do
     field(:resource_type, :string)
     field(:resource_id, :binary_id)
     field(:metadata, :map, default: %{})
-    field(:ip_address, :string)
-    field(:user_agent, :string)
+    field(:ip_address, StreamflixCore.Encrypted.Binary)
+    field(:user_agent, StreamflixCore.Encrypted.Binary)
 
     timestamps(type: :utc_datetime_usec, updated_at: false)
   end

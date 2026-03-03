@@ -4,9 +4,10 @@ defmodule StreamflixWebWeb.AccountLive do
   alias StreamflixAccounts
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     user = socket.assigns.current_user
     user = StreamflixAccounts.get_user!(user.id)
+    current_jti = Map.get(session, "current_jti")
 
     socket =
       socket
@@ -24,6 +25,20 @@ defmodule StreamflixWebWeb.AccountLive do
       |> assign(:name_form, to_form(%{"name" => user.name || ""}, as: "name_change"))
       |> assign(:name_form_errors, [])
       |> assign(:delete_form_errors, [])
+      # MFA
+      |> assign(:mfa_step, nil)
+      |> assign(:mfa_secret, nil)
+      |> assign(:mfa_uri, nil)
+      |> assign(:mfa_qr_svg, nil)
+      |> assign(:mfa_backup_codes, nil)
+      |> assign(:mfa_setup_errors, [])
+      |> assign(:mfa_disable_errors, [])
+      |> assign(:show_mfa_disable_modal, false)
+      # Sessions
+      |> assign(:sessions, StreamflixAccounts.list_sessions(user.id))
+      |> assign(:current_jti, current_jti)
+      # GDPR / Consents — backfill for users created before consent system
+      |> assign(:consents, ensure_consents(user.id))
 
     {:ok, socket}
   end
@@ -203,6 +218,17 @@ defmodule StreamflixWebWeb.AccountLive do
              )
              |> assign(:password_form_errors, [gettext("La contraseña actual no es correcta.")])}
 
+          {:error, :password_recently_used} ->
+            {:noreply,
+             socket
+             |> assign(
+               :password_form,
+               to_form(password_form_params(params), as: "password_change")
+             )
+             |> assign(:password_form_errors, [
+               gettext("Esta contraseña fue usada recientemente. Elige una diferente.")
+             ])}
+
           {:error, %Ecto.Changeset{} = changeset} ->
             errors =
               Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
@@ -285,7 +311,7 @@ defmodule StreamflixWebWeb.AccountLive do
     user = socket.assigns.user
 
     case StreamflixAccounts.delete_user(user, password) do
-      {:ok, _} ->
+      {:ok, %{delete_user: _}} ->
         {:noreply,
          socket
          |> put_flash(:info, gettext("Cuenta eliminada correctamente."))
@@ -300,6 +326,78 @@ defmodule StreamflixWebWeb.AccountLive do
         {:noreply,
          socket
          |> assign(:delete_form_errors, [gettext("No se pudo eliminar la cuenta.")])}
+    end
+  end
+
+  # ── GDPR: Revoke consent ─────────────────────────────────────────
+
+  # ── Session management ──────────────────────────────────────────
+
+  def handle_event("revoke_session", %{"id" => session_id}, socket) do
+    user = socket.assigns.user
+
+    case StreamflixAccounts.revoke_session(session_id, user.id) do
+      {:ok, _} ->
+        StreamflixCore.Audit.record("user.session_revoked",
+          user_id: user.id,
+          resource_type: "user",
+          resource_id: user.id,
+          metadata: %{session_id: session_id}
+        )
+
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Sesión cerrada."))
+         |> assign(:sessions, StreamflixAccounts.list_sessions(user.id))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("No se pudo cerrar la sesión."))}
+    end
+  end
+
+  def handle_event("revoke_all_sessions", _, socket) do
+    user = socket.assigns.user
+    current_jti = socket.assigns.current_jti
+
+    case StreamflixAccounts.revoke_all_sessions(user.id, except_jti: current_jti) do
+      {:ok, count} ->
+        StreamflixCore.Audit.record("user.all_sessions_revoked",
+          user_id: user.id,
+          resource_type: "user",
+          resource_id: user.id,
+          metadata: %{count: count}
+        )
+
+        {:noreply,
+         socket
+         |> put_flash(
+           :info,
+           gettext("Se cerraron %{count} sesiones.", count: count)
+         )
+         |> assign(:sessions, StreamflixAccounts.list_sessions(user.id))}
+    end
+  end
+
+  def handle_event("revoke_consent", %{"id" => consent_id}, socket) do
+    case StreamflixCore.GDPR.revoke_consent(consent_id) do
+      {:ok, _consent} ->
+        user = socket.assigns.user
+
+        StreamflixCore.Audit.record("gdpr.consent_revoked",
+          user_id: user.id,
+          metadata: %{consent_id: consent_id}
+        )
+
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Consentimiento revocado."))
+         |> assign(:consents, StreamflixCore.GDPR.list_consents(user.id))}
+
+      {:error, :already_revoked} ->
+        {:noreply, put_flash(socket, :info, gettext("Este consentimiento ya fue revocado."))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("No se pudo revocar el consentimiento."))}
     end
   end
 
@@ -334,6 +432,142 @@ defmodule StreamflixWebWeb.AccountLive do
 
   def handle_event("logout", _, socket) do
     {:noreply, redirect(socket, to: "/logout", external: true)}
+  end
+
+  # ── MFA Setup ────────────────────────────────────────────────────
+
+  def handle_event("start_mfa_setup", _, socket) do
+    user = socket.assigns.user
+    {:ok, secret, uri} = StreamflixAccounts.setup_mfa(user)
+
+    qr_svg =
+      uri
+      |> EQRCode.encode()
+      |> EQRCode.svg(width: 200)
+
+    {:noreply,
+     socket
+     |> assign(:mfa_step, :setup)
+     |> assign(:mfa_secret, secret)
+     |> assign(:mfa_uri, uri)
+     |> assign(:mfa_qr_svg, qr_svg)
+     |> assign(:mfa_setup_errors, [])
+     |> assign(:mfa_backup_codes, nil)}
+  end
+
+  def handle_event("cancel_mfa_setup", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:mfa_step, nil)
+     |> assign(:mfa_secret, nil)
+     |> assign(:mfa_uri, nil)
+     |> assign(:mfa_qr_svg, nil)
+     |> assign(:mfa_setup_errors, [])
+     |> assign(:mfa_backup_codes, nil)}
+  end
+
+  def handle_event("confirm_mfa_setup", %{"code" => code}, socket) do
+    user = socket.assigns.user
+    secret = socket.assigns.mfa_secret
+
+    case StreamflixAccounts.enable_mfa(user, secret, String.trim(code)) do
+      {:ok, updated_user, backup_codes} ->
+        {:noreply,
+         socket
+         |> assign(:user, updated_user)
+         |> assign(:mfa_step, :backup_codes)
+         |> assign(:mfa_backup_codes, backup_codes)
+         |> assign(:mfa_setup_errors, [])
+         |> put_flash(:info, gettext("Autenticación de dos factores activada."))}
+
+      {:error, :invalid_code} ->
+        {:noreply,
+         assign(socket, :mfa_setup_errors, [
+           gettext("Código incorrecto. Verifica tu aplicación de autenticación e inténtalo de nuevo.")
+         ])}
+
+      {:error, _} ->
+        {:noreply,
+         assign(socket, :mfa_setup_errors, [gettext("No se pudo activar MFA.")])}
+    end
+  end
+
+  def handle_event("close_mfa_backup_codes", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:mfa_step, nil)
+     |> assign(:mfa_secret, nil)
+     |> assign(:mfa_uri, nil)
+     |> assign(:mfa_qr_svg, nil)
+     |> assign(:mfa_backup_codes, nil)
+     |> assign(:mfa_setup_errors, [])}
+  end
+
+  def handle_event("show_mfa_backup_codes", _, socket) do
+    {:noreply, assign(socket, :mfa_step, :view_backup_codes)}
+  end
+
+  def handle_event("regenerate_mfa_backup_codes", _, socket) do
+    case StreamflixAccounts.regenerate_backup_codes(socket.assigns.user) do
+      {:ok, updated_user, backup_codes} ->
+        {:noreply,
+         socket
+         |> assign(:user, updated_user)
+         |> assign(:mfa_step, :backup_codes)
+         |> assign(:mfa_backup_codes, backup_codes)
+         |> put_flash(:info, gettext("Códigos de recuperación regenerados."))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("No se pudieron regenerar los códigos."))}
+    end
+  end
+
+  def handle_event("open_mfa_disable_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_mfa_disable_modal, true)
+     |> assign(:mfa_disable_errors, [])}
+  end
+
+  def handle_event("close_mfa_disable_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_mfa_disable_modal, false)
+     |> assign(:mfa_disable_errors, [])}
+  end
+
+  def handle_event("disable_mfa", %{"password" => password}, socket) do
+    case StreamflixAccounts.disable_mfa(socket.assigns.user, password) do
+      {:ok, updated_user} ->
+        {:noreply,
+         socket
+         |> assign(:user, updated_user)
+         |> assign(:show_mfa_disable_modal, false)
+         |> assign(:mfa_disable_errors, [])
+         |> assign(:mfa_step, nil)
+         |> put_flash(:info, gettext("Autenticación de dos factores desactivada."))}
+
+      {:error, :wrong_password} ->
+        {:noreply,
+         assign(socket, :mfa_disable_errors, [gettext("La contraseña no es correcta.")])}
+
+      {:error, _} ->
+        {:noreply,
+         assign(socket, :mfa_disable_errors, [gettext("No se pudo desactivar MFA.")])}
+    end
+  end
+
+  # ── GDPR helpers ──────────────────────────────────────────────────
+
+  defp ensure_consents(user_id) do
+    case StreamflixCore.GDPR.list_consents(user_id) do
+      [] ->
+        StreamflixCore.GDPR.register_signup_consents(user_id)
+        StreamflixCore.GDPR.list_consents(user_id)
+
+      consents ->
+        consents
+    end
   end
 
   # ── Form helpers ────────────────────────────────────────────────────
@@ -741,6 +975,432 @@ defmodule StreamflixWebWeb.AccountLive do
                   />
                 </svg>
               </a>
+            </div>
+          </div>
+        </div>
+
+        <%!-- ══════════════════════════════════════════════════════════ --%>
+        <%!-- MFA / Two-Factor Authentication                          --%>
+        <%!-- ══════════════════════════════════════════════════════════ --%>
+        <div class="mt-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+            <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+              {gettext("Autenticación de dos factores")}
+            </h2>
+          </div>
+
+          <div class="p-6 sm:p-8">
+            <%= if @user.mfa_enabled do %>
+              <%!-- MFA is ON --%>
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-base font-medium text-slate-800">{gettext("MFA activado")}</p>
+                    <p class="text-sm text-slate-500">{gettext("Tu cuenta está protegida con autenticación de dos factores.")}</p>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    phx-click="regenerate_mfa_backup_codes"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+                    </svg>
+                    {gettext("Regenerar códigos")}
+                  </button>
+                  <button
+                    type="button"
+                    phx-click="open_mfa_disable_modal"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-200 bg-white text-red-700 text-sm font-medium hover:bg-red-50 transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                    </svg>
+                    {gettext("Desactivar MFA")}
+                  </button>
+                </div>
+              </div>
+
+              <%!-- Show backup codes after regeneration --%>
+              <%= if @mfa_step == :backup_codes and @mfa_backup_codes do %>
+                <div class="mt-6 p-5 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div class="flex items-start gap-3 mb-4">
+                    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                    </svg>
+                    <div>
+                      <p class="font-medium text-amber-900">{gettext("Códigos de recuperación")}</p>
+                      <p class="text-sm text-amber-700 mt-1">{gettext("Guarda estos códigos en un lugar seguro. Cada código solo se puede usar una vez.")}</p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <%= for code <- @mfa_backup_codes do %>
+                      <code class="bg-white px-3 py-2 rounded-lg border border-amber-200 text-sm font-mono text-slate-800 text-center">{code}</code>
+                    <% end %>
+                  </div>
+                  <div class="mt-4 flex justify-end">
+                    <button
+                      type="button"
+                      phx-click="close_mfa_backup_codes"
+                      class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition"
+                    >
+                      {gettext("Ya guardé mis códigos")}
+                    </button>
+                  </div>
+                </div>
+              <% end %>
+
+            <% else %>
+              <%!-- MFA is OFF --%>
+              <%= if @mfa_step == nil do %>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+                      <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-base font-medium text-slate-800">{gettext("MFA desactivado")}</p>
+                      <p class="text-sm text-slate-500">{gettext("Agrega una capa extra de seguridad a tu cuenta.")}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    phx-click="start_mfa_setup"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                    {gettext("Activar MFA")}
+                  </button>
+                </div>
+              <% end %>
+
+              <%!-- MFA Setup flow --%>
+              <%= if @mfa_step == :setup do %>
+                <div class="space-y-6">
+                  <div class="text-center">
+                    <p class="text-sm text-slate-600 mb-4">
+                      {gettext("Escanea este código QR con tu aplicación de autenticación (Google Authenticator, Authy, etc.)")}
+                    </p>
+                    <div class="inline-block p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
+                      {raw(@mfa_qr_svg)}
+                    </div>
+                  </div>
+
+                  <%!-- Manual secret --%>
+                  <div class="bg-slate-50 rounded-lg border border-slate-200 px-4 py-3">
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+                      {gettext("Clave manual")}
+                    </p>
+                    <code class="text-sm font-mono text-slate-800 break-all select-all">
+                      {Base.encode32(@mfa_secret, padding: false)}
+                    </code>
+                  </div>
+
+                  <%!-- Verify code --%>
+                  <form phx-submit="confirm_mfa_setup" class="space-y-4">
+                    <div>
+                      <label for="mfa_setup_code" class="block text-sm font-medium text-slate-700 mb-1.5">
+                        {gettext("Ingresa el código de 6 dígitos para confirmar")}
+                      </label>
+                      <input
+                        id="mfa_setup_code"
+                        type="text"
+                        name="code"
+                        inputmode="numeric"
+                        pattern="[0-9]{6}"
+                        maxlength="6"
+                        autocomplete="one-time-code"
+                        autofocus
+                        required
+                        placeholder="000000"
+                        class="w-full px-3.5 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+                      />
+                    </div>
+
+                    <%= if @mfa_setup_errors != [] do %>
+                      <div class="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3" role="alert">
+                        <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        <div class="text-sm text-red-700">
+                          <%= for error <- @mfa_setup_errors do %>
+                            <p>{error}</p>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+
+                    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                      <button
+                        type="button"
+                        phx-click="cancel_mfa_setup"
+                        class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                      >
+                        {gettext("Cancelar")}
+                      </button>
+                      <button
+                        type="submit"
+                        phx-disable-with={gettext("Verificando...")}
+                        class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
+                      >
+                        {gettext("Activar MFA")}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              <% end %>
+
+              <%!-- Show backup codes after enabling --%>
+              <%= if @mfa_step == :backup_codes and @mfa_backup_codes do %>
+                <div class="p-5 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div class="flex items-start gap-3 mb-4">
+                    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                    </svg>
+                    <div>
+                      <p class="font-medium text-amber-900">{gettext("Códigos de recuperación")}</p>
+                      <p class="text-sm text-amber-700 mt-1">{gettext("Guarda estos códigos en un lugar seguro. Cada código solo se puede usar una vez. No podrás verlos de nuevo.")}</p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <%= for code <- @mfa_backup_codes do %>
+                      <code class="bg-white px-3 py-2 rounded-lg border border-amber-200 text-sm font-mono text-slate-800 text-center">{code}</code>
+                    <% end %>
+                  </div>
+                  <div class="mt-4 flex justify-end">
+                    <button
+                      type="button"
+                      phx-click="close_mfa_backup_codes"
+                      class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition"
+                    >
+                      {gettext("Ya guardé mis códigos")}
+                    </button>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- Active Sessions                                              --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <div class="mt-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+              </svg>
+              {gettext("Sesiones activas")}
+            </h2>
+            <%= if length(@sessions) > 1 do %>
+              <button
+                type="button"
+                phx-click="revoke_all_sessions"
+                data-confirm={gettext("¿Cerrar todas las demás sesiones?")}
+                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs sm:text-sm font-medium hover:bg-red-100 hover:border-red-300 transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+                {gettext("Cerrar todas las demás sesiones")}
+              </button>
+            <% end %>
+          </div>
+        </div>
+        <div class="p-6 sm:p-8">
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="border-b border-slate-200">
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Dispositivo")}</th>
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">{gettext("IP")}</th>
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">{gettext("Última actividad")}</th>
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Fecha")}</th>
+                  <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Acción")}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <%= for session <- @sessions do %>
+                  <tr class="hover:bg-slate-50">
+                    <td class="py-2.5 px-3 text-slate-700 font-medium">
+                      <div class="flex items-center gap-2">
+                        <%= case session.device_info do %>
+                          <% "Mobile" -> %>
+                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                            </svg>
+                          <% "Tablet" -> %>
+                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                          <% _ -> %>
+                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+                            </svg>
+                        <% end %>
+                        <span>
+                          {session.device_info || "Desktop"}
+                          <%= if @current_jti && session.token_jti == @current_jti do %>
+                            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">{gettext("Esta sesión")}</span>
+                          <% end %>
+                        </span>
+                      </div>
+                    </td>
+                    <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
+                      <span class="truncate max-w-[8rem] inline-block">{session.ip_address || "—"}</span>
+                    </td>
+                    <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
+                      <%= if session.last_activity_at do %>
+                        {Calendar.strftime(session.last_activity_at, "%d/%m/%Y %H:%M")}
+                      <% else %>
+                        —
+                      <% end %>
+                    </td>
+                    <td class="py-2.5 px-3 text-slate-500">
+                      {Calendar.strftime(session.inserted_at, "%d/%m/%Y %H:%M")}
+                    </td>
+                    <td class="py-2.5 px-3 text-right">
+                      <%= if @current_jti && session.token_jti == @current_jti do %>
+                        <span class="text-xs text-slate-400">—</span>
+                      <% else %>
+                        <button
+                          type="button"
+                          phx-click="revoke_session"
+                          phx-value-id={session.id}
+                          data-confirm={gettext("¿Cerrar esta sesión?")}
+                          class="text-xs text-red-600 hover:text-red-800 font-medium"
+                        >
+                          {gettext("Revocar")}
+                        </button>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+                <%= if @sessions == [] do %>
+                  <tr>
+                    <td colspan="5" class="py-4 px-3 text-center text-slate-400 text-sm">
+                      {gettext("Sin sesiones activas.")}
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- Data Protection (GDPR)                                       --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <div class="mt-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+          <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            {gettext("Protección de datos")}
+          </h2>
+        </div>
+        <div class="p-6 sm:p-8 space-y-6">
+          <%!-- Export data --%>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-800">{gettext("Exportar mis datos")}</h3>
+              <p class="text-sm text-slate-500 mt-0.5">{gettext("Descarga una copia de todos tus datos personales (RGPD Art. 15).")}</p>
+            </div>
+            <a
+              href="/export/my-data"
+              class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              {gettext("Exportar datos")}
+            </a>
+          </div>
+
+          <%!-- Consents table --%>
+          <div>
+            <h3 class="text-sm font-semibold text-slate-800 mb-3">{gettext("Consentimientos")}</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-200">
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Propósito")}</th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">{gettext("Fecha")}</th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Estado")}</th>
+                    <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 uppercase">{gettext("Acción")}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <%= for consent <- @consents do %>
+                    <tr class="hover:bg-slate-50">
+                      <td class="py-2.5 px-3 text-slate-700 font-medium">
+                        <%= case consent.purpose do %>
+                          <% "terms" -> %> {gettext("Términos de uso")}
+                          <% "privacy" -> %> {gettext("Política de privacidad")}
+                          <% "data_processing" -> %> {gettext("Procesamiento de datos")}
+                          <% "marketing" -> %> {gettext("Marketing")}
+                          <% _ -> %> {consent.purpose}
+                        <% end %>
+                      </td>
+                      <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
+                        {Calendar.strftime(consent.granted_at, "%d/%m/%Y %H:%M")}
+                      </td>
+                      <td class="py-2.5 px-3">
+                        <%= if is_nil(consent.revoked_at) do %>
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                            {gettext("Activo")}
+                          </span>
+                        <% else %>
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                            {gettext("Revocado")}
+                          </span>
+                        <% end %>
+                      </td>
+                      <td class="py-2.5 px-3 text-right">
+                        <%= if is_nil(consent.revoked_at) do %>
+                          <button
+                            type="button"
+                            phx-click="revoke_consent"
+                            phx-value-id={consent.id}
+                            data-confirm={gettext("¿Revocar este consentimiento?")}
+                            class="text-xs text-red-600 hover:text-red-800 font-medium"
+                          >
+                            {gettext("Revocar")}
+                          </button>
+                        <% else %>
+                          <span class="text-xs text-slate-400">—</span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                  <%= if @consents == [] do %>
+                    <tr>
+                      <td colspan="4" class="py-4 px-3 text-center text-slate-400 text-sm">
+                        {gettext("Sin consentimientos registrados.")}
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1264,6 +1924,83 @@ defmodule StreamflixWebWeb.AccountLive do
                   class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition"
                 >
                   {gettext("Eliminar mi cuenta")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      <% end %>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- MODAL: Disable MFA                                           --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%= if @show_mfa_disable_modal do %>
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="mfa-disable-modal-container">
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            phx-click="close_mfa_disable_modal"
+            aria-hidden="true"
+          >
+          </div>
+          <div
+            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="px-6 pt-6 pb-4">
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="text-lg font-semibold text-red-900">
+                    {gettext("Desactivar MFA")}
+                  </h2>
+                  <p class="text-sm text-slate-500 mt-0.5">
+                    {gettext("Tu cuenta quedará menos segura. Ingresa tu contraseña para confirmar.")}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <form phx-submit="disable_mfa" class="px-6 pb-6">
+              <div>
+                <label for="mfa_disable_password" class="block text-sm font-medium text-slate-700 mb-1.5">
+                  {gettext("Contraseña actual")}
+                </label>
+                <input
+                  id="mfa_disable_password"
+                  type="password"
+                  name="password"
+                  required
+                  placeholder="••••••••"
+                  class={@input_class}
+                />
+              </div>
+              <%= if @mfa_disable_errors != [] do %>
+                <div class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3" role="alert">
+                  <div class="text-sm text-red-700">
+                    <%= for error <- @mfa_disable_errors do %>
+                      <p>{error}</p>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                <button
+                  type="button"
+                  phx-click="close_mfa_disable_modal"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                >
+                  {gettext("Cancelar")}
+                </button>
+                <button
+                  type="submit"
+                  phx-disable-with={gettext("Desactivando...")}
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition"
+                >
+                  {gettext("Desactivar MFA")}
                 </button>
               </div>
             </form>

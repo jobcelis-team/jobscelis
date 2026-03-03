@@ -34,7 +34,7 @@ defmodule StreamflixCore.Schemas.Delivery do
       :next_retry_at
     ])
     |> validate_required([:event_id, :webhook_id])
-    |> validate_inclusion(:status, ~w(pending success failed))
+    |> validate_inclusion(:status, ~w(pending success failed circuit_open))
     |> foreign_key_constraint(:event_id)
     |> foreign_key_constraint(:webhook_id)
   end
