@@ -10,8 +10,8 @@ defmodule StreamflixAccounts.Schemas.PasswordHistory do
   @foreign_key_type :binary_id
 
   schema "password_history" do
-    field :user_id, :binary_id
-    field :password_hash, :string
+    field(:user_id, :binary_id)
+    field(:password_hash, :string)
 
     timestamps(updated_at: false)
   end

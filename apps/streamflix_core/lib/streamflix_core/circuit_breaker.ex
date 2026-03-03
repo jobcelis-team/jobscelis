@@ -74,7 +74,10 @@ defmodule StreamflixCore.CircuitBreaker do
       })
       |> Repo.update()
 
-      Logger.warning("[CircuitBreaker] Circuit opened for webhook #{webhook.id} after #{new_failures} failures")
+      Logger.warning(
+        "[CircuitBreaker] Circuit opened for webhook #{webhook.id} after #{new_failures} failures"
+      )
+
       notify_circuit_open(webhook)
     else
       webhook
@@ -93,13 +96,21 @@ defmodule StreamflixCore.CircuitBreaker do
   end
 
   defp notify_circuit_open(webhook) do
-    notify_project_owner(webhook, "circuit_open", "Circuit breaker abierto",
-      "El webhook #{webhook.url} ha sido pausado tras #{@failure_threshold} fallos consecutivos. Se reintentará en #{div(@circuit_reset_seconds, 60)} minutos.")
+    notify_project_owner(
+      webhook,
+      "circuit_open",
+      "Circuit breaker abierto",
+      "El webhook #{webhook.url} ha sido pausado tras #{@failure_threshold} fallos consecutivos. Se reintentará en #{div(@circuit_reset_seconds, 60)} minutos."
+    )
   end
 
   defp notify_circuit_closed(webhook) do
-    notify_project_owner(webhook, "circuit_closed", "Circuit breaker cerrado",
-      "El webhook #{webhook.url} se ha recuperado y está recibiendo entregas nuevamente.")
+    notify_project_owner(
+      webhook,
+      "circuit_closed",
+      "Circuit breaker cerrado",
+      "El webhook #{webhook.url} se ha recuperado y está recibiendo entregas nuevamente."
+    )
   end
 
   defp notify_project_owner(webhook, type, title, message) do
