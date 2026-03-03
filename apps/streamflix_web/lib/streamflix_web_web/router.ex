@@ -258,6 +258,14 @@ defmodule StreamflixWebWeb.Router do
 
     # GDPR — Data export (DSAR)
     get "/me/data", GDPRController, :export_my_data
+
+    # GDPR — Restriction (Art. 18)
+    post "/me/restrict", GDPRController, :restrict
+    delete "/me/restrict", GDPRController, :lift_restriction
+
+    # GDPR — Objection (Art. 21)
+    post "/me/object", GDPRController, :object
+    delete "/me/object", GDPRController, :restore_consent
   end
 
   # ============================================

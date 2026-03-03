@@ -39,6 +39,9 @@ defmodule StreamflixWebWeb.AccountLive do
       |> assign(:current_jti, current_jti)
       # GDPR / Consents — backfill for users created before consent system
       |> assign(:consents, ensure_consents(user.id))
+      # GDPR: Restriction / Objection
+      |> assign(:show_restrict_modal, false)
+      |> assign(:restrict_form_errors, [])
 
     {:ok, socket}
   end
@@ -398,6 +401,116 @@ defmodule StreamflixWebWeb.AccountLive do
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, gettext("No se pudo revocar el consentimiento."))}
+    end
+  end
+
+  # ── GDPR: Restriction (Art. 18) ──────────────────────────────────
+
+  def handle_event("open_restrict_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_restrict_modal, true)
+     |> assign(:restrict_form_errors, [])}
+  end
+
+  def handle_event("close_restrict_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_restrict_modal, false)
+     |> assign(:restrict_form_errors, [])}
+  end
+
+  def handle_event("restrict_processing", %{"restrict" => %{"password" => password}}, socket) do
+    user = socket.assigns.user
+
+    case StreamflixAccounts.restrict_user(user, password) do
+      {:ok, updated} ->
+        StreamflixCore.Audit.record("gdpr.processing_restricted",
+          user_id: updated.id,
+          resource_type: "user",
+          resource_id: updated.id,
+          metadata: %{reason: "user_requested"}
+        )
+
+        {:noreply,
+         socket
+         |> assign(:user, updated)
+         |> assign(:show_restrict_modal, false)
+         |> assign(:restrict_form_errors, [])
+         |> put_flash(:info, gettext("Procesamiento restringido correctamente."))}
+
+      {:error, :wrong_password} ->
+        {:noreply,
+         socket
+         |> assign(:restrict_form_errors, [gettext("Contraseña incorrecta.")])}
+
+      {:error, _} ->
+        {:noreply,
+         socket
+         |> assign(:restrict_form_errors, [
+           gettext("No se pudo restringir el procesamiento.")
+         ])}
+    end
+  end
+
+  def handle_event("lift_restriction", _, socket) do
+    user = socket.assigns.user
+
+    case StreamflixAccounts.lift_restriction(user) do
+      {:ok, updated} ->
+        StreamflixCore.Audit.record("gdpr.restriction_lifted",
+          user_id: updated.id,
+          resource_type: "user",
+          resource_id: updated.id
+        )
+
+        {:noreply,
+         socket
+         |> assign(:user, updated)
+         |> put_flash(:info, gettext("Restricción de procesamiento levantada."))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("No se pudo levantar la restricción."))}
+    end
+  end
+
+  # ── GDPR: Objection (Art. 21) ────────────────────────────────────
+
+  def handle_event("toggle_processing_consent", _, socket) do
+    user = socket.assigns.user
+
+    result =
+      if user.processing_consent do
+        StreamflixAccounts.object_to_processing(user)
+      else
+        StreamflixAccounts.restore_processing_consent(user)
+      end
+
+    case result do
+      {:ok, updated} ->
+        action =
+          if updated.processing_consent,
+            do: "gdpr.processing_consent_restored",
+            else: "gdpr.processing_objection"
+
+        StreamflixCore.Audit.record(action,
+          user_id: updated.id,
+          resource_type: "user",
+          resource_id: updated.id
+        )
+
+        msg =
+          if updated.processing_consent,
+            do: gettext("Consentimiento de procesamiento restaurado."),
+            else: gettext("Oposición al procesamiento registrada.")
+
+        {:noreply,
+         socket
+         |> assign(:user, updated)
+         |> put_flash(:info, msg)}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("No se pudo actualizar el consentimiento."))}
     end
   end
 
@@ -1481,6 +1594,30 @@ defmodule StreamflixWebWeb.AccountLive do
           </h2>
         </div>
         <div class="p-6 sm:p-8 space-y-6">
+          <%!-- Restriction warning banner --%>
+          <%= if @user.status == "restricted" do %>
+            <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-800">
+                  {gettext("Procesamiento restringido")}
+                </p>
+                <p class="text-xs text-amber-700 mt-0.5">
+                  {gettext(
+                    "Tu cuenta tiene el procesamiento restringido (RGPD Art. 18). Los webhooks y eventos no se procesarán hasta que levantes la restricción."
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                phx-click="lift_restriction"
+                data-confirm={gettext("¿Levantar la restricción de procesamiento?")}
+                class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-600 text-white text-xs font-medium hover:bg-amber-700 transition"
+              >
+                {gettext("Levantar restricción")}
+              </button>
+            </div>
+          <% end %>
+
           <%!-- Export data --%>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -1503,6 +1640,90 @@ defmodule StreamflixWebWeb.AccountLive do
               </svg>
               {gettext("Exportar datos")}
             </a>
+          </div>
+
+          <%!-- Art. 18: Restriction control --%>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-800">
+                {gettext("Restringir procesamiento")}
+              </h3>
+              <p class="text-sm text-slate-500 mt-0.5">
+                {gettext("Congela el procesamiento de tus datos sin eliminarlos (RGPD Art. 18).")}
+              </p>
+            </div>
+            <%= if @user.status != "restricted" do %>
+              <button
+                type="button"
+                phx-click="open_restrict_modal"
+                class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 text-sm font-medium hover:bg-amber-100 hover:border-amber-300 transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                {gettext("Restringir")}
+              </button>
+            <% else %>
+              <button
+                type="button"
+                phx-click="lift_restriction"
+                data-confirm={gettext("¿Levantar la restricción de procesamiento?")}
+                class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-sm font-medium hover:bg-emerald-100 hover:border-emerald-300 transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                {gettext("Levantar restricción")}
+              </button>
+            <% end %>
+          </div>
+
+          <%!-- Art. 21: Objection toggle --%>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-800">
+                {gettext("Consentimiento de procesamiento")}
+              </h3>
+              <p class="text-sm text-slate-500 mt-0.5">
+                {gettext("Ejerce tu derecho de oposición al procesamiento de datos (RGPD Art. 21).")}
+              </p>
+            </div>
+            <button
+              type="button"
+              phx-click="toggle_processing_consent"
+              data-confirm={
+                if @user.processing_consent,
+                  do: gettext("¿Objetar el procesamiento de tus datos?"),
+                  else: gettext("¿Restaurar el consentimiento de procesamiento?")
+              }
+              class={[
+                "flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition",
+                if(@user.processing_consent,
+                  do:
+                    "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:border-slate-300",
+                  else: "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 hover:border-red-300"
+                )
+              ]}
+            >
+              <%= if @user.processing_consent do %>
+                {gettext("Objetar procesamiento")}
+              <% else %>
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                  {gettext("Procesamiento objetado")}
+                </span>
+              <% end %>
+            </button>
           </div>
 
           <%!-- Consents table --%>
@@ -1587,6 +1808,83 @@ defmodule StreamflixWebWeb.AccountLive do
           </div>
         </div>
       </div>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- MODAL: Restrict processing (Art. 18)                         --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%= if @show_restrict_modal do %>
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          id="restrict-modal-container"
+        >
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            phx-click="close_restrict_modal"
+            aria-hidden="true"
+          >
+          </div>
+          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6 sm:p-8">
+            <button
+              type="button"
+              phx-click="close_restrict_modal"
+              class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">
+              {gettext("Restringir procesamiento")}
+            </h3>
+            <p class="text-sm text-slate-500 mb-4">
+              {gettext(
+                "Al restringir el procesamiento, los webhooks y eventos dejarán de procesarse. Puedes revertir esta acción en cualquier momento."
+              )}
+            </p>
+
+            <%= for err <- @restrict_form_errors do %>
+              <div class="mb-3 rounded-lg bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-700">
+                {err}
+              </div>
+            <% end %>
+
+            <.form for={%{}} as={:restrict} phx-submit="restrict_processing" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                  {gettext("Contraseña actual")}
+                </label>
+                <input
+                  type="password"
+                  name="restrict[password]"
+                  required
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  placeholder={gettext("Ingresa tu contraseña")}
+                />
+              </div>
+              <div class="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                <button
+                  type="button"
+                  phx-click="close_restrict_modal"
+                  class="px-4 py-2 rounded-lg border border-slate-300 text-sm text-slate-700 hover:bg-slate-50 transition"
+                >
+                  {gettext("Cancelar")}
+                </button>
+                <button
+                  type="submit"
+                  class="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition"
+                >
+                  {gettext("Restringir procesamiento")}
+                </button>
+              </div>
+            </.form>
+          </div>
+        </div>
+      <% end %>
 
       <%!-- ══════════════════════════════════════════════════════════════ --%>
       <%!-- MODAL: Change email                                          --%>

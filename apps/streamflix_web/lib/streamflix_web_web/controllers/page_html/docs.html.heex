@@ -364,6 +364,12 @@
               {gettext("Protección de datos")}
             </a>
             <a
+              href="#ropa"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Registro de actividades (Art. 30)")}
+            </a>
+            <a
               href="#event-integrity"
               class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
             >
@@ -4510,6 +4516,68 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
+                {gettext("Restricción de procesamiento (Art. 18)")}
+              </h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext(
+                  "Puedes restringir el procesamiento de tus datos sin eliminarlos. Mientras la restricción esté activa, no se procesarán webhooks ni eventos."
+                )}
+              </p>
+              <p class="text-slate-700 text-sm font-medium mb-2">
+                {gettext("Desde el navegador")}:
+              </p>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Sección «Cuenta» → «Protección de datos» → «Restringir procesamiento»")}
+              </p>
+              <p class="text-slate-700 text-sm font-medium mb-2">{gettext("Vía API")}:</p>
+              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre
+                  class="text-sm text-slate-100 font-mono whitespace-pre"
+                  phx-no-curly-interpolation
+                ># POST /api/v1/me/restrict — Restringir procesamiento
+curl -X POST -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"password":"your_password"}' \
+  <%= gettext("https://tu-dominio.com") %>/api/v1/me/restrict
+
+# DELETE /api/v1/me/restrict — Levantar restricción
+curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  <%= gettext("https://tu-dominio.com") %>/api/v1/me/restrict</pre>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">
+                {gettext("Derecho de oposición (Art. 21)")}
+              </h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext(
+                  "Puedes objetar al procesamiento de tus datos personales. Los workers y webhooks dejarán de procesar datos mientras la oposición esté activa."
+                )}
+              </p>
+              <p class="text-slate-700 text-sm font-medium mb-2">
+                {gettext("Desde el navegador")}:
+              </p>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext("Sección «Cuenta» → «Protección de datos» → «Objetar procesamiento»")}
+              </p>
+              <p class="text-slate-700 text-sm font-medium mb-2">{gettext("Vía API")}:</p>
+              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre
+                  class="text-sm text-slate-100 font-mono whitespace-pre"
+                  phx-no-curly-interpolation
+                ># POST /api/v1/me/object — Registrar oposición
+curl -X POST -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  <%= gettext("https://tu-dominio.com") %>/api/v1/me/object
+
+# DELETE /api/v1/me/object — Restaurar consentimiento
+curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  <%= gettext("https://tu-dominio.com") %>/api/v1/me/object</pre>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">
                 {gettext("Derecho de supresión")}
               </h3>
               <p class="text-slate-600 text-sm mb-3">
@@ -4531,6 +4599,175 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
                   )}
                 </li>
               </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <%!-- ROPA — Registro de actividades Art. 30                       --%>
+      <%!-- ══════════════════════════════════════════════════════════════ --%>
+      <section id="ropa" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">
+              {gettext("Registro de actividades (Art. 30)")}
+            </h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext(
+                "Registro de actividades de tratamiento de datos personales según el Artículo 30 del RGPD (ROPA)."
+              )}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext(
+                  "Este registro documenta todas las actividades de tratamiento de datos personales, incluyendo propósitos, bases legales, categorías de datos y periodos de retención. Documento completo disponible en docs/ROPA.md."
+                )}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">
+                {gettext("Actividades de tratamiento")}
+              </h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-slate-200">
+                      <th class="text-left py-2 px-3 font-semibold text-slate-700">
+                        {gettext("Actividad")}
+                      </th>
+                      <th class="text-left py-2 px-3 font-semibold text-slate-700 hidden sm:table-cell">
+                        {gettext("Base legal")}
+                      </th>
+                      <th class="text-left py-2 px-3 font-semibold text-slate-700 hidden sm:table-cell">
+                        {gettext("Retención")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700">
+                        {gettext("Registro y autenticación")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        Art. 6.1.b
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("Mientras la cuenta esté activa")}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700">
+                        {gettext("Eventos y webhooks")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        Art. 6.1.b
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("90 días (entregas)")}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700">
+                        {gettext("Registro de auditoría")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        Art. 6.1.f
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("90 días")}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700">
+                        {gettext("Gestión de sesiones")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        Art. 6.1.b
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("7 días")}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700">
+                        {gettext("Registro de consentimientos")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        Art. 6.1.c
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("Indefinido (obligación legal)")}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700">
+                        {gettext("Detección de brechas")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        Art. 6.1.f
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("90 días")}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700">
+                        {gettext("Comunicaciones por email")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        Art. 6.1.b
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">
+                        {gettext("No se almacenan")}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">
+                {gettext("Sub-procesadores")}
+              </h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-slate-200">
+                      <th class="text-left py-2 px-3 font-semibold text-slate-700">
+                        {gettext("Proveedor")}
+                      </th>
+                      <th class="text-left py-2 px-3 font-semibold text-slate-700">
+                        {gettext("Servicio")}
+                      </th>
+                      <th class="text-left py-2 px-3 font-semibold text-slate-700 hidden sm:table-cell">
+                        {gettext("Ubicación")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700 font-medium">Supabase</td>
+                      <td class="py-2 px-3 text-slate-600">
+                        {gettext("Base de datos PostgreSQL")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">US (AWS)</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-slate-700 font-medium">Resend</td>
+                      <td class="py-2 px-3 text-slate-600">
+                        {gettext("Envío de emails transaccionales")}
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 hidden sm:table-cell">US</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -4872,6 +5109,60 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               <p class="text-slate-600 text-sm">
                 {gettext(
                   "Cuando se detecta una anomalía, se registra en el audit log como 'security.anomaly_detected' y se notifica a todos los administradores activos. Esto cumple con los requisitos de GDPR Art. 33 sobre detección temprana de brechas."
+                )}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">
+                {gettext("Proceso de notificación en 72 horas (Art. 33)")}
+              </h3>
+              <p class="text-slate-600 text-sm mb-4">
+                {gettext(
+                  "Cuando se detecta una brecha con severidad critical o high, se activa el proceso de notificación a la autoridad de control en un máximo de 72 horas."
+                )}
+              </p>
+              <ol class="list-decimal list-inside text-slate-700 text-sm space-y-2">
+                <li>
+                  <strong>T+0</strong>
+                  — {gettext(
+                    "Detección automática y clasificación de severidad (critical/high/medium)."
+                  )}
+                </li>
+                <li>
+                  <strong>T+24h</strong>
+                  — {gettext("Investigación: revisión de audit logs, alcance e impacto.")}
+                </li>
+                <li>
+                  <strong>T+48h</strong>
+                  — {gettext(
+                    "Preparación de la notificación y aplicación de medidas de contención."
+                  )}
+                </li>
+                <li>
+                  <strong>T+72h</strong>
+                  — {gettext("Envío de notificación a la autoridad de control.")}
+                </li>
+              </ol>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">
+                {gettext("Notificación a usuarios afectados (Art. 34)")}
+              </h3>
+              <p class="text-slate-600 text-sm mb-3">
+                {gettext(
+                  "Cuando la brecha supone un alto riesgo para los derechos y libertades de los usuarios, se notifica directamente a los afectados. Aplica en casos de:"
+                )}
+              </p>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>{gettext("Exfiltración confirmada de datos personales.")}</li>
+                <li>{gettext("Acceso no autorizado a cuentas de usuario.")}</li>
+                <li>{gettext("Compromiso de credenciales.")}</li>
+              </ul>
+              <p class="text-slate-600 text-sm mt-3">
+                {gettext(
+                  "La notificación incluye: descripción del incidente, datos afectados, medidas adoptadas y recomendaciones para el usuario. Proceso completo documentado en docs/BREACH_NOTIFICATION.md."
                 )}
               </p>
             </div>

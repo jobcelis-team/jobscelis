@@ -29,8 +29,15 @@ defmodule StreamflixCore.Platform.ObanBreachDetectionWorker do
     anomalies = anomalies ++ detect_lockouts(since)
 
     if anomalies != [] do
+      severity = classify_severity(anomalies)
+
       Audit.record("security.anomaly_detected",
-        metadata: %{anomalies: anomalies, window_minutes: @window_minutes}
+        metadata: %{
+          anomalies: anomalies,
+          window_minutes: @window_minutes,
+          severity: severity,
+          breach_notification_required: severity in ["critical", "high"]
+        }
       )
 
       notify_admins(anomalies)
@@ -103,6 +110,16 @@ defmodule StreamflixCore.Platform.ObanBreachDetectionWorker do
     Enum.map(results, fn %{user_id: uid, ip: ip} ->
       %{type: "account_lockout", user_id: uid, ip: ip}
     end)
+  end
+
+  defp classify_severity(anomalies) do
+    types = Enum.map(anomalies, & &1.type) |> MapSet.new()
+
+    cond do
+      "data_exfiltration" in types -> "critical"
+      "coordinated_attack" in types -> "high"
+      true -> "medium"
+    end
   end
 
   defp notify_admins(anomalies) do

@@ -380,6 +380,44 @@ defmodule StreamflixWebWeb.Layouts do
     """
   end
 
+  # ── Cookie consent banner ────────────────────────────────────────
+
+  @doc """
+  Informative cookie banner for technical-only cookies (session + locale).
+  Uses localStorage to persist dismissal. No opt-in needed (ePrivacy exempt).
+  """
+  def cookie_banner(assigns) do
+    ~H"""
+    <div
+      id="cookie-banner"
+      phx-hook="CookieBanner"
+      class="fixed bottom-0 inset-x-0 z-50 hidden"
+      role="alert"
+      aria-live="polite"
+    >
+      <div class="bg-slate-900 border-t border-slate-700 shadow-lg">
+        <div class="max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <p class="text-slate-200 text-xs sm:text-sm flex-1">
+            {gettext(
+              "Este sitio usa solo cookies técnicas necesarias para el funcionamiento del servicio (sesión y preferencia de idioma). No usamos cookies de seguimiento ni analíticas."
+            )}
+            <a href="/cookies" class="underline text-indigo-400 hover:text-indigo-300 ml-1">
+              {gettext("Más información")}
+            </a>
+          </p>
+          <button
+            id="cookie-accept-btn"
+            type="button"
+            class="shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
+          >
+            {gettext("Entendido")}
+          </button>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   # ── Public layout ────────────────────────────────────────────────────
 
   @doc """
@@ -409,6 +447,7 @@ defmodule StreamflixWebWeb.Layouts do
         {render_slot(@inner_block)}
       </main>
       <.site_footer locale={@locale} legal={@legal} /> <.flash_group flash={@flash} />
+      <.cookie_banner />
     </div>
     """
   end
@@ -461,6 +500,7 @@ defmodule StreamflixWebWeb.Layouts do
         {render_slot(@inner_block)}
       </main>
       <.site_footer locale={@locale} legal={@legal} /> <.flash_group flash={@flash} />
+      <.cookie_banner />
     </div>
     """
   end
