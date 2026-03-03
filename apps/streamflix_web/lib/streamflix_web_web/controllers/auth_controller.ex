@@ -394,8 +394,8 @@ defmodule StreamflixWebWeb.AuthController do
     end)
   end
 
-  defp translate_field(:email), do: gettext("email")
-  defp translate_field(:password), do: gettext("password")
-  defp translate_field(:name), do: gettext("name")
+  defp translate_field(:email), do: gettext("correo electrónico")
+  defp translate_field(:password), do: gettext("contraseña")
+  defp translate_field(:name), do: gettext("nombre")
   defp translate_field(field), do: to_string(field)
 end
