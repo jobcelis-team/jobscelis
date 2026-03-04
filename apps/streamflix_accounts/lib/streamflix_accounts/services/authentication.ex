@@ -139,7 +139,10 @@ defmodule StreamflixAccounts.Services.Authentication do
 
   # Verify password against either Argon2id or legacy PBKDF2 hashes.
   defp verify_password(password, "$argon2id$" <> _ = hash), do: Argon2.verify_pass(password, hash)
-  defp verify_password(password, "$pbkdf2-sha512$" <> _ = hash), do: Pbkdf2.verify_pass(password, hash)
+
+  defp verify_password(password, "$pbkdf2-sha512$" <> _ = hash),
+    do: Pbkdf2.verify_pass(password, hash)
+
   defp verify_password(_password, _hash), do: false
 
   # Re-hash to Argon2id if stored hash is legacy PBKDF2.
