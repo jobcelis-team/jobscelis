@@ -28,6 +28,9 @@ defmodule StreamflixAccounts.Schemas.User do
     field(:restricted_at, :utc_datetime_usec)
     field(:restriction_reason, :string)
 
+    # Preferences
+    field(:last_project_id, :binary_id)
+
     # MFA / TOTP
     field(:mfa_enabled, :boolean, default: false)
     field(:mfa_secret, StreamflixCore.Encrypted.Binary)
@@ -48,7 +51,8 @@ defmodule StreamflixAccounts.Schemas.User do
     :locked_at,
     :processing_consent,
     :restricted_at,
-    :restriction_reason
+    :restriction_reason,
+    :last_project_id
   ]
 
   @max_failed_attempts 5
