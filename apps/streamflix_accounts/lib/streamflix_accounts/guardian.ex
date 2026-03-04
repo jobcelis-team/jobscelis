@@ -23,9 +23,15 @@ defmodule StreamflixAccounts.Guardian do
   Retrieves the user from token claims.
   """
   def resource_from_claims(%{"sub" => id}) do
-    case Repo.get(User, id) do
-      nil -> {:error, :resource_not_found}
-      user -> {:ok, user}
+    case Cachex.fetch(:platform_cache, {:user, id}, fn _key ->
+           case Repo.get(User, id) do
+             nil -> {:ignore, nil}
+             user -> {:commit, user, ttl: :timer.seconds(120)}
+           end
+         end) do
+      {:ok, user} -> {:ok, user}
+      {:commit, user} -> {:ok, user}
+      {:ignore, _} -> {:error, :resource_not_found}
     end
   end
 

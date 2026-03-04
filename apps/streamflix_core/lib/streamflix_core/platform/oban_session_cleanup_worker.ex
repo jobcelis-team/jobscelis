@@ -6,7 +6,8 @@ defmodule StreamflixCore.Platform.ObanSessionCleanupWorker do
 
   use Oban.Worker,
     queue: :default,
-    max_attempts: 3
+    max_attempts: 3,
+    unique: [period: 3600]
 
   import Ecto.Query
   alias StreamflixCore.Repo
