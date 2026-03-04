@@ -1,23 +1,26 @@
 defmodule StreamflixWebWeb.Plugs.SecurityHeaders do
   @moduledoc """
-  Añade cabeceras HTTP de seguridad para mitigar XSS, clickjacking, MIME sniffing y fugas de referrer.
+  Adds HTTP security headers to mitigate XSS, clickjacking, MIME sniffing and referrer leaks.
+  Uses per-request CSP nonces for inline scripts (no unsafe-inline needed).
   """
   import Plug.Conn
 
   def init(opts), do: opts
 
   def call(conn, _opts) do
+    nonce = generate_nonce()
+
     conn
+    |> assign(:csp_nonce, nonce)
     |> put_resp_header("x-frame-options", "DENY")
     |> put_resp_header("x-content-type-options", "nosniff")
-    |> put_resp_header("x-xss-protection", "1; mode=block")
+    |> put_resp_header("x-xss-protection", "0")
     |> put_resp_header("referrer-policy", "strict-origin-when-cross-origin")
     |> put_resp_header("permissions-policy", "geolocation=(), microphone=(), camera=()")
-    |> put_content_security_policy()
+    |> put_content_security_policy(nonce)
   end
 
-  defp put_content_security_policy(%{request_path: "/api/swaggerui"} = conn) do
-    # CSP relajada para Swagger UI: permite CDN de cdnjs.cloudflare.com y scripts inline.
+  defp put_content_security_policy(%{request_path: "/api/swaggerui"} = conn, _nonce) do
     csp =
       [
         "default-src 'self'",
@@ -35,12 +38,11 @@ defmodule StreamflixWebWeb.Plugs.SecurityHeaders do
     put_resp_header(conn, "content-security-policy", csp)
   end
 
-  defp put_content_security_policy(conn) do
-    # CSP: restringe orígenes de script, estilo e imágenes. Ajusta si usas CDN o inline.
+  defp put_content_security_policy(conn, nonce) do
     csp =
       [
         "default-src 'self'",
-        "script-src 'self'",
+        "script-src 'self' 'nonce-#{nonce}'",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https:",
         "font-src 'self'",
@@ -52,5 +54,9 @@ defmodule StreamflixWebWeb.Plugs.SecurityHeaders do
       |> Enum.join("; ")
 
     put_resp_header(conn, "content-security-policy", csp)
+  end
+
+  defp generate_nonce do
+    16 |> :crypto.strong_rand_bytes() |> Base.url_encode64(padding: false)
   end
 end

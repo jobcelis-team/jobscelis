@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang={assigns[:locale] || "es"} class="scroll-smooth">
   <head>
-    <script>
+    <script nonce={assigns[:csp_nonce]}>
       (function(){
         var l = localStorage.getItem("locale") || document.cookie.replace(/(?:(?:^|.*;\s*)locale\s*=\s*([^;]*).*$)|^.*$/, "$1");
         if (l === "es" || l === "en") document.documentElement.lang = l;
@@ -34,7 +34,7 @@
       content="Events, webhooks and scheduled jobs platform for developers."
     /> <meta name="twitter:image" content="https://jobcelis.com/images/logo.png" />
     <%!-- Schema.org: For Google to recognize logo and application type --%>
-    <script type="application/ld+json">
+    <script type="application/ld+json" nonce={assigns[:csp_nonce]}>
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
@@ -54,7 +54,7 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
 
-    <script>
+    <script nonce={assigns[:csp_nonce]}>
       (() => {
         const setTheme = (theme) => {
           if (theme === "system") {
