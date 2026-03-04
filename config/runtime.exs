@@ -44,7 +44,7 @@ if config_env() == :prod do
   # La conexión sigue encriptada con TLS; verify_none solo omite la validación de la cadena CA.
   config :streamflix_core, StreamflixCore.Repo,
     url: database_url,
-    pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "10"),
+    pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "20"),
     socket_options: maybe_ipv6,
     ssl: [verify: :verify_none],
     prepare: :unnamed

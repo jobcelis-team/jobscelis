@@ -42,19 +42,18 @@ defmodule StreamflixCore.Platform.ObanBatchWorker do
     window_seconds = config["window_seconds"] || 60
     max_batch_size = config["max_batch_size"] || 100
 
-    # Get oldest batch item for this webhook
-    oldest =
-      BatchItem
-      |> where([b], b.webhook_id == ^webhook.id)
-      |> order_by([b], asc: b.inserted_at)
-      |> limit(1)
+    # Single query: get count and oldest timestamp for this webhook's batch items
+    stats =
+      from(b in BatchItem,
+        where: b.webhook_id == ^webhook.id,
+        select: %{count: count(b.id), oldest: min(b.inserted_at)}
+      )
       |> Repo.one()
 
-    if oldest do
-      age_seconds = DateTime.diff(now, oldest.inserted_at, :second)
-      count = Repo.aggregate(from(b in BatchItem, where: b.webhook_id == ^webhook.id), :count)
+    if stats.count > 0 do
+      age_seconds = DateTime.diff(now, stats.oldest, :second)
 
-      if age_seconds >= window_seconds or count >= max_batch_size do
+      if age_seconds >= window_seconds or stats.count >= max_batch_size do
         flush_batch(webhook, max_batch_size)
       end
     end

@@ -7,6 +7,13 @@ defmodule StreamflixWebWeb.Plugs.SecurityHeaders do
 
   def init(opts), do: opts
 
+  def call(%{request_path: "/api/" <> _} = conn, _opts) do
+    conn
+    |> put_resp_header("x-content-type-options", "nosniff")
+    |> put_resp_header("x-frame-options", "DENY")
+    |> put_resp_header("referrer-policy", "strict-origin-when-cross-origin")
+  end
+
   def call(conn, _opts) do
     nonce = generate_nonce()
 

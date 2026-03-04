@@ -21,12 +21,16 @@ defmodule StreamflixCore.Platform.ObanBreachDetectionWorker do
   @impl true
   def perform(_job) do
     since = DateTime.utc_now() |> DateTime.add(-@window_minutes * 60, :second)
-    anomalies = []
 
-    anomalies = anomalies ++ detect_brute_force_by_ip(since)
-    anomalies = anomalies ++ detect_coordinated_attack(since)
-    anomalies = anomalies ++ detect_data_exfiltration(since)
-    anomalies = anomalies ++ detect_lockouts(since)
+    anomalies =
+      [
+        Task.async(fn -> detect_brute_force_by_ip(since) end),
+        Task.async(fn -> detect_coordinated_attack(since) end),
+        Task.async(fn -> detect_data_exfiltration(since) end),
+        Task.async(fn -> detect_lockouts(since) end)
+      ]
+      |> Task.await_many(10_000)
+      |> List.flatten()
 
     if anomalies != [] do
       severity = classify_severity(anomalies)
