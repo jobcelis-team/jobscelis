@@ -29,7 +29,7 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
         {max, key_suffix} ->
           ensure_table!()
           maybe_cleanup_expired(@table, window_sec)
-          ip = conn.remote_ip |> :inet.ntoa() |> to_string()
+          ip = StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
           key = {ip, key_suffix}
           now = System.system_time(:second)
           apply_limit(conn, key, now, window_sec, max)
@@ -38,7 +38,7 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
       ensure_table!()
       maybe_cleanup_expired(@table, window_sec)
       key_suffix = key_suffix || "default"
-      ip = conn.remote_ip |> :inet.ntoa() |> to_string()
+      ip = StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
       key = {ip, key_suffix}
       now = System.system_time(:second)
       apply_limit(conn, key, now, window_sec, max)

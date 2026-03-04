@@ -26,7 +26,7 @@ defmodule StreamflixWebWeb.SandboxController do
           headers: headers,
           body: body,
           query_params: conn.query_params,
-          ip: conn.remote_ip |> :inet.ntoa() |> to_string()
+          ip: StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
         }
 
         Platform.record_sandbox_request(endpoint.id, attrs)
