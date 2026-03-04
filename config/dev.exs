@@ -31,7 +31,7 @@ config :streamflix_core,
        |> Keyword.merge(
          stacktrace: true,
          show_sensitive_data_on_connection_error: true,
-         pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "5"),
+         pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "30"),
          log: :debug
        )
 

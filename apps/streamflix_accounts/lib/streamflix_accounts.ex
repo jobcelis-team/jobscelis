@@ -178,7 +178,10 @@ defmodule StreamflixAccounts do
   def update_user(%User{} = user, attrs) do
     case user |> User.changeset(attrs) |> Repo.update() do
       {:ok, updated} ->
-        Cachex.del(:platform_cache, {:auth_user, user.id})
+        # Re-seed the cache with the updated struct instead of deleting it.
+        # This avoids a cache miss on the next verify_token call (e.g. after
+        # the async last_login_at update races with the WS mount).
+        Cachex.put(:platform_cache, {:auth_user, user.id}, updated, ttl: :timer.seconds(60))
         {:ok, updated}
 
       error ->
