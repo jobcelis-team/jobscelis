@@ -104,7 +104,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           nil
       end
 
-    target_project = target_project || Enum.find(projects, & &1.is_default) || List.first(projects)
+    target_project =
+      target_project || Enum.find(projects, & &1.is_default) || List.first(projects)
 
     cond do
       # No project available at all
@@ -1148,8 +1149,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         Task.async(fn -> {:uptime_status, load_uptime_status()} end),
         Task.async(fn -> {:uptime_stats, load_uptime_stats()} end),
         Task.async(fn ->
-          {:pending_invitations,
-           Teams.list_pending_invitations(socket.assigns.current_user.id)}
+          {:pending_invitations, Teams.list_pending_invitations(socket.assigns.current_user.id)}
         end)
       ]
 
