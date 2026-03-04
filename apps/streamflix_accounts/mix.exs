@@ -35,8 +35,6 @@ defmodule StreamflixAccounts.MixProject do
       {:guardian, "~> 2.4"},
       # Argon2id — OWASP #1 recommendation, memory-hard (RFC 9106)
       {:argon2_elixir, "~> 4.1"},
-      # PBKDF2 kept for verifying legacy hashes during migration
-      {:pbkdf2_elixir, "~> 2.2"},
 
       # MFA / TOTP
       {:nimble_totp, "~> 1.0"},

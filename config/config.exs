@@ -72,9 +72,6 @@ config :streamflix_accounts, StreamflixAccounts.Guardian,
 # Argon2id — OWASP #1 recommendation, memory-hard (RFC 9106)
 # Default config: t_cost=3, m_cost=16 (64 MiB), parallelism=4, argon2_type=2 (Argon2id)
 
-# Legacy PBKDF2 config kept for verifying existing hashes during migration
-config :pbkdf2_elixir, rounds: 210_000
-
 # ============================================
 # CLOAK VAULT CONFIG (At-Rest Encryption)
 # Default dev key below; production key in runtime.exs via CLOAK_KEY env var
