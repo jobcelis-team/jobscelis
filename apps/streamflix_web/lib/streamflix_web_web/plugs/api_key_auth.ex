@@ -67,13 +67,6 @@ defmodule StreamflixWebWeb.Plugs.ApiKeyAuth do
   end
 
   defp get_client_ip(conn) do
-    # Check X-Forwarded-For first (for reverse proxies)
-    case get_req_header(conn, "x-forwarded-for") do
-      [forwarded | _] ->
-        forwarded |> String.split(",") |> List.first() |> String.trim()
-
-      _ ->
-        conn.remote_ip |> :inet.ntoa() |> to_string()
-    end
+    StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
   end
 end

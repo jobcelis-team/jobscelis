@@ -227,11 +227,7 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
   end
 
   defp conn_audit_opts(conn, method) do
-    ip =
-      case Plug.Conn.get_req_header(conn, "x-forwarded-for") do
-        [forwarded | _] -> forwarded |> String.split(",") |> List.first() |> String.trim()
-        _ -> conn.remote_ip |> :inet.ntoa() |> to_string()
-      end
+    ip = StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
 
     user_agent =
       case Plug.Conn.get_req_header(conn, "user-agent") do
