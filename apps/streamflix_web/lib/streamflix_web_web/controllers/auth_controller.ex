@@ -112,7 +112,7 @@ defmodule StreamflixWebWeb.AuthController do
     {:ok, token, claims} = StreamflixAccounts.generate_token(user)
     jti = claims["jti"]
 
-    # Create session record
+    # Create session record (must be sync — needed for session validity)
     audit_opts = conn_audit_opts(conn, "web")
 
     StreamflixAccounts.create_session(user.id, jti,
@@ -120,8 +120,14 @@ defmodule StreamflixWebWeb.AuthController do
       user_agent: audit_opts[:user_agent]
     )
 
-    # Update last login
-    StreamflixAccounts.update_user(user, %{last_login_at: DateTime.utc_now()})
+    # Pre-warm caches so GET /platform has instant cache hits
+    Cachex.put(:platform_cache, {:auth_user, user.id}, user, ttl: :timer.seconds(60))
+    Cachex.put(:platform_cache, {:session_revoked, jti}, false, ttl: :timer.seconds(120))
+
+    # Update last_login_at async — non-critical, shouldn't block redirect
+    Task.Supervisor.start_child(StreamflixCore.TaskSupervisor, fn ->
+      StreamflixAccounts.update_user(user, %{last_login_at: DateTime.utc_now()})
+    end)
 
     conn =
       conn

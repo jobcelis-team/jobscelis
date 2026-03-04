@@ -36,13 +36,22 @@ defmodule StreamflixAccounts.Services.Authentication do
 
             if Pbkdf2.verify_pass(password, user.password_hash) do
               reset_failed_attempts(user)
-              maybe_rehash(user, password)
-              audit_login(user, "user.login", opts)
+
+              # Fire-and-forget: rehash + audit don't block the login response
+              Task.Supervisor.start_child(StreamflixCore.TaskSupervisor, fn ->
+                maybe_rehash(user, password)
+                audit_login(user, "user.login", opts)
+              end)
+
               {:ok, user}
             else
               user = increment_failed_attempts(user)
 
-              audit_login(user, "user.login_failed", opts, %{attempts: user.failed_login_attempts})
+              Task.Supervisor.start_child(StreamflixCore.TaskSupervisor, fn ->
+                audit_login(user, "user.login_failed", opts, %{
+                  attempts: user.failed_login_attempts
+                })
+              end)
 
               if user.failed_login_attempts >= User.max_failed_attempts() do
                 lock_account(user, opts)
