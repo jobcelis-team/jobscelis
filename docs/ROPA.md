@@ -10,7 +10,7 @@
 
 | # | Actividad | Propósito | Base legal (Art. 6) | Categorías de datos | Interesados | Retención |
 |---|-----------|-----------|---------------------|---------------------|-------------|-----------|
-| 1 | **Registro y autenticación** | Crear cuenta, autenticar usuario, gestionar sesiones | Art. 6.1.b — Ejecución de contrato | Email (cifrado), nombre (cifrado), contraseña (hash PBKDF2-SHA512), IP (cifrado), User-Agent (cifrado) | Usuarios registrados | Mientras la cuenta esté activa. Eliminación completa al borrar cuenta |
+| 1 | **Registro y autenticación** | Crear cuenta, autenticar usuario, gestionar sesiones | Art. 6.1.b — Ejecución de contrato | Email (cifrado), nombre (cifrado), contraseña (hash Argon2id), IP (cifrado), User-Agent (cifrado) | Usuarios registrados | Mientras la cuenta esté activa. Eliminación completa al borrar cuenta |
 | 2 | **Eventos y webhooks** | Procesar eventos del usuario y entregarlos a webhooks configurados | Art. 6.1.b — Ejecución de contrato | Payloads de eventos (JSON), URLs de webhooks, headers personalizados, respuestas de entrega | Usuarios registrados | 90 días para entregas. Eventos según configuración del usuario |
 | 3 | **Registro de auditoría** | Mantener trazabilidad de acciones para seguridad y cumplimiento | Art. 6.1.f — Interés legítimo (seguridad) | Acción realizada, user_id, IP (cifrada), User-Agent (cifrado), metadata | Usuarios registrados | 90 días. Pseudonimización al eliminar cuenta |
 | 4 | **Gestión de sesiones** | Controlar accesos activos, permitir revocación | Art. 6.1.b — Ejecución de contrato | JWT jti, IP (cifrada), User-Agent (cifrado), tipo de dispositivo, última actividad | Usuarios registrados | 7 días (limpieza automática diaria) |
@@ -35,7 +35,7 @@
 |--------|----------------|
 | **Cifrado en reposo** | AES-256-GCM vía Cloak.Ecto para todos los campos PII (email, nombre, IP, User-Agent) |
 | **Cifrado en tránsito** | TLS en todas las conexiones (HTTPS, conexión a BD vía pooler SSL) |
-| **Hashing de contraseñas** | PBKDF2-SHA512 con 210.000 iteraciones (OWASP compliant) |
+| **Hashing de contraseñas** | Argon2id memory-hard (RFC 9106, OWASP #1 recommendation) |
 | **HMAC para lookups** | HMAC-SHA512 para búsquedas de email sin exponer plaintext |
 | **Control de acceso** | RBAC con roles (user, admin, superadmin) + scopes por API key |
 | **Autenticación multifactor** | TOTP opcional con apps de autenticación |

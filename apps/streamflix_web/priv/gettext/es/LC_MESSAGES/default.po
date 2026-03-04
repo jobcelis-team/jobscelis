@@ -6702,8 +6702,8 @@ msgstr "Tabla"
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5363
 #, elixir-autogen, elixir-format
-msgid "Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con PBKDF2-SHA512 (210.000 rondas)."
-msgstr "Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con PBKDF2-SHA512 (210.000 rondas)."
+msgid "Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con Argon2id (memory-hard, RFC 9106, OWASP #1)."
+msgstr "Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con Argon2id (memory-hard, RFC 9106, OWASP #1)."
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4958
 #, elixir-autogen, elixir-format

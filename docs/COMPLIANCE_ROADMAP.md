@@ -14,7 +14,7 @@
 | Audit log inmutable | **Listo** | `audit.ex`, `audit_log.ex` |
 | Cifrado en reposo (AES-256-GCM) | **Listo** | `vault.ex`, `encrypted/binary.ex` |
 | RBAC (roles + scopes) | **Listo** | `project_member.ex`, `require_scope.ex` |
-| Autenticación segura (PBKDF2 210K) | **Listo** | `user.ex`, `auth_controller.ex` |
+| Autenticación segura (Argon2id) | **Listo** | `user.ex`, `auth_controller.ex` |
 | Rate limiting | **Listo** | `rate_limit.ex` |
 | IP allowlist | **Listo** | `api_key.ex`, `api_key_auth.ex` |
 | Security headers (CSP, HSTS, etc.) | **Listo** | `security_headers.ex` |
@@ -39,7 +39,7 @@ SOC 2 no es una certificación que "compras" — es una auditoría que evalúa c
 ### 1. Seguridad (Common Criteria) — ~95% cubierto
 
 **Ya tenemos:**
-- Autenticación con hashing fuerte (PBKDF2-SHA512)
+- Autenticación con hashing fuerte (Argon2id, RFC 9106)
 - RBAC con roles granulares y scopes por API key
 - Rate limiting y IP allowlist
 - Security headers completos

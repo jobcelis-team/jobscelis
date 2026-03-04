@@ -426,7 +426,7 @@ Funcionalidades transversales:
 
 | Característica | Implementación |
 |----------------|----------------|
-| **Hashing de contraseñas** | PBKDF2-SHA512, 210,000 iteraciones (OWASP). Rehash automático al login |
+| **Hashing de contraseñas** | Argon2id memory-hard (RFC 9106, OWASP #1). Rehash automático de hashes legacy al login |
 | **Cifrado en reposo** | Cloak Ecto AES-256-GCM (email, nombre, secreto MFA) |
 | **HMAC determinístico** | HMAC-SHA512 para búsqueda de emails cifrados |
 | **JWT** | Guardian, TTL 7 días, tracking por JTI, revocación de sesiones |

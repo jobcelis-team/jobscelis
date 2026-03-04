@@ -21,7 +21,7 @@
 | `email` | L3 Confidential | AES-256-GCM | Encrypted via Cloak.Ecto |
 | `email_hash` | L3 Confidential | HMAC-SHA512 | Deterministic hash for lookups |
 | `name` | L3 Confidential | AES-256-GCM | Encrypted via Cloak.Ecto |
-| `password_hash` | L4 Restricted | PBKDF2-SHA512 (210K rounds) | One-way hash |
+| `password_hash` | L4 Restricted | Argon2id (memory-hard) | One-way hash |
 | `role` | L2 Internal | No | |
 | `status` | L2 Internal | No | |
 | `mfa_secret` | L4 Restricted | AES-256-GCM | Encrypted via Cloak.Ecto |
@@ -82,7 +82,7 @@
 
 | Field | Classification | Encrypted | Notes |
 |-------|---------------|-----------|-------|
-| `password_hash` | L4 Restricted | PBKDF2-SHA512 | One-way hash |
+| `password_hash` | L4 Restricted | Argon2id | One-way hash |
 
 ---
 
@@ -106,7 +106,7 @@
 |----------|-----------|-------|
 | At-rest encryption | AES-256-GCM | All L3/L4 fields via Cloak.Ecto |
 | Deterministic hash | HMAC-SHA512 | Email lookups (`email_hash`) |
-| Password hashing | PBKDF2-SHA512 | 210,000 rounds (OWASP-compliant) |
+| Password hashing | Argon2id | Memory-hard, RFC 9106 (OWASP #1) |
 | Transit encryption | TLS 1.2+ | Database (Supabase pooler), HTTPS |
 | Token signing | HS512 | JWT via Guardian |
 

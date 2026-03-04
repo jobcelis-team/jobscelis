@@ -30,7 +30,7 @@ El proyecto es una plataforma de webhooks/eventos/jobs construida con:
 - **Elixir ~> 1.17** + **Phoenix 1.8** + **LiveView 1.1**
 - **PostgreSQL** (Supabase) con **Ecto 3.13**
 - **Oban 2.20** para jobs en segundo plano
-- **Guardian 2.4** + **PBKDF2** para autenticación
+- **Guardian 2.4** + **Argon2id** para autenticación
 - **Bandit** como servidor HTTP
 - Arquitectura umbrella: `streamflix_core`, `streamflix_accounts`, `streamflix_web`
 
@@ -86,31 +86,11 @@ field :secret_encrypted, StreamflixCore.Encrypted.Binary
 
 ---
 
-### 2.2 Migrar de PBKDF2 a Argon2
-**Estado actual:** Se usa `pbkdf2_elixir ~> 2.2` para hashing de contraseñas.
+### 2.2 ~~Migrar de PBKDF2 a Argon2~~ COMPLETADO
+**Estado:** Implementado. Nuevos hashes usan Argon2id (memory-hard, RFC 9106, OWASP #1).
+Hashes PBKDF2 legacy se verifican y migran automáticamente a Argon2id en el siguiente login exitoso.
 
-**Mejora:** Migrar a [argon2_elixir](https://hex.pm/packages/argon2_elixir) `~> 4.1`.
-
-**¿Por qué?**
-- Argon2 ganó el Password Hashing Competition (2015)
-- Resistente a ataques GPU/ASIC (memory-hard)
-- OWASP recomienda Argon2id como primera opción
-- PBKDF2 es vulnerable a ataques paralelos con GPU
-
-**Migración gradual (sin downtime):**
-```elixir
-# En authentication.ex, verificar con ambos:
-def verify_password(password, hash) do
-  cond do
-    String.starts_with?(hash, "$argon2") -> Argon2.verify_pass(password, hash)
-    String.starts_with?(hash, "$pbkdf2") -> Pbkdf2.verify_pass(password, hash)
-    true -> false
-  end
-end
-# Al login exitoso con PBKDF2, re-hashear con Argon2
-```
-
-**Nota:** argon2_elixir requiere compilador C (NIF). En Windows se necesita Visual C++ Build Tools.
+**Archivos modificados:** `mix.exs`, `user.ex`, `authentication.ex`, `password_policy.ex`
 
 ---
 
@@ -845,7 +825,7 @@ defmodule StreamflixCore.Factory do
     %StreamflixAccounts.Schemas.User{
       email: sequence(:email, &"user#{&1}@test.com"),
       name: "Test User",
-      password_hash: Pbkdf2.hash_pwd_salt("Password123"),
+      password_hash: Argon2.hash_pwd_salt("Password123"),
       status: "active",
       role: "user"
     }
@@ -1170,7 +1150,7 @@ jobs:
 | `elixir` | ~> 1.17 | 1.19.5 | Actualizar (4x compilación más rápida) |
 | `phoenix` | ~> 1.8 | 1.8.3 | Verificar que esté actualizado |
 | `oban` | ~> 2.20 | 2.20.3 | Actualizar y ejecutar migration V13 |
-| `pbkdf2_elixir` | ~> 2.2 | — | Migrar a `argon2_elixir ~> 4.1` |
+| `pbkdf2_elixir` | ~> 2.2 | — | Legacy (kept for migration). Replaced by `argon2_elixir ~> 4.1` |
 | `req` | ~> 0.5 | 0.5.17 | Actualizar |
 | `postgrex` | ~> 0.21 | 0.22.0 | Actualizar |
 | **NUEVAS** | | | |
@@ -1378,7 +1358,7 @@ end
 # === CONSIDERAR (reemplazan código custom) ===
 # {:hammer, "~> 7.2"},        # Reemplaza rate_limit.ex custom
 # {:corsica, "~> 2.1"},       # Reemplaza cors.ex custom
-# {:argon2_elixir, "~> 4.1"}, # Reemplaza pbkdf2_elixir (migración gradual)
+{:argon2_elixir, "~> 4.1"},  # IMPLEMENTADO — reemplaza pbkdf2 como hashing primario
 ```
 
 ---
