@@ -526,7 +526,15 @@ defmodule StreamflixWebWeb.AccountLive do
         {:ok, token} ->
           url = StreamflixWebWeb.Endpoint.url() <> "/confirm-email/#{token}"
           locale = socket.assigns[:locale] || "es"
-          StreamflixWebWeb.Mailer.send_email_confirmation(user, url, locale)
+
+          StreamflixWebWeb.Workers.ObanEmailWorker.new(%{
+            "type" => "email_confirmation",
+            "email" => user.email,
+            "url" => url,
+            "locale" => locale
+          })
+          |> Oban.insert()
+
           {:noreply, put_flash(socket, :info, gettext("Enlace de verificación enviado."))}
 
         {:error, :rate_limited} ->

@@ -2,7 +2,7 @@ defmodule StreamflixWebWeb.AuthController do
   use StreamflixWebWeb, :controller
 
   alias StreamflixAccounts
-  alias StreamflixWebWeb.Mailer
+  alias StreamflixWebWeb.Workers.ObanEmailWorker
 
   @doc """
   Handles user registration from web form.
@@ -186,7 +186,15 @@ defmodule StreamflixWebWeb.AuthController do
     case StreamflixAccounts.generate_reset_password_token(String.trim(email)) do
       {:ok, token, user} ->
         url = build_url(conn, "/reset-password/#{token}")
-        Mailer.send_reset_password_email(user, url, conn.assigns[:locale] || "es")
+        locale = conn.assigns[:locale] || "es"
+
+        ObanEmailWorker.new(%{
+          "type" => "reset_password",
+          "email" => user.email,
+          "url" => url,
+          "locale" => locale
+        })
+        |> Oban.insert()
 
         conn
         |> put_flash(
@@ -316,11 +324,19 @@ defmodule StreamflixWebWeb.AuthController do
       user_agent: audit_opts[:user_agent]
     )
 
-    # Send email verification
+    # Send email verification asynchronously via Oban
     case StreamflixAccounts.generate_email_confirmation_token(user) do
       {:ok, confirm_token} ->
         url = build_url(conn, "/confirm-email/#{confirm_token}")
-        Mailer.send_email_confirmation(user, url, conn.assigns[:locale] || "es")
+        locale = conn.assigns[:locale] || "es"
+
+        ObanEmailWorker.new(%{
+          "type" => "email_confirmation",
+          "email" => user.email,
+          "url" => url,
+          "locale" => locale
+        })
+        |> Oban.insert()
 
       _ ->
         :ok

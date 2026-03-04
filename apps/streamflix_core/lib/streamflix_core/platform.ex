@@ -23,9 +23,9 @@ defmodule StreamflixCore.Platform do
   }
 
   @cache :platform_cache
-  @api_key_ttl :timer.seconds(60)
-  @project_ttl :timer.seconds(120)
-  @webhooks_ttl :timer.seconds(30)
+  @api_key_ttl :timer.seconds(120)
+  @project_ttl :timer.seconds(300)
+  @webhooks_ttl :timer.seconds(300)
 
   # ---------- Projects ----------
 
@@ -344,6 +344,7 @@ defmodule StreamflixCore.Platform do
          |> Repo.insert() do
       {:ok, webhook} ->
         Cachex.del(@cache, {:active_webhooks, project_id})
+        invalidate_webhook_health_cache(project_id)
         {:ok, webhook}
 
       error ->
@@ -370,6 +371,7 @@ defmodule StreamflixCore.Platform do
          |> Repo.update() do
       {:ok, updated} ->
         Cachex.del(@cache, {:active_webhooks, webhook.project_id})
+        invalidate_webhook_health_cache(webhook.project_id)
         {:ok, updated}
 
       error ->
@@ -1021,14 +1023,76 @@ defmodule StreamflixCore.Platform do
   defp to_float_or_nil(f) when is_float(f), do: Float.round(f, 2)
   defp to_float_or_nil(i) when is_integer(i), do: i * 1.0
 
-  @doc "Calculate health for all webhooks of a project"
+  @doc "Calculate health for all webhooks of a project in a single query"
   def webhooks_health(project_id) do
-    webhooks = list_webhooks(project_id)
+    case Cachex.fetch(@cache, {:webhook_health, project_id}, fn _ ->
+           health = do_calculate_webhooks_health_batch(project_id)
+           {:commit, health, ttl: :timer.seconds(60)}
+         end) do
+      {:ok, health} -> health
+      {:commit, health} -> health
+      _ -> %{}
+    end
+  end
 
-    Enum.map(webhooks, fn w ->
-      {w.id, webhook_health(w.id)}
+  defp do_calculate_webhooks_health_batch(project_id) do
+    since = DateTime.utc_now() |> DateTime.add(-24, :hour) |> DateTime.truncate(:microsecond)
+    webhooks = list_webhooks(project_id)
+    webhook_ids = Enum.map(webhooks, & &1.id)
+
+    # Single query: aggregate all webhook health stats at once
+    stats_map =
+      if webhook_ids == [] do
+        %{}
+      else
+        from(d in Delivery,
+          where: d.webhook_id in ^webhook_ids and d.inserted_at >= ^since,
+          group_by: d.webhook_id,
+          select:
+            {d.webhook_id,
+             %{
+               total: count(d.id),
+               success: count(fragment("CASE WHEN ? = 'success' THEN 1 END", d.status)),
+               failed: count(fragment("CASE WHEN ? = 'failed' THEN 1 END", d.status)),
+               avg_latency:
+                 fragment("AVG(EXTRACT(EPOCH FROM ? - ?))", d.updated_at, d.inserted_at)
+             }}
+        )
+        |> Repo.all()
+        |> Map.new()
+      end
+
+    # Build health map for all webhooks (including those with no deliveries)
+    Map.new(webhooks, fn w ->
+      stats = Map.get(stats_map, w.id, %{total: 0, success: 0, failed: 0, avg_latency: nil})
+
+      success_rate =
+        if stats.total > 0,
+          do: Float.round(stats.success / stats.total * 100, 1),
+          else: 100.0
+
+      score =
+        cond do
+          stats.total == 0 -> :no_data
+          success_rate >= 98 -> :healthy
+          success_rate >= 90 -> :degraded
+          true -> :critical
+        end
+
+      {w.id,
+       %{
+         score: score,
+         success_rate: success_rate,
+         total: stats.total,
+         success: stats.success,
+         failed: stats.failed,
+         avg_latency: to_float_or_nil(stats.avg_latency)
+       }}
     end)
-    |> Map.new()
+  end
+
+  defp invalidate_webhook_health_cache(project_id) do
+    Cachex.del(@cache, {:webhook_health, project_id})
   end
 
   # ---------- Webhook Simulator ----------

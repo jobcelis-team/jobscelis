@@ -176,7 +176,14 @@ defmodule StreamflixAccounts do
   end
 
   def update_user(%User{} = user, attrs) do
-    user |> User.changeset(attrs) |> Repo.update()
+    case user |> User.changeset(attrs) |> Repo.update() do
+      {:ok, updated} ->
+        Cachex.del(:platform_cache, {:auth_user, user.id})
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
 
   def authenticate(email, password, opts \\ []),
@@ -465,10 +472,21 @@ defmodule StreamflixAccounts do
   end
 
   def revoke_session_by_jti(user_id, jti) when is_binary(jti) do
-    case UserSession |> UserSession.for_user(user_id) |> UserSession.by_jti(jti) |> Repo.one() do
-      nil -> :ok
-      session -> session |> Ecto.Changeset.change(revoked_at: DateTime.utc_now()) |> Repo.update()
-    end
+    result =
+      case UserSession
+           |> UserSession.for_user(user_id)
+           |> UserSession.by_jti(jti)
+           |> Repo.one() do
+        nil ->
+          :ok
+
+        session ->
+          session |> Ecto.Changeset.change(revoked_at: DateTime.utc_now()) |> Repo.update()
+      end
+
+    # Eagerly update cache so revocation takes effect immediately
+    Cachex.put(:platform_cache, {:session_revoked, jti}, true)
+    result
   end
 
   def revoke_session_by_jti(_user_id, _jti), do: :ok
@@ -476,9 +494,18 @@ defmodule StreamflixAccounts do
   def session_revoked?(nil), do: false
 
   def session_revoked?(jti) do
-    case UserSession |> UserSession.by_jti(jti) |> Repo.one() do
-      nil -> false
-      session -> not is_nil(session.revoked_at)
+    case Cachex.fetch(:platform_cache, {:session_revoked, jti}, fn _ ->
+           revoked =
+             case UserSession |> UserSession.by_jti(jti) |> Repo.one() do
+               nil -> false
+               session -> not is_nil(session.revoked_at)
+             end
+
+           {:commit, revoked, ttl: :timer.seconds(120)}
+         end) do
+      {:ok, val} -> val
+      {:commit, val} -> val
+      _ -> false
     end
   end
 

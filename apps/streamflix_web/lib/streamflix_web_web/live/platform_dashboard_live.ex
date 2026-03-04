@@ -11,35 +11,24 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     user = socket.assigns.current_user
     projects = Teams.list_all_accessible_projects(user.id)
     project = Enum.find(projects, & &1.is_default) || List.first(projects)
+
+    # Phase 1: Only essential data for first render (KPIs + events table)
     api_key = if project, do: Platform.get_api_key_for_project(project.id), else: nil
     events = if project, do: Platform.list_events(project.id, limit: 20), else: []
 
     webhooks =
       if project, do: Platform.list_webhooks(project.id, include_inactive: true), else: []
 
-    webhook_health = if project, do: Platform.webhooks_health(project.id), else: %{}
-    jobs = if project, do: Platform.list_jobs(project.id, include_inactive: true), else: []
-
     deliveries =
       if project, do: Platform.list_deliveries(project_id: project.id, limit: 30), else: []
 
-    dead_letters = if project, do: Platform.list_dead_letters(project.id), else: []
-    replays = if project, do: Platform.list_replays(project.id, limit: 10), else: []
-    audit_logs = if project, do: Audit.list_for_project(project.id, limit: 20), else: []
-    sandbox_endpoints = if project, do: Platform.list_sandbox_endpoints(project.id), else: []
-    event_schemas = if project, do: Platform.list_event_schemas(project.id), else: []
-    team_members = if project, do: Teams.list_members(project.id), else: []
-    current_user_role = compute_user_role(project, user)
-    analytics = if project, do: load_analytics(project.id), else: %{}
     notifications = Notifications.list_for_user(user.id, limit: 10)
     unread_count = Notifications.unread_count(user.id)
-    pending_invitations = Teams.list_pending_invitations(user.id)
 
     # Check if we have a fresh API key from registration
     {new_token, token_source} =
       case session["fresh_api_key"] do
         fresh_key when is_binary(fresh_key) and fresh_key != "" ->
-          # Only use if prefix still matches (prevents stale key after regeneration)
           if api_key && String.starts_with?(fresh_key, api_key.prefix) do
             {fresh_key, :registration}
           else
@@ -50,6 +39,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           {nil, nil}
       end
 
+    current_user_role = compute_user_role(project, user)
+
     socket =
       socket
       |> assign(:projects, projects)
@@ -58,27 +49,32 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:api_key, api_key)
       |> assign(:events, events)
       |> assign(:webhooks, webhooks)
-      |> assign(:webhook_health, webhook_health)
+      |> assign(:webhook_health, %{})
       |> assign(:simulation_result, nil)
-      |> assign(:dead_letters, dead_letters)
-      |> assign(:replays, replays)
+      |> assign(:dead_letters, [])
+      |> assign(:replays, [])
       |> assign(:replay_modal, false)
-      |> assign(:sandbox_endpoints, sandbox_endpoints)
+      |> assign(:sandbox_endpoints, [])
       |> assign(:sandbox_active, nil)
       |> assign(:sandbox_requests, [])
-      |> assign(:audit_logs, audit_logs)
-      |> assign(:event_schemas, event_schemas)
-      |> assign(:team_members, team_members)
+      |> assign(:audit_logs, [])
+      |> assign(:event_schemas, [])
+      |> assign(:team_members, [])
       |> assign(:current_user_role, current_user_role)
-      |> assign(:analytics, analytics)
+      |> assign(:analytics, %{
+        events_per_day: [],
+        deliveries_per_day: [],
+        top_topics: [],
+        webhook_stats: []
+      })
       |> assign(:active_tab, "overview")
       |> assign(:kpi_events_today, compute_kpi_events_today(events))
       |> assign(:kpi_success_rate, compute_kpi_success_rate(deliveries))
       |> assign(:notifications, notifications)
       |> assign(:unread_count, unread_count)
       |> assign(:show_notifications, false)
-      |> assign(:pending_invitations, pending_invitations)
-      |> assign(:jobs, jobs)
+      |> assign(:pending_invitations, [])
+      |> assign(:jobs, [])
       |> assign(:deliveries, deliveries)
       |> assign(:test_topic, "")
       |> assign(:test_payload, "{}")
@@ -95,10 +91,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:webhook_modal, nil)
       |> assign(:webhook_form, %{"url" => "", "topics" => "", "secret" => ""})
       |> assign(:confirm_regenerate_token, false)
-      |> assign(:uptime_status, load_uptime_status())
-      |> assign(:uptime_stats, load_uptime_stats())
+      |> assign(:uptime_status, %{status: "unknown", checks: %{}})
+      |> assign(:uptime_stats, %{
+        last_24h: %{uptime_percent: 0.0},
+        last_7d: %{uptime_percent: 0.0},
+        last_30d: %{uptime_percent: 0.0}
+      })
 
     if connected?(socket) do
+      # Phase 2: Load deferred data after WebSocket connects
+      send(self(), :load_deferred)
       if project, do: Platform.subscribe(project.id)
       Notifications.subscribe(user.id)
     end
@@ -1127,6 +1129,36 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       {:error, _} ->
         {:noreply, put_flash(socket, :error, gettext("Error al rechazar invitación."))}
     end
+  end
+
+  # ---------- Deferred loading (Phase 2 after connect) ----------
+
+  @impl true
+  def handle_info(:load_deferred, socket) do
+    project = socket.assigns.project
+    user = socket.assigns.current_user
+
+    deferred_assigns =
+      if project do
+        %{
+          webhook_health: Platform.webhooks_health(project.id),
+          jobs: Platform.list_jobs(project.id, include_inactive: true),
+          dead_letters: Platform.list_dead_letters(project.id),
+          replays: Platform.list_replays(project.id, limit: 10),
+          audit_logs: Audit.list_for_project(project.id, limit: 20),
+          sandbox_endpoints: Platform.list_sandbox_endpoints(project.id),
+          event_schemas: Platform.list_event_schemas(project.id),
+          team_members: Teams.list_members(project.id),
+          analytics: load_analytics(project.id),
+          uptime_status: load_uptime_status(),
+          uptime_stats: load_uptime_stats(),
+          pending_invitations: Teams.list_pending_invitations(user.id)
+        }
+      else
+        %{}
+      end
+
+    {:noreply, assign(socket, deferred_assigns)}
   end
 
   # ---------- PubSub handlers (real-time) ----------
@@ -3767,12 +3799,20 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   defp notification_message(notif), do: notif.message
 
   defp load_analytics(project_id) do
-    %{
-      events_per_day: Platform.events_per_day(project_id),
-      deliveries_per_day: Platform.deliveries_per_day(project_id),
-      top_topics: Platform.top_topics(project_id),
-      webhook_stats: Platform.delivery_stats_by_webhook(project_id)
-    }
+    case Cachex.fetch(:platform_cache, {:analytics, project_id}, fn _ ->
+           data = %{
+             events_per_day: Platform.events_per_day(project_id),
+             deliveries_per_day: Platform.deliveries_per_day(project_id),
+             top_topics: Platform.top_topics(project_id),
+             webhook_stats: Platform.delivery_stats_by_webhook(project_id)
+           }
+
+           {:commit, data, ttl: :timer.minutes(5)}
+         end) do
+      {:ok, data} -> data
+      {:commit, data} -> data
+      _ -> %{}
+    end
   end
 
   defp replay_status_class("pending"), do: "bg-slate-100 text-slate-700"
@@ -3922,10 +3962,18 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   defp load_uptime_stats do
-    %{
-      last_24h: StreamflixCore.Uptime.calculate_uptime(:last_24h),
-      last_7d: StreamflixCore.Uptime.calculate_uptime(:last_7d),
-      last_30d: StreamflixCore.Uptime.calculate_uptime(:last_30d)
-    }
+    case Cachex.fetch(:platform_cache, :uptime_stats, fn _ ->
+           stats = %{
+             last_24h: StreamflixCore.Uptime.calculate_uptime(:last_24h),
+             last_7d: StreamflixCore.Uptime.calculate_uptime(:last_7d),
+             last_30d: StreamflixCore.Uptime.calculate_uptime(:last_30d)
+           }
+
+           {:commit, stats, ttl: :timer.minutes(5)}
+         end) do
+      {:ok, stats} -> stats
+      {:commit, stats} -> stats
+      _ -> %{}
+    end
   end
 end

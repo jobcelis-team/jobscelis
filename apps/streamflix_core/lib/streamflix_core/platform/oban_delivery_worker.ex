@@ -33,15 +33,18 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
   end
 
   defp get_retry_config(delivery_id) do
-    case StreamflixCore.Repo.get(StreamflixCore.Schemas.Delivery, delivery_id) do
-      nil ->
-        %{}
+    import Ecto.Query, only: [from: 2]
 
-      d ->
-        case StreamflixCore.Repo.get(StreamflixCore.Schemas.Webhook, d.webhook_id) do
-          nil -> %{}
-          w -> w.retry_config || %{}
-        end
+    case StreamflixCore.Repo.one(
+           from(d in StreamflixCore.Schemas.Delivery,
+             where: d.id == ^delivery_id,
+             join: w in StreamflixCore.Schemas.Webhook,
+             on: w.id == d.webhook_id,
+             select: w.retry_config
+           )
+         ) do
+      nil -> %{}
+      config -> config || %{}
     end
   end
 
