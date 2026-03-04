@@ -14,15 +14,20 @@ database_config =
   if url = System.get_env("DATABASE_URL") do
     [url: url, ssl: [verify: :verify_none], prepare: :unnamed]
   else
-    [
+    hostname = System.get_env("DB_HOSTNAME") || "localhost"
+    base = [
       username: System.get_env("DB_USERNAME") || "postgres",
       password: System.get_env("DB_PASSWORD") || "postgres",
-      hostname: System.get_env("DB_HOSTNAME") || "localhost",
+      hostname: hostname,
       port: String.to_integer(System.get_env("DB_PORT") || "5432"),
-      database: System.get_env("DB_DATABASE") || "postgres",
-      ssl: [verify: :verify_none],
-      prepare: :unnamed
+      database: System.get_env("DB_DATABASE") || "postgres"
     ]
+    # Only use SSL for remote databases (Supabase, etc.), not localhost
+    if hostname in ["localhost", "127.0.0.1"] do
+      base
+    else
+      base ++ [ssl: [verify: :verify_none], prepare: :unnamed]
+    end
   end
 
 config :streamflix_core,

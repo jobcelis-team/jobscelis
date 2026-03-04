@@ -257,12 +257,16 @@ defmodule StreamflixAccounts.PasswordPolicy do
 
   @doc """
   Returns true if the password matches any of the given historical password hashes.
-  Uses Pbkdf2.verify_pass/2 for each hash in the history list.
+  Supports both Argon2id and legacy PBKDF2 hash formats.
   """
   @spec password_in_history?(String.t(), [String.t()]) :: boolean()
   def password_in_history?(_password, []), do: false
 
   def password_in_history?(password, hashes) when is_binary(password) and is_list(hashes) do
-    Enum.any?(hashes, fn hash -> Pbkdf2.verify_pass(password, hash) end)
+    Enum.any?(hashes, fn hash -> verify_hash(password, hash) end)
   end
+
+  defp verify_hash(password, "$argon2id$" <> _ = hash), do: Argon2.verify_pass(password, hash)
+  defp verify_hash(password, "$pbkdf2-sha512$" <> _ = hash), do: Pbkdf2.verify_pass(password, hash)
+  defp verify_hash(_password, _hash), do: false
 end

@@ -5361,7 +5361,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               <h3 class="text-lg font-semibold text-slate-800 mb-3">{gettext("Descripción")}</h3>
               <p class="text-slate-600 text-sm leading-relaxed">
                 {gettext(
-                  "Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con PBKDF2-SHA512 (210.000 rondas)."
+                  "Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con Argon2id (memory-hard, RFC 9106, OWASP #1)."
                 )}
               </p>
             </div>
