@@ -3,6 +3,7 @@ defmodule StreamflixCore.Application do
 
   use Application
   require Logger
+  require Cachex.Spec
 
   @impl true
   def start(_type, _args) do
@@ -11,8 +12,19 @@ defmodule StreamflixCore.Application do
       StreamflixCore.Vault,
       {Task.Supervisor, name: StreamflixCore.TaskSupervisor},
       {Phoenix.PubSub, name: StreamflixCore.PubSub},
-      {Cachex, name: :platform_cache},
-      {Finch, name: StreamflixCore.Finch, pools: %{default: [size: 25, count: 1]}},
+      {Cachex,
+       name: :platform_cache,
+       hooks: [
+         Cachex.Spec.hook(
+           module: Cachex.Limit.Scheduled,
+           args: {10_000, [], [frequency: :timer.seconds(30)]}
+         )
+       ],
+       expiration:
+         Cachex.Spec.expiration(default: :timer.minutes(15), interval: :timer.minutes(5))},
+      {Finch,
+       name: StreamflixCore.Finch,
+       pools: %{default: [size: 25, count: System.schedulers_online()]}},
       {Oban, Application.fetch_env!(:streamflix_core, Oban)},
       StreamflixCore.Platform.Scheduler
     ]

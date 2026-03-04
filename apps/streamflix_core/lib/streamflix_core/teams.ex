@@ -115,24 +115,18 @@ defmodule StreamflixCore.Teams do
   end
 
   def user_can_access?(project_id, user_id) do
-    # Owner check (via projects table)
-    project = Repo.get(Project, project_id)
-
-    cond do
-      is_nil(project) ->
-        false
-
-      project.user_id == user_id ->
-        true
-
-      true ->
-        ProjectMember
-        |> where(
-          [m],
-          m.project_id == ^project_id and m.user_id == ^user_id and m.status == "active"
-        )
-        |> Repo.exists?()
-    end
+    from(p in Project,
+      where: p.id == ^project_id,
+      where:
+        p.user_id == ^user_id or
+          exists(
+            from(m in ProjectMember,
+              where:
+                m.project_id == ^project_id and m.user_id == ^user_id and m.status == "active"
+            )
+          )
+    )
+    |> Repo.exists?()
   end
 
   def user_can_write?(project_id, user_id) do
@@ -168,21 +162,14 @@ defmodule StreamflixCore.Teams do
   end
 
   def list_all_accessible_projects(user_id) do
-    owned_query =
-      from(p in Project,
-        where: p.user_id == ^user_id and p.status == "active"
-      )
-
-    member_query =
-      from(p in Project,
-        join: m in ProjectMember,
-        on: m.project_id == p.id and m.user_id == ^user_id and m.status == "active",
-        where: p.status == "active"
-      )
-
-    union_query = union(owned_query, ^member_query)
-
-    from(p in subquery(union_query), order_by: [desc: p.inserted_at])
+    from(p in Project,
+      left_join: m in ProjectMember,
+      on: m.project_id == p.id and m.user_id == ^user_id and m.status == "active",
+      where: p.status == "active",
+      where: p.user_id == ^user_id or not is_nil(m.id),
+      distinct: true,
+      order_by: [desc: p.inserted_at]
+    )
     |> Repo.all()
   end
 end

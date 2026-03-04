@@ -206,20 +206,22 @@ defmodule StreamflixCore.Platform do
     key_hash = hash_api_key(raw_key)
     cache_key = {:api_key, key_hash}
 
-    case Cachex.get(@cache, cache_key) do
-      {:ok, nil} ->
-        result =
-          ApiKey
-          |> where([k], k.key_hash == ^key_hash and k.status == "active")
-          |> join(:inner, [k], p in Project, on: p.id == k.project_id and p.status == "active")
-          |> preload([k, p], project: p)
-          |> Repo.one()
+    case Cachex.fetch(@cache, cache_key, fn _key ->
+           result =
+             ApiKey
+             |> where([k], k.key_hash == ^key_hash and k.status == "active")
+             |> join(:inner, [k], p in Project, on: p.id == k.project_id and p.status == "active")
+             |> preload([k, p], project: p)
+             |> Repo.one()
 
-        if result, do: Cachex.put(@cache, cache_key, result, ttl: @api_key_ttl)
-        result
-
-      {:ok, cached} ->
-        cached
+           case result do
+             nil -> {:ignore, nil}
+             api_key -> {:commit, api_key, ttl: @api_key_ttl}
+           end
+         end) do
+      {:ok, api_key} -> api_key
+      {:commit, api_key} -> api_key
+      {:ignore, _} -> nil
     end
   end
 
@@ -386,18 +388,16 @@ defmodule StreamflixCore.Platform do
   def list_active_webhooks_for_project(project_id) do
     cache_key = {:active_webhooks, project_id}
 
-    case Cachex.get(@cache, cache_key) do
-      {:ok, nil} ->
-        result =
-          Webhook
-          |> where([w], w.project_id == ^project_id and w.status == "active")
-          |> Repo.all()
+    case Cachex.fetch(@cache, cache_key, fn _key ->
+           result =
+             Webhook
+             |> where([w], w.project_id == ^project_id and w.status == "active")
+             |> Repo.all()
 
-        Cachex.put(@cache, cache_key, result, ttl: @webhooks_ttl)
-        result
-
-      {:ok, cached} ->
-        cached
+           {:commit, result, ttl: @webhooks_ttl}
+         end) do
+      {:ok, webhooks} -> webhooks
+      {:commit, webhooks} -> webhooks
     end
   end
 
@@ -534,7 +534,10 @@ defmodule StreamflixCore.Platform do
              |> Repo.insert() do
           {:ok, delivery} ->
             Oban.insert(
-              StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id})
+              StreamflixCore.Platform.ObanDeliveryWorker.new(%{
+                delivery_id: delivery.id,
+                retry_config: w.retry_config || %{}
+              })
             )
 
           _ ->
@@ -1446,12 +1449,11 @@ defmodule StreamflixCore.Platform do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
     events =
-      WebhookEvent
-      |> where([e], not is_nil(e.deliver_at) and e.deliver_at <= ^now and e.status == "active")
-      |> join(:left, [e], d in Delivery, on: d.event_id == e.id)
-      |> group_by([e, d], e.id)
-      |> having([e, d], count(d.id) == 0)
-      |> select([e, d], e)
+      from(e in WebhookEvent,
+        as: :event,
+        where: not is_nil(e.deliver_at) and e.deliver_at <= ^now and e.status == "active",
+        where: not exists(from(d in Delivery, where: d.event_id == parent_as(:event).id))
+      )
       |> Repo.all()
 
     Enum.each(events, fn event ->
@@ -1473,16 +1475,7 @@ defmodule StreamflixCore.Platform do
   # ---------- Cache Invalidation ----------
 
   defp invalidate_api_key_cache() do
-    Cachex.keys(@cache)
-    |> then(fn
-      {:ok, keys} -> keys
-      _ -> []
-    end)
-    |> Enum.filter(fn
-      {:api_key, _} -> true
-      _ -> false
-    end)
-    |> Enum.each(&Cachex.del(@cache, &1))
+    Cachex.clear(@cache)
   end
 
   # ---------- Cursor Pagination ----------

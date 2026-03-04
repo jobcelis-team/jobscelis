@@ -44,7 +44,7 @@ defmodule StreamflixWebWeb.Plugs.Compress do
   end
 
   defp has_body?(conn) do
-    conn.resp_body != nil and conn.resp_body != "" and IO.iodata_length(conn.resp_body) > 256
+    conn.resp_body != nil and conn.resp_body != "" and IO.iodata_length(conn.resp_body) > 860
   end
 
   defp compress_body(conn) do

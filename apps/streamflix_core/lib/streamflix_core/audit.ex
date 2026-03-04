@@ -15,8 +15,7 @@ defmodule StreamflixCore.Audit do
     - opts: [user_id:, project_id:, resource_type:, resource_id:, metadata:, ip_address:, user_agent:]
   """
   def record(action, opts \\ []) do
-    %AuditLog{}
-    |> AuditLog.changeset(%{
+    attrs = %{
       action: action,
       user_id: opts[:user_id],
       project_id: opts[:project_id],
@@ -25,8 +24,15 @@ defmodule StreamflixCore.Audit do
       metadata: opts[:metadata] || %{},
       ip_address: opts[:ip_address],
       user_agent: opts[:user_agent]
-    })
-    |> Repo.insert()
+    }
+
+    Task.Supervisor.start_child(StreamflixCore.TaskSupervisor, fn ->
+      %AuditLog{}
+      |> AuditLog.changeset(attrs)
+      |> Repo.insert()
+    end)
+
+    {:ok, :async}
   end
 
   @doc "List audit logs for a project with optional filters"

@@ -140,6 +140,7 @@ config :streamflix_core, Oban,
     default: 5
   ],
   plugins: [
+    {Oban.Plugins.Pruner, max_age: 7 * 24 * 3600},
     {Oban.Plugins.Cron,
      crontab: [
        {"* * * * *", StreamflixCore.Platform.ObanDelayedEventsWorker},

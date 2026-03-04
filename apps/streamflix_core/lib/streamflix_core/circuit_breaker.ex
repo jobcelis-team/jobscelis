@@ -11,7 +11,8 @@ defmodule StreamflixCore.CircuitBreaker do
   alias StreamflixCore.Notifications
 
   @failure_threshold 5
-  @circuit_reset_seconds 300
+  @base_reset_seconds 300
+  @max_reset_seconds 7200
 
   @doc """
   Check if a webhook's circuit allows delivery.
@@ -90,9 +91,15 @@ defmodule StreamflixCore.CircuitBreaker do
 
   defp circuit_expired?(%Webhook{circuit_opened_at: nil}), do: true
 
-  defp circuit_expired?(%Webhook{circuit_opened_at: opened_at}) do
+  defp circuit_expired?(%Webhook{circuit_opened_at: opened_at} = webhook) do
+    failures = webhook.consecutive_failures || 0
+
+    base =
+      min(@base_reset_seconds * :math.pow(2, div(max(failures - 5, 0), 5)), @max_reset_seconds)
+
+    jitter = :rand.uniform(30)
     diff = DateTime.diff(DateTime.utc_now(), opened_at, :second)
-    diff >= @circuit_reset_seconds
+    diff >= trunc(base) + jitter
   end
 
   defp notify_circuit_open(webhook) do
@@ -100,7 +107,7 @@ defmodule StreamflixCore.CircuitBreaker do
       webhook,
       "circuit_open",
       "Circuit breaker abierto",
-      "El webhook #{webhook.url} ha sido pausado tras #{@failure_threshold} fallos consecutivos. Se reintentará en #{div(@circuit_reset_seconds, 60)} minutos."
+      "El webhook #{webhook.url} ha sido pausado tras #{@failure_threshold} fallos consecutivos. Se reintentará en #{div(@base_reset_seconds, 60)} minutos."
     )
   end
 

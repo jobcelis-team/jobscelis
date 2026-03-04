@@ -19,70 +19,71 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           Task.async(fn -> Notifications.unread_count(user.id) end)
         ]
 
-        [notifs, unread] = Task.await_many(tasks, 15_000)
+        [notifs, unread] = Task.await_many(tasks, 10_000)
         {notifs, unread}
       else
         {[], 0}
       end
 
     socket =
-      socket
-      |> assign(:projects, projects)
-      |> assign(:project, nil)
-      |> assign(:show_project_selector, false)
-      |> assign(:switching_project, false)
-      |> assign(:api_key, nil)
-      |> assign(:events, [])
-      |> assign(:webhooks, [])
-      |> assign(:webhook_health, %{})
-      |> assign(:simulation_result, nil)
-      |> assign(:dead_letters, [])
-      |> assign(:replays, [])
-      |> assign(:replay_modal, false)
-      |> assign(:sandbox_endpoints, [])
-      |> assign(:sandbox_active, nil)
-      |> assign(:sandbox_requests, [])
-      |> assign(:audit_logs, [])
-      |> assign(:event_schemas, [])
-      |> assign(:team_members, [])
-      |> assign(:current_user_role, nil)
-      |> assign(:analytics, %{
-        events_per_day: [],
-        deliveries_per_day: [],
-        top_topics: [],
-        webhook_stats: []
+      assign(socket, %{
+        projects: projects,
+        project: nil,
+        show_project_selector: false,
+        switching_project: false,
+        api_key: nil,
+        events: [],
+        webhooks: [],
+        webhook_health: %{},
+        simulation_result: nil,
+        dead_letters: [],
+        replays: [],
+        replay_modal: false,
+        sandbox_endpoints: [],
+        sandbox_active: nil,
+        sandbox_requests: [],
+        audit_logs: [],
+        event_schemas: [],
+        team_members: [],
+        current_user_role: nil,
+        analytics: %{
+          events_per_day: [],
+          deliveries_per_day: [],
+          top_topics: [],
+          webhook_stats: []
+        },
+        active_tab: "overview",
+        kpi_events_today: 0,
+        kpi_success_rate: 0.0,
+        notifications: notifications,
+        unread_count: unread_count,
+        show_notifications: false,
+        pending_invitations: [],
+        jobs: [],
+        deliveries: [],
+        test_topic: "",
+        test_payload: "{}",
+        new_token: nil,
+        token_source: nil,
+        token_visible: true,
+        editing_project_name: false,
+        job_modal: nil,
+        job_runs_modal: nil,
+        job_form: nil,
+        cron_preview: [],
+        page_title: gettext("Dashboard"),
+        active_page: :dashboard,
+        webhook_modal: nil,
+        webhook_form: %{"url" => "", "topics" => "", "secret" => ""},
+        confirm_regenerate_token: false,
+        uptime_status: %{status: "unknown", checks: %{}},
+        uptime_stats: %{
+          last_24h: %{uptime_percent: 0.0},
+          last_7d: %{uptime_percent: 0.0},
+          last_30d: %{uptime_percent: 0.0}
+        },
+        fresh_api_key: session["fresh_api_key"]
       })
-      |> assign(:active_tab, "overview")
-      |> assign(:kpi_events_today, 0)
-      |> assign(:kpi_success_rate, 0.0)
-      |> assign(:notifications, notifications)
-      |> assign(:unread_count, unread_count)
-      |> assign(:show_notifications, false)
-      |> assign(:pending_invitations, [])
-      |> assign(:jobs, [])
-      |> assign(:deliveries, [])
-      |> assign(:test_topic, "")
-      |> assign(:test_payload, "{}")
-      |> assign(:new_token, nil)
-      |> assign(:token_source, nil)
-      |> assign(:token_visible, true)
-      |> assign(:editing_project_name, false)
-      |> assign(:job_modal, nil)
-      |> assign(:job_runs_modal, nil)
-      |> assign(:job_form, nil)
-      |> assign(:cron_preview, [])
-      |> assign(:page_title, gettext("Dashboard"))
-      |> assign(:active_page, :dashboard)
-      |> assign(:webhook_modal, nil)
-      |> assign(:webhook_form, %{"url" => "", "topics" => "", "secret" => ""})
-      |> assign(:confirm_regenerate_token, false)
-      |> assign(:uptime_status, %{status: "unknown", checks: %{}})
-      |> assign(:uptime_stats, %{
-        last_24h: %{uptime_percent: 0.0},
-        last_7d: %{uptime_percent: 0.0},
-        last_30d: %{uptime_percent: 0.0}
-      })
-      |> assign(:fresh_api_key, session["fresh_api_key"])
 
     if connected?(socket), do: Notifications.subscribe(user.id)
 
@@ -515,21 +516,30 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     user = socket.assigns.current_user
     Notifications.mark_all_read(user.id)
 
+    notifications =
+      Enum.map(socket.assigns.notifications, &Map.put(&1, :read, true))
+
     {:noreply,
      socket
-     |> assign(:notifications, Notifications.list_for_user(user.id, limit: 10))
+     |> assign(:notifications, notifications)
      |> assign(:unread_count, 0)}
   end
 
   @impl true
   def handle_event("mark_notification_read", %{"id" => id}, socket) do
     Notifications.mark_as_read(id)
-    user = socket.assigns.current_user
+
+    notifications =
+      Enum.map(socket.assigns.notifications, fn n ->
+        if to_string(n.id) == id, do: Map.put(n, :read, true), else: n
+      end)
+
+    unread = max(socket.assigns.unread_count - 1, 0)
 
     {:noreply,
      socket
-     |> assign(:notifications, Notifications.list_for_user(user.id, limit: 10))
-     |> assign(:unread_count, Notifications.unread_count(user.id))}
+     |> assign(:notifications, notifications)
+     |> assign(:unread_count, unread)}
   end
 
   @impl true
@@ -1180,7 +1190,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         end)
       ]
 
-      data = Task.await_many(tasks, 15_000) |> Map.new()
+      data = Task.await_many(tasks, 10_000) |> Map.new()
       user_role = compute_user_role(project, socket.assigns.current_user)
 
       # Persist selection server-side (async, non-blocking)
@@ -1248,7 +1258,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           Task.async(fn -> {:pending_invitations, Teams.list_pending_invitations(user.id)} end)
         ]
 
-        Task.await_many(tasks, 15_000) |> Map.new()
+        Task.await_many(tasks, 10_000) |> Map.new()
       else
         %{}
       end
@@ -3918,7 +3928,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
              end)
            ]
 
-           data = Task.await_many(tasks, 15_000) |> Map.new()
+           data = Task.await_many(tasks, 10_000) |> Map.new()
            {:commit, data, ttl: :timer.minutes(5)}
          end) do
       {:ok, data} -> data
@@ -4056,7 +4066,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       Task.async(fn -> Platform.list_deliveries(project_id: project.id, limit: 30) end)
     ]
 
-    [api_key, events, webhooks, deliveries] = Task.await_many(tasks, 15_000)
+    [api_key, events, webhooks, deliveries] = Task.await_many(tasks, 10_000)
 
     # Check if we have a fresh API key from registration
     {new_token, token_source} =
@@ -4131,7 +4141,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
              Task.async(fn -> {:last_30d, StreamflixCore.Uptime.calculate_uptime(:last_30d)} end)
            ]
 
-           stats = Task.await_many(tasks, 15_000) |> Map.new()
+           stats = Task.await_many(tasks, 10_000) |> Map.new()
            {:commit, stats, ttl: :timer.minutes(5)}
          end) do
       {:ok, stats} -> stats

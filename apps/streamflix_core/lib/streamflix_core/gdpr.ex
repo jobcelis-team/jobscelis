@@ -78,6 +78,7 @@ defmodule StreamflixCore.GDPR do
   """
   def erase_user(user) do
     user_id = user.id
+    project_ids = Repo.all(from(p in Project, where: p.user_id == ^user_id, select: p.id))
 
     Ecto.Multi.new()
     |> Ecto.Multi.insert(
@@ -129,7 +130,13 @@ defmodule StreamflixCore.GDPR do
     |> Repo.transaction()
     |> case do
       {:ok, result} ->
-        Cachex.clear(@cache)
+        Cachex.del(@cache, {:user, user_id})
+
+        Enum.each(project_ids, fn pid ->
+          Cachex.del(@cache, {:active_webhooks, pid})
+          Cachex.del(@cache, {:webhook_health, pid})
+        end)
+
         {:ok, result}
 
       {:error, step, reason, _changes} ->
@@ -228,86 +235,111 @@ defmodule StreamflixCore.GDPR do
     projects = Repo.all(from(p in Project, where: p.user_id == ^user_id))
     project_ids = Enum.map(projects, & &1.id)
 
-    webhooks =
-      if project_ids != [] do
-        Repo.all(from(w in StreamflixCore.Schemas.Webhook, where: w.project_id in ^project_ids))
-      else
-        []
-      end
+    # Run all independent queries in parallel
+    tasks = [
+      Task.async(fn ->
+        {:webhooks,
+         if(project_ids != [],
+           do:
+             Repo.all(
+               from(w in StreamflixCore.Schemas.Webhook, where: w.project_id in ^project_ids)
+             ),
+           else: []
+         )}
+      end),
+      Task.async(fn ->
+        {:events,
+         if(project_ids != [],
+           do:
+             Repo.all(
+               from(e in StreamflixCore.Schemas.WebhookEvent,
+                 where: e.project_id in ^project_ids,
+                 order_by: [desc: e.inserted_at],
+                 limit: 500
+               )
+             ),
+           else: []
+         )}
+      end),
+      Task.async(fn ->
+        {:deliveries,
+         if(project_ids != [],
+           do:
+             Repo.all(
+               from(d in StreamflixCore.Schemas.Delivery,
+                 join: e in StreamflixCore.Schemas.WebhookEvent,
+                 on: d.event_id == e.id,
+                 where: e.project_id in ^project_ids,
+                 order_by: [desc: d.inserted_at],
+                 limit: 500
+               )
+             ),
+           else: []
+         )}
+      end),
+      Task.async(fn ->
+        {:jobs,
+         if(project_ids != [],
+           do:
+             Repo.all(from(j in StreamflixCore.Schemas.Job, where: j.project_id in ^project_ids)),
+           else: []
+         )}
+      end),
+      Task.async(fn ->
+        {:notifications,
+         Repo.all(
+           from(n in StreamflixCore.Schemas.Notification,
+             where: n.user_id == ^user_id,
+             order_by: [desc: n.inserted_at],
+             limit: 100
+           )
+         )}
+      end),
+      Task.async(fn ->
+        {:audit_entries,
+         Repo.all(
+           from(a in AuditLog,
+             where: a.user_id == ^user_id,
+             order_by: [desc: a.inserted_at],
+             limit: 200
+           )
+         )}
+      end),
+      Task.async(fn -> {:consents, list_consents(user_id)} end),
+      Task.async(fn ->
+        {:memberships, Repo.all(from(m in ProjectMember, where: m.user_id == ^user_id))}
+      end),
+      Task.async(fn ->
+        {:sessions,
+         Repo.all(
+           from(s in "user_sessions",
+             where: s.user_id == type(^user_id, :binary_id),
+             order_by: [desc: s.inserted_at],
+             limit: 100,
+             select: %{
+               id: s.id,
+               token_jti: s.token_jti,
+               device_info: s.device_info,
+               last_activity_at: s.last_activity_at,
+               revoked_at: s.revoked_at,
+               inserted_at: s.inserted_at
+             }
+           )
+         )}
+      end)
+    ]
 
-    events =
-      if project_ids != [] do
-        Repo.all(
-          from(e in StreamflixCore.Schemas.WebhookEvent,
-            where: e.project_id in ^project_ids,
-            order_by: [desc: e.inserted_at],
-            limit: 500
-          )
-        )
-      else
-        []
-      end
+    data = Task.await_many(tasks, 15_000) |> Map.new()
 
-    deliveries =
-      if project_ids != [] do
-        Repo.all(
-          from(d in StreamflixCore.Schemas.Delivery,
-            join: e in StreamflixCore.Schemas.WebhookEvent,
-            on: d.event_id == e.id,
-            where: e.project_id in ^project_ids,
-            order_by: [desc: d.inserted_at],
-            limit: 500
-          )
-        )
-      else
-        []
-      end
-
-    jobs =
-      if project_ids != [] do
-        Repo.all(from(j in StreamflixCore.Schemas.Job, where: j.project_id in ^project_ids))
-      else
-        []
-      end
-
-    notifications =
-      Repo.all(
-        from(n in StreamflixCore.Schemas.Notification,
-          where: n.user_id == ^user_id,
-          order_by: [desc: n.inserted_at],
-          limit: 100
-        )
-      )
-
-    audit_entries =
-      Repo.all(
-        from(a in AuditLog,
-          where: a.user_id == ^user_id,
-          order_by: [desc: a.inserted_at],
-          limit: 200
-        )
-      )
-
-    consents = list_consents(user_id)
-
-    memberships = Repo.all(from(m in ProjectMember, where: m.user_id == ^user_id))
-
-    sessions =
-      Repo.all(
-        from(s in "user_sessions",
-          where: s.user_id == type(^user_id, :binary_id),
-          order_by: [desc: s.inserted_at],
-          limit: 100,
-          select: %{
-            id: s.id,
-            token_jti: s.token_jti,
-            device_info: s.device_info,
-            last_activity_at: s.last_activity_at,
-            revoked_at: s.revoked_at,
-            inserted_at: s.inserted_at
-          }
-        )
-      )
+    webhooks = data.webhooks
+    events = data.events
+    deliveries = data.deliveries
+    jobs = data.jobs
+    notifications = data.notifications
+    audit_entries = data.audit_entries
+    consents = data.consents
+    memberships = data.memberships
+    sessions = data.sessions
 
     %{
       format: "v2",
