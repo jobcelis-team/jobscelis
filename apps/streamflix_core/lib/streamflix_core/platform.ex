@@ -1012,9 +1012,14 @@ defmodule StreamflixCore.Platform do
       total: stats.total,
       success: stats.success,
       failed: stats.failed,
-      avg_latency: if(stats.avg_latency, do: Float.round(stats.avg_latency * 1.0, 2), else: nil)
+      avg_latency: to_float_or_nil(stats.avg_latency)
     }
   end
+
+  defp to_float_or_nil(nil), do: nil
+  defp to_float_or_nil(%Decimal{} = d), do: d |> Decimal.to_float() |> Float.round(2)
+  defp to_float_or_nil(f) when is_float(f), do: Float.round(f, 2)
+  defp to_float_or_nil(i) when is_integer(i), do: i * 1.0
 
   @doc "Calculate health for all webhooks of a project"
   def webhooks_health(project_id) do
