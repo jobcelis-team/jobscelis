@@ -15,6 +15,7 @@ database_config =
     [url: url, ssl: [verify: :verify_none], prepare: :unnamed]
   else
     hostname = System.get_env("DB_HOSTNAME") || "localhost"
+
     base = [
       username: System.get_env("DB_USERNAME") || "postgres",
       password: System.get_env("DB_PASSWORD") || "postgres",
@@ -22,6 +23,7 @@ database_config =
       port: String.to_integer(System.get_env("DB_PORT") || "5432"),
       database: System.get_env("DB_DATABASE") || "postgres"
     ]
+
     # Only use SSL for remote databases (Supabase, etc.), not localhost
     if hostname in ["localhost", "127.0.0.1"] do
       base

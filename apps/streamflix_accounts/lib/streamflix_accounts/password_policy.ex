@@ -267,6 +267,9 @@ defmodule StreamflixAccounts.PasswordPolicy do
   end
 
   defp verify_hash(password, "$argon2id$" <> _ = hash), do: Argon2.verify_pass(password, hash)
-  defp verify_hash(password, "$pbkdf2-sha512$" <> _ = hash), do: Pbkdf2.verify_pass(password, hash)
+
+  defp verify_hash(password, "$pbkdf2-sha512$" <> _ = hash),
+    do: Pbkdf2.verify_pass(password, hash)
+
   defp verify_hash(_password, _hash), do: false
 end
