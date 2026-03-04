@@ -37,9 +37,8 @@ defmodule StreamflixAccounts.Services.Authentication do
             if verify_password(password, user.password_hash) do
               reset_failed_attempts(user)
 
-              # Fire-and-forget: rehash + audit don't block the login response
+              # Fire-and-forget: audit doesn't block the login response
               Task.Supervisor.start_child(StreamflixCore.TaskSupervisor, fn ->
-                maybe_rehash(user, password)
                 audit_login(user, "user.login", opts)
               end)
 
@@ -137,33 +136,7 @@ defmodule StreamflixAccounts.Services.Authentication do
     )
   end
 
-  # Verify password against either Argon2id or legacy PBKDF2 hashes.
-  defp verify_password(password, "$argon2id$" <> _ = hash), do: Argon2.verify_pass(password, hash)
-
-  defp verify_password(password, "$pbkdf2-sha512$" <> _ = hash),
-    do: Pbkdf2.verify_pass(password, hash)
-
-  defp verify_password(_password, _hash), do: false
-
-  # Re-hash to Argon2id if stored hash is legacy PBKDF2.
-  # Wrapped in try/rescue so a rehash failure never blocks login.
-  defp maybe_rehash(user, password) do
-    try do
-      if needs_rehash?(user.password_hash) do
-        new_hash = Argon2.hash_pwd_salt(password)
-
-        user
-        |> Ecto.Changeset.change(password_hash: new_hash)
-        |> Repo.update()
-      end
-    rescue
-      _ -> :ok
-    end
-  end
-
-  # Any PBKDF2 hash needs migration to Argon2id.
-  defp needs_rehash?("$pbkdf2-sha512$" <> _), do: true
-  defp needs_rehash?(_), do: false
+  defp verify_password(password, hash), do: Argon2.verify_pass(password, hash)
 
   @doc """
   Generates a JWT token for a user.
