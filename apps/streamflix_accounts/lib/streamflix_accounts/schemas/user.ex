@@ -175,8 +175,8 @@ defmodule StreamflixAccounts.Schemas.User do
         changeset
 
       password ->
-        # PBKDF2-SHA512 with 210,000 rounds (OWASP-compliant)
-        put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(password))
+        # Argon2id — OWASP #1 recommendation, memory-hard (RFC 9106)
+        put_change(changeset, :password_hash, Argon2.hash_pwd_salt(password))
     end
   end
 

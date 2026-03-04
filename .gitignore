@@ -209,6 +209,11 @@ azure_credentials
 # Dialyzer
 /priv/plts/
 
+# Devbox (local dev environment — not committed)
+devbox.json
+devbox.lock
+.devbox/
+
 # Local development overrides
 *.local.exs
 config/*.local.exs

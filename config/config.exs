@@ -69,7 +69,10 @@ config :streamflix_accounts, StreamflixAccounts.Guardian,
   secret_key: "configured_in_runtime",
   ttl: {7, :days}
 
-# PBKDF2 with 210,000 rounds (OWASP-compliant for SHA-512)
+# Argon2id — OWASP #1 recommendation, memory-hard (RFC 9106)
+# Default config: t_cost=3, m_cost=16 (64 MiB), parallelism=4, argon2_type=2 (Argon2id)
+
+# Legacy PBKDF2 config kept for verifying existing hashes during migration
 config :pbkdf2_elixir, rounds: 210_000
 
 # ============================================

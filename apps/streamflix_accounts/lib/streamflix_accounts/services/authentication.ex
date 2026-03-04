@@ -17,13 +17,13 @@ defmodule StreamflixAccounts.Services.Authentication do
     case user do
       nil ->
         # Prevent timing attacks
-        Pbkdf2.no_user_verify()
+        Argon2.no_user_verify()
         {:error, :invalid_credentials}
 
       user ->
         # Check if user is active
         if user.status != "active" do
-          Pbkdf2.no_user_verify()
+          Argon2.no_user_verify()
           {:error, :account_inactive}
         else
           # Check if account is locked
@@ -34,7 +34,7 @@ defmodule StreamflixAccounts.Services.Authentication do
             # Auto-unlock if lockout expired
             user = maybe_auto_unlock(user)
 
-            if Pbkdf2.verify_pass(password, user.password_hash) do
+            if verify_password(password, user.password_hash) do
               reset_failed_attempts(user)
 
               # Fire-and-forget: rehash + audit don't block the login response
@@ -137,14 +137,17 @@ defmodule StreamflixAccounts.Services.Authentication do
     )
   end
 
-  # Re-hash with current config if the stored hash used fewer rounds.
+  # Verify password against either Argon2id or legacy PBKDF2 hashes.
+  defp verify_password(password, "$argon2id$" <> _ = hash), do: Argon2.verify_pass(password, hash)
+  defp verify_password(password, "$pbkdf2-sha512$" <> _ = hash), do: Pbkdf2.verify_pass(password, hash)
+  defp verify_password(_password, _hash), do: false
+
+  # Re-hash to Argon2id if stored hash is legacy PBKDF2.
   # Wrapped in try/rescue so a rehash failure never blocks login.
   defp maybe_rehash(user, password) do
     try do
-      configured_rounds = Application.get_env(:pbkdf2_elixir, :rounds, 210_000)
-
-      if needs_rehash?(user.password_hash, configured_rounds) do
-        new_hash = Pbkdf2.hash_pwd_salt(password)
+      if needs_rehash?(user.password_hash) do
+        new_hash = Argon2.hash_pwd_salt(password)
 
         user
         |> Ecto.Changeset.change(password_hash: new_hash)
@@ -155,13 +158,9 @@ defmodule StreamflixAccounts.Services.Authentication do
     end
   end
 
-  # PBKDF2 hash format: $pbkdf2-sha512$ROUNDS$SALT$HASH
-  defp needs_rehash?(hash, target_rounds) do
-    case Regex.run(~r/\$pbkdf2-sha512\$(\d+)\$/, hash) do
-      [_, rounds_str] -> String.to_integer(rounds_str) < target_rounds
-      _ -> false
-    end
-  end
+  # Any PBKDF2 hash needs migration to Argon2id.
+  defp needs_rehash?("$pbkdf2-sha512$" <> _), do: true
+  defp needs_rehash?(_), do: false
 
   @doc """
   Generates a JWT token for a user.
