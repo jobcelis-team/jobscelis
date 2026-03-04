@@ -10,52 +10,30 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def mount(_params, session, socket) do
     user = socket.assigns.current_user
     projects = Teams.list_all_accessible_projects(user.id)
-    project = Enum.find(projects, & &1.is_default) || List.first(projects)
 
-    # Phase 1: Run all essential queries in parallel (~180ms instead of ~1260ms)
-    {api_key, events, webhooks, deliveries, notifications, unread_count} =
-      if project do
+    # Notifications are user-scoped (not project-scoped), load here
+    {notifications, unread_count} =
+      if connected?(socket) do
         tasks = [
-          Task.async(fn -> Platform.get_api_key_for_project(project.id) end),
-          Task.async(fn -> Platform.list_events(project.id, limit: 20) end),
-          Task.async(fn -> Platform.list_webhooks(project.id, include_inactive: true) end),
-          Task.async(fn -> Platform.list_deliveries(project_id: project.id, limit: 30) end),
           Task.async(fn -> Notifications.list_for_user(user.id, limit: 10) end),
           Task.async(fn -> Notifications.unread_count(user.id) end)
         ]
 
-        [api_key, events, webhooks, deliveries, notifs, unread] =
-          Task.await_many(tasks, 15_000)
-
-        {api_key, events, webhooks, deliveries, notifs, unread}
+        [notifs, unread] = Task.await_many(tasks, 15_000)
+        {notifs, unread}
       else
-        {nil, [], [], [], [], 0}
+        {[], 0}
       end
-
-    # Check if we have a fresh API key from registration
-    {new_token, token_source} =
-      case session["fresh_api_key"] do
-        fresh_key when is_binary(fresh_key) and fresh_key != "" ->
-          if api_key && String.starts_with?(fresh_key, api_key.prefix) do
-            {fresh_key, :registration}
-          else
-            {nil, nil}
-          end
-
-        _ ->
-          {nil, nil}
-      end
-
-    current_user_role = compute_user_role(project, user)
 
     socket =
       socket
       |> assign(:projects, projects)
-      |> assign(:project, project)
+      |> assign(:project, nil)
       |> assign(:show_project_selector, false)
-      |> assign(:api_key, api_key)
-      |> assign(:events, events)
-      |> assign(:webhooks, webhooks)
+      |> assign(:switching_project, false)
+      |> assign(:api_key, nil)
+      |> assign(:events, [])
+      |> assign(:webhooks, [])
       |> assign(:webhook_health, %{})
       |> assign(:simulation_result, nil)
       |> assign(:dead_letters, [])
@@ -67,7 +45,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       |> assign(:audit_logs, [])
       |> assign(:event_schemas, [])
       |> assign(:team_members, [])
-      |> assign(:current_user_role, current_user_role)
+      |> assign(:current_user_role, nil)
       |> assign(:analytics, %{
         events_per_day: [],
         deliveries_per_day: [],
@@ -75,18 +53,18 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         webhook_stats: []
       })
       |> assign(:active_tab, "overview")
-      |> assign(:kpi_events_today, compute_kpi_events_today(events))
-      |> assign(:kpi_success_rate, compute_kpi_success_rate(deliveries))
+      |> assign(:kpi_events_today, 0)
+      |> assign(:kpi_success_rate, 0.0)
       |> assign(:notifications, notifications)
       |> assign(:unread_count, unread_count)
       |> assign(:show_notifications, false)
       |> assign(:pending_invitations, [])
       |> assign(:jobs, [])
-      |> assign(:deliveries, deliveries)
+      |> assign(:deliveries, [])
       |> assign(:test_topic, "")
       |> assign(:test_payload, "{}")
-      |> assign(:new_token, new_token)
-      |> assign(:token_source, token_source)
+      |> assign(:new_token, nil)
+      |> assign(:token_source, nil)
       |> assign(:token_visible, true)
       |> assign(:editing_project_name, false)
       |> assign(:job_modal, nil)
@@ -104,15 +82,59 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         last_7d: %{uptime_percent: 0.0},
         last_30d: %{uptime_percent: 0.0}
       })
+      |> assign(:fresh_api_key, session["fresh_api_key"])
 
-    if connected?(socket) do
-      # Phase 2: Load deferred data after WebSocket connects
-      send(self(), :load_deferred)
-      if project, do: Platform.subscribe(project.id)
-      Notifications.subscribe(user.id)
-    end
+    if connected?(socket), do: Notifications.subscribe(user.id)
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    projects = socket.assigns.projects
+    current_project = socket.assigns.project
+
+    # Resolve target project from URL param or default
+    target_project =
+      case params["project"] do
+        id when is_binary(id) and id != "" ->
+          Enum.find(projects, fn p -> p.id == id end)
+
+        _ ->
+          nil
+      end
+
+    target_project = target_project || Enum.find(projects, & &1.is_default) || List.first(projects)
+
+    cond do
+      # No project available at all
+      target_project == nil ->
+        {:noreply, socket}
+
+      # Same project — no reload needed
+      current_project && current_project.id == target_project.id ->
+        {:noreply, socket}
+
+      # First load (mount) — load data directly
+      current_project == nil ->
+        socket = load_project_data(socket, target_project)
+
+        if connected?(socket) do
+          send(self(), :load_deferred)
+          Platform.subscribe(target_project.id)
+        end
+
+        {:noreply, socket}
+
+      # Switching to a different project — show overlay, defer load
+      true ->
+        send(self(), {:do_switch_project, target_project.id})
+
+        {:noreply,
+         socket
+         |> assign(:switching_project, true)
+         |> assign(:show_project_selector, false)}
+    end
   end
 
   @impl true
@@ -829,70 +851,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   @impl true
+  def handle_event("close_project_selector", _, socket) do
+    {:noreply, assign(socket, :show_project_selector, false)}
+  end
+
+  @impl true
   def handle_event("switch_project", %{"id" => id}, socket) do
-    old_project = socket.assigns.project
-
-    case Platform.get_project(id) do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("Proyecto no encontrado."))}
-
-      project ->
-        if old_project,
-          do: Phoenix.PubSub.unsubscribe(StreamflixCore.PubSub, "project:#{old_project.id}")
-
-        if connected?(socket), do: Platform.subscribe(project.id)
-
-        # Run all project queries in parallel
-        tasks = [
-          Task.async(fn -> {:api_key, Platform.get_api_key_for_project(project.id)} end),
-          Task.async(fn -> {:events, Platform.list_events(project.id, limit: 20)} end),
-          Task.async(fn ->
-            {:webhooks, Platform.list_webhooks(project.id, include_inactive: true)}
-          end),
-          Task.async(fn -> {:webhook_health, Platform.webhooks_health(project.id)} end),
-          Task.async(fn -> {:jobs, Platform.list_jobs(project.id, include_inactive: true)} end),
-          Task.async(fn ->
-            {:deliveries, Platform.list_deliveries(project_id: project.id, limit: 30)}
-          end),
-          Task.async(fn -> {:dead_letters, Platform.list_dead_letters(project.id)} end),
-          Task.async(fn -> {:replays, Platform.list_replays(project.id, limit: 10)} end),
-          Task.async(fn -> {:audit_logs, Audit.list_for_project(project.id, limit: 20)} end),
-          Task.async(fn -> {:sandbox_endpoints, Platform.list_sandbox_endpoints(project.id)} end),
-          Task.async(fn -> {:event_schemas, Platform.list_event_schemas(project.id)} end),
-          Task.async(fn -> {:team_members, Teams.list_members(project.id)} end),
-          Task.async(fn -> {:analytics, load_analytics(project.id)} end)
-        ]
-
-        data = Task.await_many(tasks, 15_000) |> Map.new()
-        user_role = compute_user_role(project, socket.assigns.current_user)
-
-        {:noreply,
-         socket
-         |> assign(:project, project)
-         |> assign(:api_key, data.api_key)
-         |> assign(:events, data.events)
-         |> assign(:webhooks, data.webhooks)
-         |> assign(:webhook_health, data.webhook_health)
-         |> assign(:jobs, data.jobs)
-         |> assign(:deliveries, data.deliveries)
-         |> assign(:dead_letters, data.dead_letters)
-         |> assign(:replays, data.replays)
-         |> assign(:audit_logs, data.audit_logs)
-         |> assign(:sandbox_endpoints, data.sandbox_endpoints)
-         |> assign(:sandbox_active, nil)
-         |> assign(:sandbox_requests, [])
-         |> assign(:event_schemas, data.event_schemas)
-         |> assign(:team_members, data.team_members)
-         |> assign(:current_user_role, user_role)
-         |> assign(:analytics, data.analytics)
-         |> assign(:active_tab, "overview")
-         |> assign(:kpi_events_today, compute_kpi_events_today(data.events))
-         |> assign(:kpi_success_rate, compute_kpi_success_rate(data.deliveries))
-         |> assign(:show_project_selector, false)
-         |> assign(:new_token, nil)
-         |> assign(:token_source, nil)
-         |> put_flash(:info, gettext("Proyecto cambiado a: %{name}", name: project.name))}
-    end
+    {:noreply, push_patch(socket, to: ~p"/platform?project=#{id}")}
   end
 
   @impl true
@@ -1147,6 +1112,87 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     end
   end
 
+  # ---------- Project switch (deferred via handle_params) ----------
+
+  @impl true
+  def handle_info({:do_switch_project, id}, socket) do
+    old_project = socket.assigns.project
+    projects = socket.assigns.projects
+    project = Enum.find(projects, fn p -> p.id == id end) || Platform.get_project(id)
+
+    if project do
+      if old_project,
+        do: Phoenix.PubSub.unsubscribe(StreamflixCore.PubSub, "project:#{old_project.id}")
+
+      Platform.subscribe(project.id)
+
+      # Run all project queries in parallel
+      tasks = [
+        Task.async(fn -> {:api_key, Platform.get_api_key_for_project(project.id)} end),
+        Task.async(fn -> {:events, Platform.list_events(project.id, limit: 20)} end),
+        Task.async(fn ->
+          {:webhooks, Platform.list_webhooks(project.id, include_inactive: true)}
+        end),
+        Task.async(fn -> {:webhook_health, Platform.webhooks_health(project.id)} end),
+        Task.async(fn -> {:jobs, Platform.list_jobs(project.id, include_inactive: true)} end),
+        Task.async(fn ->
+          {:deliveries, Platform.list_deliveries(project_id: project.id, limit: 30)}
+        end),
+        Task.async(fn -> {:dead_letters, Platform.list_dead_letters(project.id)} end),
+        Task.async(fn -> {:replays, Platform.list_replays(project.id, limit: 10)} end),
+        Task.async(fn -> {:audit_logs, Audit.list_for_project(project.id, limit: 20)} end),
+        Task.async(fn -> {:sandbox_endpoints, Platform.list_sandbox_endpoints(project.id)} end),
+        Task.async(fn -> {:event_schemas, Platform.list_event_schemas(project.id)} end),
+        Task.async(fn -> {:team_members, Teams.list_members(project.id)} end),
+        Task.async(fn -> {:analytics, load_analytics(project.id)} end),
+        Task.async(fn -> {:uptime_status, load_uptime_status()} end),
+        Task.async(fn -> {:uptime_stats, load_uptime_stats()} end),
+        Task.async(fn ->
+          {:pending_invitations,
+           Teams.list_pending_invitations(socket.assigns.current_user.id)}
+        end)
+      ]
+
+      data = Task.await_many(tasks, 15_000) |> Map.new()
+      user_role = compute_user_role(project, socket.assigns.current_user)
+
+      {:noreply,
+       socket
+       |> assign(:switching_project, false)
+       |> assign(:project, project)
+       |> assign(:api_key, data.api_key)
+       |> assign(:events, data.events)
+       |> assign(:webhooks, data.webhooks)
+       |> assign(:webhook_health, data.webhook_health)
+       |> assign(:jobs, data.jobs)
+       |> assign(:deliveries, data.deliveries)
+       |> assign(:dead_letters, data.dead_letters)
+       |> assign(:replays, data.replays)
+       |> assign(:audit_logs, data.audit_logs)
+       |> assign(:sandbox_endpoints, data.sandbox_endpoints)
+       |> assign(:sandbox_active, nil)
+       |> assign(:sandbox_requests, [])
+       |> assign(:event_schemas, data.event_schemas)
+       |> assign(:team_members, data.team_members)
+       |> assign(:current_user_role, user_role)
+       |> assign(:analytics, data.analytics)
+       |> assign(:uptime_status, data.uptime_status)
+       |> assign(:uptime_stats, data.uptime_stats)
+       |> assign(:pending_invitations, data.pending_invitations)
+       |> assign(:active_tab, "overview")
+       |> assign(:kpi_events_today, compute_kpi_events_today(data.events))
+       |> assign(:kpi_success_rate, compute_kpi_success_rate(data.deliveries))
+       |> assign(:new_token, nil)
+       |> assign(:token_source, nil)
+       |> put_flash(:info, gettext("Proyecto cambiado a: %{name}", name: project.name))}
+    else
+      {:noreply,
+       socket
+       |> assign(:switching_project, false)
+       |> put_flash(:error, gettext("Proyecto no encontrado."))}
+    end
+  end
+
   # ---------- Deferred loading (Phase 2 after connect) ----------
 
   @impl true
@@ -1256,79 +1302,92 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       main_class="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-6 sm:py-8 flex-1"
     >
       <div>
+        <%!-- ===== SWITCHING PROJECT OVERLAY ===== --%>
+        <%= if @switching_project do %>
+          <div class="fixed inset-0 bg-white/60 backdrop-blur-sm z-40 flex items-center justify-center transition-opacity">
+            <div class="flex flex-col items-center gap-3">
+              <div class="w-8 h-8 border-[3px] border-indigo-600 border-t-transparent rounded-full animate-spin">
+              </div>
+              <p class="text-sm font-medium text-slate-600">
+                {gettext("Cambiando proyecto...")}
+              </p>
+            </div>
+          </div>
+        <% end %>
         <%!-- ===== HEADER ===== --%>
         <div class="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
           <div class="flex items-center gap-3 sm:gap-4">
             <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
               {gettext("Dashboard")}
             </h1>
-            <%= if length(@projects) > 1 do %>
-              <div class="relative">
-                <button
-                  type="button"
-                  phx-click="toggle_project_selector"
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition border border-indigo-200"
+            <div class="relative">
+              <button
+                type="button"
+                phx-click="toggle_project_selector"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition border border-indigo-200"
+              >
+                <.icon name="hero-rectangle-stack" class="w-4 h-4" />
+                <span class="hidden sm:inline truncate max-w-[10rem]">
+                  {@project && @project.name}
+                </span>
+                <.icon name="hero-chevron-down" class="w-3.5 h-3.5" />
+              </button>
+              <%= if @show_project_selector do %>
+                <div
+                  phx-click-away="close_project_selector"
+                  class="fixed inset-x-3 top-20 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-1 sm:w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-80 overflow-y-auto"
                 >
-                  <.icon name="hero-rectangle-stack" class="w-4 h-4" />
-                  <span class="hidden sm:inline truncate max-w-[10rem]">
-                    {@project && @project.name}
-                  </span>
-                  <.icon name="hero-chevron-down" class="w-3.5 h-3.5" />
-                </button>
-                <%= if @show_project_selector do %>
-                  <div class="fixed inset-x-3 top-20 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-1 sm:w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-80 overflow-y-auto">
-                    <div class="p-3 border-b border-slate-200">
-                      <.form
-                        for={%{}}
-                        id="create-project-form"
-                        phx-submit="create_project"
-                        class="flex gap-2"
+                  <div class="p-3 border-b border-slate-200">
+                    <.form
+                      for={%{}}
+                      id="create-project-form"
+                      phx-submit="create_project"
+                      class="flex gap-2"
+                    >
+                      <input
+                        type="text"
+                        name="name"
+                        placeholder={gettext("Nuevo proyecto...")}
+                        class="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-1.5 text-sm"
+                      />
+                      <button
+                        type="submit"
+                        phx-disable-with={gettext("Creando...")}
+                        class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <input
-                          type="text"
-                          name="name"
-                          placeholder={gettext("Nuevo proyecto...")}
-                          class="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-1.5 text-sm"
-                        />
-                        <button
-                          type="submit"
-                          phx-disable-with={gettext("Creando...")}
-                          class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {gettext("Crear")}
-                        </button>
-                      </.form>
-                    </div>
-                    <%= for p <- @projects do %>
-                      <div
-                        class={"flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition #{if @project && @project.id == p.id, do: "bg-indigo-50/50"}"}
-                        phx-click="switch_project"
-                        phx-value-id={p.id}
-                      >
-                        <div class="min-w-0">
-                          <p class="text-sm font-medium text-slate-800 truncate">{p.name}</p>
-                          <p class="text-[10px] text-slate-400 font-mono">
-                            {String.slice(p.id, 0, 8)}...
-                          </p>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                          <%= if p.is_default do %>
-                            <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-100 text-indigo-700">
-                              {gettext("Default")}
-                            </span>
-                          <% end %>
-                          <%= if p.user_id != @current_user.id do %>
-                            <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">
-                              {gettext("Miembro")}
-                            </span>
-                          <% end %>
-                        </div>
-                      </div>
-                    <% end %>
+                        {gettext("Crear")}
+                      </button>
+                    </.form>
                   </div>
-                <% end %>
-              </div>
-            <% end %>
+                  <%= for p <- @projects do %>
+                    <div
+                      class={"flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition #{if @project && @project.id == p.id, do: "bg-indigo-50/50"}"}
+                      phx-click="switch_project"
+                      phx-value-id={p.id}
+                    >
+                      <div class="min-w-0">
+                        <p class="text-sm font-medium text-slate-800 truncate">{p.name}</p>
+                        <p class="text-[10px] text-slate-400 font-mono">
+                          {String.slice(p.id, 0, 8)}...
+                        </p>
+                      </div>
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        <%= if p.is_default do %>
+                          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-100 text-indigo-700">
+                            {gettext("Default")}
+                          </span>
+                        <% end %>
+                        <%= if p.user_id != @current_user.id do %>
+                          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">
+                            {gettext("Miembro")}
+                          </span>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
           </div>
           <div class="relative">
             <button
@@ -3948,6 +4007,48 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   defp can_manage_team?(role), do: role in ["owner", "editor"]
   defp can_admin_team?(role), do: role == "owner"
+
+  # Load essential project data (Phase 1 — used on initial mount)
+  defp load_project_data(socket, project) do
+    user = socket.assigns.current_user
+
+    tasks = [
+      Task.async(fn -> Platform.get_api_key_for_project(project.id) end),
+      Task.async(fn -> Platform.list_events(project.id, limit: 20) end),
+      Task.async(fn -> Platform.list_webhooks(project.id, include_inactive: true) end),
+      Task.async(fn -> Platform.list_deliveries(project_id: project.id, limit: 30) end)
+    ]
+
+    [api_key, events, webhooks, deliveries] = Task.await_many(tasks, 15_000)
+
+    # Check if we have a fresh API key from registration
+    {new_token, token_source} =
+      case socket.assigns[:fresh_api_key] do
+        fresh_key when is_binary(fresh_key) and fresh_key != "" ->
+          if api_key && String.starts_with?(fresh_key, api_key.prefix) do
+            {fresh_key, :registration}
+          else
+            {nil, nil}
+          end
+
+        _ ->
+          {nil, nil}
+      end
+
+    current_user_role = compute_user_role(project, user)
+
+    socket
+    |> assign(:project, project)
+    |> assign(:api_key, api_key)
+    |> assign(:events, events)
+    |> assign(:webhooks, webhooks)
+    |> assign(:deliveries, deliveries)
+    |> assign(:current_user_role, current_user_role)
+    |> assign(:kpi_events_today, compute_kpi_events_today(events))
+    |> assign(:kpi_success_rate, compute_kpi_success_rate(deliveries))
+    |> assign(:new_token, new_token)
+    |> assign(:token_source, token_source)
+  end
 
   defp format_changeset_errors(%Ecto.Changeset{} = changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
