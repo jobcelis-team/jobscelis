@@ -93,16 +93,27 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_params(params, _uri, socket) do
     projects = socket.assigns.projects
     current_project = socket.assigns.project
+    user = socket.assigns.current_user
+    url_has_project = is_binary(params["project"]) and params["project"] != ""
 
-    # Resolve target project from URL param or default
+    # Resolve target project: URL param → user's last_project_id → default
     target_project =
-      case params["project"] do
-        id when is_binary(id) and id != "" ->
-          Enum.find(projects, fn p -> p.id == id end)
-
-        _ ->
-          nil
+      if url_has_project do
+        Enum.find(projects, fn p -> p.id == params["project"] end)
+      else
+        nil
       end
+
+    # If no URL param, try the user's last selected project (server-side, secure)
+    target_project =
+      target_project ||
+        case user.last_project_id do
+          id when is_binary(id) and id != "" ->
+            Enum.find(projects, fn p -> p.id == id end)
+
+          _ ->
+            nil
+        end
 
     target_project =
       target_project || Enum.find(projects, & &1.is_default) || List.first(projects)
@@ -114,7 +125,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
       # Same project — no reload needed
       current_project && current_project.id == target_project.id ->
-        {:noreply, socket}
+        # Ensure URL has project param (e.g. navigated back without it)
+        if not url_has_project and connected?(socket) do
+          {:noreply,
+           push_patch(socket, to: ~p"/platform?project=#{target_project.id}", replace: true)}
+        else
+          {:noreply, socket}
+        end
 
       # First load (mount) — load data directly
       current_project == nil ->
@@ -123,7 +140,17 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         if connected?(socket) do
           send(self(), :load_deferred)
           Platform.subscribe(target_project.id)
+          # Persist selection server-side (async, non-blocking)
+          save_last_project(user, target_project.id)
         end
+
+        # Update URL to include project param
+        socket =
+          if not url_has_project and connected?(socket) do
+            push_patch(socket, to: ~p"/platform?project=#{target_project.id}", replace: true)
+          else
+            socket
+          end
 
         {:noreply, socket}
 
@@ -1155,6 +1182,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
       data = Task.await_many(tasks, 15_000) |> Map.new()
       user_role = compute_user_role(project, socket.assigns.current_user)
+
+      # Persist selection server-side (async, non-blocking)
+      save_last_project(socket.assigns.current_user, project.id)
 
       {:noreply,
        socket
@@ -4009,6 +4039,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   defp can_admin_team?(role), do: role == "owner"
 
   # Load essential project data (Phase 1 — used on initial mount)
+  # Persist the user's last selected project (async, non-blocking)
+  defp save_last_project(user, project_id) do
+    Task.start(fn ->
+      StreamflixAccounts.update_user(user, %{last_project_id: project_id})
+    end)
+  end
+
   defp load_project_data(socket, project) do
     user = socket.assigns.current_user
 
