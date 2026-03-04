@@ -168,11 +168,12 @@ defmodule StreamflixAccounts.Services.Authentication do
     case StreamflixAccounts.Guardian.decode_and_verify(token) do
       {:ok, claims} ->
         jti = claims["jti"]
+        user_id = claims["sub"]
 
         if StreamflixAccounts.session_revoked?(jti) do
           {:error, :session_revoked}
         else
-          case StreamflixAccounts.Guardian.resource_from_claims(claims) do
+          case cached_get_user(user_id) do
             {:ok, user} -> {:ok, user, claims}
             error -> error
           end
@@ -180,6 +181,21 @@ defmodule StreamflixAccounts.Services.Authentication do
 
       error ->
         error
+    end
+  end
+
+  # Cache user struct for 60s to avoid DB hit on every request.
+  # Invalidated naturally by TTL expiry — acceptable for auth context.
+  defp cached_get_user(user_id) do
+    case Cachex.fetch(:platform_cache, {:auth_user, user_id}, fn _ ->
+           case StreamflixCore.Repo.get(StreamflixAccounts.Schemas.User, user_id) do
+             nil -> {:ignore, nil}
+             user -> {:commit, user, ttl: :timer.seconds(60)}
+           end
+         end) do
+      {:ok, user} -> {:ok, user}
+      {:commit, user} -> {:ok, user}
+      _ -> {:error, :resource_not_found}
     end
   end
 

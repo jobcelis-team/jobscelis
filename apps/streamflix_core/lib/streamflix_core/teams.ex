@@ -168,15 +168,21 @@ defmodule StreamflixCore.Teams do
   end
 
   def list_all_accessible_projects(user_id) do
-    owned =
-      Project
-      |> where([p], p.user_id == ^user_id and p.status == "active")
-      |> Repo.all()
+    owned_query =
+      from(p in Project,
+        where: p.user_id == ^user_id and p.status == "active"
+      )
 
-    member_projects = list_projects_for_member(user_id)
+    member_query =
+      from(p in Project,
+        join: m in ProjectMember,
+        on: m.project_id == p.id and m.user_id == ^user_id and m.status == "active",
+        where: p.status == "active"
+      )
 
-    (owned ++ member_projects)
-    |> Enum.uniq_by(& &1.id)
-    |> Enum.sort_by(& &1.inserted_at, {:desc, DateTime})
+    union_query = union(owned_query, ^member_query)
+
+    from(p in subquery(union_query), order_by: [desc: p.inserted_at])
+    |> Repo.all()
   end
 end

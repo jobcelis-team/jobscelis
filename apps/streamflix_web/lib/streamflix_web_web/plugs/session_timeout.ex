@@ -39,8 +39,14 @@ defmodule StreamflixWebWeb.Plugs.SessionTimeout do
         |> halt()
 
       true ->
-        # Session still valid — update timestamp
-        put_session(conn, :last_activity_at, System.system_time(:second))
+        # Session still valid — only update timestamp if >60s elapsed to reduce cookie writes
+        now = System.system_time(:second)
+
+        if now - last_activity > 60 do
+          put_session(conn, :last_activity_at, now)
+        else
+          conn
+        end
     end
   end
 end
