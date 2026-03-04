@@ -87,8 +87,8 @@ field :secret_encrypted, StreamflixCore.Encrypted.Binary
 ---
 
 ### 2.2 ~~Migrar de PBKDF2 a Argon2~~ COMPLETADO
-**Estado:** Implementado. Nuevos hashes usan Argon2id (memory-hard, RFC 9106, OWASP #1).
-Hashes PBKDF2 legacy se verifican y migran automáticamente a Argon2id en el siguiente login exitoso.
+**Estado:** Implementado. Todos los hashes usan Argon2id (memory-hard, RFC 9106, OWASP #1).
+PBKDF2 eliminado completamente — ambas BDs reseteadas con Argon2id exclusivo.
 
 **Archivos modificados:** `mix.exs`, `user.ex`, `authentication.ex`, `password_policy.ex`
 
@@ -1150,7 +1150,7 @@ jobs:
 | `elixir` | ~> 1.17 | 1.19.5 | Actualizar (4x compilación más rápida) |
 | `phoenix` | ~> 1.8 | 1.8.3 | Verificar que esté actualizado |
 | `oban` | ~> 2.20 | 2.20.3 | Actualizar y ejecutar migration V13 |
-| `pbkdf2_elixir` | ~> 2.2 | — | Legacy (kept for migration). Replaced by `argon2_elixir ~> 4.1` |
+| `pbkdf2_elixir` | ~> 2.2 | — | **REMOVIDO.** Reemplazado por `argon2_elixir ~> 4.1` |
 | `req` | ~> 0.5 | 0.5.17 | Actualizar |
 | `postgrex` | ~> 0.21 | 0.22.0 | Actualizar |
 | **NUEVAS** | | | |

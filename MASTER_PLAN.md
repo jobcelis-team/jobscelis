@@ -230,7 +230,7 @@ Estas mejoras NO agregan funcionalidades visibles al usuario, pero hacen el soft
 ---
 
 ### A24. ~~Migrar PBKDF2 a Argon2~~ COMPLETADO
-**Implementado:** Argon2id (memory-hard, RFC 9106) como hashing primario. PBKDF2 legacy hashes se migran automáticamente al siguiente login.
+**Implementado:** Argon2id (memory-hard, RFC 9106) como hashing exclusivo. PBKDF2 eliminado completamente.
 **Archivos:** `mix.exs` (accounts), `user.ex`, `authentication.ex`, `password_policy.ex`
 
 ---
