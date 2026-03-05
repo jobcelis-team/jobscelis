@@ -312,8 +312,8 @@ defmodule StreamflixCore.GDPR do
       Task.async(fn ->
         {:sessions,
          Repo.all(
-           from(s in "user_sessions",
-             where: s.user_id == type(^user_id, :binary_id),
+           from(s in StreamflixAccounts.Schemas.UserSession,
+             where: s.user_id == ^user_id,
              order_by: [desc: s.inserted_at],
              limit: 100,
              select: %{
