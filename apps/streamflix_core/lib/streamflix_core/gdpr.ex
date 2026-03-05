@@ -312,12 +312,12 @@ defmodule StreamflixCore.GDPR do
       Task.async(fn ->
         {:sessions,
          Repo.all(
-           from(s in StreamflixAccounts.Schemas.UserSession,
-             where: s.user_id == ^user_id,
+           from(s in "user_sessions",
+             where: s.user_id == type(^user_id, :binary_id),
              order_by: [desc: s.inserted_at],
              limit: 100,
              select: %{
-               id: s.id,
+               id: type(s.id, :string),
                token_jti: s.token_jti,
                device_info: s.device_info,
                last_activity_at: s.last_activity_at,
