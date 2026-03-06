@@ -140,6 +140,12 @@
               {gettext("Webhooks")}
             </a>
             <a
+              href="#topic-wildcards"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Topic Wildcards")}
+            </a>
+            <a
               href="#deliveries"
               class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
             >
@@ -228,6 +234,18 @@
               class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
             >
               {gettext("Health Check")}
+            </a>
+            <a
+              href="#status-page"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Página de estado")}
+            </a>
+            <a
+              href="#response-headers"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Headers de respuesta")}
             </a>
             <a
               href="#openapi"
@@ -505,7 +523,7 @@
 
                   <li>
                     <strong>{gettext("Entregas:")}</strong> {gettext(
-                      "reintentos automáticos 1 min → 5 min → 15 min → 1 h."
+                      "reintentos automáticos con backoff exponencial."
                     )}
                   </li>
 
@@ -613,7 +631,7 @@
 
               <p class="text-slate-700 leading-relaxed mb-2">
                 {gettext(
-                  "Cada vez que Jobcelis intenta enviar un evento a una URL de webhook, se crea una \"entrega\" (delivery). Esa entrega tiene un estado: pendiente, éxito o fallo. Si falla (por ejemplo la URL no responde), Jobcelis reintenta automáticamente varias veces con pausas (1 min, 5 min, 15 min, 1 h). En el dashboard puedes ver el historial de entregas y reintentar manualmente una que haya fallado."
+                  "Cada vez que Jobcelis intenta enviar un evento a una URL de webhook, se crea una \"entrega\" (delivery). Esa entrega tiene un estado: pendiente, éxito o fallo. Si falla (por ejemplo la URL no responde), Jobcelis reintenta automáticamente con backoff exponencial. En el dashboard puedes ver el historial de entregas y reintentar manualmente una que haya fallado."
                 )}
               </p>
 
@@ -1306,6 +1324,71 @@
                 >curl -X DELETE "<%= @base_url %>/api/v1/webhooks/WEBHOOK_ID" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="topic-wildcards" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Topic Wildcards")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext(
+                "Usa patrones comodín en los topics de tus webhooks para suscribirte a múltiples eventos con una sola regla."
+              )}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-indigo-500 bg-indigo-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext(
+                  "Los topics usan notación de puntos (ej. \"order.created\"). Los wildcards permiten que un webhook reciba eventos de múltiples topics sin listarlos uno a uno."
+                )}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">
+                {gettext("Patrones disponibles")}
+              </h3>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">*</code>
+                  — {gettext("Coincide con exactamente un segmento.")}
+                  <span class="text-slate-500">
+                    {gettext(
+                      "Ej: \"order.*\" → order.created, order.updated (no order.item.created)"
+                    )}
+                  </span>
+                </li>
+                <li>
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">#</code>
+                  — {gettext("Coincide con uno o más segmentos.")}
+                  <span class="text-slate-500">
+                    {gettext(
+                      "Ej: \"order.#\" → order.created, order.item.created, order.item.updated"
+                    )}
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Ejemplo")}</h3>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >curl -X POST "<%= @base_url %>/api/v1/webhooks" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{"url":"https://your-server.com/hook","topics":["order.*","payment.#"]}'</pre>
+              <p class="text-slate-500 text-xs mt-3">
+                {gettext(
+                  "Este webhook recibirá todos los eventos de order (un nivel) y todos los de payment (cualquier nivel de profundidad)."
+                )}
+              </p>
             </div>
           </div>
         </div>
@@ -2527,12 +2610,12 @@
 
               <p class="text-slate-700 text-sm mb-3">
                 {gettext(
-                  "Verifica el estado de la base de datos, Oban (jobs) y Cachex (caché). Respuesta 200 si todo está bien o degradado, 503 si la BD está caída. Útil para load balancers y monitoring."
+                  "Verifica el estado de la base de datos, el procesador de trabajos y la caché. Respuesta 200 si todo está bien o degradado, 503 si la BD está caída. Útil para load balancers y monitoring."
                 )}
               </p>
               <p class="text-slate-700 text-sm mb-3">
                 {gettext(
-                  "Estados posibles: healthy (todo OK), degraded (BD OK pero Oban o caché caídos), unhealthy (BD caída)."
+                  "Estados posibles: healthy (todo OK), degraded (funcionalidad principal OK pero servicios secundarios caídos), unhealthy (BD caída)."
                 )}
               </p>
               <pre
@@ -2545,13 +2628,117 @@
                 phx-no-curly-interpolation
               >{
   "status": "healthy",
-  "checks": {
-    "database": "ok",
-    "oban": "ok",
-    "cache": "ok"
-  },
   "timestamp": "2026-03-02T15:30:00Z"
 }</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="status-page" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Página de estado")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext(
+                "Página pública que muestra el estado del sistema en tiempo real. No requiere autenticación."
+              )}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50/50 border border-slate-200 p-5">
+              <p class="text-slate-700 text-sm">
+                {gettext(
+                  "Accede a /status desde el navegador para ver el estado actual del sistema. La página se actualiza automáticamente y muestra verificaciones de los servicios principales."
+                )}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("URL")}</h3>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              ><%= @base_url %>/status</pre>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2 mt-4">
+                <li>{gettext("No requiere autenticación — accesible públicamente.")}</li>
+                <li>{gettext("Se actualiza automáticamente cada 30 segundos.")}</li>
+                <li>
+                  {gettext("Muestra estado general: operativo, degradado o no disponible.")}
+                </li>
+                <li>
+                  {gettext("Disponible en español e inglés según tu preferencia de idioma.")}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="response-headers" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Headers de respuesta")}</h2>
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Headers útiles incluidos automáticamente en las respuestas de la API.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-8">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">X-Request-Id</h3>
+              <p class="text-slate-700 text-sm mb-3">
+                {gettext(
+                  "Cada respuesta incluye un identificador único de request. Úsalo para rastrear problemas o al contactar soporte."
+                )}
+              </p>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >X-Request-Id: f81d4fae-7dec-11d0-a765-00a0c91e6bf6</pre>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">
+                {gettext("Rate Limiting")}
+              </h3>
+              <p class="text-slate-700 text-sm mb-3">
+                {gettext(
+                  "Las respuestas de la API incluyen headers que indican tu uso actual del rate limit:"
+                )}
+              </p>
+              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
+                <li>
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">
+                    X-RateLimit-Limit
+                  </code>
+                  — {gettext("Máximo de requests permitidos por minuto.")}
+                </li>
+                <li>
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">
+                    X-RateLimit-Remaining
+                  </code>
+                  — {gettext("Requests restantes en la ventana actual.")}
+                </li>
+                <li>
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">
+                    X-RateLimit-Reset
+                  </code>
+                  — {gettext("Timestamp Unix de cuando se reinicia la ventana.")}
+                </li>
+                <li>
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Retry-After</code>
+                  — {gettext("Segundos hasta el reinicio (solo en respuestas 429).")}
+                </li>
+              </ul>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono mt-4"
+                phx-no-curly-interpolation
+              ># <%= gettext("Ejemplo de headers en una respuesta") %>
+X-RateLimit-Limit: 500
+X-RateLimit-Remaining: 498
+X-RateLimit-Reset: 1709750400</pre>
             </div>
           </div>
         </div>
@@ -4118,7 +4305,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
-                  "Después de 5 intentos fallidos consecutivos, la cuenta se bloquea por 15 minutos. El bloqueo se desactiva automáticamente al expirar. Cada intento fallido y cada bloqueo se registra en el audit log."
+                  "Después de varios intentos fallidos consecutivos, la cuenta se bloquea temporalmente. El bloqueo se desactiva automáticamente al expirar. Cada intento fallido y cada bloqueo se registra en el audit log."
                 )}
               </p>
             </div>
@@ -4133,7 +4320,9 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                     "Contraseña incorrecta: se incrementa el contador de intentos fallidos."
                   )}
                 </li>
-                <li>{gettext("5 intentos fallidos: la cuenta se bloquea por 15 minutos.")}</li>
+                <li>
+                  {gettext("Múltiples intentos fallidos: la cuenta se bloquea temporalmente.")}
+                </li>
                 <li>
                   {gettext(
                     "Login durante bloqueo: respuesta HTTP 423 (API) o mensaje flash (web)."
@@ -4157,7 +4346,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                 phx-no-curly-interpolation
               >HTTP 423 Locked
 {
-  "error": "Account temporarily locked due to multiple failed login attempts. Try again in 15 minutes."
+  "error": "Account temporarily locked due to multiple failed login attempts. Try again later."
 }</pre>
             </div>
           </div>
@@ -4179,7 +4368,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
-                  "Después de 30 minutos sin actividad, la sesión web expira automáticamente. El usuario es redirigido a la página de login con un mensaje informativo. Las sesiones de API (JWT) no se ven afectadas por este timeout."
+                  "Después de un período de inactividad, la sesión web expira automáticamente. El usuario es redirigido a la página de login con un mensaje informativo. Las sesiones de API (JWT) tienen su propia expiración independiente."
                 )}
               </p>
             </div>
@@ -4193,11 +4382,11 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   {gettext("Cada request HTTP actualiza el timestamp de última actividad.")}
                 </li>
                 <li>
-                  {gettext("Si pasan más de 30 minutos sin actividad, la sesión se invalida.")}
+                  {gettext("Si pasa el período de inactividad máximo, la sesión se invalida.")}
                 </li>
                 <li>
                   {gettext(
-                    "Aplica a sesiones web (browser). Tokens JWT de API tienen su propia expiración (7 días)."
+                    "Aplica a sesiones web (browser). Tokens JWT de API tienen su propia expiración independiente."
                   )}
                 </li>
                 <li>{gettext("LiveView también verifica el timeout al montar componentes.")}</li>
@@ -4223,7 +4412,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
-                  "MFA agrega una capa extra de seguridad. Después de ingresar tu contraseña, necesitas un código temporal de tu aplicación de autenticación. También se generan 10 códigos de recuperación de un solo uso."
+                  "MFA agrega una capa extra de seguridad. Después de ingresar tu contraseña, necesitas un código temporal de tu aplicación de autenticación. También se generan códigos de recuperación de un solo uso."
                 )}
               </p>
             </div>
@@ -4307,15 +4496,15 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                 {gettext("Seguridad del flujo")}
               </h3>
               <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
-                <li>{gettext("El token MFA expira en 5 minutos.")}</li>
+                <li>{gettext("El token MFA tiene un período de validez corto.")}</li>
                 <li>
                   {gettext(
-                    "Los códigos de recuperación se almacenan como SHA-256 (nunca en texto plano)."
+                    "Los códigos de recuperación se almacenan con hash seguro (nunca en texto plano)."
                   )}
                 </li>
                 <li>
                   {gettext(
-                    "El secreto TOTP se cifra con AES-256-GCM en la base de datos (Cloak)."
+                    "El secreto TOTP se cifra en la base de datos con cifrado estándar de la industria."
                   )}
                 </li>
                 <li>
@@ -4335,7 +4524,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Backups automáticos")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
-                "Backup automatizado de la base de datos con pg_dump. Ejecutado diariamente a las 2:00 AM UTC vía Oban cron."
+                "Backups automatizados de la base de datos. Ejecutados periódicamente de forma automática."
               )}
             </p>
           </div>
@@ -4344,7 +4533,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
-                  "Los backups se generan automáticamente cada día. Se comprimen en formato custom de pg_dump. En producción, se almacenan de forma segura en la nube con redundancia. En desarrollo, se guardan localmente. Los backups antiguos se eliminan según la política de retención (30 días por defecto)."
+                  "Los backups se generan automáticamente de forma periódica. Se comprimen y almacenan de forma segura con redundancia. Los backups antiguos se eliminan automáticamente según la política de retención configurada."
                 )}
               </p>
             </div>
@@ -4355,32 +4544,15 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
               </h3>
               <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
                 <li>{gettext("Habilitado por defecto en todos los entornos.")}</li>
+                <li>{gettext("Ejecución periódica automatizada.")}</li>
                 <li>
                   {gettext(
-                    "Ruta de almacenamiento: configurable vía BACKUP_PATH (producción) o config.exs (desarrollo)."
+                    "Retención configurable (los backups antiguos se eliminan automáticamente)."
                   )}
                 </li>
-                <li>{gettext("Retención: BACKUP_RETENTION_DAYS (por defecto 30 días).")}</li>
-                <li>{gettext("Horario: diariamente a las 2:00 AM UTC (Oban cron).")}</li>
-                <li>{gettext("Formato: pg_dump --format=custom con compresión nivel 6.")}</li>
-                <li>
-                  {gettext(
-                    "Almacenamiento: nube con redundancia (producción) o disco local (desarrollo)."
-                  )}
-                </li>
+                <li>{gettext("Almacenamiento seguro con redundancia en producción.")}</li>
+                <li>{gettext("Los backups están cifrados en reposo y en tránsito.")}</li>
               </ul>
-            </div>
-
-            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
-              <h3 class="text-lg font-semibold text-slate-900 mb-3">
-                {gettext("Variables de entorno")}
-              </h3>
-              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
-                <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code>BACKUP_ENABLED=true              # <%= gettext("Habilitar/deshabilitar backups") %>
-BACKUP_PATH=/var/backups/streamflix  # <%= gettext("Directorio de almacenamiento") %>
-BACKUP_RETENTION_DAYS=30         # <%= gettext("Días de retención") %>
-PG_DUMP_PATH=/usr/bin/pg_dump    # <%= gettext("Ruta al binario pg_dump") %></code></pre>
-              </div>
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
@@ -4410,16 +4582,6 @@ PG_DUMP_PATH=/usr/bin/pg_dump    # <%= gettext("Ruta al binario pg_dump") %></co
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
-              <h3 class="text-lg font-semibold text-slate-900 mb-3">
-                {gettext("Restaurar un backup")}
-              </h3>
-              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
-                <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code># <%= gettext("Restaurar desde archivo de backup") %>
-pg_restore -h HOST -p PORT -U USER -d DATABASE --no-owner --clean backup_file.sql.gz</code></pre>
-              </div>
-            </div>
-
-            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Health check")}</h3>
               <p class="text-slate-600 text-sm mb-3">
                 {gettext("El endpoint /health incluye el estado del último backup.")}
@@ -4434,21 +4596,11 @@ pg_restore -h HOST -p PORT -U USER -d DATABASE --no-owner --clean backup_file.sq
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Auditoría")}</h3>
-              <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
-                <li>
-                  {gettext(
-                    "Cada backup exitoso se registra como system.backup_completed en el audit log."
-                  )}
-                </li>
-                <li>
-                  {gettext(
-                    "Los fallos se registran como system.backup_failed con el detalle del error."
-                  )}
-                </li>
-                <li>
-                  {gettext("La limpieza de backups antiguos se registra en los logs del sistema.")}
-                </li>
-              </ul>
+              <p class="text-slate-600 text-sm">
+                {gettext(
+                  "Cada backup exitoso o fallido se registra automáticamente en el audit log del sistema."
+                )}
+              </p>
             </div>
           </div>
         </div>
@@ -4880,7 +5032,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                   )}
                 </li>
                 <li>
-                  {gettext("No puede coincidir con las últimas 5 contraseñas usadas (historial).")}
+                  {gettext("No puede coincidir con contraseñas usadas anteriormente (historial).")}
                 </li>
               </ul>
             </div>
@@ -4902,7 +5054,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               </h3>
               <p class="text-slate-600 text-sm mb-3">
                 {gettext(
-                  "Al cambiar o restablecer la contraseña, se verifica contra las últimas 5 contraseñas utilizadas. Si coincide, se rechaza el cambio."
+                  "Al cambiar o restablecer la contraseña, se verifica contra las contraseñas utilizadas anteriormente. Si coincide, se rechaza el cambio."
                 )}
               </p>
               <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
@@ -4927,7 +5079,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
             </h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
-                "El sistema verifica automáticamente su estado cada 5 minutos y registra métricas de disponibilidad."
+                "El sistema verifica automáticamente su estado de forma continua y registra métricas de disponibilidad."
               )}
             </p>
           </div>
@@ -4938,12 +5090,10 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                 {gettext("Verificaciones realizadas")}
               </h3>
               <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
-                <li><strong>Database</strong> — {gettext("Conexión a PostgreSQL")}</li>
-                <li>
-                  <strong>Oban</strong> — {gettext("Procesador de trabajos en segundo plano")}
-                </li>
-                <li><strong>Cache</strong> — {gettext("Cache en memoria (Cachex)")}</li>
-                <li><strong>Backup</strong> — {gettext("Estado del último backup")}</li>
+                <li>{gettext("Conectividad a la base de datos")}</li>
+                <li>{gettext("Procesador de trabajos en segundo plano")}</li>
+                <li>{gettext("Sistema de caché en memoria")}</li>
+                <li>{gettext("Estado del último backup")}</li>
               </ul>
             </div>
 
@@ -5005,17 +5155,17 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
                 <li>
                   {gettext(
-                    "Tras 5 fallos consecutivos en un webhook, el circuit breaker se abre."
+                    "Tras varios fallos consecutivos en un webhook, el circuit breaker se abre automáticamente."
                   )}
                 </li>
                 <li>
                   {gettext(
-                    "Mientras está abierto, las entregas se posponen 5 minutos (no consumen reintentos)."
+                    "Mientras está abierto, las entregas se posponen temporalmente (no consumen reintentos)."
                   )}
                 </li>
                 <li>
                   {gettext(
-                    "Después de 5 minutos, se permite una entrega de prueba (estado half-open)."
+                    "Después de un período de espera, se permite una entrega de prueba (estado half-open)."
                   )}
                 </li>
                 <li>
@@ -5025,7 +5175,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                 </li>
                 <li>
                   {gettext(
-                    "Si la prueba falla, el circuito vuelve a abrirse por otros 5 minutos."
+                    "Si la prueba falla, el circuito vuelve a abrirse por otro período de espera."
                   )}
                 </li>
               </ul>
@@ -5073,7 +5223,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Detección de brechas")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
-                "Monitoreo automatizado de seguridad que detecta anomalías analizando los logs de auditoría cada 5 minutos."
+                "Monitoreo automatizado de seguridad que detecta anomalías analizando los logs de auditoría de forma continua."
               )}
             </p>
           </div>
@@ -5087,18 +5237,16 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                 <li>
                   <strong>{gettext("Fuerza bruta por IP")}</strong>
                   — {gettext(
-                    "Más de 20 intentos de login fallidos desde la misma IP en 10 minutos."
+                    "Múltiples intentos de login fallidos desde la misma IP en un período corto."
                   )}
                 </li>
                 <li>
                   <strong>{gettext("Ataque coordinado")}</strong>
-                  — {gettext("Más de 50 intentos de login fallidos globales en 10 minutos.")}
+                  — {gettext("Volumen anormal de intentos de login fallidos a nivel global.")}
                 </li>
                 <li>
                   <strong>{gettext("Exfiltración de datos")}</strong>
-                  — {gettext(
-                    "Más de 5 exportaciones de datos por el mismo usuario en 10 minutos."
-                  )}
+                  — {gettext("Volumen sospechoso de exportaciones de datos por un mismo usuario.")}
                 </li>
                 <li>
                   <strong>{gettext("Bloqueos de cuenta")}</strong>
@@ -5113,42 +5261,20 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               </h3>
               <p class="text-slate-600 text-sm">
                 {gettext(
-                  "Cuando se detecta una anomalía, se registra en el audit log como 'security.anomaly_detected' y se notifica a todos los administradores activos. Esto cumple con los requisitos de GDPR Art. 33 sobre detección temprana de brechas."
+                  "Cuando se detecta una anomalía, se registra en el audit log y se notifica automáticamente a los administradores. Esto cumple con los requisitos de GDPR Art. 33 sobre detección temprana de brechas."
                 )}
               </p>
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
-                {gettext("Proceso de notificación en 72 horas (Art. 33)")}
+                {gettext("Notificación a autoridades (Art. 33)")}
               </h3>
-              <p class="text-slate-600 text-sm mb-4">
+              <p class="text-slate-600 text-sm">
                 {gettext(
-                  "Cuando se detecta una brecha con severidad critical o high, se activa el proceso de notificación a la autoridad de control en un máximo de 72 horas."
+                  "Cuando se detecta una brecha de seguridad significativa, se activa el proceso de notificación a la autoridad de control dentro del plazo legal establecido por el GDPR (72 horas). El proceso incluye detección, investigación, contención y notificación formal."
                 )}
               </p>
-              <ol class="list-decimal list-inside text-slate-700 text-sm space-y-2">
-                <li>
-                  <strong>T+0</strong>
-                  — {gettext(
-                    "Detección automática y clasificación de severidad (critical/high/medium)."
-                  )}
-                </li>
-                <li>
-                  <strong>T+24h</strong>
-                  — {gettext("Investigación: revisión de audit logs, alcance e impacto.")}
-                </li>
-                <li>
-                  <strong>T+48h</strong>
-                  — {gettext(
-                    "Preparación de la notificación y aplicación de medidas de contención."
-                  )}
-                </li>
-                <li>
-                  <strong>T+72h</strong>
-                  — {gettext("Envío de notificación a la autoridad de control.")}
-                </li>
-              </ol>
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
@@ -5167,7 +5293,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               </ul>
               <p class="text-slate-600 text-sm mt-3">
                 {gettext(
-                  "La notificación incluye: descripción del incidente, datos afectados, medidas adoptadas y recomendaciones para el usuario. Proceso completo documentado en docs/BREACH_NOTIFICATION.md."
+                  "La notificación incluye: descripción del incidente, datos afectados, medidas adoptadas y recomendaciones para el usuario."
                 )}
               </p>
             </div>
@@ -5305,7 +5431,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                       clip-rule="evenodd"
                     />
                   </svg>
-                  {gettext("Limpieza automática de sesiones expiradas (7 días)")}
+                  {gettext("Limpieza automática de sesiones expiradas")}
                 </li>
                 <li class="flex items-start gap-2">
                   <svg
@@ -5350,7 +5476,9 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
           <div>
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Cifrado de datos PII")}</h2>
             <p class="text-slate-500 text-sm mt-0.5">
-              {gettext("Protección de información personal identificable con cifrado AES-256-GCM")}
+              {gettext(
+                "Protección de información personal identificable con cifrado estándar de la industria"
+              )}
             </p>
           </div>
         </div>
@@ -5361,7 +5489,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               <h3 class="text-lg font-semibold text-slate-800 mb-3">{gettext("Descripción")}</h3>
               <p class="text-slate-600 text-sm leading-relaxed">
                 {gettext(
-                  "Todos los campos de información personal identificable (PII) se cifran en reposo usando AES-256-GCM a través de Cloak.Ecto. Los emails se indexan con HMAC-SHA512 para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con Argon2id (memory-hard, RFC 9106, OWASP #1)."
+                  "Todos los campos de información personal identificable (PII) se cifran en reposo usando algoritmos estándar de la industria. Los emails se indexan con hash determinístico para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con algoritmos memory-hard recomendados por OWASP."
                 )}
               </p>
             </div>
@@ -5377,77 +5505,51 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                   <thead>
                     <tr class="border-b border-slate-200">
                       <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
-                        {gettext("Tabla")}
+                        {gettext("Dato")}
                       </th>
                       <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
-                        {gettext("Campo")}
-                      </th>
-                      <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
-                        {gettext("Método")}
+                        {gettext("Protección")}
                       </th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     <tr>
-                      <td class="py-2 px-3 text-slate-700">users</td>
-                      <td class="py-2 px-3 text-slate-600">email</td>
+                      <td class="py-2 px-3 text-slate-700">{gettext("Email")}</td>
                       <td class="py-2 px-3">
                         <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-                          AES-256-GCM
+                          {gettext("Cifrado + hash para búsqueda")}
                         </code>
                       </td>
                     </tr>
                     <tr>
-                      <td class="py-2 px-3 text-slate-700">users</td>
-                      <td class="py-2 px-3 text-slate-600">email_hash</td>
+                      <td class="py-2 px-3 text-slate-700">{gettext("Nombre")}</td>
                       <td class="py-2 px-3">
                         <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-                          HMAC-SHA512
+                          {gettext("Cifrado en reposo")}
                         </code>
                       </td>
                     </tr>
                     <tr>
-                      <td class="py-2 px-3 text-slate-700">users</td>
-                      <td class="py-2 px-3 text-slate-600">name</td>
+                      <td class="py-2 px-3 text-slate-700">{gettext("Dirección IP")}</td>
                       <td class="py-2 px-3">
                         <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-                          AES-256-GCM
+                          {gettext("Cifrado en reposo")}
                         </code>
                       </td>
                     </tr>
                     <tr>
-                      <td class="py-2 px-3 text-slate-700">audit_logs</td>
-                      <td class="py-2 px-3 text-slate-600">ip_address</td>
+                      <td class="py-2 px-3 text-slate-700">{gettext("User Agent")}</td>
                       <td class="py-2 px-3">
                         <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-                          AES-256-GCM
+                          {gettext("Cifrado en reposo")}
                         </code>
                       </td>
                     </tr>
                     <tr>
-                      <td class="py-2 px-3 text-slate-700">audit_logs</td>
-                      <td class="py-2 px-3 text-slate-600">user_agent</td>
+                      <td class="py-2 px-3 text-slate-700">{gettext("Contraseñas")}</td>
                       <td class="py-2 px-3">
                         <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-                          AES-256-GCM
-                        </code>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="py-2 px-3 text-slate-700">consents</td>
-                      <td class="py-2 px-3 text-slate-600">ip_address</td>
-                      <td class="py-2 px-3">
-                        <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-                          AES-256-GCM
-                        </code>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="py-2 px-3 text-slate-700">sandbox_requests</td>
-                      <td class="py-2 px-3 text-slate-600">ip</td>
-                      <td class="py-2 px-3">
-                        <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-                          AES-256-GCM
+                          {gettext("Hash unidireccional (memory-hard)")}
                         </code>
                       </td>
                     </tr>
@@ -5464,7 +5566,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               </h3>
               <p class="text-slate-600 text-sm leading-relaxed">
                 {gettext(
-                  "Los datos se clasifican en 4 niveles: Público, Interno, Confidencial y Restringido. Todos los campos PII (nivel Confidencial) requieren cifrado AES-256-GCM. Los secretos y credenciales (nivel Restringido) usan cifrado o hash unidireccional. Consulta docs/DATA_CLASSIFICATION.md para el inventario completo."
+                  "Los datos se clasifican en 4 niveles: Público, Interno, Confidencial y Restringido. Todos los campos PII (nivel Confidencial) requieren cifrado en reposo. Los secretos y credenciales (nivel Restringido) usan cifrado o hash unidireccional."
                 )}
               </p>
             </div>
