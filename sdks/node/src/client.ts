@@ -11,6 +11,23 @@ import type {
   ReplayCreate,
   PaginatedResponse,
   ListOptions,
+  Job,
+  JobCreate,
+  JobRun,
+  Pipeline,
+  PipelineCreate,
+  EventSchema,
+  EventSchemaCreate,
+  SandboxEndpoint,
+  SandboxRequest,
+  Project,
+  Member,
+  AuditLog,
+  AnalyticsPoint,
+  TopicCount,
+  WebhookStat,
+  WebhookTemplate,
+  Consent,
 } from './types';
 
 export class JobcelisClient {
@@ -68,6 +85,14 @@ export class JobcelisClient {
     await this.delete(`/api/v1/webhooks/${id}`);
   }
 
+  async webhookHealth(id: string): Promise<{ status: string; success_rate: number }> {
+    return this.get(`/api/v1/webhooks/${id}/health`);
+  }
+
+  async webhookTemplates(): Promise<{ data: WebhookTemplate[] }> {
+    return this.get('/api/v1/webhooks/templates');
+  }
+
   // --- Deliveries ---
 
   async listDeliveries(opts?: ListOptions & { event_id?: string; webhook_id?: string; status?: string }): Promise<PaginatedResponse<Delivery>> {
@@ -114,6 +139,252 @@ export class JobcelisClient {
     await this.delete(`/api/v1/replays/${id}`);
   }
 
+  // --- Jobs ---
+
+  async createJob(data: JobCreate): Promise<Job> {
+    return this.post('/api/v1/jobs', data);
+  }
+
+  async listJobs(opts?: ListOptions): Promise<PaginatedResponse<Job>> {
+    return this.get('/api/v1/jobs', opts);
+  }
+
+  async getJob(id: string): Promise<Job> {
+    return this.get(`/api/v1/jobs/${id}`);
+  }
+
+  async updateJob(id: string, updates: Partial<JobCreate>): Promise<Job> {
+    return this.patch(`/api/v1/jobs/${id}`, updates);
+  }
+
+  async deleteJob(id: string): Promise<void> {
+    await this.delete(`/api/v1/jobs/${id}`);
+  }
+
+  async listJobRuns(jobId: string, opts?: ListOptions): Promise<PaginatedResponse<JobRun>> {
+    return this.get(`/api/v1/jobs/${jobId}/runs`, opts);
+  }
+
+  async cronPreview(expression: string, count?: number): Promise<{ executions: string[] }> {
+    return this.get('/api/v1/jobs/cron-preview', { expression, count });
+  }
+
+  // --- Pipelines ---
+
+  async createPipeline(data: PipelineCreate): Promise<Pipeline> {
+    return this.post('/api/v1/pipelines', data);
+  }
+
+  async listPipelines(opts?: ListOptions): Promise<PaginatedResponse<Pipeline>> {
+    return this.get('/api/v1/pipelines', opts);
+  }
+
+  async getPipeline(id: string): Promise<Pipeline> {
+    return this.get(`/api/v1/pipelines/${id}`);
+  }
+
+  async updatePipeline(id: string, updates: Partial<PipelineCreate>): Promise<Pipeline> {
+    return this.patch(`/api/v1/pipelines/${id}`, updates);
+  }
+
+  async deletePipeline(id: string): Promise<void> {
+    await this.delete(`/api/v1/pipelines/${id}`);
+  }
+
+  // --- Event Schemas ---
+
+  async createEventSchema(data: EventSchemaCreate): Promise<EventSchema> {
+    return this.post('/api/v1/event-schemas', data);
+  }
+
+  async listEventSchemas(opts?: ListOptions): Promise<PaginatedResponse<EventSchema>> {
+    return this.get('/api/v1/event-schemas', opts);
+  }
+
+  async getEventSchema(id: string): Promise<EventSchema> {
+    return this.get(`/api/v1/event-schemas/${id}`);
+  }
+
+  async updateEventSchema(id: string, updates: Partial<EventSchemaCreate>): Promise<EventSchema> {
+    return this.patch(`/api/v1/event-schemas/${id}`, updates);
+  }
+
+  async deleteEventSchema(id: string): Promise<void> {
+    await this.delete(`/api/v1/event-schemas/${id}`);
+  }
+
+  async validatePayload(topic: string, payload: Record<string, unknown>): Promise<{ valid: boolean; errors?: string[] }> {
+    return this.post('/api/v1/event-schemas/validate', { topic, payload });
+  }
+
+  // --- Sandbox ---
+
+  async listSandboxEndpoints(): Promise<{ data: SandboxEndpoint[] }> {
+    return this.get('/api/v1/sandbox-endpoints');
+  }
+
+  async createSandboxEndpoint(name?: string): Promise<SandboxEndpoint> {
+    return this.post('/api/v1/sandbox-endpoints', name ? { name } : {});
+  }
+
+  async deleteSandboxEndpoint(id: string): Promise<void> {
+    await this.delete(`/api/v1/sandbox-endpoints/${id}`);
+  }
+
+  async listSandboxRequests(endpointId: string, opts?: ListOptions): Promise<PaginatedResponse<SandboxRequest>> {
+    return this.get(`/api/v1/sandbox-endpoints/${endpointId}/requests`, opts);
+  }
+
+  // --- Analytics ---
+
+  async eventsPerDay(days?: number): Promise<{ data: AnalyticsPoint[] }> {
+    return this.get('/api/v1/analytics/events-per-day', days !== undefined ? { days } : undefined);
+  }
+
+  async deliveriesPerDay(days?: number): Promise<{ data: AnalyticsPoint[] }> {
+    return this.get('/api/v1/analytics/deliveries-per-day', days !== undefined ? { days } : undefined);
+  }
+
+  async topTopics(limit?: number): Promise<{ data: TopicCount[] }> {
+    return this.get('/api/v1/analytics/top-topics', limit !== undefined ? { limit } : undefined);
+  }
+
+  async webhookStats(): Promise<{ data: WebhookStat[] }> {
+    return this.get('/api/v1/analytics/webhook-stats');
+  }
+
+  // --- Project (single / current) ---
+
+  async getProject(): Promise<Project> {
+    return this.get('/api/v1/project');
+  }
+
+  async updateProject(updates: Partial<{ name: string }>): Promise<Project> {
+    return this.patch('/api/v1/project', updates);
+  }
+
+  async listTopics(): Promise<{ data: string[] }> {
+    return this.get('/api/v1/topics');
+  }
+
+  async getToken(): Promise<{ token: string; prefix: string }> {
+    return this.get('/api/v1/token');
+  }
+
+  async regenerateToken(): Promise<{ token: string; prefix: string }> {
+    return this.post('/api/v1/token/regenerate', {});
+  }
+
+  // --- Projects (multi) ---
+
+  async listProjects(): Promise<{ data: Project[] }> {
+    return this.get('/api/v1/projects');
+  }
+
+  async createProject(name: string): Promise<Project> {
+    return this.post('/api/v1/projects', { name });
+  }
+
+  async getProjectById(id: string): Promise<Project> {
+    return this.get(`/api/v1/projects/${id}`);
+  }
+
+  async updateProjectById(id: string, updates: Partial<{ name: string }>): Promise<Project> {
+    return this.patch(`/api/v1/projects/${id}`, updates);
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    await this.delete(`/api/v1/projects/${id}`);
+  }
+
+  async setDefaultProject(id: string): Promise<Project> {
+    return this.patch(`/api/v1/projects/${id}/default`, {});
+  }
+
+  // --- Teams ---
+
+  async listMembers(projectId: string): Promise<{ data: Member[] }> {
+    return this.get(`/api/v1/projects/${projectId}/members`);
+  }
+
+  async addMember(projectId: string, email: string, role?: string): Promise<Member> {
+    return this.post(`/api/v1/projects/${projectId}/members`, { email, role });
+  }
+
+  async updateMember(projectId: string, memberId: string, role: string): Promise<Member> {
+    return this.patch(`/api/v1/projects/${projectId}/members/${memberId}`, { role });
+  }
+
+  async removeMember(projectId: string, memberId: string): Promise<void> {
+    await this.delete(`/api/v1/projects/${projectId}/members/${memberId}`);
+  }
+
+  // --- Audit ---
+
+  async listAuditLogs(opts?: ListOptions): Promise<PaginatedResponse<AuditLog>> {
+    return this.get('/api/v1/audit-log', opts);
+  }
+
+  // --- Export ---
+
+  async exportEvents(): Promise<string> {
+    return this.requestText('GET', '/api/v1/export/events');
+  }
+
+  async exportDeliveries(): Promise<string> {
+    return this.requestText('GET', '/api/v1/export/deliveries');
+  }
+
+  async exportJobs(): Promise<string> {
+    return this.requestText('GET', '/api/v1/export/jobs');
+  }
+
+  async exportAuditLog(): Promise<string> {
+    return this.requestText('GET', '/api/v1/export/audit-log');
+  }
+
+  // --- Simulate ---
+
+  async simulateEvent(topic: string, payload: Record<string, unknown>): Promise<Event> {
+    return this.post('/api/v1/simulate', { topic, payload });
+  }
+
+  // --- GDPR ---
+
+  async getConsents(): Promise<{ data: Consent[] }> {
+    return this.get('/api/v1/me/consents');
+  }
+
+  async acceptConsent(purpose: string): Promise<Consent> {
+    return this.post(`/api/v1/me/consents/${purpose}/accept`, {});
+  }
+
+  async exportMyData(): Promise<Record<string, unknown>> {
+    return this.get('/api/v1/me/data');
+  }
+
+  async restrictProcessing(): Promise<void> {
+    await this.post('/api/v1/me/restrict', {});
+  }
+
+  async liftRestriction(): Promise<void> {
+    await this.delete('/api/v1/me/restrict');
+  }
+
+  async objectToProcessing(): Promise<void> {
+    await this.post('/api/v1/me/object', {});
+  }
+
+  async restoreConsent(): Promise<void> {
+    await this.delete('/api/v1/me/object');
+  }
+
+  // --- Health ---
+
+  async health(): Promise<Record<string, unknown>> {
+    return this.get('/health');
+  }
+
   // --- HTTP helpers ---
 
   private async request(method: string, path: string, body?: unknown, query?: Record<string, unknown>): Promise<unknown> {
@@ -145,6 +416,32 @@ export class JobcelisClient {
 
       if (res.status === 204) return undefined;
       return res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private async requestText(method: string, path: string): Promise<string> {
+    const url = new URL(this.baseUrl + path);
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      const res = await fetch(url.toString(), {
+        method,
+        headers: {
+          'X-Api-Key': this.apiKey,
+        },
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        const error = await res.text().catch(() => res.statusText);
+        throw new JobcelisError(res.status, error);
+      }
+
+      return res.text();
     } finally {
       clearTimeout(timer);
     }

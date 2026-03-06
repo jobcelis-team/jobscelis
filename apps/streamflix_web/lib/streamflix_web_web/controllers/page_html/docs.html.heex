@@ -4647,7 +4647,7 @@ client.send_event("order.created", {"order_id": "12345", "amount": 99.99})| %></
             <%!-- Go --%>
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-800 mb-3">Go</h3>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto mb-3"><code>go get github.com/jobcelis/go-sdk</code></pre>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto mb-3"><code>go get github.com/vladimirCeli/go-jobcelis</code></pre>
               <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|client := jobcelis.NewClient("YOUR_API_KEY")
 
 resp, err := client.SendEvent(ctx, jobcelis.EventRequest{

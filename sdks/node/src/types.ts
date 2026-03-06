@@ -105,3 +105,167 @@ export interface ListOptions {
   limit?: number;
   cursor?: string;
 }
+
+// --- Jobs ---
+
+export interface Job {
+  id: string;
+  name: string;
+  schedule: string;
+  topic: string;
+  payload: Record<string, unknown>;
+  status: string;
+  timezone?: string;
+  next_run_at?: string;
+  last_run_at?: string;
+  inserted_at: string;
+  updated_at: string;
+}
+
+export interface JobCreate {
+  name: string;
+  schedule: string;
+  topic: string;
+  payload: Record<string, unknown>;
+  timezone?: string;
+}
+
+export interface JobRun {
+  id: string;
+  job_id: string;
+  status: string;
+  started_at: string;
+  finished_at?: string;
+  error?: string;
+  inserted_at: string;
+}
+
+// --- Pipelines ---
+
+export interface Pipeline {
+  id: string;
+  name: string;
+  source_topic: string;
+  steps: PipelineStep[];
+  status: string;
+  inserted_at: string;
+  updated_at: string;
+}
+
+export interface PipelineCreate {
+  name: string;
+  source_topic: string;
+  steps: PipelineStep[];
+}
+
+export interface PipelineStep {
+  type: 'filter' | 'transform' | 'delay' | 'deliver';
+  config: Record<string, unknown>;
+}
+
+// --- Event Schemas ---
+
+export interface EventSchema {
+  id: string;
+  topic: string;
+  version: string;
+  schema: Record<string, unknown>;
+  inserted_at: string;
+  updated_at: string;
+}
+
+export interface EventSchemaCreate {
+  topic: string;
+  version: string;
+  schema: Record<string, unknown>;
+}
+
+// --- Sandbox ---
+
+export interface SandboxEndpoint {
+  id: string;
+  name: string;
+  url: string;
+  inserted_at: string;
+}
+
+export interface SandboxRequest {
+  id: string;
+  endpoint_id: string;
+  method: string;
+  headers: Record<string, string>;
+  body: string | null;
+  received_at: string;
+}
+
+// --- Project ---
+
+export interface Project {
+  id: string;
+  name: string;
+  is_default?: boolean;
+  inserted_at: string;
+  updated_at: string;
+}
+
+// --- Members ---
+
+export interface Member {
+  id: string;
+  email: string;
+  role: string;
+  inserted_at: string;
+}
+
+// --- Audit ---
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  actor_id: string;
+  actor_email?: string;
+  resource_type: string;
+  resource_id?: string;
+  metadata: Record<string, unknown>;
+  inserted_at: string;
+}
+
+// --- Analytics ---
+
+export interface AnalyticsPoint {
+  date: string;
+  count: number;
+}
+
+export interface TopicCount {
+  topic: string;
+  count: number;
+}
+
+export interface WebhookStat {
+  webhook_id: string;
+  url: string;
+  total: number;
+  success: number;
+  failed: number;
+  success_rate: number;
+}
+
+// --- Webhook extras ---
+
+export interface WebhookTemplate {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  topics: string[];
+  headers: Record<string, string>;
+}
+
+// --- GDPR ---
+
+export interface Consent {
+  purpose: string;
+  accepted: boolean;
+  accepted_at?: string;
+}
