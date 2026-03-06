@@ -63,6 +63,27 @@ When querying tables owned by another app from `streamflix_core`, use raw table 
 - CORS: strict origin whitelist for browser, wildcard for API (API key protected)
 - Force SSL in production via `force_ssl: [rewrite_on: [:x_forwarded_proto]]`
 
+## Public Documentation Security (/docs page — CRITICAL)
+
+The `/docs` page (`docs.html.heex`) is publicly accessible. NEVER expose:
+
+- **Exact thresholds**: lockout attempts, rate limits, detection windows, circuit breaker counts
+- **Exact timeouts**: session expiry, MFA token TTL, JWT TTL, monitoring intervals
+- **Algorithm/library names**: AES-256-GCM, HMAC-SHA512, SHA-256, Argon2id params, Cloak, Oban, Cachex
+- **Infrastructure details**: backup schedules, pg_dump format, env var names, internal ports
+- **Internal references**: audit log event names (e.g. `security.anomaly_detected`), internal doc paths (`docs/*.md`)
+- **Breach detection specifics**: thresholds, scan intervals, severity classification rules
+
+Use generic language instead: "multiple attempts", "short period", "industry-standard encryption", "automated periodic backups", "continuous monitoring".
+
+**What IS safe to document**: API endpoints, curl examples, user-facing features, general security posture (encrypted at rest, memory-hard hashing), GDPR rights.
+
+## Structured Logging
+
+- All Logger calls in workers must use keyword metadata, not string interpolation
+- Every metadata key used must be registered in `config :logger, :console, metadata: [...]` in `config/config.exs`
+- Common keys: `:worker`, `:delivery_id`, `:webhook_id`, `:event_id`, `:project_id`, `:error`, `:duration_ms`, `:status`
+
 ## Production Environment Variables (required)
 
 - `DATABASE_URL` — Ecto connection string (Supabase pooler port 6543)
