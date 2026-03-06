@@ -28,6 +28,7 @@ const (
 // Client is the Jobcelis API client.
 type Client struct {
 	APIKey     string
+	AuthToken  string
 	BaseURL    string
 	HTTPClient *http.Client
 }
@@ -55,7 +56,58 @@ func (c *Client) WithTimeout(timeout time.Duration) *Client {
 	return c
 }
 
+// SetAuthToken sets a Bearer token for endpoints that require JWT authentication
+// (projects, teams, invitations, GDPR). This is obtained via Login or Register.
+func (c *Client) SetAuthToken(token string) *Client {
+	c.AuthToken = token
+	return c
+}
+
 // ---------- Types ----------
+
+// AuthRegisterRequest is the request body for user registration.
+type AuthRegisterRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+}
+
+// AuthLoginRequest is the request body for user login.
+type AuthLoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+// AuthTokenResponse is the response from login or register.
+type AuthTokenResponse struct {
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token,omitempty"`
+	MFARequired  bool   `json:"mfa_required,omitempty"`
+	MFAToken     string `json:"mfa_token,omitempty"`
+}
+
+// Invitation represents a pending project invitation.
+type Invitation struct {
+	ID          string `json:"id"`
+	ProjectID   string `json:"project_id"`
+	ProjectName string `json:"project_name"`
+	Email       string `json:"email"`
+	Role        string `json:"role"`
+	Status      string `json:"status"`
+	InsertedAt  string `json:"inserted_at"`
+}
+
+// Token represents an API token.
+type Token struct {
+	Token     string `json:"token"`
+	CreatedAt string `json:"created_at,omitempty"`
+}
+
+// Topic represents a topic used in the current project.
+type Topic struct {
+	Name       string `json:"name"`
+	EventCount int    `json:"event_count"`
+}
 
 // EventRequest is the request body for sending an event.
 type EventRequest struct {
@@ -595,6 +647,13 @@ func (c *Client) DeletePipeline(ctx context.Context, id string) error {
 	return c.doRequest(ctx, http.MethodDelete, "/api/v1/pipelines/"+id, nil, nil)
 }
 
+// TestPipeline sends a test payload through a pipeline to preview results.
+func (c *Client) TestPipeline(ctx context.Context, id string, payload map[string]interface{}) (map[string]interface{}, error) {
+	var resp map[string]interface{}
+	err := c.doRequest(ctx, http.MethodPost, "/api/v1/pipelines/"+id+"/test", payload, &resp)
+	return resp, err
+}
+
 // ---------- Event Schemas ----------
 
 // CreateEventSchema creates a new event schema.
@@ -721,78 +780,88 @@ func (c *Client) WebhookStats(ctx context.Context) ([]WebhookStat, error) {
 	return resp.Data, err
 }
 
-// ---------- Projects ----------
+// ---------- Projects (Multi — requires Bearer token) ----------
 
 // ListProjects lists all projects.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) ListProjects(ctx context.Context) ([]Project, error) {
 	var resp struct {
 		Data []Project `json:"data"`
 	}
-	err := c.doRequest(ctx, http.MethodGet, "/api/v1/projects", nil, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodGet, "/api/v1/projects", nil, &resp)
 	return resp.Data, err
 }
 
 // CreateProject creates a new project.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) CreateProject(ctx context.Context, req ProjectRequest) (*Project, error) {
 	var resp Project
-	err := c.doRequest(ctx, http.MethodPost, "/api/v1/projects", req, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodPost, "/api/v1/projects", req, &resp)
 	return &resp, err
 }
 
-// GetProject retrieves a project by ID.
-func (c *Client) GetProject(ctx context.Context, id string) (*Project, error) {
+// GetProjectByID retrieves a project by ID.
+// Requires Bearer token auth (SetAuthToken).
+func (c *Client) GetProjectByID(ctx context.Context, id string) (*Project, error) {
 	var resp Project
-	err := c.doRequest(ctx, http.MethodGet, "/api/v1/projects/"+id, nil, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodGet, "/api/v1/projects/"+id, nil, &resp)
 	return &resp, err
 }
 
-// UpdateProject updates an existing project.
-func (c *Client) UpdateProject(ctx context.Context, id string, req ProjectRequest) (*Project, error) {
+// UpdateProjectByID updates an existing project.
+// Requires Bearer token auth (SetAuthToken).
+func (c *Client) UpdateProjectByID(ctx context.Context, id string, req ProjectRequest) (*Project, error) {
 	var resp Project
-	err := c.doRequest(ctx, http.MethodPatch, "/api/v1/projects/"+id, req, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodPatch, "/api/v1/projects/"+id, req, &resp)
 	return &resp, err
 }
 
 // DeleteProject deletes a project by ID.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) DeleteProject(ctx context.Context, id string) error {
-	return c.doRequest(ctx, http.MethodDelete, "/api/v1/projects/"+id, nil, nil)
+	return c.doAuthenticatedRequest(ctx, http.MethodDelete, "/api/v1/projects/"+id, nil, nil)
 }
 
 // SetDefaultProject sets a project as the default.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) SetDefaultProject(ctx context.Context, id string) error {
-	return c.doRequest(ctx, http.MethodPatch, "/api/v1/projects/"+id+"/default", nil, nil)
+	return c.doAuthenticatedRequest(ctx, http.MethodPatch, "/api/v1/projects/"+id+"/default", nil, nil)
 }
 
-// ---------- Teams ----------
+// ---------- Teams (requires Bearer token) ----------
 
 // ListMembers lists team members for a project.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) ListMembers(ctx context.Context, projectID string) ([]Member, error) {
 	var resp struct {
 		Data []Member `json:"data"`
 	}
-	err := c.doRequest(ctx, http.MethodGet, "/api/v1/projects/"+projectID+"/members", nil, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodGet, "/api/v1/projects/"+projectID+"/members", nil, &resp)
 	return resp.Data, err
 }
 
 // AddMember adds a team member to a project.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) AddMember(ctx context.Context, projectID, email, role string) (*Member, error) {
 	body := map[string]string{"email": email, "role": role}
 	var resp Member
-	err := c.doRequest(ctx, http.MethodPost, "/api/v1/projects/"+projectID+"/members", body, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodPost, "/api/v1/projects/"+projectID+"/members", body, &resp)
 	return &resp, err
 }
 
 // UpdateMember updates a team member's role.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) UpdateMember(ctx context.Context, projectID, memberID, role string) (*Member, error) {
 	body := map[string]string{"role": role}
 	var resp Member
-	err := c.doRequest(ctx, http.MethodPatch, "/api/v1/projects/"+projectID+"/members/"+memberID, body, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodPatch, "/api/v1/projects/"+projectID+"/members/"+memberID, body, &resp)
 	return &resp, err
 }
 
 // RemoveMember removes a team member from a project.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) RemoveMember(ctx context.Context, projectID, memberID string) error {
-	return c.doRequest(ctx, http.MethodDelete, "/api/v1/projects/"+projectID+"/members/"+memberID, nil, nil)
+	return c.doAuthenticatedRequest(ctx, http.MethodDelete, "/api/v1/projects/"+projectID+"/members/"+memberID, nil, nil)
 }
 
 // ---------- Audit ----------
@@ -843,47 +912,151 @@ func (c *Client) SimulateEvent(ctx context.Context, topic string, payload map[st
 	return resp, err
 }
 
-// ---------- GDPR ----------
+// ---------- GDPR (requires Bearer token) ----------
 
 // GetConsents retrieves the current user's consent records.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) GetConsents(ctx context.Context) ([]Consent, error) {
 	var resp struct {
 		Data []Consent `json:"data"`
 	}
-	err := c.doRequest(ctx, http.MethodGet, "/api/v1/me/consents", nil, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodGet, "/api/v1/me/consents", nil, &resp)
 	return resp.Data, err
 }
 
 // AcceptConsent accepts a specific consent purpose.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) AcceptConsent(ctx context.Context, purpose string) error {
-	return c.doRequest(ctx, http.MethodPost, "/api/v1/me/consents/"+purpose+"/accept", nil, nil)
+	return c.doAuthenticatedRequest(ctx, http.MethodPost, "/api/v1/me/consents/"+purpose+"/accept", nil, nil)
 }
 
 // ExportMyData exports the current user's personal data (GDPR right of access).
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) ExportMyData(ctx context.Context) (map[string]interface{}, error) {
 	var resp map[string]interface{}
-	err := c.doRequest(ctx, http.MethodGet, "/api/v1/me/data", nil, &resp)
+	err := c.doAuthenticatedRequest(ctx, http.MethodGet, "/api/v1/me/data", nil, &resp)
 	return resp, err
 }
 
 // RestrictProcessing requests restriction of processing (GDPR Article 18).
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) RestrictProcessing(ctx context.Context) error {
-	return c.doRequest(ctx, http.MethodPost, "/api/v1/me/restrict", nil, nil)
+	return c.doAuthenticatedRequest(ctx, http.MethodPost, "/api/v1/me/restrict", nil, nil)
 }
 
 // LiftRestriction lifts a previously requested processing restriction.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) LiftRestriction(ctx context.Context) error {
-	return c.doRequest(ctx, http.MethodDelete, "/api/v1/me/restrict", nil, nil)
+	return c.doAuthenticatedRequest(ctx, http.MethodDelete, "/api/v1/me/restrict", nil, nil)
 }
 
 // ObjectToProcessing registers an objection to data processing (GDPR Article 21).
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) ObjectToProcessing(ctx context.Context) error {
-	return c.doRequest(ctx, http.MethodPost, "/api/v1/me/object", nil, nil)
+	return c.doAuthenticatedRequest(ctx, http.MethodPost, "/api/v1/me/object", nil, nil)
 }
 
 // RestoreConsent withdraws a processing objection.
+// Requires Bearer token auth (SetAuthToken).
 func (c *Client) RestoreConsent(ctx context.Context) error {
-	return c.doRequest(ctx, http.MethodDelete, "/api/v1/me/object", nil, nil)
+	return c.doAuthenticatedRequest(ctx, http.MethodDelete, "/api/v1/me/object", nil, nil)
+}
+
+// ---------- Project (Current) ----------
+
+// GetCurrentProject retrieves the current project (scoped by API key).
+func (c *Client) GetCurrentProject(ctx context.Context) (*Project, error) {
+	var resp Project
+	err := c.doRequest(ctx, http.MethodGet, "/api/v1/project", nil, &resp)
+	return &resp, err
+}
+
+// UpdateCurrentProject updates the current project.
+func (c *Client) UpdateCurrentProject(ctx context.Context, updates map[string]interface{}) (*Project, error) {
+	var resp Project
+	err := c.doRequest(ctx, http.MethodPatch, "/api/v1/project", updates, &resp)
+	return &resp, err
+}
+
+// ListTopics lists all topics used in the current project.
+func (c *Client) ListTopics(ctx context.Context) ([]Topic, error) {
+	var resp struct {
+		Data []Topic `json:"data"`
+	}
+	err := c.doRequest(ctx, http.MethodGet, "/api/v1/topics", nil, &resp)
+	return resp.Data, err
+}
+
+// GetToken retrieves the current API token metadata.
+func (c *Client) GetToken(ctx context.Context) (*Token, error) {
+	var resp Token
+	err := c.doRequest(ctx, http.MethodGet, "/api/v1/token", nil, &resp)
+	return &resp, err
+}
+
+// RegenerateToken regenerates the project API token.
+func (c *Client) RegenerateToken(ctx context.Context) (*Token, error) {
+	var resp Token
+	err := c.doRequest(ctx, http.MethodPost, "/api/v1/token/regenerate", nil, &resp)
+	return &resp, err
+}
+
+// ---------- Invitations ----------
+
+// ListPendingInvitations lists pending invitations for the authenticated user.
+// Requires Bearer token auth (SetAuthToken).
+func (c *Client) ListPendingInvitations(ctx context.Context) ([]Invitation, error) {
+	var resp struct {
+		Data []Invitation `json:"data"`
+	}
+	err := c.doAuthenticatedRequest(ctx, http.MethodGet, "/api/v1/invitations/pending", nil, &resp)
+	return resp.Data, err
+}
+
+// AcceptInvitation accepts a project invitation.
+// Requires Bearer token auth (SetAuthToken).
+func (c *Client) AcceptInvitation(ctx context.Context, id string) error {
+	return c.doAuthenticatedRequest(ctx, http.MethodPost, "/api/v1/invitations/"+id+"/accept", nil, nil)
+}
+
+// RejectInvitation rejects a project invitation.
+// Requires Bearer token auth (SetAuthToken).
+func (c *Client) RejectInvitation(ctx context.Context, id string) error {
+	return c.doAuthenticatedRequest(ctx, http.MethodPost, "/api/v1/invitations/"+id+"/reject", nil, nil)
+}
+
+// ---------- Auth ----------
+
+// Register creates a new user account.
+func (c *Client) Register(ctx context.Context, email, password, name string) (*AuthTokenResponse, error) {
+	body := AuthRegisterRequest{Email: email, Password: password, Name: name}
+	var resp AuthTokenResponse
+	err := c.doPublicRequest(ctx, http.MethodPost, "/api/v1/auth/register", body, &resp)
+	return &resp, err
+}
+
+// Login authenticates a user and returns a JWT token.
+func (c *Client) Login(ctx context.Context, email, password string) (*AuthTokenResponse, error) {
+	body := AuthLoginRequest{Email: email, Password: password}
+	var resp AuthTokenResponse
+	err := c.doPublicRequest(ctx, http.MethodPost, "/api/v1/auth/login", body, &resp)
+	return &resp, err
+}
+
+// RefreshToken refreshes an expired JWT token.
+func (c *Client) RefreshToken(ctx context.Context, refreshToken string) (*AuthTokenResponse, error) {
+	body := map[string]string{"refresh_token": refreshToken}
+	var resp AuthTokenResponse
+	err := c.doPublicRequest(ctx, http.MethodPost, "/api/v1/auth/refresh", body, &resp)
+	return &resp, err
+}
+
+// VerifyMFA verifies a TOTP code during MFA-required login.
+func (c *Client) VerifyMFA(ctx context.Context, mfaToken, code string) (*AuthTokenResponse, error) {
+	body := map[string]string{"mfa_token": mfaToken, "code": code}
+	var resp AuthTokenResponse
+	err := c.doPublicRequest(ctx, http.MethodPost, "/api/v1/auth/mfa/verify", body, &resp)
+	return &resp, err
 }
 
 // ---------- Health ----------
@@ -898,6 +1071,18 @@ func (c *Client) Health(ctx context.Context) (map[string]interface{}, error) {
 // ---------- Internal ----------
 
 func (c *Client) doRequest(ctx context.Context, method, path string, body interface{}, result interface{}) error {
+	return c.doRequestWithAuth(ctx, method, path, body, result, "apikey")
+}
+
+func (c *Client) doAuthenticatedRequest(ctx context.Context, method, path string, body interface{}, result interface{}) error {
+	return c.doRequestWithAuth(ctx, method, path, body, result, "bearer")
+}
+
+func (c *Client) doPublicRequest(ctx context.Context, method, path string, body interface{}, result interface{}) error {
+	return c.doRequestWithAuth(ctx, method, path, body, result, "none")
+}
+
+func (c *Client) doRequestWithAuth(ctx context.Context, method, path string, body interface{}, result interface{}, authMode string) error {
 	var reqBody io.Reader
 	if body != nil {
 		data, err := json.Marshal(body)
@@ -913,7 +1098,12 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body interf
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Api-Key", c.APIKey)
+	switch authMode {
+	case "apikey":
+		req.Header.Set("X-Api-Key", c.APIKey)
+	case "bearer":
+		req.Header.Set("Authorization", "Bearer "+c.AuthToken)
+	}
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
