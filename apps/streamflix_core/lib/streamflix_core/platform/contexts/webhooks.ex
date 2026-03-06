@@ -417,6 +417,57 @@ defmodule StreamflixCore.Platform.Webhooks do
 
   def simulate_event(_project_id, _), do: {:error, :invalid_payload}
 
+  # ---------- Test Webhook ----------
+
+  @doc """
+  Send a test ping to a webhook URL to verify connectivity.
+  Returns {:ok, %{status: status, latency_ms: ms}} or {:error, reason}.
+  """
+  def test_webhook(webhook_id) do
+    case get_webhook(webhook_id) do
+      nil ->
+        {:error, :not_found}
+
+      webhook ->
+        test_payload = %{
+          "type" => "webhook.test",
+          "message" => "This is a test ping from Streamflix",
+          "timestamp" => DateTime.utc_now() |> DateTime.to_iso8601()
+        }
+
+        body_json = Jason.encode!(test_payload)
+
+        headers = [{"content-type", "application/json"}]
+
+        headers =
+          if webhook.secret_encrypted && webhook.secret_encrypted != "" do
+            sig =
+              :crypto.mac(:hmac, :sha256, webhook.secret_encrypted, body_json)
+              |> Base.encode64(padding: false)
+
+            [{"x-signature", "sha256=#{sig}"} | headers]
+          else
+            headers
+          end
+
+        start_time = System.monotonic_time(:millisecond)
+
+        case Req.post(webhook.url,
+               json: test_payload,
+               headers: headers,
+               receive_timeout: 10_000,
+               connect_options: [timeout: 5_000]
+             ) do
+          {:ok, %{status: status}} ->
+            latency_ms = System.monotonic_time(:millisecond) - start_time
+            {:ok, %{status: status, latency_ms: latency_ms, webhook_id: webhook.id}}
+
+          {:error, reason} ->
+            {:error, %{reason: inspect(reason), webhook_id: webhook.id}}
+        end
+    end
+  end
+
   # ---------- Helpers ----------
 
   defp maybe_filter_active(query, true), do: query

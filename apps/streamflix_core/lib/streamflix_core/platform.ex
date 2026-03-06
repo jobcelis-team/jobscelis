@@ -47,6 +47,7 @@ defmodule StreamflixCore.Platform do
     to: StreamflixCore.Platform.Webhooks
 
   defdelegate simulate_event(project_id, body), to: StreamflixCore.Platform.Webhooks
+  defdelegate test_webhook(webhook_id), to: StreamflixCore.Platform.Webhooks
 
   # ---------- Events ----------
   defdelegate create_event(project_id, body), to: StreamflixCore.Platform.Events
@@ -57,6 +58,8 @@ defmodule StreamflixCore.Platform do
   defdelegate get_event!(id), to: StreamflixCore.Platform.Events
   defdelegate list_topics_used(project_id), to: StreamflixCore.Platform.Events
   defdelegate set_event_inactive(event), to: StreamflixCore.Platform.Events
+  defdelegate search_events(project_id, query_params), to: StreamflixCore.Platform.Events
+  defdelegate search_events(project_id, query_params, opts), to: StreamflixCore.Platform.Events
   defdelegate process_delayed_events(), to: StreamflixCore.Platform.Events
   defdelegate user_processing_allowed?(user_id), to: StreamflixCore.Platform.Events
 

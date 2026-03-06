@@ -16,6 +16,7 @@ defmodule StreamflixCore.Schemas.Project do
     field(:is_default, :boolean, default: false)
     field(:rate_limit_events_per_minute, :integer, default: 1000)
     field(:rate_limit_api_calls_per_minute, :integer, default: 500)
+    field(:retention_days, :integer)
 
     has_many(:api_keys, StreamflixCore.Schemas.ApiKey)
     has_many(:webhooks, StreamflixCore.Schemas.Webhook)
@@ -35,10 +36,12 @@ defmodule StreamflixCore.Schemas.Project do
       :settings,
       :is_default,
       :rate_limit_events_per_minute,
-      :rate_limit_api_calls_per_minute
+      :rate_limit_api_calls_per_minute,
+      :retention_days
     ])
     |> validate_required([:name])
     |> validate_inclusion(:status, ~w(active inactive))
+    |> validate_number(:retention_days, greater_than_or_equal_to: 1)
     |> foreign_key_constraint(:user_id)
   end
 end

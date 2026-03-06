@@ -40,6 +40,7 @@ defmodule StreamflixCore.MixProject do
       {:cloak_ecto, "~> 1.3"},
       {:cloak, "~> 1.1"},
       {:ex_json_schema, "~> 0.10"},
+      {:crontab, "~> 1.1"},
       {:logger_json, "~> 7.0"},
       {:ex_machina, "~> 2.8", only: :test}
     ]

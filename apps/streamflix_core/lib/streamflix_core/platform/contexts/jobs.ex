@@ -89,56 +89,39 @@ defmodule StreamflixCore.Platform.Jobs do
 
   def cron_matches?(nil, _min, _h, _dom, _mon, _dow), do: false
 
-  def cron_matches?(expr, min, hour, day_of_month, month, day_of_week) when is_binary(expr) do
-    parts = String.split(expr, ~r/\s+/, trim: true)
+  def cron_matches?(expr, min, hour, day_of_month, month, _day_of_week) when is_binary(expr) do
+    case Crontab.CronExpression.Parser.parse(expr) do
+      {:ok, cron} ->
+        naive = NaiveDateTime.new!(Date.new!(2026, month, day_of_month), Time.new!(hour, min, 0))
 
-    if length(parts) >= 5 do
-      [min_s, hour_s, dom_s, mon_s, dow_s] = Enum.take(parts, 5)
+        case Crontab.DateChecker.matches_date?(cron, naive) do
+          result when is_boolean(result) -> result
+          _ -> false
+        end
 
-      cron_field_match?(min_s, min, 0, 59) and
-        cron_field_match?(hour_s, hour, 0, 23) and
-        cron_field_match?(dom_s, day_of_month, 1, 31) and
-        cron_field_match?(mon_s, month, 1, 12) and
-        cron_field_match?(dow_s, day_of_week, 1, 7)
-    else
-      false
+      {:error, _} ->
+        false
     end
   end
 
   def cron_matches?(_, _min, _h, _dom, _mon, _dow), do: false
-
-  defp cron_field_match?("*", _val, _lo, _hi), do: true
-
-  defp cron_field_match?(str, val, _lo, _hi) do
-    case Integer.parse(str) do
-      {n, _} -> n == val
-      _ -> false
-    end
-  end
 
   @doc """
   Calculate next N execution times for a cron expression.
   Returns list of DateTime structs.
   """
   def next_cron_executions(cron_expr, count \\ 5) when is_binary(cron_expr) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-    # Start from the next full minute
-    start = DateTime.add(now, 60 - now.second, :second)
+    case Crontab.CronExpression.Parser.parse(cron_expr) do
+      {:ok, cron} ->
+        now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
 
-    Stream.iterate(start, fn dt -> DateTime.add(dt, 60, :second) end)
-    |> Stream.filter(fn dt ->
-      date = DateTime.to_date(dt)
+        Crontab.Scheduler.get_next_run_dates(cron, now)
+        |> Enum.take(count)
+        |> Enum.map(&DateTime.from_naive!(&1, "Etc/UTC"))
 
-      cron_matches?(
-        cron_expr,
-        dt.minute,
-        dt.hour,
-        date.day,
-        date.month,
-        Date.day_of_week(date)
-      )
-    end)
-    |> Enum.take(count)
+      {:error, _} ->
+        []
+    end
   end
 
   def list_job_runs(job_id, opts \\ []) do
