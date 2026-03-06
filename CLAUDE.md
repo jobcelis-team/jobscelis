@@ -113,11 +113,59 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - Never include `Co-Authored-By: Claude` or any Claude mention in commits
 - Run `mix compile --warnings-as-errors && mix format --check-formatted` before committing
 
+### Branch workflow (CRITICAL)
+- **Application changes** (Elixir/Phoenix code, migrations, templates, configs): ALWAYS push to `develop` first, test in staging, then merge to `main` for production
+- **Documentation-only changes** (README, CLAUDE.md, SDK docs): can go directly to `main`
+- **SDK changes** (sdks/ folder): can go directly to `main` (published via workflow, not deployed)
+- **Flow:** `develop` (staging) → verify at staging URL → `main` (production)
+- **NEVER push untested application changes directly to `main`**
+
 ## Shell
 
 - Use single quotes for passwords/secrets in shell commands (avoid `!` history expansion)
 - Always `set -a && source .env && set +a` before `mix` commands locally
 - devbox psql path: `.devbox/nix/profile/default/bin/psql`
+
+## SDKs and External Repos
+
+### Monorepo SDK sources (canonical code lives here)
+- `sdks/node/` — Node.js/TypeScript SDK (`@jobcelis/sdk` on npm)
+- `sdks/cli/` — CLI tool (`@jobcelis/cli` on npm)
+- `sdks/python/` — Python SDK (`jobcelis` on PyPI)
+- `sdks/go/` — Go SDK (synced to external repo)
+
+### External repos (required by their registries)
+- **Go SDK**: `github.com/vladimirCeli/go-jobcelis` — pkg.go.dev requires own repo with `go.mod` at root
+- **Terraform Provider**: `github.com/vladimirCeli/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
+
+### SDK publishing rules
+- **npm**: Requires granular token with `@jobcelis` scope + "bypass 2FA" enabled. GitHub secret: `NPM_TOKEN`
+- **PyPI**: Uses `__token__` auth. GitHub secret: `PYPI_TOKEN`. `setup.py` must include `long_description` from README
+- **Go**: Tag-based (`git tag v1.x.0 && git push origin v1.x.0`). No token needed for public repos
+- **Terraform**: GoReleaser on tag push. Requires `GPG_PRIVATE_KEY` secret for signing
+- **Workflow**: `.github/workflows/publish-sdks.yml` — manual trigger with package choice
+- Always bump version in `package.json`/`setup.py` before publishing — registries reject duplicate versions
+
+### SDK code conventions
+- TypeScript SDKs need `@types/node` in devDependencies and `"types": ["node"]` in tsconfig
+- TypeScript imports: use `"./module"` not `"./module.js"` with `commonjs` module
+- Python `setup.py`: always include `long_description` + `long_description_content_type="text/markdown"` for PyPI README
+- Go SDK: three auth modes — `doRequest` (API key), `doAuthenticatedRequest` (Bearer), `doPublicRequest` (no auth)
+- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs
+
+### Syncing external repos
+When updating Go SDK or Terraform provider:
+1. Make changes in `sdks/go/` or local clone of terraform repo
+2. Copy files to external repo: `cp sdks/go/* /path/to/go-jobcelis/`
+3. Commit, tag, and push the external repo
+4. For Go: `git tag v1.x.0 && git push origin v1.x.0`
+5. For Terraform: same tag pattern, GoReleaser handles the release
+
+## Migrations
+
+- Supabase has `ensure_rls_on_new_tables` event trigger — always wrap `ALTER EVENT TRIGGER` in `IF EXISTS` check
+- Use `DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_event_trigger WHERE evtname = '...') THEN ... END IF; END $$;`
+- This ensures migrations work in both CI (plain PostgreSQL) and production (Supabase)
 
 ## Deployment
 
