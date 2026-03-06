@@ -121,8 +121,28 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 
 ## Deployment
 
-- Deploy: Azure Web App via GitHub Actions on push to main
+### Environments
+
+| Environment | URL | Branch | Image tag |
+|-------------|-----|--------|-----------|
+| **Production** | `jobcelis.com` | `main` | `jobscelis:latest` |
+| **Staging** | `jobcelis-staging.azurewebsites.net` | `develop` | `jobscelis:staging` |
+| **Local** | `localhost:4000` | — | — |
+
+### Deploy flow (local → staging → production)
+
+1. Develop and commit locally
+2. `git checkout develop && git merge main && git push origin develop` → deploys to **staging**
+3. Verify at `https://jobcelis-staging.azurewebsites.net`
+4. `git checkout main && git push origin main` → deploys to **production**
+
+**Never push untested changes directly to main.** Always verify in staging first.
+
+### Infrastructure
+
 - Docker: multi-stage Alpine build (elixir:1.17-otp-27-alpine)
 - Release: `streamflix` (all 3 apps as `:permanent`)
 - Auto-migrate on startup via `StreamflixCore.Release.migrate()`
-- ACR: `jobscelisacr`, image: `jobscelis:latest`
+- ACR: `jobscelisacr`
+- CDN: `cdn.jobcelis.com` via Cloudflare (production only, env `CDN_HOST`)
+- CI: Trivy container security scan (CRITICAL/HIGH CVEs block merge)
