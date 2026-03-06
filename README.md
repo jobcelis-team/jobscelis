@@ -34,6 +34,7 @@ Construido con **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1** y **PostgreSQL*
 - [CI/CD](#cicd)
 - [Docker](#docker)
 - [Tecnologías](#tecnologías)
+- [SDKs y herramientas](#sdks-y-herramientas)
 - [Licencia](#licencia)
 
 ---
@@ -703,6 +704,154 @@ Dockerfile multi-stage:
 La plataforma incluye páginas informativas bilingües y responsive:
 
 `/` (landing) · `/pricing` · `/about` · `/faq` · `/contact` · `/changelog` · `/docs` · `/terms` · `/privacy` · `/cookies` · `/sitemap.xml`
+
+---
+
+## SDKs y herramientas
+
+Todos los SDKs cubren el **100% de la API** (84+ endpoints) con documentación completa.
+
+### Paquetes publicados
+
+| Paquete | Registry | Instalación | Versión |
+|---------|----------|-------------|---------|
+| **Node.js/TypeScript SDK** | [npmjs.com/@jobcelis/sdk](https://www.npmjs.com/package/@jobcelis/sdk) | `npm install @jobcelis/sdk` | v1.3.0 |
+| **CLI** | [npmjs.com/@jobcelis/cli](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.0.0 |
+| **Python SDK** | [pypi.org/project/jobcelis](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.3.0 |
+| **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.1.0 |
+| **Terraform Provider** | [registry.terraform.io/vladimirCeli/jobcelis](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | Ver bloque `required_providers` | v1.0.0 |
+
+### Repositorios externos
+
+Los siguientes SDKs viven en repositorios separados (requerido por sus registros):
+
+| Repo | URL | Motivo |
+|------|-----|--------|
+| **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `pkg.go.dev` requiere repo propio con `go.mod` en raíz |
+| **Terraform Provider** | [github.com/vladimirCeli/terraform-provider-jobcelis](https://github.com/vladimirCeli/terraform-provider-jobcelis) | Terraform Registry requiere repo `terraform-provider-*` |
+
+> El código fuente canónico de todos los SDKs está en `sdks/` de este monorepo. Los repos externos se sincronizan manualmente.
+
+### Quick Start por SDK
+
+**Node.js / TypeScript:**
+
+```typescript
+import { JobcelisClient } from '@jobcelis/sdk';
+
+const client = new JobcelisClient({ apiKey: 'your_api_key' });
+const event = await client.sendEvent({ topic: 'order.created', payload: { order_id: '123' } });
+const webhooks = await client.listWebhooks();
+```
+
+**Python:**
+
+```python
+from jobcelis import JobcelisClient
+
+client = JobcelisClient(api_key="your_api_key")
+event = client.send_event("order.created", {"order_id": "123"})
+webhooks = client.list_webhooks()
+```
+
+**Go:**
+
+```go
+import jobcelis "github.com/vladimirCeli/go-jobcelis"
+
+client := jobcelis.NewClient("your_api_key")
+event, err := client.SendEvent(ctx, jobcelis.EventCreate{
+    Topic:   "order.created",
+    Payload: map[string]interface{}{"order_id": "123"},
+})
+```
+
+**CLI:**
+
+```bash
+export JOBCELIS_API_KEY=your_api_key
+
+jobcelis events send --topic order.created --payload '{"order_id":"123"}'
+jobcelis webhooks list
+jobcelis jobs create --name daily-report --queue default --cron "0 9 * * *"
+jobcelis status
+```
+
+**Terraform:**
+
+```hcl
+terraform {
+  required_providers {
+    jobcelis = {
+      source = "vladimirCeli/jobcelis"
+    }
+  }
+}
+
+provider "jobcelis" {
+  api_key  = var.jobcelis_api_key
+  base_url = "https://jobcelis.com"
+}
+
+resource "jobcelis_webhook" "slack" {
+  url    = "https://hooks.slack.com/services/..."
+  topics = ["order.created", "payment.failed"]
+}
+
+resource "jobcelis_job" "daily_report" {
+  name            = "daily-report"
+  queue           = "default"
+  cron_expression = "0 9 * * *"
+}
+```
+
+### Cobertura de la API por SDK
+
+Todos los SDKs (Node, Python, Go) cubren las 84 rutas de la API:
+
+- **Auth**: register, login, refresh, MFA verify
+- **Events**: send, batch, list, get, delete, simulate
+- **Webhooks**: CRUD, health, templates
+- **Deliveries**: list, retry
+- **Dead Letters**: list, get, retry, resolve
+- **Replays**: create, list, get, cancel
+- **Jobs**: CRUD, runs, cron preview
+- **Pipelines**: CRUD, test
+- **Event Schemas**: CRUD, validate
+- **Sandbox**: CRUD, requests
+- **Analytics**: events/day, deliveries/day, top topics, webhook stats
+- **Project**: get, update, topics, token, regenerate
+- **Projects (multi)**: CRUD, set default
+- **Teams**: list, add, update, remove members
+- **Invitations**: pending, accept, reject
+- **Audit**: list logs
+- **Export**: events, deliveries, jobs, audit log
+- **GDPR**: consents, data export, restrict, object
+- **Health**: status check
+
+El **CLI** cubre todas las rutas. El **Terraform Provider** cubre 5 recursos con CRUD completo (webhooks, pipelines, jobs, event schemas, projects).
+
+### Publicación de SDKs
+
+Los SDKs de npm y PyPI se publican via GitHub Actions:
+
+```bash
+# Publicar todos los paquetes
+gh workflow run publish-sdks.yml -f package=all
+
+# Publicar individualmente
+gh workflow run publish-sdks.yml -f package=npm-sdk
+gh workflow run publish-sdks.yml -f package=npm-cli
+gh workflow run publish-sdks.yml -f package=pypi
+```
+
+**Secrets requeridos en GitHub:**
+- `NPM_TOKEN` — Token granular de npm con scope `@jobcelis` y bypass 2FA
+- `PYPI_TOKEN` — Token de API de PyPI
+
+**Go SDK:** Se publica automáticamente al crear un tag (`git tag v1.x.0 && git push origin v1.x.0`) en el repo `go-jobcelis`.
+
+**Terraform:** Se publica via GoReleaser al crear un tag en el repo `terraform-provider-jobcelis`. Requiere secret `GPG_PRIVATE_KEY` para firmado.
 
 ---
 
