@@ -97,7 +97,40 @@ config :streamflix_core, StreamflixCore.Hashed.HMAC,
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id, :user_id, :content_id, :method, :path, :worker]
+  metadata: [
+    :request_id,
+    :user_id,
+    :content_id,
+    :method,
+    :path,
+    :worker,
+    :delivery_id,
+    :webhook_id,
+    :event_id,
+    :project_id,
+    :replay_id,
+    :job_id,
+    :status,
+    :error,
+    :url,
+    :duration_ms,
+    :size_bytes,
+    :file,
+    :attempts,
+    :items_count,
+    :anomaly_count,
+    :anomalies,
+    :severity,
+    :backups_deleted,
+    :deliveries_purged,
+    :events_purged,
+    :job_runs_purged,
+    :sandbox_endpoints_purged,
+    :sandbox_requests_purged,
+    :dead_letters_purged,
+    :processed_events,
+    :total_events
+  ]
 
 # ============================================
 # PROM_EX CONFIG (Prometheus Metrics)
