@@ -68,7 +68,7 @@ defmodule StreamflixWebWeb.Layouts do
   def site_navbar(assigns) do
     ~H"""
     <header class={[
-      "bg-white/95 border-b border-slate-200/80 backdrop-blur-sm z-30",
+      "bg-white/95 dark:bg-slate-900/95 border-b border-slate-200/80 dark:border-slate-700/80 backdrop-blur-sm z-30",
       @sticky && "sticky top-0"
     ]}>
       <nav
@@ -112,6 +112,7 @@ defmodule StreamflixWebWeb.Layouts do
           >
             <.icon name="hero-heart" class="w-4 h-4" /> {gettext("Apoyar el proyecto")}
           </a>
+          <.theme_toggle />
           <.locale_toggle locale={@locale} class="flex items-center gap-1" />
           <%= if @current_user do %>
             <.link
@@ -182,7 +183,10 @@ defmodule StreamflixWebWeb.Layouts do
         </button>
       </nav>
       <%!-- Mobile menu panel --%>
-      <div class="md:hidden hidden border-t border-slate-200 bg-white" id="mobile-menu-panel">
+      <div
+        class="md:hidden hidden border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+        id="mobile-menu-panel"
+      >
         <div class="px-4 py-4 space-y-1">
           <a
             href="/docs"
@@ -216,7 +220,10 @@ defmodule StreamflixWebWeb.Layouts do
           </a>
           <div class="border-t border-slate-100 my-2"></div>
 
-          <div class="flex items-center gap-2 px-3 py-2"><.locale_toggle locale={@locale} /></div>
+          <div class="flex items-center gap-3 px-3 py-2">
+            <.theme_toggle />
+            <.locale_toggle locale={@locale} />
+          </div>
 
           <div class="border-t border-slate-100 my-2"></div>
 
@@ -287,7 +294,10 @@ defmodule StreamflixWebWeb.Layouts do
 
   def site_footer(assigns) do
     ~H"""
-    <footer class="border-t border-slate-200 bg-white mt-auto" role="contentinfo">
+    <footer
+      class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 mt-auto"
+      role="contentinfo"
+    >
       <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-10">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <%!-- Brand column --%>
@@ -440,7 +450,7 @@ defmodule StreamflixWebWeb.Layouts do
 
   def public(assigns) do
     ~H"""
-    <div class="min-h-screen bg-slate-50 relative flex flex-col">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 relative flex flex-col">
       <a href="#main-content" class="skip-link">{gettext("Saltar al contenido")}</a>
       <.site_navbar current_user={@current_user} locale={@locale} active_page={@active_page} />
       <main id="main-content" class={@main_class} role="main" tabindex="-1">
@@ -489,7 +499,7 @@ defmodule StreamflixWebWeb.Layouts do
     assigns = assign(assigns, :legal, legal)
 
     ~H"""
-    <div class="min-h-screen bg-slate-50 relative flex flex-col">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 relative flex flex-col">
       <a href="#main-content" class="skip-link">{gettext("Saltar al contenido")}</a>
       <.site_navbar current_user={@current_user} locale={@locale} active_page={@active_page} />
       <main
@@ -554,7 +564,7 @@ defmodule StreamflixWebWeb.Layouts do
   def theme_toggle(assigns) do
     ~H"""
     <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
-      <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
+      <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme-choice=light]_&]:left-1/3 [[data-theme-choice=dark]_&]:left-2/3 transition-[left]" />
       <button
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}
