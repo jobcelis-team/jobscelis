@@ -4,6 +4,51 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
   alias StreamflixCore.GDPR
   alias StreamflixAccounts
 
+  @doc "GET /api/v1/me/consents — List consents with version status"
+  def consent_status(conn, _params) do
+    user_id = conn.assigns[:current_user_id]
+    consents = GDPR.list_active_consents(user_id)
+    outdated = GDPR.outdated_consents(user_id)
+    versions = GDPR.current_consent_versions()
+
+    json(conn, %{
+      consents:
+        Enum.map(consents, fn c ->
+          %{
+            id: c.id,
+            purpose: c.purpose,
+            version: c.version,
+            granted_at: c.granted_at
+          }
+        end),
+      outdated: outdated,
+      current_versions: versions
+    })
+  end
+
+  @doc "POST /api/v1/me/consents/:purpose/accept — Re-accept a consent with current version"
+  def accept_consent(conn, %{"purpose" => purpose}) do
+    user_id = conn.assigns[:current_user_id]
+    ip = to_string(:inet.ntoa(conn.remote_ip))
+
+    case GDPR.re_accept_consent(user_id, purpose, ip_address: ip) do
+      {:ok, consent} ->
+        json(conn, %{
+          consent: %{
+            id: consent.id,
+            purpose: consent.purpose,
+            version: consent.version,
+            granted_at: consent.granted_at
+          }
+        })
+
+      {:error, _} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "Could not accept consent"})
+    end
+  end
+
   @doc "GET /api/v1/me/data — Export all personal data (DSAR)"
   def export_my_data(conn, _params) do
     user_id = conn.assigns[:current_user_id]
