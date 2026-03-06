@@ -387,7 +387,7 @@ export class JobcelisClient {
 
   // --- HTTP helpers ---
 
-  private async request(method: string, path: string, body?: unknown, query?: Record<string, unknown>): Promise<unknown> {
+  private async request(method: string, path: string, body?: unknown, query?: Record<string, any>): Promise<unknown> {
     const url = new URL(this.baseUrl + path);
     if (query) {
       for (const [k, v] of Object.entries(query)) {
@@ -410,8 +410,8 @@ export class JobcelisClient {
       });
 
       if (!res.ok) {
-        const error = await res.json().catch(() => ({ error: res.statusText }));
-        throw new JobcelisError(res.status, error.error || error.errors || res.statusText);
+        const errBody: any = await res.json().catch(() => ({ error: res.statusText }));
+        throw new JobcelisError(res.status, errBody.error || errBody.errors || res.statusText);
       }
 
       if (res.status === 204) return undefined;
@@ -447,7 +447,7 @@ export class JobcelisClient {
     }
   }
 
-  private async get(path: string, query?: Record<string, unknown>): Promise<any> {
+  private async get(path: string, query?: Record<string, any>): Promise<any> {
     return this.request('GET', path, undefined, query);
   }
 
