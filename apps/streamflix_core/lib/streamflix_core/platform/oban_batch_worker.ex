@@ -105,7 +105,11 @@ defmodule StreamflixCore.Platform.ObanBatchWorker do
       item_ids = Enum.map(items, & &1.id)
       from(b in BatchItem, where: b.id in ^item_ids) |> Repo.delete_all()
 
-      Logger.info("[BatchWorker] Flushed #{length(items)} items for webhook #{webhook.id}")
+      Logger.info("Batch flushed",
+        worker: "BatchWorker",
+        webhook_id: webhook.id,
+        items_count: length(items)
+      )
     end
   end
 end

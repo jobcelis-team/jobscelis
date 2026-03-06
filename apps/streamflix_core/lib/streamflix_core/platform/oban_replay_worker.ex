@@ -15,11 +15,15 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
   def perform(%Oban.Job{args: %{"replay_id" => replay_id}}) do
     case Repo.get(Replay, replay_id) do
       nil ->
-        Logger.warning("[ReplayWorker] Replay #{replay_id} not found")
+        Logger.warning("Replay not found", worker: "ReplayWorker", replay_id: replay_id)
         :ok
 
       %{status: "cancelled"} ->
-        Logger.info("[ReplayWorker] Replay #{replay_id} was cancelled, skipping")
+        Logger.info("Replay was cancelled, skipping",
+          worker: "ReplayWorker",
+          replay_id: replay_id
+        )
+
         :ok
 
       replay ->
@@ -129,8 +133,12 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
       )
     end
 
-    Logger.info(
-      "[ReplayWorker] Replay #{replay.id} completed: #{processed}/#{total} events processed"
+    Logger.info("Replay completed",
+      worker: "ReplayWorker",
+      replay_id: replay.id,
+      project_id: replay.project_id,
+      processed_events: processed,
+      total_events: total
     )
 
     :ok
