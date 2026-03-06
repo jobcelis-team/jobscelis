@@ -1,4 +1,4 @@
-export { JobcelisClient } from './client';
+export { JobcelisClient, JobcelisError } from './client';
 export { verifyWebhookSignature } from './webhook';
 export type {
   JobcelisConfig,
@@ -7,9 +7,29 @@ export type {
   BatchResult,
   Webhook,
   WebhookCreate,
+  RetryConfig,
   Delivery,
   DeadLetter,
   Replay,
   ReplayCreate,
   PaginatedResponse,
+  ListOptions,
+  Job,
+  JobCreate,
+  JobRun,
+  Pipeline,
+  PipelineCreate,
+  PipelineStep,
+  EventSchema,
+  EventSchemaCreate,
+  SandboxEndpoint,
+  SandboxRequest,
+  Project,
+  Member,
+  AuditLog,
+  AnalyticsPoint,
+  TopicCount,
+  WebhookStat,
+  WebhookTemplate,
+  Consent,
 } from './types';

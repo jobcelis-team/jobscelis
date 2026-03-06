@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="jobcelis",
-    version="1.0.0",
+    version="1.1.0",
     description="Official Python SDK for the Jobcelis Event Infrastructure Platform",
     packages=find_packages(),
     python_requires=">=3.9",

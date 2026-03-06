@@ -1,3 +1,3 @@
-module github.com/jobcelis/go-sdk
+module github.com/vladimirCeli/go-jobcelis
 
 go 1.21
