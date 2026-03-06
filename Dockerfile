@@ -95,8 +95,7 @@ USER app
 
 EXPOSE 4000
 
-# App serves HTTP on / ; no /health endpoint by default
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:4000/ || exit 1
+    CMD curl -f http://localhost:4000/health || exit 1
 
 CMD bin/streamflix eval "StreamflixCore.Release.migrate()" && bin/streamflix start
