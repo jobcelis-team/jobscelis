@@ -173,6 +173,7 @@ console.log('Next executions:', preview.executions);
 - `getPipeline(id)` -- Get pipeline details
 - `updatePipeline(id, updates)` -- Update a pipeline
 - `deletePipeline(id)` -- Delete a pipeline
+- `testPipeline(id, payload)` -- Test a pipeline with a sample payload
 
 ```typescript
 const pipeline = await client.createPipeline({
@@ -281,6 +282,17 @@ await client.setDefaultProject(newProject.id);
 ```typescript
 const member = await client.addMember(project.id, 'dev@example.com', 'editor');
 await client.updateMember(project.id, member.id, 'admin');
+```
+
+### Invitations
+
+- `listPendingInvitations()` -- List pending invitations
+- `acceptInvitation(id)` -- Accept an invitation
+- `rejectInvitation(id)` -- Reject an invitation
+
+```typescript
+const invitations = await client.listPendingInvitations();
+await client.acceptInvitation(invitations.data[0].id);
 ```
 
 ### Audit Log

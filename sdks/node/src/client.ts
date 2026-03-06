@@ -191,6 +191,10 @@ export class JobcelisClient {
     await this.delete(`/api/v1/pipelines/${id}`);
   }
 
+  async testPipeline(id: string, payload: Record<string, unknown>): Promise<any> {
+    return this.post(`/api/v1/pipelines/${id}/test`, payload);
+  }
+
   // --- Event Schemas ---
 
   async createEventSchema(data: EventSchemaCreate): Promise<EventSchema> {
@@ -317,6 +321,20 @@ export class JobcelisClient {
 
   async removeMember(projectId: string, memberId: string): Promise<void> {
     await this.delete(`/api/v1/projects/${projectId}/members/${memberId}`);
+  }
+
+  // --- Invitations ---
+
+  async listPendingInvitations(): Promise<{ data: any[] }> {
+    return this.get('/api/v1/invitations/pending');
+  }
+
+  async acceptInvitation(id: string): Promise<any> {
+    return this.post(`/api/v1/invitations/${id}/accept`, {});
+  }
+
+  async rejectInvitation(id: string): Promise<any> {
+    return this.post(`/api/v1/invitations/${id}/reject`, {});
   }
 
   // --- Audit ---

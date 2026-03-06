@@ -130,6 +130,20 @@ pipelines = client.list_pipelines()
 p = client.get_pipeline("pipe_abc123")
 client.update_pipeline("pipe_abc123", name="order-processing-v2")
 client.delete_pipeline("pipe_abc123")
+
+# Test a pipeline with a sample payload
+result = client.test_pipeline("pipe_abc123", {"topic": "order.created", "payload": {"id": "1"}})
+```
+
+## Invitations
+
+```python
+# List pending invitations
+invitations = client.list_pending_invitations()
+
+# Accept or reject
+client.accept_invitation("inv_abc123")
+client.reject_invitation("inv_def456")
 ```
 
 ## Event Schemas
