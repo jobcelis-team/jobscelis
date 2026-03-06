@@ -17,9 +17,12 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
       |> assign(:recent_users, get_recent_users())
       |> assign(:oban_stats, get_oban_stats())
       |> assign(:oban_recent, get_oban_recent_jobs())
+      |> assign(:system_metrics, get_system_metrics())
+      |> assign(:delivery_stats, get_delivery_stats())
 
     if connected?(socket) do
       send(self(), :load_data)
+      :timer.send_interval(30_000, :load_data)
     end
 
     {:ok, socket}
@@ -32,7 +35,9 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
      |> assign(:stats, get_stats())
      |> assign(:recent_users, get_recent_users())
      |> assign(:oban_stats, get_oban_stats())
-     |> assign(:oban_recent, get_oban_recent_jobs())}
+     |> assign(:oban_recent, get_oban_recent_jobs())
+     |> assign(:system_metrics, get_system_metrics())
+     |> assign(:delivery_stats, get_delivery_stats())}
   end
 
   @impl true
@@ -60,6 +65,66 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
           <p class="text-sm text-gray-500">{gettext("Eventos (total)")}</p>
 
           <p class="text-2xl font-bold">{@stats.total_events}</p>
+        </div>
+      </div>
+      <%!-- System Metrics --%>
+      <h2 class="text-lg font-semibold text-gray-700 mb-3">{gettext("Sistema")}</h2>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500">{gettext("Memoria BEAM")}</p>
+
+          <p class="text-2xl font-bold">{@system_metrics.memory_mb} MB</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500">{gettext("Procesos")}</p>
+
+          <p class="text-2xl font-bold">{@system_metrics.process_count}</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500">{gettext("Uptime")}</p>
+
+          <p class="text-2xl font-bold">{@system_metrics.uptime}</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500">{gettext("Run Queue")}</p>
+
+          <p class="text-2xl font-bold">{@system_metrics.run_queue}</p>
+        </div>
+      </div>
+      <%!-- Delivery Stats --%>
+      <h2 class="text-lg font-semibold text-gray-700 mb-3">
+        {gettext("Entregas (últimas 24h)")}
+      </h2>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500">{gettext("Total")}</p>
+
+          <p class="text-2xl font-bold">{@delivery_stats.total}</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500">{gettext("Exitosas")}</p>
+
+          <p class="text-2xl font-bold text-emerald-600">{@delivery_stats.success}</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500">{gettext("Fallidas")}</p>
+
+          <p class="text-2xl font-bold text-red-600">{@delivery_stats.failed}</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500">{gettext("Tasa de éxito")}</p>
+
+          <p class={"text-2xl font-bold #{if @delivery_stats.success_rate >= 95, do: "text-emerald-600", else: "text-amber-600"}"}>
+            {@delivery_stats.success_rate}%
+          </p>
         </div>
       </div>
       <%!-- Oban Jobs Stats --%>
@@ -396,6 +461,53 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
       }
     )
     |> Repo.all()
+  end
+
+  defp get_system_metrics do
+    memory_mb = :erlang.memory(:total) |> div(1_048_576)
+    process_count = :erlang.system_info(:process_count)
+    run_queue = :erlang.statistics(:run_queue)
+    {uptime_ms, _} = :erlang.statistics(:wall_clock)
+    uptime_hours = div(uptime_ms, 3_600_000)
+    uptime_days = div(uptime_hours, 24)
+    remaining_hours = rem(uptime_hours, 24)
+
+    uptime =
+      if uptime_days > 0,
+        do: "#{uptime_days}d #{remaining_hours}h",
+        else: "#{uptime_hours}h"
+
+    %{
+      memory_mb: memory_mb,
+      process_count: process_count,
+      run_queue: run_queue,
+      uptime: uptime
+    }
+  end
+
+  defp get_delivery_stats do
+    alias StreamflixCore.Schemas.Delivery
+
+    counts =
+      from(d in Delivery,
+        where: d.inserted_at > ago(24, "hour"),
+        group_by: d.status,
+        select: {d.status, count(d.id)}
+      )
+      |> Repo.all()
+      |> Map.new()
+
+    success = Map.get(counts, "success", 0)
+    failed = Map.get(counts, "failed", 0)
+    pending = Map.get(counts, "pending", 0)
+    total = success + failed + pending
+
+    success_rate =
+      if total > 0,
+        do: Float.round(success / total * 100, 1),
+        else: 100.0
+
+    %{total: total, success: success, failed: failed, success_rate: success_rate}
   end
 
   defp short_worker(worker) do

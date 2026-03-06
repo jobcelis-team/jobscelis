@@ -35,3 +35,6 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Oban inline mode for tests
 config :streamflix_core, Oban, testing: :inline
+
+# Disable PromEx in test
+config :streamflix_web, StreamflixWeb.PromEx, disabled: true

@@ -97,7 +97,18 @@ config :streamflix_core, StreamflixCore.Hashed.HMAC,
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id, :user_id, :content_id]
+  metadata: [:request_id, :user_id, :content_id, :method, :path, :worker]
+
+# ============================================
+# PROM_EX CONFIG (Prometheus Metrics)
+# ============================================
+
+config :streamflix_web, StreamflixWeb.PromEx,
+  disabled: false,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: :disabled,
+  metrics_server: [port: 4021, path: "/metrics"]
 
 # ============================================
 # PHOENIX CONFIG

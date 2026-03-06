@@ -15,7 +15,14 @@ defmodule Streamflix.MixProject do
   end
 
   def cli do
-    [preferred_envs: [coveralls: :test, "coveralls.detail": :test, "coveralls.html": :test]]
+    [
+      preferred_envs: [
+        test: :test,
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test
+      ]
+    ]
   end
 
   defp deps do

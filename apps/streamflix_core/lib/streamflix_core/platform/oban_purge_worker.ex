@@ -77,9 +77,14 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
       )
       |> Repo.delete_all()
 
-    Logger.info(
-      "[PurgeWorker] Purged: #{del_count} deliveries, #{event_count} events, #{run_count} job_runs, " <>
-        "#{sandbox_count} sandbox endpoints (#{req_count} requests), #{dlq_count} dead letters"
+    Logger.info("Purge completed",
+      worker: "PurgeWorker",
+      deliveries_purged: del_count,
+      events_purged: event_count,
+      job_runs_purged: run_count,
+      sandbox_endpoints_purged: sandbox_count,
+      sandbox_requests_purged: req_count,
+      dead_letters_purged: dlq_count
     )
 
     :ok

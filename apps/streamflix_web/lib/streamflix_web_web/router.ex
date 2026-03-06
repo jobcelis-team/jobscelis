@@ -82,6 +82,16 @@ defmodule StreamflixWebWeb.Router do
     get "/health", HealthController, :index
   end
 
+  # Public status page
+  scope "/", StreamflixWebWeb do
+    pipe_through :browser
+
+    live_session :public,
+      on_mount: [{StreamflixWebWeb.LiveLocale, :set}] do
+      live "/status", StatusLive, :index
+    end
+  end
+
   # OpenAPI spec (JSON)
   scope "/api" do
     pipe_through [:api, :openapi]

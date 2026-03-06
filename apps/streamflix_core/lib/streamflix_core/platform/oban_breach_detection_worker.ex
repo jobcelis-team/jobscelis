@@ -46,8 +46,11 @@ defmodule StreamflixCore.Platform.ObanBreachDetectionWorker do
 
       notify_admins(anomalies)
 
-      Logger.warning(
-        "[BreachDetection] #{length(anomalies)} anomalies detected: #{inspect(anomalies)}"
+      Logger.warning("Security anomalies detected",
+        worker: "BreachDetection",
+        anomaly_count: length(anomalies),
+        severity: severity,
+        anomalies: inspect(anomalies)
       )
     end
 

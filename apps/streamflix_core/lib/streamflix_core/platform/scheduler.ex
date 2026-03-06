@@ -24,8 +24,15 @@ defmodule StreamflixCore.Platform.Scheduler do
 
     for job <- jobs do
       case Oban.insert(StreamflixCore.Platform.ObanScheduledJobWorker.new(%{job_id: job.id})) do
-        {:ok, _} -> Logger.debug("Scheduled job #{job.id} enqueued")
-        {:error, reason} -> Logger.warning("Failed to enqueue job #{job.id}: #{inspect(reason)}")
+        {:ok, _} ->
+          Logger.debug("Scheduled job enqueued", worker: "Scheduler", job_id: job.id)
+
+        {:error, reason} ->
+          Logger.warning("Failed to enqueue scheduled job",
+            worker: "Scheduler",
+            job_id: job.id,
+            error: inspect(reason)
+          )
       end
     end
 
