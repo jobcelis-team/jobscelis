@@ -3,7 +3,13 @@ defmodule StreamflixCore.Repo.Migrations.CreatePipelines do
 
   def up do
     # Disable Supabase RLS event trigger if it exists (prevents CREATE TABLE failure)
-    execute("ALTER EVENT TRIGGER ensure_rls_on_new_tables DISABLE")
+    execute("""
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM pg_event_trigger WHERE evtname = 'ensure_rls_on_new_tables') THEN
+        ALTER EVENT TRIGGER ensure_rls_on_new_tables DISABLE;
+      END IF;
+    END $$;
+    """)
 
     create table(:pipelines, primary_key: false) do
       add :id, :binary_id, primary_key: true
@@ -22,7 +28,13 @@ defmodule StreamflixCore.Repo.Migrations.CreatePipelines do
     create index(:pipelines, [:project_id, :status])
 
     # Re-enable the event trigger
-    execute("ALTER EVENT TRIGGER ensure_rls_on_new_tables ENABLE")
+    execute("""
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM pg_event_trigger WHERE evtname = 'ensure_rls_on_new_tables') THEN
+        ALTER EVENT TRIGGER ensure_rls_on_new_tables ENABLE;
+      END IF;
+    END $$;
+    """)
   end
 
   def down do
