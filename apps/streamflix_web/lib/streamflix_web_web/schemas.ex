@@ -247,14 +247,6 @@ defmodule StreamflixWebWeb.Schemas do
       type: :object,
       properties: %{
         status: %Schema{type: :string, enum: ["healthy", "degraded", "unhealthy"]},
-        checks: %Schema{
-          type: :object,
-          properties: %{
-            database: %Schema{type: :string, enum: ["ok", "error"]},
-            oban: %Schema{type: :string, enum: ["ok", "error"]},
-            cache: %Schema{type: :string, enum: ["ok", "error"]}
-          }
-        },
         timestamp: %Schema{type: :string, format: :"date-time"}
       }
     })

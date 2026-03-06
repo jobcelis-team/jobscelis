@@ -4096,10 +4096,12 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
 
                 <ul class="text-slate-700 text-sm space-y-2">
                   <li>
-                    {gettext("El enlace de restablecimiento expira en 60 minutos.")}
+                    {gettext(
+                      "El enlace de restablecimiento tiene un tiempo de expiración limitado."
+                    )}
                   </li>
                   <li>
-                    {gettext("Solo se puede solicitar un correo de recuperación cada 5 minutos.")}
+                    {gettext("Existe un límite de frecuencia para solicitudes de recuperación.")}
                   </li>
                   <li>
                     {gettext(
