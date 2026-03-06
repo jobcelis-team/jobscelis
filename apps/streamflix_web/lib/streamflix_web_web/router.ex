@@ -17,6 +17,7 @@ defmodule StreamflixWebWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug StreamflixWebWeb.Plugs.ApiVersion
   end
 
   pipeline :api_auth_rate_limit do

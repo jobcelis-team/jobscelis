@@ -129,7 +129,10 @@ config :logger, :console,
     :sandbox_requests_purged,
     :dead_letters_purged,
     :processed_events,
-    :total_events
+    :total_events,
+    :age_hours,
+    :storage,
+    :threshold_hours
   ]
 
 # ============================================
@@ -193,7 +196,8 @@ config :streamflix_core, Oban,
        {"0 2 * * *", StreamflixCore.Platform.ObanBackupWorker},
        {"*/5 * * * *", StreamflixCore.Platform.ObanUptimeWorker},
        {"*/5 * * * *", StreamflixCore.Platform.ObanBreachDetectionWorker},
-       {"0 4 * * *", StreamflixCore.Platform.ObanSessionCleanupWorker}
+       {"0 4 * * *", StreamflixCore.Platform.ObanSessionCleanupWorker},
+       {"0 5 1 * *", StreamflixCore.Platform.ObanBackupVerificationWorker}
      ]}
   ]
 
