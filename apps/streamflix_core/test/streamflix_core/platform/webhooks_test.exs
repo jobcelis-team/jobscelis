@@ -183,6 +183,95 @@ defmodule StreamflixCore.Platform.WebhooksTest do
 
       refute Platform.webhook_matches_event?(webhook, event)
     end
+
+    test "single-segment wildcard (*) matches exactly one segment" do
+      webhook = %{topics: ["order.*"], filters: []}
+
+      assert Platform.webhook_matches_event?(webhook, %{topic: "order.created", payload: %{}})
+      assert Platform.webhook_matches_event?(webhook, %{topic: "order.updated", payload: %{}})
+
+      refute Platform.webhook_matches_event?(webhook, %{topic: "order.item.created", payload: %{}})
+
+      refute Platform.webhook_matches_event?(webhook, %{topic: "user.created", payload: %{}})
+    end
+
+    test "single-segment wildcard (*) in the middle" do
+      webhook = %{topics: ["order.*.completed"], filters: []}
+
+      assert Platform.webhook_matches_event?(webhook, %{
+               topic: "order.item.completed",
+               payload: %{}
+             })
+
+      assert Platform.webhook_matches_event?(webhook, %{
+               topic: "order.payment.completed",
+               payload: %{}
+             })
+
+      refute Platform.webhook_matches_event?(webhook, %{topic: "order.completed", payload: %{}})
+
+      refute Platform.webhook_matches_event?(webhook, %{
+               topic: "order.item.sub.completed",
+               payload: %{}
+             })
+    end
+
+    test "multi-segment wildcard (#) matches one or more segments" do
+      webhook = %{topics: ["payment.#"], filters: []}
+
+      assert Platform.webhook_matches_event?(webhook, %{topic: "payment.received", payload: %{}})
+
+      assert Platform.webhook_matches_event?(webhook, %{
+               topic: "payment.refund.initiated",
+               payload: %{}
+             })
+
+      assert Platform.webhook_matches_event?(webhook, %{
+               topic: "payment.refund.completed",
+               payload: %{}
+             })
+
+      refute Platform.webhook_matches_event?(webhook, %{topic: "payment", payload: %{}})
+      refute Platform.webhook_matches_event?(webhook, %{topic: "order.created", payload: %{}})
+    end
+
+    test "multi-segment wildcard (#) in the middle" do
+      webhook = %{topics: ["order.#.completed"], filters: []}
+
+      assert Platform.webhook_matches_event?(webhook, %{
+               topic: "order.item.completed",
+               payload: %{}
+             })
+
+      assert Platform.webhook_matches_event?(webhook, %{
+               topic: "order.item.sub.completed",
+               payload: %{}
+             })
+
+      refute Platform.webhook_matches_event?(webhook, %{topic: "order.completed", payload: %{}})
+    end
+
+    test "exact match still works alongside wildcards" do
+      webhook = %{topics: ["user.signup", "order.*"], filters: []}
+
+      assert Platform.webhook_matches_event?(webhook, %{topic: "user.signup", payload: %{}})
+      assert Platform.webhook_matches_event?(webhook, %{topic: "order.created", payload: %{}})
+      refute Platform.webhook_matches_event?(webhook, %{topic: "user.login", payload: %{}})
+    end
+
+    test "standalone # matches any topic with one or more segments" do
+      webhook = %{topics: ["#"], filters: []}
+
+      assert Platform.webhook_matches_event?(webhook, %{topic: "anything", payload: %{}})
+      assert Platform.webhook_matches_event?(webhook, %{topic: "a.b.c", payload: %{}})
+    end
+
+    test "standalone * matches only single-segment topics" do
+      webhook = %{topics: ["*"], filters: []}
+
+      assert Platform.webhook_matches_event?(webhook, %{topic: "anything", payload: %{}})
+      refute Platform.webhook_matches_event?(webhook, %{topic: "a.b", payload: %{}})
+    end
   end
 
   describe "webhook_templates/0" do

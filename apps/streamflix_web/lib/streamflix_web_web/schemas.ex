@@ -436,7 +436,61 @@ defmodule StreamflixWebWeb.Schemas do
     })
   end
 
-  # ---- Phase 6: Batch Events ----
+  # ---- Phase 6: Batch Ingestion ----
+
+  defmodule BatchEventsCreate do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "BatchEventsCreate",
+      type: :object,
+      required: [:events],
+      properties: %{
+        events: %Schema{
+          type: :array,
+          items: EventCreate,
+          description: "List of events (max 1000)",
+          maxItems: 1000
+        }
+      },
+      example: %{
+        events: [
+          %{topic: "order.created", amount: 150, currency: "USD"},
+          %{topic: "user.signup", email: "test@example.com"}
+        ]
+      }
+    })
+  end
+
+  defmodule BatchEventResult do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "BatchEventResult",
+      type: :object,
+      properties: %{
+        id: %Schema{type: :string, format: :uuid, nullable: true},
+        topic: %Schema{type: :string, nullable: true},
+        status: %Schema{type: :string, enum: ["accepted", "rejected"]}
+      }
+    })
+  end
+
+  defmodule BatchEventsResponse do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "BatchEventsResponse",
+      type: :object,
+      properties: %{
+        accepted: %Schema{type: :integer},
+        rejected: %Schema{type: :integer},
+        events: %Schema{type: :array, items: BatchEventResult}
+      }
+    })
+  end
+
+  # ---- Phase 6: Batch Delivery Config ----
 
   defmodule BatchConfig do
     require OpenApiSpex
