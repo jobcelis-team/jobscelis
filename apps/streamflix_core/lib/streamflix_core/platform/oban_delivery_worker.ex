@@ -10,6 +10,8 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
   """
   use Oban.Worker, queue: :delivery, max_attempts: 20
 
+  require Logger
+
   @default_base_delay 10
   @default_max_delay 3600
   @default_max_attempts 5
@@ -73,11 +75,22 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
     if attempt > max do
       :ok
     else
-      case StreamflixCore.Platform.DeliveryWorker.run(delivery_id) do
-        {:ok, _} -> :ok
-        {:error, :circuit_open} -> {:snooze, 300}
-        {:error, {:failed, %{response_status: status}}} when status in @no_retry_statuses -> :ok
-        {:error, _} -> :error
+      try do
+        case StreamflixCore.Platform.DeliveryWorker.run(delivery_id) do
+          {:ok, _} -> :ok
+          {:error, :circuit_open} -> {:snooze, 300}
+          {:error, {:failed, %{response_status: status}}} when status in @no_retry_statuses -> :ok
+          {:error, _} -> :error
+        end
+      rescue
+        e ->
+          Logger.error("DeliveryWorker crashed",
+            worker: "ObanDeliveryWorker",
+            delivery_id: delivery_id,
+            error: Exception.message(e)
+          )
+
+          :error
       end
     end
   end

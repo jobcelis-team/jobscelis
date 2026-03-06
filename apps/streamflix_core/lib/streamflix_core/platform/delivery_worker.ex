@@ -101,7 +101,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       json: body,
       headers: headers,
       receive_timeout: @receive_timeout,
-      connect_options: [timeout: @connect_timeout],
+      pool_timeout: @connect_timeout,
       finch: StreamflixCore.Finch
     ]
 

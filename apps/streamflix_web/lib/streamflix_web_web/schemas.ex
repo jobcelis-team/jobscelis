@@ -23,6 +23,16 @@ defmodule StreamflixWebWeb.Schemas do
         },
         occurred_at: %Schema{type: :string, format: :"date-time"},
         inserted_at: %Schema{type: :string, format: :"date-time"}
+      },
+      example: %{
+        id: "550e8400-e29b-41d4-a716-446655440000",
+        topic: "order.created",
+        payload: %{order_id: "12345", customer: "john@example.com", amount: 99.99},
+        status: "active",
+        payload_hash: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+        idempotency_key: "order-12345-create",
+        occurred_at: "2026-03-06T12:00:00.000000Z",
+        inserted_at: "2026-03-06T12:00:00.123456Z"
       }
     })
   end
@@ -42,7 +52,11 @@ defmodule StreamflixWebWeb.Schemas do
           description: "Optional deduplication key (unique per project)"
         }
       },
-      example: %{topic: "order.created", amount: 150, currency: "USD"}
+      example: %{
+        topic: "order.created",
+        payload: %{order_id: "12345", customer: "john@example.com", amount: 99.99},
+        idempotency_key: "order-12345-create"
+      }
     })
   end
 
@@ -58,6 +72,10 @@ defmodule StreamflixWebWeb.Schemas do
           type: :string,
           description: "SHA-256 hex digest of the canonical payload"
         }
+      },
+      example: %{
+        event_id: "550e8400-e29b-41d4-a716-446655440000",
+        payload_hash: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
       }
     })
   end
@@ -78,6 +96,17 @@ defmodule StreamflixWebWeb.Schemas do
         headers: %Schema{type: :object},
         retry_config: %Schema{type: :object},
         inserted_at: %Schema{type: :string, format: :"date-time"}
+      },
+      example: %{
+        id: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        url: "https://api.example.com/webhooks/receiver",
+        status: "active",
+        topics: ["order.*", "user.created"],
+        filters: [],
+        body_config: %{},
+        headers: %{"X-Custom-Header" => "my-value"},
+        retry_config: %{max_retries: 5, backoff: "exponential"},
+        inserted_at: "2026-03-06T10:30:00.000000Z"
       }
     })
   end
@@ -97,6 +126,12 @@ defmodule StreamflixWebWeb.Schemas do
         body_config: %Schema{type: :object},
         headers: %Schema{type: :object},
         retry_config: %Schema{type: :object}
+      },
+      example: %{
+        url: "https://api.example.com/webhooks/receiver",
+        secret: "whsec_MK8pFg2xR7YzQ3nV",
+        topics: ["order.*", "user.created"],
+        headers: %{"X-Custom-Header" => "my-value"}
       }
     })
   end
@@ -119,6 +154,16 @@ defmodule StreamflixWebWeb.Schemas do
             last_response_status: %Schema{type: :integer, nullable: true}
           }
         }
+      },
+      example: %{
+        webhook_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        url: "https://api.example.com/webhooks/receiver",
+        health: %{
+          status: "healthy",
+          success_rate: 99.5,
+          last_attempt_at: "2026-03-06T11:59:30.000000Z",
+          last_response_status: 200
+        }
       }
     })
   end
@@ -134,6 +179,12 @@ defmodule StreamflixWebWeb.Schemas do
         status: %Schema{type: :string},
         attempt_number: %Schema{type: :integer},
         inserted_at: %Schema{type: :string, format: :"date-time"}
+      },
+      example: %{
+        id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        status: "delivered",
+        attempt_number: 1,
+        inserted_at: "2026-03-06T12:00:01.234567Z"
       }
     })
   end
@@ -156,6 +207,19 @@ defmodule StreamflixWebWeb.Schemas do
         resolved: %Schema{type: :boolean},
         resolved_at: %Schema{type: :string, format: :"date-time", nullable: true},
         inserted_at: %Schema{type: :string, format: :"date-time"}
+      },
+      example: %{
+        id: "a3bb189e-8bf9-3888-9912-ace4e6543002",
+        delivery_id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        event_id: "550e8400-e29b-41d4-a716-446655440000",
+        webhook_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        webhook_url: "https://api.example.com/webhooks/receiver",
+        original_payload: %{order_id: "12345", amount: 99.99},
+        last_error: "Connection refused",
+        last_response_status: nil,
+        resolved: false,
+        resolved_at: nil,
+        inserted_at: "2026-03-06T12:05:00.000000Z"
       }
     })
   end
@@ -178,6 +242,16 @@ defmodule StreamflixWebWeb.Schemas do
         started_at: %Schema{type: :string, format: :"date-time", nullable: true},
         completed_at: %Schema{type: :string, format: :"date-time", nullable: true},
         inserted_at: %Schema{type: :string, format: :"date-time"}
+      },
+      example: %{
+        id: "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+        status: "completed",
+        filters: %{topic: "order.*", from: "2026-03-01T00:00:00Z", to: "2026-03-06T00:00:00Z"},
+        total_events: 150,
+        processed_events: 150,
+        started_at: "2026-03-06T12:00:00.000000Z",
+        completed_at: "2026-03-06T12:02:30.000000Z",
+        inserted_at: "2026-03-06T11:59:50.000000Z"
       }
     })
   end
@@ -248,6 +322,10 @@ defmodule StreamflixWebWeb.Schemas do
       properties: %{
         status: %Schema{type: :string, enum: ["healthy", "degraded", "unhealthy"]},
         timestamp: %Schema{type: :string, format: :"date-time"}
+      },
+      example: %{
+        status: "healthy",
+        timestamp: "2026-03-06T12:00:00.000000Z"
       }
     })
   end
@@ -260,6 +338,9 @@ defmodule StreamflixWebWeb.Schemas do
       type: :object,
       properties: %{
         error: %Schema{type: :string}
+      },
+      example: %{
+        error: "Not found"
       }
     })
   end
@@ -311,6 +392,10 @@ defmodule StreamflixWebWeb.Schemas do
       properties: %{
         name: %Schema{type: :string},
         settings: %Schema{type: :object}
+      },
+      example: %{
+        name: "My Production App",
+        settings: %{timezone: "America/New_York"}
       }
     })
   end
@@ -381,6 +466,19 @@ defmodule StreamflixWebWeb.Schemas do
         topic: %Schema{type: :string, example: "order.created"},
         schema: %Schema{type: :object, description: "JSON Schema object"},
         version: %Schema{type: :integer, default: 1}
+      },
+      example: %{
+        topic: "order.created",
+        schema: %{
+          type: "object",
+          required: ["order_id", "amount"],
+          properties: %{
+            order_id: %{type: "string"},
+            amount: %{type: "number", minimum: 0},
+            currency: %{type: "string", default: "USD"}
+          }
+        },
+        version: 1
       }
     })
   end
@@ -424,6 +522,11 @@ defmodule StreamflixWebWeb.Schemas do
         data: %Schema{type: :array, items: %Schema{type: :object}},
         has_next: %Schema{type: :boolean},
         next_cursor: %Schema{type: :string, nullable: true}
+      },
+      example: %{
+        data: [%{id: "550e8400-e29b-41d4-a716-446655440000", topic: "order.created"}],
+        has_next: true,
+        next_cursor: "eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAwMCJ9"
       }
     })
   end
@@ -447,8 +550,8 @@ defmodule StreamflixWebWeb.Schemas do
       },
       example: %{
         events: [
-          %{topic: "order.created", amount: 150, currency: "USD"},
-          %{topic: "user.signup", email: "test@example.com"}
+          %{topic: "order.created", payload: %{order_id: "123", amount: 150, currency: "USD"}},
+          %{topic: "user.signup", payload: %{user_id: "456", email: "test@example.com"}}
         ]
       }
     })
@@ -478,6 +581,18 @@ defmodule StreamflixWebWeb.Schemas do
         accepted: %Schema{type: :integer},
         rejected: %Schema{type: :integer},
         events: %Schema{type: :array, items: BatchEventResult}
+      },
+      example: %{
+        accepted: 2,
+        rejected: 0,
+        events: [
+          %{
+            id: "550e8400-e29b-41d4-a716-446655440000",
+            topic: "order.created",
+            status: "accepted"
+          },
+          %{id: "660f9511-f3ac-52e5-b827-557766551111", topic: "user.signup", status: "accepted"}
+        ]
       }
     })
   end
