@@ -200,6 +200,14 @@ defmodule StreamflixWebWeb.Router do
     get "/replays/:id", PlatformReplaysController, :show
     delete "/replays/:id", PlatformReplaysController, :cancel
 
+    # Pipelines
+    get "/pipelines", PipelineController, :index
+    post "/pipelines", PipelineController, :create
+    get "/pipelines/:id", PipelineController, :show
+    patch "/pipelines/:id", PipelineController, :update
+    delete "/pipelines/:id", PipelineController, :delete
+    post "/pipelines/:id/test", PipelineController, :test
+
     get "/audit-log", PlatformAuditController, :index
 
     get "/sandbox-endpoints", PlatformSandboxController, :index

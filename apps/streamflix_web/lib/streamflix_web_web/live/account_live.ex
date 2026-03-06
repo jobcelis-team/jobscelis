@@ -39,6 +39,7 @@ defmodule StreamflixWebWeb.AccountLive do
       |> assign(:current_jti, current_jti)
       # GDPR / Consents — backfill for users created before consent system
       |> assign(:consents, ensure_consents(user.id))
+      |> assign(:outdated_consents, StreamflixCore.GDPR.outdated_consents(user.id))
       # GDPR: Restriction / Objection
       |> assign(:show_restrict_modal, false)
       |> assign(:restrict_form_errors, [])
@@ -404,6 +405,27 @@ defmodule StreamflixWebWeb.AccountLive do
     end
   end
 
+  def handle_event("re_accept_consent", %{"purpose" => purpose}, socket) do
+    user = socket.assigns.current_user
+
+    case StreamflixCore.GDPR.re_accept_consent(user.id, purpose) do
+      {:ok, _consent} ->
+        StreamflixCore.Audit.record("gdpr.consent_re_accepted",
+          user_id: user.id,
+          metadata: %{purpose: purpose}
+        )
+
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Consentimiento actualizado."))
+         |> assign(:consents, StreamflixCore.GDPR.list_consents(user.id))
+         |> assign(:outdated_consents, StreamflixCore.GDPR.outdated_consents(user.id))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("No se pudo actualizar el consentimiento."))}
+    end
+  end
+
   # ── GDPR: Restriction (Art. 18) ──────────────────────────────────
 
   def handle_event("open_restrict_modal", _, socket) do
@@ -679,6 +701,12 @@ defmodule StreamflixWebWeb.AccountLive do
   end
 
   # ── GDPR helpers ──────────────────────────────────────────────────
+
+  defp consent_purpose_label("terms"), do: gettext("Términos de uso")
+  defp consent_purpose_label("privacy"), do: gettext("Política de privacidad")
+  defp consent_purpose_label("data_processing"), do: gettext("Procesamiento de datos")
+  defp consent_purpose_label("marketing"), do: gettext("Marketing")
+  defp consent_purpose_label(other), do: other
 
   defp ensure_consents(user_id) do
     case StreamflixCore.GDPR.list_consents(user_id) do
@@ -1737,12 +1765,40 @@ defmodule StreamflixWebWeb.AccountLive do
           <%!-- Consents table --%>
           <div>
             <h3 class="text-sm font-semibold text-slate-800 mb-3">{gettext("Consentimientos")}</h3>
+
+            <%= if @outdated_consents != [] do %>
+              <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p class="text-sm text-amber-800 font-medium mb-2">
+                  <.icon name="hero-exclamation-triangle" class="w-4 h-4 inline-block mr-1" />
+                  {gettext("Algunas políticas han sido actualizadas y requieren tu re-aceptación.")}
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <%= for outdated <- @outdated_consents do %>
+                    <button
+                      type="button"
+                      phx-click="re_accept_consent"
+                      phx-value-purpose={outdated.purpose}
+                      class="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-medium transition"
+                    >
+                      {consent_purpose_label(outdated.purpose)}
+                      <span class="text-amber-200">
+                        v{outdated.current_version}
+                      </span>
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
             <div class="overflow-x-auto">
               <table class="min-w-full text-sm">
                 <thead>
                   <tr class="border-b border-slate-200">
                     <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
                       {gettext("Propósito")}
+                    </th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
+                      {gettext("Versión")}
                     </th>
                     <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
                       {gettext("Fecha")}
@@ -1771,6 +1827,11 @@ defmodule StreamflixWebWeb.AccountLive do
                           <% _ -> %>
                             {consent.purpose}
                         <% end %>
+                      </td>
+                      <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
+                        <span class="font-mono text-xs">
+                          v{consent.version || "1.0"}
+                        </span>
                       </td>
                       <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
                         {Calendar.strftime(consent.granted_at, "%d/%m/%Y %H:%M")}
@@ -1805,7 +1866,7 @@ defmodule StreamflixWebWeb.AccountLive do
                   <% end %>
                   <%= if @consents == [] do %>
                     <tr>
-                      <td colspan="4" class="py-4 px-3 text-center text-slate-400 text-sm">
+                      <td colspan="5" class="py-4 px-3 text-center text-slate-400 text-sm">
                         {gettext("Sin consentimientos registrados.")}
                       </td>
                     </tr>

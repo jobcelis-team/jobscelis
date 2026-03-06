@@ -202,6 +202,12 @@
             >
               {gettext("Event Replay")}
             </a>
+            <a
+              href="#pipelines"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Pipelines")}
+            </a>
           </div>
         </div>
 
@@ -342,6 +348,39 @@
               class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
             >
               {gettext("IP Allowlist")}
+            </a>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-4">
+          <p class="font-bold text-slate-700 uppercase tracking-wider mb-2 px-2 text-xs">
+            {gettext("Ecosistema")}
+          </p>
+
+          <div class="space-y-0.5">
+            <a
+              href="#sdks"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("SDKs")}
+            </a>
+            <a
+              href="#cli"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("CLI")}
+            </a>
+            <a
+              href="#webhook-verification"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Verificación de webhooks")}
+            </a>
+            <a
+              href="#consent-versioning"
+              class="block py-2 px-3 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition"
+            >
+              {gettext("Versionado de consentimientos")}
             </a>
           </div>
         </div>
@@ -4305,6 +4344,470 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
           </div>
         </div>
       </section>
+      <%!-- ═══════════════════════════════════════════════════ --%>
+      <%!-- PIPELINES                                          --%>
+      <%!-- ═══════════════════════════════════════════════════ --%>
+
+      <section id="pipelines" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("Event Pipelines")}</h2>
+
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext(
+                "Define processing chains for events: filter, transform, delay, and deliver."
+              )}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-5">
+            <p class="text-slate-700 leading-relaxed">
+              {gettext(
+                "Pipelines allow you to process events before delivery. Each pipeline has a series of steps that execute in order. If a filter step doesn't match, the event is skipped for that pipeline."
+              )}
+            </p>
+
+            <div class="space-y-4">
+              <%!-- List pipelines --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
+                    GET
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines</code>
+                </div>
+                <p class="text-slate-700 text-sm">
+                  {gettext("List all pipelines for the current project.")}
+                </p>
+              </div>
+
+              <%!-- Create pipeline --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white">
+                    POST
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines</code>
+                </div>
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext("Create a new pipeline with filter, transform, and delay steps.")}
+                </p>
+                <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~s|{
+  "name": "High-value orders",
+  "topics": ["order.created"],
+  "webhook_id": "uuid-of-target-webhook",
+  "steps": [
+    {"type": "filter", "field": "amount", "operator": "gt", "value": 100},
+    {"type": "transform", "operation": "pick", "fields": ["order_id", "amount"]},
+    {"type": "delay", "seconds": 300}
+  ]
+}| %></code></pre>
+              </div>
+
+              <%!-- Get pipeline --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
+                    GET
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines/:id</code>
+                </div>
+                <p class="text-slate-700 text-sm">
+                  {gettext("Get details of a specific pipeline.")}
+                </p>
+              </div>
+
+              <%!-- Update pipeline --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-yellow-600 text-white">
+                    PATCH
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines/:id</code>
+                </div>
+                <p class="text-slate-700 text-sm">
+                  {gettext("Update an existing pipeline (name, steps, topics, status).")}
+                </p>
+              </div>
+
+              <%!-- Delete pipeline --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
+                    DELETE
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines/:id</code>
+                </div>
+                <p class="text-slate-700 text-sm">
+                  {gettext("Deactivate a pipeline (soft delete).")}
+                </p>
+              </div>
+
+              <%!-- Test pipeline --%>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                  <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white">
+                    POST
+                  </span>
+                  <code class="font-mono text-slate-800 font-medium">
+                    /api/v1/pipelines/:id/test
+                  </code>
+                </div>
+                <p class="text-slate-700 text-sm mb-3">
+                  {gettext(
+                    "Test a pipeline with a sample payload without actually delivering. Returns the transformed output or filter result."
+                  )}
+                </p>
+                <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~s|{"payload": {"order_id": "123", "amount": 150, "currency": "USD"}}| %></code></pre>
+              </div>
+            </div>
+
+            <%!-- Step types --%>
+            <h3 class="text-lg font-semibold text-slate-800 mt-6">
+              {gettext("Pipeline step types")}
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-200 text-left">
+                    <th class="py-2 px-3 text-slate-600 font-medium">{gettext("Type")}</th>
+                    <th class="py-2 px-3 text-slate-600 font-medium">
+                      {gettext("Description")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">filter</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext(
+                        "Skip events that don't match a condition. Operators: eq, neq, gt, gte, lt, lte, contains, exists, not_exists."
+                      )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">transform</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext(
+                        "Modify the payload before delivery. Operations: pick, remove, rename, set, template, flatten."
+                      )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">delay</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext("Delay delivery by a specified number of seconds.")}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <%!-- Transform operations --%>
+            <h3 class="text-lg font-semibold text-slate-800 mt-6">
+              {gettext("Transform operations")}
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-200 text-left">
+                    <th class="py-2 px-3 text-slate-600 font-medium">
+                      {gettext("Operation")}
+                    </th>
+                    <th class="py-2 px-3 text-slate-600 font-medium">
+                      {gettext("Description")}
+                    </th>
+                    <th class="py-2 px-3 text-slate-600 font-medium">
+                      {gettext("Example")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">pick</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext("Keep only specified fields")}
+                    </td>
+                    <td class="py-2 px-3">
+                      <code class="text-xs">{~s|{"fields": ["order_id", "amount"]}|}</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">remove</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext("Remove specified fields")}
+                    </td>
+                    <td class="py-2 px-3">
+                      <code class="text-xs">{~s|{"fields": ["internal_id", "secret"]}|}</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">rename</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext("Rename fields")}
+                    </td>
+                    <td class="py-2 px-3">
+                      <code class="text-xs">{~s|{"mapping": {"id": "order_id"}}|}</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">set</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext("Set static values")}
+                    </td>
+                    <td class="py-2 px-3">
+                      <code class="text-xs">{~s|{"values": {"source": "jobcelis"}}|}</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">template</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext("Variable substitution with double-brace syntax")}
+                    </td>
+                    <td class="py-2 px-3">
+                      <code class="text-xs">{~s|{"template": {"text": "Order #id"}}|}</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3">
+                      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">flatten</code>
+                    </td>
+                    <td class="py-2 px-3 text-slate-700">
+                      {gettext("Flatten nested objects to dot-notation keys")}
+                    </td>
+                    <td class="py-2 px-3">
+                      <code class="text-xs">{gettext("No params needed")}</code>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <%!-- ═══════════════════════════════════════════════════ --%>
+      <%!-- ECOSISTEMA: SDKs, CLI, Webhook Verification       --%>
+      <%!-- ═══════════════════════════════════════════════════ --%>
+
+      <section id="sdks" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("SDKs")}</h2>
+
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Official client libraries for Node.js, Python, and Go.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-6">
+            <%!-- Node.js --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Node.js / TypeScript</h3>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto mb-3"><code>npm install @jobcelis/sdk</code></pre>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|const { JobcelisClient } = require('@jobcelis/sdk');
+
+const client = new JobcelisClient({ apiKey: 'YOUR_API_KEY' });
+
+await client.sendEvent({
+  topic: 'order.created',
+  payload: { order_id: '12345', amount: 99.99 },
+});| %></code></pre>
+            </div>
+
+            <%!-- Python --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Python</h3>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto mb-3"><code>pip install jobcelis</code></pre>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|from jobcelis import JobcelisClient
+
+client = JobcelisClient(api_key="YOUR_API_KEY")
+
+client.send_event("order.created", {"order_id": "12345", "amount": 99.99})| %></code></pre>
+            </div>
+
+            <%!-- Go --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Go</h3>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto mb-3"><code>go get github.com/jobcelis/go-sdk</code></pre>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|client := jobcelis.NewClient("YOUR_API_KEY")
+
+resp, err := client.SendEvent(ctx, jobcelis.EventRequest{
+    Topic:   "order.created",
+    Payload: map[string]interface{}{"order_id": "12345", "amount": 99.99},
+})| %></code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="cli" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">{gettext("CLI")}</h2>
+
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("Command-line interface for managing events, webhooks, and more.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-5">
+            <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|npm install -g @jobcelis/cli
+export JOBCELIS_API_KEY="YOUR_API_KEY"
+
+# Send an event
+jobcelis events send --topic order.created --payload '{"id":"123"}'
+
+# List events
+jobcelis events list --limit 10
+
+# List webhooks
+jobcelis webhooks list
+
+# Create a webhook
+jobcelis webhooks create --url https://example.com/hook --topics "order.*"
+
+# Check platform status
+jobcelis status| %></code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="webhook-verification" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">
+              {gettext("Webhook signature verification")}
+            </h2>
+
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext(
+                "Every webhook delivery is signed. Always verify signatures to ensure the request comes from Jobcelis."
+              )}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-5">
+            <p class="text-slate-700 leading-relaxed">
+              {gettext(
+                "Jobcelis computes an HMAC signature of the raw body using your webhook secret, Base64 encodes it (no padding), and sends it in the X-Signature header as sha256=<base64>."
+              )}
+            </p>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-sm font-semibold text-slate-800 mb-3">Node.js</h3>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|const crypto = require('crypto');
+
+function verifySignature(secret, body, signature) {
+  if (!signature.startsWith('sha256=')) return false;
+  const received = signature.slice(7);
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(body)
+    .digest('base64')
+    .replace(/=+$/, '');
+  const a = Buffer.from(received, 'base64');
+  const b = Buffer.from(expected, 'base64');
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}| %></code></pre>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-sm font-semibold text-slate-800 mb-3">Python</h3>
+              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code>import base64, hashlib, hmac
+
+def verify_signature(secret, body, signature):
+    if not signature.startswith('sha256='):
+        return False
+    received = signature[7:]
+    expected = base64.b64encode(
+        hmac.new(secret.encode(), body.encode(), hashlib.sha256).digest()
+    ).rstrip(b'=').decode()
+    return hmac.compare_digest(received, expected)</code></pre>
+            </div>
+
+            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
+              {gettext(
+                "Always use timing-safe comparison. Never use == or === for signature verification. Verify the raw body, not a re-serialized version."
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="consent-versioning" class="mb-14 scroll-mt-24">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+            <h2 class="text-2xl font-bold text-slate-900">
+              {gettext("Consent versioning")}
+            </h2>
+
+            <p class="text-slate-600 mt-1 text-sm">
+              {gettext("GDPR-compliant consent management with version tracking.")}
+            </p>
+          </div>
+
+          <div class="p-8 space-y-5">
+            <p class="text-slate-700 leading-relaxed">
+              {gettext(
+                "When privacy policies are updated, users must re-accept the new version. The platform tracks which version each user accepted and when."
+              )}
+            </p>
+
+            <%!-- List consents --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
+                  GET
+                </span>
+                <code class="font-mono text-slate-800 font-medium">/api/v1/me/consents</code>
+              </div>
+              <p class="text-slate-700 text-sm">
+                {gettext(
+                  "List your active consents, current policy versions, and any outdated consents that need re-acceptance."
+                )}
+              </p>
+            </div>
+
+            <%!-- Accept consent --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white">
+                  POST
+                </span>
+                <code class="font-mono text-slate-800 font-medium">
+                  /api/v1/me/consents/:purpose/accept
+                </code>
+              </div>
+              <p class="text-slate-700 text-sm mb-3">
+                {gettext(
+                  "Re-accept a consent with the current policy version. Valid purposes: terms, privacy, data_processing, marketing."
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="account-lockout" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">

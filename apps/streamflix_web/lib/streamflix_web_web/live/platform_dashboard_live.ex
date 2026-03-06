@@ -88,7 +88,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         search_query: "",
         search_results: nil,
         selected_dead_letters: [],
-        onboarding_step: nil
+        onboarding_step: nil,
+        pipelines: [],
+        pipeline_modal: nil,
+        pipeline_form: %{"name" => "", "topics" => "", "description" => "", "steps" => "[]"},
+        oban_queue_stats: [],
+        oban_state_counts: %{},
+        oban_jobs: [],
+        oban_filter_state: nil,
+        oban_filter_queue: nil
       })
 
     if connected?(socket), do: Notifications.subscribe(user.id)
@@ -883,8 +891,231 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("switch_tab", %{"tab" => tab}, socket)
-      when tab in ~w(overview events webhooks jobs settings) do
+      when tab in ~w(overview events webhooks jobs pipelines queue settings) do
     {:noreply, assign(socket, :active_tab, tab)}
+  end
+
+  # ---------- Pipeline CRUD ----------
+
+  @impl true
+  def handle_event("new_pipeline", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:pipeline_modal, :new)
+     |> assign(:pipeline_form, %{
+       "name" => "",
+       "topics" => "",
+       "description" => "",
+       "steps" => "[]"
+     })}
+  end
+
+  @impl true
+  def handle_event("edit_pipeline", %{"id" => id}, socket) do
+    case Platform.get_pipeline(id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, gettext("Pipeline no encontrado."))}
+
+      pipeline ->
+        steps_json =
+          case Jason.encode(pipeline.steps || [], pretty: true) do
+            {:ok, json} -> json
+            _ -> "[]"
+          end
+
+        {:noreply,
+         socket
+         |> assign(:pipeline_modal, pipeline.id)
+         |> assign(:pipeline_form, %{
+           "name" => pipeline.name,
+           "topics" => Enum.join(pipeline.topics || [], ", "),
+           "description" => pipeline.description || "",
+           "steps" => steps_json
+         })}
+    end
+  end
+
+  @impl true
+  def handle_event("save_pipeline", params, socket) do
+    project = socket.assigns.project
+
+    topics =
+      params["topics"]
+      |> String.split(",")
+      |> Enum.map(&String.trim/1)
+      |> Enum.reject(&(&1 == ""))
+
+    steps =
+      case Jason.decode(params["steps"] || "[]") do
+        {:ok, s} when is_list(s) -> s
+        _ -> []
+      end
+
+    attrs = %{
+      "name" => params["name"],
+      "description" => params["description"],
+      "topics" => topics,
+      "steps" => steps
+    }
+
+    result =
+      if socket.assigns.pipeline_modal == :new do
+        Platform.create_pipeline(project.id, attrs)
+      else
+        case Platform.get_pipeline(params["pipeline_id"]) do
+          nil -> {:error, :not_found}
+          pipeline -> Platform.update_pipeline(pipeline, attrs)
+        end
+      end
+
+    case result do
+      {:ok, _} ->
+        pipelines = Platform.list_pipelines(project.id)
+
+        {:noreply,
+         socket
+         |> assign(:pipelines, pipelines)
+         |> assign(:pipeline_modal, nil)
+         |> put_flash(:info, gettext("Pipeline guardado."))}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, put_flash(socket, :error, format_changeset_errors(changeset))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Error al guardar pipeline."))}
+    end
+  end
+
+  @impl true
+  def handle_event("deactivate_pipeline", %{"id" => id}, socket) do
+    case Platform.get_pipeline(id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, gettext("Pipeline no encontrado."))}
+
+      pipeline ->
+        case Platform.set_pipeline_inactive(pipeline) do
+          {:ok, _} ->
+            pipelines = Platform.list_pipelines(socket.assigns.project.id)
+
+            {:noreply,
+             socket
+             |> assign(:pipelines, pipelines)
+             |> put_flash(:info, gettext("Pipeline desactivado."))}
+
+          {:error, _} ->
+            {:noreply, put_flash(socket, :error, gettext("Error al desactivar pipeline."))}
+        end
+    end
+  end
+
+  @impl true
+  def handle_event("close_pipeline_modal", _, socket) do
+    {:noreply, assign(socket, :pipeline_modal, nil)}
+  end
+
+  # ---------- Oban Monitor ----------
+
+  @impl true
+  def handle_event("oban_filter_state", %{"state" => state}, socket) do
+    current = socket.assigns.oban_filter_state
+    new_state = if current == state, do: nil, else: state
+
+    jobs =
+      Platform.oban_list_jobs(
+        state: new_state,
+        queue: socket.assigns.oban_filter_queue,
+        limit: 50
+      )
+
+    {:noreply, socket |> assign(:oban_filter_state, new_state) |> assign(:oban_jobs, jobs)}
+  end
+
+  @impl true
+  def handle_event("oban_filter_queue", %{"queue" => queue}, socket) do
+    current = socket.assigns.oban_filter_queue
+    new_queue = if current == queue, do: nil, else: queue
+
+    jobs =
+      Platform.oban_list_jobs(
+        state: socket.assigns.oban_filter_state,
+        queue: new_queue,
+        limit: 50
+      )
+
+    {:noreply, socket |> assign(:oban_filter_queue, new_queue) |> assign(:oban_jobs, jobs)}
+  end
+
+  @impl true
+  def handle_event("oban_clear_filters", _, socket) do
+    jobs = Platform.oban_list_jobs(limit: 50)
+
+    {:noreply,
+     socket
+     |> assign(:oban_filter_state, nil)
+     |> assign(:oban_filter_queue, nil)
+     |> assign(:oban_jobs, jobs)}
+  end
+
+  @impl true
+  def handle_event("oban_refresh", _, socket) do
+    jobs =
+      Platform.oban_list_jobs(
+        state: socket.assigns.oban_filter_state,
+        queue: socket.assigns.oban_filter_queue,
+        limit: 50
+      )
+
+    {:noreply,
+     socket
+     |> assign(:oban_queue_stats, Platform.oban_queue_stats())
+     |> assign(:oban_state_counts, Platform.oban_state_counts())
+     |> assign(:oban_jobs, jobs)}
+  end
+
+  @impl true
+  def handle_event("oban_retry_job", %{"id" => id}, socket) do
+    job_id = String.to_integer(id)
+
+    case Platform.oban_retry_job(job_id) do
+      :ok ->
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Job reencolado."))
+         |> refresh_oban_data()}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("No se pudo reintentar el job."))}
+    end
+  end
+
+  @impl true
+  def handle_event("oban_cancel_job", %{"id" => id}, socket) do
+    job_id = String.to_integer(id)
+
+    case Platform.oban_cancel_job(job_id) do
+      :ok ->
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Job cancelado."))
+         |> refresh_oban_data()}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("No se pudo cancelar el job."))}
+    end
+  end
+
+  @impl true
+  def handle_event("oban_purge", _, socket) do
+    case Platform.oban_purge_jobs() do
+      {:ok, count} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("%{count} jobs eliminados.", count: count))
+         |> refresh_oban_data()}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Error al purgar jobs."))}
+    end
   end
 
   # ---------- Event Detail Modal (#21) ----------
@@ -1345,6 +1576,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         Task.async(fn -> {:audit_logs, Audit.list_for_project(project.id, limit: 20)} end),
         Task.async(fn -> {:sandbox_endpoints, Platform.list_sandbox_endpoints(project.id)} end),
         Task.async(fn -> {:event_schemas, Platform.list_event_schemas(project.id)} end),
+        Task.async(fn -> {:pipelines, Platform.list_pipelines(project.id)} end),
         Task.async(fn -> {:team_members, Teams.list_members(project.id)} end),
         Task.async(fn -> {:analytics, load_analytics(project.id)} end),
         Task.async(fn -> {:uptime_status, load_uptime_status()} end),
@@ -1377,6 +1609,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
        |> assign(:sandbox_active, nil)
        |> assign(:sandbox_requests, [])
        |> assign(:event_schemas, data.event_schemas)
+       |> assign(:pipelines, data.pipelines)
        |> assign(:team_members, data.team_members)
        |> assign(:current_user_role, user_role)
        |> assign(:analytics, data.analytics)
@@ -1415,11 +1648,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           Task.async(fn -> {:audit_logs, Audit.list_for_project(project.id, limit: 20)} end),
           Task.async(fn -> {:sandbox_endpoints, Platform.list_sandbox_endpoints(project.id)} end),
           Task.async(fn -> {:event_schemas, Platform.list_event_schemas(project.id)} end),
+          Task.async(fn -> {:pipelines, Platform.list_pipelines(project.id)} end),
           Task.async(fn -> {:team_members, Teams.list_members(project.id)} end),
           Task.async(fn -> {:analytics, load_analytics(project.id)} end),
           Task.async(fn -> {:uptime_status, load_uptime_status()} end),
           Task.async(fn -> {:uptime_stats, load_uptime_stats()} end),
-          Task.async(fn -> {:pending_invitations, Teams.list_pending_invitations(user.id)} end)
+          Task.async(fn -> {:pending_invitations, Teams.list_pending_invitations(user.id)} end),
+          Task.async(fn -> {:oban_queue_stats, Platform.oban_queue_stats()} end),
+          Task.async(fn -> {:oban_state_counts, Platform.oban_state_counts()} end),
+          Task.async(fn -> {:oban_jobs, Platform.oban_list_jobs(limit: 50)} end)
         ]
 
         Task.await_many(tasks, 10_000) |> Map.new()
@@ -1889,6 +2126,22 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <button
                 type="button"
                 phx-click="switch_tab"
+                phx-value-tab="pipelines"
+                class={"whitespace-nowrap border-b-2 pb-2.5 sm:pb-4 px-1.5 sm:px-1 text-xs sm:text-sm lg:text-base transition #{tab_classes(@active_tab, "pipelines")}"}
+              >
+                {gettext("Pipelines")}
+              </button>
+              <button
+                type="button"
+                phx-click="switch_tab"
+                phx-value-tab="queue"
+                class={"whitespace-nowrap border-b-2 pb-2.5 sm:pb-4 px-1.5 sm:px-1 text-xs sm:text-sm lg:text-base transition #{tab_classes(@active_tab, "queue")}"}
+              >
+                {gettext("Colas")}
+              </button>
+              <button
+                type="button"
+                phx-click="switch_tab"
                 phx-value-tab="settings"
                 class={"whitespace-nowrap border-b-2 pb-2.5 sm:pb-4 px-1.5 sm:px-1 text-xs sm:text-sm lg:text-base transition #{tab_classes(@active_tab, "settings")}"}
               >
@@ -1917,6 +2170,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   defp render_tab(%{active_tab: "events"} = assigns), do: render_events_tab(assigns)
   defp render_tab(%{active_tab: "webhooks"} = assigns), do: render_webhooks_tab(assigns)
   defp render_tab(%{active_tab: "jobs"} = assigns), do: render_jobs_tab(assigns)
+  defp render_tab(%{active_tab: "pipelines"} = assigns), do: render_pipelines_tab(assigns)
+  defp render_tab(%{active_tab: "queue"} = assigns), do: render_queue_tab(assigns)
   defp render_tab(%{active_tab: "settings"} = assigns), do: render_settings_tab(assigns)
   defp render_tab(assigns), do: render_overview_tab(assigns)
 
@@ -3041,6 +3296,435 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       </div>
     </section>
     """
+  end
+
+  # ===== TAB: PIPELINES =====
+  defp render_pipelines_tab(assigns) do
+    ~H"""
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Pipelines")}</h2>
+        <%= if can_manage_team?(@current_user_role) do %>
+          <button
+            type="button"
+            phx-click="new_pipeline"
+            phx-disable-with={gettext("Cargando...")}
+            class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            <.icon name="hero-plus" class="w-4 h-4" /> {gettext("Nuevo pipeline")}
+          </button>
+        <% end %>
+      </div>
+
+      <%= if @pipelines == [] do %>
+        <div class="text-center py-12 text-slate-500">
+          <.icon name="hero-funnel" class="w-12 h-12 mx-auto mb-3 text-slate-300" />
+          <p class="text-sm">{gettext("No hay pipelines configurados.")}</p>
+          <p class="text-xs text-slate-400 mt-1">
+            {gettext(
+              "Los pipelines permiten filtrar, transformar y retrasar eventos antes de entregarlos."
+            )}
+          </p>
+        </div>
+      <% else %>
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead>
+              <tr class="bg-slate-50/80">
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  {gettext("Nombre")}
+                </th>
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
+                  {gettext("Topics")}
+                </th>
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden md:table-cell">
+                  {gettext("Pasos")}
+                </th>
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  {gettext("Estado")}
+                </th>
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  {gettext("Acciones")}
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <%= for p <- @pipelines do %>
+                <tr class="hover:bg-slate-50/50 transition">
+                  <td class="px-3 sm:px-5 py-3 sm:py-4">
+                    <div class="font-medium text-slate-800 text-sm">{p.name}</div>
+                    <%= if p.description do %>
+                      <div class="text-xs text-slate-500 mt-0.5 truncate max-w-[200px]">
+                        {p.description}
+                      </div>
+                    <% end %>
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 hidden sm:table-cell">
+                    <div class="flex flex-wrap gap-1">
+                      <%= for topic <- Enum.take(p.topics || [], 3) do %>
+                        <span class="inline-flex px-2 py-0.5 rounded-md text-xs bg-blue-50 text-blue-700 font-mono">
+                          {topic}
+                        </span>
+                      <% end %>
+                      <%= if length(p.topics || []) > 3 do %>
+                        <span class="text-xs text-slate-400">
+                          +{length(p.topics) - 3}
+                        </span>
+                      <% end %>
+                    </div>
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 hidden md:table-cell">
+                    <div class="flex gap-1">
+                      <%= for step <- p.steps || [] do %>
+                        <span class={[
+                          "inline-flex px-1.5 py-0.5 rounded text-xs font-medium",
+                          pipeline_step_color(step["type"])
+                        ]}>
+                          {step["type"]}
+                        </span>
+                      <% end %>
+                    </div>
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4">
+                    <span class={[
+                      "inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-xs font-medium",
+                      if(p.status == "active",
+                        do: "bg-emerald-100 text-emerald-800",
+                        else: "bg-slate-200 text-slate-600"
+                      )
+                    ]}>
+                      {p.status}
+                    </span>
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
+                    <div class="flex flex-col sm:flex-row sm:inline-flex gap-1 sm:gap-2 items-start sm:items-center">
+                      <%= if can_manage_team?(@current_user_role) do %>
+                        <button
+                          phx-click="edit_pipeline"
+                          phx-value-id={p.id}
+                          phx-disable-with={gettext("Cargando...")}
+                          class="text-indigo-600 hover:text-indigo-700 font-medium text-xs sm:text-sm disabled:opacity-70"
+                        >
+                          {gettext("Editar")}
+                        </button>
+                      <% end %>
+                      <%= if p.status == "active" && can_manage_team?(@current_user_role) do %>
+                        <button
+                          phx-click="deactivate_pipeline"
+                          phx-value-id={p.id}
+                          phx-disable-with={gettext("Desactivando...")}
+                          class="text-red-600 hover:text-red-700 font-medium text-xs sm:text-sm disabled:opacity-70"
+                        >
+                          {gettext("Desactivar")}
+                        </button>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </section>
+
+    <%!-- Pipeline Modal --%>
+    <%= if @pipeline_modal do %>
+      <div class="fixed inset-0 z-50 overflow-y-auto" aria-modal="true">
+        <div class="flex min-h-full items-center justify-center p-4">
+          <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" phx-click="close_pipeline_modal">
+          </div>
+          <div class="relative bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 sm:p-8">
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">
+              <%= if @pipeline_modal == :new do %>
+                {gettext("Nuevo pipeline")}
+              <% else %>
+                {gettext("Editar pipeline")}
+              <% end %>
+            </h3>
+            <form phx-submit="save_pipeline" class="space-y-4">
+              <%= if @pipeline_modal not in [:new] do %>
+                <input type="hidden" name="pipeline_id" value={@pipeline_modal} />
+              <% end %>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                  {gettext("Nombre")}
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={@pipeline_form["name"]}
+                  required
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                  {gettext("Descripción")}
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  value={@pipeline_form["description"]}
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                  {gettext("Topics")}
+                  <span class="text-xs text-slate-400 font-normal">
+                    ({gettext("separados por coma")})
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  name="topics"
+                  value={@pipeline_form["topics"]}
+                  placeholder="order.created, payment.*"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                  {gettext("Pasos")}
+                  <span class="text-xs text-slate-400 font-normal">(JSON)</span>
+                </label>
+                <textarea
+                  name="steps"
+                  rows="5"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >{@pipeline_form["steps"]}</textarea>
+                <p class="text-xs text-slate-400 mt-1">
+                  {gettext(
+                    "Ej: [{\"type\": \"filter\", \"field\": \"status\", \"operator\": \"eq\", \"value\": \"paid\"}]"
+                  )}
+                </p>
+              </div>
+              <div class="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  phx-click="close_pipeline_modal"
+                  class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800"
+                >
+                  {gettext("Cancelar")}
+                </button>
+                <button
+                  type="submit"
+                  phx-disable-with={gettext("Guardando...")}
+                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-70"
+                >
+                  {gettext("Guardar")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    """
+  end
+
+  defp pipeline_step_color("filter"), do: "bg-amber-100 text-amber-800"
+  defp pipeline_step_color("transform"), do: "bg-purple-100 text-purple-800"
+  defp pipeline_step_color("delay"), do: "bg-blue-100 text-blue-800"
+  defp pipeline_step_color(_), do: "bg-slate-100 text-slate-600"
+
+  # ===== TAB: QUEUE (Oban Monitor) =====
+  defp render_queue_tab(assigns) do
+    ~H"""
+    <%!-- State summary cards --%>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
+      <div
+        :for={
+          {state, color} <- [
+            {"available", "emerald"},
+            {"scheduled", "blue"},
+            {"executing", "amber"},
+            {"retryable", "orange"},
+            {"completed", "slate"},
+            {"discarded", "red"},
+            {"cancelled", "zinc"}
+          ]
+        }
+        phx-click="oban_filter_state"
+        phx-value-state={state}
+        class={"cursor-pointer rounded-lg border p-3 text-center transition hover:shadow-md #{if @oban_filter_state == state, do: "ring-2 ring-indigo-500 border-indigo-300", else: "border-slate-200"}"}
+      >
+        <p class={"text-2xl font-bold text-#{color}-600"}>
+          {Map.get(@oban_state_counts, state, 0)}
+        </p>
+        <p class="text-xs text-slate-500 capitalize">{state}</p>
+      </div>
+    </div>
+
+    <%!-- Queue breakdown --%>
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 mb-6">
+      <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-4">
+        {gettext("Colas")}
+      </h2>
+      <div :if={@oban_queue_stats == []} class="text-slate-400 text-sm py-4">
+        {gettext("No hay colas activas.")}
+      </div>
+      <div :if={@oban_queue_stats != []} class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="text-left py-2 px-3 font-medium text-slate-600">{gettext("Cola")}</th>
+              <th class="text-center py-2 px-3 font-medium text-emerald-600">Available</th>
+              <th class="text-center py-2 px-3 font-medium text-blue-600">Scheduled</th>
+              <th class="text-center py-2 px-3 font-medium text-amber-600">Executing</th>
+              <th class="text-center py-2 px-3 font-medium text-orange-600">Retryable</th>
+              <th class="text-center py-2 px-3 font-medium text-slate-600">Completed</th>
+              <th class="text-center py-2 px-3 font-medium text-red-600">Discarded</th>
+              <th class="text-center py-2 px-3 font-medium text-zinc-600">Cancelled</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              :for={qs <- @oban_queue_stats}
+              class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"
+              phx-click="oban_filter_queue"
+              phx-value-queue={qs.queue}
+            >
+              <td class={"py-2 px-3 font-medium #{if @oban_filter_queue == qs.queue, do: "text-indigo-700", else: "text-slate-900"}"}>
+                {qs.queue}
+              </td>
+              <td class="text-center py-2 px-3">{Map.get(qs.counts, "available", 0)}</td>
+              <td class="text-center py-2 px-3">{Map.get(qs.counts, "scheduled", 0)}</td>
+              <td class="text-center py-2 px-3">{Map.get(qs.counts, "executing", 0)}</td>
+              <td class="text-center py-2 px-3">{Map.get(qs.counts, "retryable", 0)}</td>
+              <td class="text-center py-2 px-3">{Map.get(qs.counts, "completed", 0)}</td>
+              <td class="text-center py-2 px-3">{Map.get(qs.counts, "discarded", 0)}</td>
+              <td class="text-center py-2 px-3">{Map.get(qs.counts, "cancelled", 0)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <%!-- Recent jobs list --%>
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900">
+          {gettext("Jobs recientes")}
+          <span :if={@oban_filter_state} class="ml-2 text-sm font-normal text-indigo-600">
+            ({@oban_filter_state})
+          </span>
+          <span :if={@oban_filter_queue} class="ml-2 text-sm font-normal text-indigo-600">
+            [{@oban_filter_queue}]
+          </span>
+        </h2>
+        <div class="flex gap-2">
+          <button
+            :if={@oban_filter_state || @oban_filter_queue}
+            phx-click="oban_clear_filters"
+            class="text-xs px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition"
+          >
+            {gettext("Limpiar filtros")}
+          </button>
+          <button
+            phx-click="oban_refresh"
+            class="text-xs px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition"
+          >
+            {gettext("Actualizar")}
+          </button>
+          <button
+            phx-click="oban_purge"
+            data-confirm={
+              gettext("¿Eliminar jobs completados/descartados/cancelados de más de 7 días?")
+            }
+            class="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition"
+          >
+            {gettext("Purgar antiguos")}
+          </button>
+        </div>
+      </div>
+
+      <div :if={@oban_jobs == []} class="text-slate-400 text-sm py-8 text-center">
+        {gettext("No hay jobs que mostrar.")}
+      </div>
+
+      <div :if={@oban_jobs != []} class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="text-left py-2 px-3 font-medium text-slate-600">ID</th>
+              <th class="text-left py-2 px-3 font-medium text-slate-600">{gettext("Estado")}</th>
+              <th class="text-left py-2 px-3 font-medium text-slate-600">{gettext("Cola")}</th>
+              <th class="text-left py-2 px-3 font-medium text-slate-600">Worker</th>
+              <th class="text-center py-2 px-3 font-medium text-slate-600">{gettext("Intentos")}</th>
+              <th class="text-left py-2 px-3 font-medium text-slate-600">{gettext("Creado")}</th>
+              <th class="text-right py-2 px-3 font-medium text-slate-600">{gettext("Acciones")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={job <- @oban_jobs} class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="py-2 px-3 font-mono text-xs text-slate-500">{job.id}</td>
+              <td class="py-2 px-3">
+                <span class={"inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium #{oban_state_badge(job.state)}"}>
+                  {job.state}
+                </span>
+              </td>
+              <td class="py-2 px-3 text-slate-700">{job.queue}</td>
+              <td class="py-2 px-3 text-slate-700 font-mono text-xs">
+                {job.worker |> String.split(".") |> List.last()}
+              </td>
+              <td class="text-center py-2 px-3 text-slate-600">
+                {job.attempt}/{job.max_attempts}
+              </td>
+              <td class="py-2 px-3 text-slate-500 text-xs whitespace-nowrap">
+                {Calendar.strftime(job.inserted_at, "%Y-%m-%d %H:%M:%S")}
+              </td>
+              <td class="py-2 px-3 text-right space-x-1">
+                <button
+                  :if={job.state in ["retryable", "discarded"]}
+                  phx-click="oban_retry_job"
+                  phx-value-id={job.id}
+                  class="text-xs text-indigo-600 hover:text-indigo-800"
+                  title={gettext("Reintentar")}
+                >
+                  {gettext("Reintentar")}
+                </button>
+                <button
+                  :if={job.state in ["available", "scheduled", "retryable"]}
+                  phx-click="oban_cancel_job"
+                  phx-value-id={job.id}
+                  data-confirm={gettext("¿Cancelar este job?")}
+                  class="text-xs text-red-600 hover:text-red-800"
+                  title={gettext("Cancelar")}
+                >
+                  {gettext("Cancelar")}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    """
+  end
+
+  defp oban_state_badge("available"), do: "bg-emerald-100 text-emerald-800"
+  defp oban_state_badge("scheduled"), do: "bg-blue-100 text-blue-800"
+  defp oban_state_badge("executing"), do: "bg-amber-100 text-amber-800"
+  defp oban_state_badge("retryable"), do: "bg-orange-100 text-orange-800"
+  defp oban_state_badge("completed"), do: "bg-slate-100 text-slate-600"
+  defp oban_state_badge("discarded"), do: "bg-red-100 text-red-800"
+  defp oban_state_badge("cancelled"), do: "bg-zinc-100 text-zinc-600"
+  defp oban_state_badge(_), do: "bg-slate-100 text-slate-600"
+
+  defp refresh_oban_data(socket) do
+    jobs =
+      Platform.oban_list_jobs(
+        state: socket.assigns.oban_filter_state,
+        queue: socket.assigns.oban_filter_queue,
+        limit: 50
+      )
+
+    socket
+    |> assign(:oban_queue_stats, Platform.oban_queue_stats())
+    |> assign(:oban_state_counts, Platform.oban_state_counts())
+    |> assign(:oban_jobs, jobs)
   end
 
   # ===== TAB: SETTINGS =====
@@ -4537,10 +5221,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       Task.async(fn -> Platform.get_api_key_for_project(project.id) end),
       Task.async(fn -> Platform.list_events(project.id, limit: 20) end),
       Task.async(fn -> Platform.list_webhooks(project.id, include_inactive: true) end),
-      Task.async(fn -> Platform.list_deliveries(project_id: project.id, limit: 30) end)
+      Task.async(fn -> Platform.list_deliveries(project_id: project.id, limit: 30) end),
+      Task.async(fn -> Platform.list_pipelines(project.id) end)
     ]
 
-    [api_key, events, webhooks, deliveries] = Task.await_many(tasks, 10_000)
+    [api_key, events, webhooks, deliveries, pipelines] = Task.await_many(tasks, 10_000)
 
     # Check if we have a fresh API key from registration
     {new_token, token_source} =
@@ -4569,6 +5254,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     |> assign(:kpi_success_rate, compute_kpi_success_rate(deliveries))
     |> assign(:new_token, new_token)
     |> assign(:token_source, token_source)
+    |> assign(:pipelines, pipelines)
   end
 
   defp format_changeset_errors(%Ecto.Changeset{} = changeset) do
