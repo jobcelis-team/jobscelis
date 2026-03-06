@@ -2,11 +2,16 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
   @moduledoc """
   Oban worker for webhook deliveries. Queue: :delivery.
   Supports per-webhook retry policies via retry_config embedded in job args.
-  Default backoff: 1 min → 5 min → 15 min → 1 h.
+
+  Backoff strategies:
+  - exponential (default): base * 3^attempt + jitter
+  - linear: base * attempt + jitter
+  - fixed: base + jitter
   """
   use Oban.Worker, queue: :delivery, max_attempts: 20
 
-  @default_backoff [60, 300, 900, 3600]
+  @default_base_delay 10
+  @default_max_delay 3600
   @default_max_attempts 5
 
   # Client errors that should not be retried
@@ -16,13 +21,47 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
   def backoff(%Oban.Job{args: args, attempt: attempt}) do
     config = args["retry_config"] || %{}
 
-    delays =
-      case config["backoff_seconds"] do
-        delays when is_list(delays) and delays != [] -> delays
-        _ -> @default_backoff
-      end
+    # Support legacy backoff_seconds list
+    case config["backoff_seconds"] do
+      delays when is_list(delays) and delays != [] ->
+        Enum.at(delays, attempt - 1, List.last(delays))
 
-    Enum.at(delays, attempt - 1, List.last(delays))
+      _ ->
+        strategy = config["strategy"] || "exponential"
+        base = config["base_delay_seconds"] || config["base_delay"] || @default_base_delay
+        max_delay = config["max_delay_seconds"] || config["max_delay"] || @default_max_delay
+        jitter? = config["jitter"] != false
+
+        delay = calculate_delay(strategy, base, attempt)
+        delay = min(delay, max_delay)
+        delay = if jitter?, do: add_jitter(delay), else: delay
+        max(delay, 1)
+    end
+  end
+
+  defp calculate_delay("exponential", base, attempt) do
+    # base * 3^(attempt-1): 10s, 30s, 90s, 270s, 810s...
+    base * Integer.pow(3, attempt - 1)
+  end
+
+  defp calculate_delay("linear", base, attempt) do
+    # base * attempt: 10s, 20s, 30s, 40s, 50s...
+    base * attempt
+  end
+
+  defp calculate_delay("fixed", base, _attempt) do
+    base
+  end
+
+  defp calculate_delay(_, base, attempt) do
+    # Default to exponential
+    calculate_delay("exponential", base, attempt)
+  end
+
+  defp add_jitter(delay) do
+    # Add +/- 20% jitter to avoid thundering herd
+    jitter_range = max(trunc(delay * 0.2), 1)
+    delay + :rand.uniform(jitter_range * 2) - jitter_range
   end
 
   @impl true
