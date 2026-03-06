@@ -56,15 +56,29 @@
 
     <script nonce={assigns[:csp_nonce]}>
       (() => {
+        const mq = window.matchMedia("(prefers-color-scheme: dark)");
+
+        const applySystem = () => {
+          document.documentElement.setAttribute("data-theme", mq.matches ? "dark" : "light");
+          document.documentElement.setAttribute("data-theme-choice", "system");
+        };
+
         const setTheme = (theme) => {
           if (theme === "system") {
             localStorage.removeItem("phx:theme");
-            document.documentElement.removeAttribute("data-theme");
+            applySystem();
           } else {
             localStorage.setItem("phx:theme", theme);
             document.documentElement.setAttribute("data-theme", theme);
+            document.documentElement.setAttribute("data-theme-choice", theme);
           }
         };
+
+        // Listen for OS theme changes — only apply if user chose "system"
+        mq.addEventListener("change", () => {
+          if (!localStorage.getItem("phx:theme")) applySystem();
+        });
+
         if (!document.documentElement.hasAttribute("data-theme")) {
           setTheme(localStorage.getItem("phx:theme") || "system");
         }
