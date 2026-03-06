@@ -139,6 +139,30 @@ defmodule StreamflixCore.Platform do
   defdelegate dry_validate_event_payload(project_id, topic, payload),
     to: StreamflixCore.Platform.EventSchemas
 
+  # ---------- Pipelines ----------
+  defdelegate create_pipeline(project_id, attrs), to: StreamflixCore.Platform.Pipelines
+  defdelegate list_pipelines(project_id), to: StreamflixCore.Platform.Pipelines
+  defdelegate list_pipelines(project_id, opts), to: StreamflixCore.Platform.Pipelines
+  defdelegate get_pipeline(id), to: StreamflixCore.Platform.Pipelines
+  defdelegate update_pipeline(pipeline, attrs), to: StreamflixCore.Platform.Pipelines
+  defdelegate set_pipeline_inactive(pipeline), to: StreamflixCore.Platform.Pipelines
+  defdelegate matching_pipelines(project_id, topic), to: StreamflixCore.Platform.Pipelines
+
+  defdelegate execute_pipeline_steps(steps, payload),
+    to: StreamflixCore.Platform.Pipelines,
+    as: :execute_steps
+
+  # ---------- Oban Monitor ----------
+  defdelegate oban_queue_stats(), to: StreamflixCore.Platform.ObanMonitor, as: :queue_stats
+  defdelegate oban_state_counts(), to: StreamflixCore.Platform.ObanMonitor, as: :state_counts
+  defdelegate oban_list_jobs(), to: StreamflixCore.Platform.ObanMonitor, as: :list_jobs
+  defdelegate oban_list_jobs(opts), to: StreamflixCore.Platform.ObanMonitor, as: :list_jobs
+  defdelegate oban_cancel_job(job_id), to: StreamflixCore.Platform.ObanMonitor, as: :cancel_job
+  defdelegate oban_retry_job(job_id), to: StreamflixCore.Platform.ObanMonitor, as: :retry_job
+  defdelegate oban_purge_jobs(), to: StreamflixCore.Platform.ObanMonitor, as: :purge_jobs
+  defdelegate oban_purge_jobs(days), to: StreamflixCore.Platform.ObanMonitor, as: :purge_jobs
+  defdelegate oban_queues(), to: StreamflixCore.Platform.ObanMonitor, as: :queues
+
   # ---------- Pagination ----------
   defdelegate paginate_events(project_id), to: StreamflixCore.Platform.Pagination
   defdelegate paginate_events(project_id, opts), to: StreamflixCore.Platform.Pagination

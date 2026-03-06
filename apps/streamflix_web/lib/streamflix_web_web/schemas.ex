@@ -510,6 +510,104 @@ defmodule StreamflixWebWeb.Schemas do
     })
   end
 
+  # ---- Pipelines ----
+
+  defmodule PipelineResponse do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "PipelineResponse",
+      type: :object,
+      properties: %{
+        data: %Schema{
+          type: :object,
+          properties: %{
+            id: %Schema{type: :string, format: :uuid},
+            name: %Schema{type: :string},
+            status: %Schema{type: :string, enum: ["active", "inactive"]},
+            description: %Schema{type: :string, nullable: true},
+            topics: %Schema{type: :array, items: %Schema{type: :string}},
+            steps: %Schema{type: :array, items: %Schema{type: :object}},
+            webhook_id: %Schema{type: :string, format: :uuid},
+            inserted_at: %Schema{type: :string, format: :"date-time"}
+          }
+        }
+      },
+      example: %{
+        data: %{
+          id: "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+          name: "High-value orders",
+          status: "active",
+          description: "Filter orders > $100, transform payload, deliver to Slack",
+          topics: ["order.*"],
+          steps: [
+            %{type: "filter", field: "amount", operator: "gt", value: 100},
+            %{
+              type: "transform",
+              operation: "template",
+              template: %{order_id: "{{ order_id }}", total: "{{ amount }}"}
+            }
+          ],
+          webhook_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          inserted_at: "2026-03-06T12:00:00.000000Z"
+        }
+      }
+    })
+  end
+
+  defmodule PipelineCreate do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "PipelineCreate",
+      type: :object,
+      required: [:name, :webhook_id],
+      properties: %{
+        name: %Schema{type: :string},
+        description: %Schema{type: :string},
+        topics: %Schema{type: :array, items: %Schema{type: :string}},
+        webhook_id: %Schema{type: :string, format: :uuid},
+        steps: %Schema{
+          type: :array,
+          items: %Schema{type: :object},
+          description: "Pipeline steps. Each step has a type: filter, transform, or delay"
+        }
+      },
+      example: %{
+        name: "High-value orders",
+        description: "Only deliver orders above $100",
+        topics: ["order.created"],
+        webhook_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        steps: [
+          %{type: "filter", field: "amount", operator: "gt", value: 100},
+          %{type: "transform", operation: "pick", fields: ["order_id", "amount"]}
+        ]
+      }
+    })
+  end
+
+  defmodule PipelineTestResponse do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "PipelineTestResponse",
+      type: :object,
+      properties: %{
+        input: %Schema{type: :object},
+        output: %Schema{type: :object, nullable: true},
+        steps_count: %Schema{type: :integer},
+        status: %Schema{type: :string, enum: ["passed", "filtered"]},
+        reason: %Schema{type: :string, nullable: true}
+      },
+      example: %{
+        input: %{order_id: "123", amount: 150, currency: "USD"},
+        output: %{order_id: "123", amount: 150},
+        steps_count: 2,
+        status: "passed"
+      }
+    })
+  end
+
   # ---- Phase 6: Cursor Pagination ----
 
   defmodule PaginatedResponse do
