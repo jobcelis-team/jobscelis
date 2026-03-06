@@ -2,7 +2,7 @@
 
 import * as commands from "./commands";
 
-const VERSION = "2.0.0";
+const VERSION = "2.0.1";
 
 const HELP_TEXT = `
 jobcelis - CLI for the Jobcelis Event Infrastructure Platform (v${VERSION})
