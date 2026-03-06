@@ -86,7 +86,7 @@ defmodule StreamflixCore.Platform.ObanMonitor do
 
   @doc "Deletes completed/discarded/cancelled jobs older than given days."
   def purge_jobs(older_than_days \\ 7) do
-    cutoff = NaiveDateTime.utc_now() |> NaiveDateTime.add(-older_than_days * 86400)
+    cutoff = NaiveDateTime.utc_now() |> NaiveDateTime.add(-older_than_days * 86_400)
 
     {count, _} =
       from(j in "oban_jobs",
