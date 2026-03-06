@@ -1,0 +1,84 @@
+name: Publish SDKs
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Package to publish"
+        required: true
+        type: choice
+        options:
+          - npm-sdk
+          - npm-cli
+          - pypi
+          - all
+
+jobs:
+  publish-npm-sdk:
+    name: Publish @jobcelis/sdk to npm
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'npm-sdk' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install & Build
+        working-directory: sdks/node
+        run: npm install && npm run build
+
+      - name: Publish
+        working-directory: sdks/node
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-npm-cli:
+    name: Publish @jobcelis/cli to npm
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'npm-cli' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install & Build
+        working-directory: sdks/cli
+        run: npm install && npm run build
+
+      - name: Publish
+        working-directory: sdks/cli
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-pypi:
+    name: Publish jobcelis to PyPI
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'pypi' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Build package
+        working-directory: sdks/python
+        run: python -m build
+
+      - name: Publish to PyPI
+        working-directory: sdks/python
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
