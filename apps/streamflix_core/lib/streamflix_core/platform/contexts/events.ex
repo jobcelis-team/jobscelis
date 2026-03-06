@@ -174,6 +174,29 @@ defmodule StreamflixCore.Platform.Events do
   defp maybe_filter_topic(query, nil), do: query
   defp maybe_filter_topic(query, topic), do: where(query, [e], e.topic == ^topic)
 
+  @doc """
+  Full-text search on event payloads using GIN index (jsonb_path_ops).
+  Searches for events whose payload contains the given key-value pair.
+  """
+  def search_events(project_id, query_params, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 50)
+
+    base =
+      WebhookEvent
+      |> where([e], e.project_id == ^project_id and e.status == "active")
+
+    base =
+      Enum.reduce(query_params, base, fn {key, value}, q ->
+        json_fragment = Jason.encode!(%{key => value})
+        where(q, [e], fragment("? @> ?::jsonb", e.payload, ^json_fragment))
+      end)
+
+    base
+    |> order_by([e], desc: e.occurred_at)
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
   def get_event(id), do: Repo.get(WebhookEvent, id)
   def get_event!(id), do: Repo.get!(WebhookEvent, id)
 

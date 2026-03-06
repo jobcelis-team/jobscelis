@@ -15,9 +15,18 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
   require Logger
 
   alias StreamflixCore.Repo
-  alias StreamflixCore.Schemas.{Delivery, JobRun, SandboxEndpoint, SandboxRequest, DeadLetter}
 
-  @delivery_retention_days 90
+  alias StreamflixCore.Schemas.{
+    Delivery,
+    JobRun,
+    SandboxEndpoint,
+    SandboxRequest,
+    DeadLetter,
+    Project,
+    WebhookEvent
+  }
+
+  @default_retention_days 90
   @job_run_retention_days 90
   @dead_letter_retention_days 30
 
@@ -25,16 +34,12 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
   def perform(_job) do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
-    delivery_cutoff = DateTime.add(now, -@delivery_retention_days, :day)
     job_run_cutoff = DateTime.add(now, -@job_run_retention_days, :day)
     dead_letter_cutoff = DateTime.add(now, -@dead_letter_retention_days, :day)
 
-    # Purge old successful deliveries
-    {del_count, _} =
-      from(d in Delivery,
-        where: d.status == "success" and d.inserted_at < ^delivery_cutoff
-      )
-      |> Repo.delete_all()
+    # Purge deliveries and events per-project with custom retention
+    del_count = purge_deliveries_per_project(now)
+    event_count = purge_events_per_project(now)
 
     # Purge old job runs
     {run_count, _} =
@@ -73,10 +78,46 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
       |> Repo.delete_all()
 
     Logger.info(
-      "[PurgeWorker] Purged: #{del_count} deliveries, #{run_count} job_runs, " <>
+      "[PurgeWorker] Purged: #{del_count} deliveries, #{event_count} events, #{run_count} job_runs, " <>
         "#{sandbox_count} sandbox endpoints (#{req_count} requests), #{dlq_count} dead letters"
     )
 
     :ok
+  end
+
+  defp purge_deliveries_per_project(now) do
+    projects = Repo.all(from(p in Project, select: {p.id, p.retention_days}))
+
+    Enum.reduce(projects, 0, fn {project_id, retention_days}, acc ->
+      days = retention_days || @default_retention_days
+      cutoff = DateTime.add(now, -days, :day)
+
+      {count, _} =
+        from(d in Delivery,
+          join: e in WebhookEvent,
+          on: d.event_id == e.id,
+          where: e.project_id == ^project_id and d.status == "success" and d.inserted_at < ^cutoff
+        )
+        |> Repo.delete_all()
+
+      acc + count
+    end)
+  end
+
+  defp purge_events_per_project(now) do
+    projects = Repo.all(from(p in Project, select: {p.id, p.retention_days}))
+
+    Enum.reduce(projects, 0, fn {project_id, retention_days}, acc ->
+      days = retention_days || @default_retention_days
+      cutoff = DateTime.add(now, -days, :day)
+
+      {count, _} =
+        from(e in WebhookEvent,
+          where: e.project_id == ^project_id and e.status == "active" and e.inserted_at < ^cutoff
+        )
+        |> Repo.delete_all()
+
+      acc + count
+    end)
   end
 end
