@@ -1,0 +1,17 @@
+{
+  "name": "@jobcelis/cli",
+  "version": "1.0.0",
+  "description": "CLI for the Jobcelis Event Infrastructure Platform",
+  "bin": {
+    "jobcelis": "./bin/jobcelis.js"
+  },
+  "files": ["bin", "src"],
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "keywords": ["jobcelis", "webhooks", "events", "cli"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
