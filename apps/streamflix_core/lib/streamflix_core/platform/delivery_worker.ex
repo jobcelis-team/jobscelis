@@ -74,7 +74,6 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
 
     Logger.info("[DeliveryWorker] Starting POST to #{url} for delivery #{delivery.id}")
 
-    # receive_timeout a nivel superior (como ScheduledJobRunner) - connect_options no aplicaba
     opts = [
       json: body,
       headers: headers,
@@ -83,19 +82,24 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       finch: StreamflixCore.Finch
     ]
 
+    start_time = System.monotonic_time(:millisecond)
+
     case Req.post(url, opts) do
       {:ok, %{status: status} = resp} when status >= 200 and status < 300 ->
+        latency_ms = System.monotonic_time(:millisecond) - start_time
         Logger.info("[DeliveryWorker] Success #{status} for delivery #{delivery.id}")
-        mark_success(delivery, status, resp)
+        mark_success(delivery, status, resp, latency_ms)
 
       {:ok, %{status: status} = resp} ->
+        latency_ms = System.monotonic_time(:millisecond) - start_time
         Logger.warning("[DeliveryWorker] Non-2xx #{status} for delivery #{delivery.id}")
         resp_body = format_response_body(resp)
-        mark_failed(delivery, status, resp_body)
+        mark_failed(delivery, status, resp_body, latency_ms, flatten_headers(resp.headers))
 
       {:error, reason} ->
+        latency_ms = System.monotonic_time(:millisecond) - start_time
         Logger.error("[DeliveryWorker] Error for delivery #{delivery.id}: #{inspect(reason)}")
-        mark_failed(delivery, nil, inspect(reason))
+        mark_failed(delivery, nil, inspect(reason), latency_ms, nil)
     end
   end
 
@@ -123,7 +127,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
 
   defp format_response_body(%{body: body}), do: inspect(body)
 
-  defp mark_success(delivery, status, _resp) do
+  defp mark_success(delivery, status, resp, latency_ms) do
     result =
       delivery
       |> Delivery.changeset(%{
@@ -131,6 +135,8 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         attempt_number: delivery.attempt_number + 1,
         response_status: status,
         response_body: nil,
+        response_headers: flatten_headers(resp.headers),
+        response_latency_ms: latency_ms,
         next_retry_at: nil
       })
       |> Repo.update()
@@ -146,7 +152,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     end
   end
 
-  defp mark_failed(delivery, status, reason) do
+  defp mark_failed(delivery, status, reason, latency_ms \\ nil, resp_headers \\ nil) do
     new_attempt = delivery.attempt_number + 1
     max_attempts = get_max_attempts(delivery)
 
@@ -156,6 +162,8 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       attempt_number: new_attempt,
       response_status: status,
       response_body: reason,
+      response_latency_ms: latency_ms,
+      response_headers: resp_headers,
       next_retry_at: nil
     })
     |> Repo.update()
@@ -215,6 +223,13 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       )
     end
   end
+
+  defp flatten_headers(headers) when is_list(headers) do
+    Map.new(headers, fn {k, v} -> {to_string(k), to_string(v)} end)
+  end
+
+  defp flatten_headers(headers) when is_map(headers), do: headers
+  defp flatten_headers(_), do: nil
 
   defp broadcast_delivery(delivery) do
     event = delivery.event || Repo.get(StreamflixCore.Schemas.WebhookEvent, delivery.event_id)
