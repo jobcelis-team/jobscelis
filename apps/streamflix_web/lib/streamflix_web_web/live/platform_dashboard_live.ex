@@ -82,7 +82,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           last_7d: %{uptime_percent: 0.0},
           last_30d: %{uptime_percent: 0.0}
         },
-        fresh_api_key: session["fresh_api_key"]
+        fresh_api_key: session["fresh_api_key"],
+        event_detail: nil,
+        event_deliveries: [],
+        search_query: "",
+        search_results: nil,
+        selected_dead_letters: [],
+        onboarding_step: nil
       })
 
     if connected?(socket), do: Notifications.subscribe(user.id)
@@ -881,6 +887,164 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     {:noreply, assign(socket, :active_tab, tab)}
   end
 
+  # ---------- Event Detail Modal (#21) ----------
+
+  @impl true
+  def handle_event("show_event_detail", %{"id" => id}, socket) do
+    case Platform.get_event(id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, gettext("Evento no encontrado."))}
+
+      event ->
+        deliveries =
+          Platform.list_deliveries(event_id: id, limit: 50)
+          |> Enum.sort_by(& &1.inserted_at, {:asc, DateTime})
+
+        {:noreply,
+         socket
+         |> assign(:event_detail, event)
+         |> assign(:event_deliveries, deliveries)}
+    end
+  end
+
+  @impl true
+  def handle_event("close_event_detail", _, socket) do
+    {:noreply, socket |> assign(:event_detail, nil) |> assign(:event_deliveries, [])}
+  end
+
+  # ---------- Search Bar (#24) ----------
+
+  @impl true
+  def handle_event("search_events", %{"q" => query}, socket) do
+    query = String.trim(query)
+
+    if query == "" do
+      {:noreply, socket |> assign(:search_query, "") |> assign(:search_results, nil)}
+    else
+      project_id = socket.assigns.project.id
+      # Search by topic first
+      results =
+        Platform.list_events(project_id, topic: query, limit: 50)
+
+      # If no results by exact topic, try partial match via listing all and filtering
+      results =
+        if results == [] do
+          Platform.list_events(project_id, limit: 100)
+          |> Enum.filter(fn e ->
+            (e.topic && String.contains?(String.downcase(e.topic), String.downcase(query))) ||
+              String.contains?(e.id, query)
+          end)
+          |> Enum.take(50)
+        else
+          results
+        end
+
+      {:noreply,
+       socket
+       |> assign(:search_query, query)
+       |> assign(:search_results, results)}
+    end
+  end
+
+  @impl true
+  def handle_event("clear_search", _, socket) do
+    {:noreply, socket |> assign(:search_query, "") |> assign(:search_results, nil)}
+  end
+
+  # ---------- Bulk Dead Letter Actions (#25) ----------
+
+  @impl true
+  def handle_event("toggle_dl_select", %{"id" => id}, socket) do
+    selected = socket.assigns.selected_dead_letters
+
+    selected =
+      if id in selected,
+        do: List.delete(selected, id),
+        else: [id | selected]
+
+    {:noreply, assign(socket, :selected_dead_letters, selected)}
+  end
+
+  @impl true
+  def handle_event("select_all_dl", _, socket) do
+    all_ids = Enum.map(socket.assigns.dead_letters, & &1.id)
+    {:noreply, assign(socket, :selected_dead_letters, all_ids)}
+  end
+
+  @impl true
+  def handle_event("deselect_all_dl", _, socket) do
+    {:noreply, assign(socket, :selected_dead_letters, [])}
+  end
+
+  @impl true
+  def handle_event("bulk_retry_dl", _, socket) do
+    with_permission(socket, :write, fn ->
+      results =
+        Enum.map(socket.assigns.selected_dead_letters, fn id ->
+          Platform.retry_dead_letter(id)
+        end)
+
+      success_count = Enum.count(results, &match?({:ok, _}, &1))
+
+      dead_letters = Platform.list_dead_letters(socket.assigns.project.id)
+
+      {:noreply,
+       socket
+       |> assign(:dead_letters, dead_letters)
+       |> assign(:selected_dead_letters, [])
+       |> put_flash(
+         :info,
+         gettext("%{count} entregas reintentadas", count: success_count)
+       )}
+    end)
+  end
+
+  @impl true
+  def handle_event("bulk_resolve_dl", _, socket) do
+    with_permission(socket, :write, fn ->
+      results =
+        Enum.map(socket.assigns.selected_dead_letters, fn id ->
+          Platform.resolve_dead_letter(id)
+        end)
+
+      success_count = Enum.count(results, &match?({:ok, _}, &1))
+
+      dead_letters = Platform.list_dead_letters(socket.assigns.project.id)
+
+      {:noreply,
+       socket
+       |> assign(:dead_letters, dead_letters)
+       |> assign(:selected_dead_letters, [])
+       |> put_flash(
+         :info,
+         gettext("%{count} entregas descartadas", count: success_count)
+       )}
+    end)
+  end
+
+  # ---------- Onboarding (#26) ----------
+
+  @impl true
+  def handle_event("start_onboarding", _, socket) do
+    {:noreply, assign(socket, :onboarding_step, 1)}
+  end
+
+  @impl true
+  def handle_event("next_onboarding", _, socket) do
+    step = socket.assigns.onboarding_step
+
+    if step >= 4 do
+      {:noreply, assign(socket, :onboarding_step, nil)}
+    else
+      {:noreply, assign(socket, :onboarding_step, step + 1)}
+    end
+  end
+
+  @impl true
+  def handle_event("skip_onboarding", _, socket) do
+    {:noreply, assign(socket, :onboarding_step, nil)}
+  end
+
   # ---------- Project Selector (B11) ----------
 
   @impl true
@@ -1429,87 +1593,169 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <% end %>
             </div>
           </div>
-          <div class="relative">
+          <div class="flex items-center gap-1">
+            <%!-- Onboarding button --%>
             <button
               type="button"
-              phx-click="toggle_notifications"
-              class="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+              phx-click="start_onboarding"
+              class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+              title={gettext("Guía de inicio")}
             >
-              <.icon name="hero-bell" class="w-6 h-6" />
-              <%= if @unread_count > 0 do %>
-                <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
-                  {@unread_count}
-                </span>
-              <% end %>
+              <.icon name="hero-question-mark-circle" class="w-5 h-5" />
             </button>
-            <%= if @show_notifications do %>
-              <div class="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-2 sm:w-96 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-96 overflow-y-auto">
-                <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                  <h3 class="font-semibold text-slate-900 text-sm">{gettext("Notificaciones")}</h3>
-                  <%= if @unread_count > 0 do %>
-                    <button
-                      phx-click="mark_all_read"
-                      class="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
-                    >
-                      {gettext("Marcar todo leído")}
-                    </button>
-                  <% end %>
-                </div>
-                <%= if @notifications == [] do %>
-                  <div class="px-4 py-8 text-center text-sm text-slate-400">
-                    {gettext("Sin notificaciones")}
+            <div class="relative">
+              <button
+                type="button"
+                phx-click="toggle_notifications"
+                class="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+              >
+                <.icon name="hero-bell" class="w-6 h-6" />
+                <%= if @unread_count > 0 do %>
+                  <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                    {@unread_count}
+                  </span>
+                <% end %>
+              </button>
+              <%= if @show_notifications do %>
+                <div class="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-2 sm:w-96 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-96 overflow-y-auto">
+                  <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                    <h3 class="font-semibold text-slate-900 text-sm">{gettext("Notificaciones")}</h3>
+                    <%= if @unread_count > 0 do %>
+                      <button
+                        phx-click="mark_all_read"
+                        class="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                      >
+                        {gettext("Marcar todo leído")}
+                      </button>
+                    <% end %>
                   </div>
-                <% else %>
-                  <%= for notif <- @notifications do %>
-                    <div
-                      class={"px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition cursor-pointer #{if !notif.read, do: "bg-indigo-50/50"}"}
-                      phx-click="mark_notification_read"
-                      phx-value-id={notif.id}
-                    >
-                      <div class="flex items-start gap-2">
-                        <span class={"mt-1 w-2 h-2 rounded-full shrink-0 #{if !notif.read, do: "bg-indigo-500", else: "bg-transparent"}"}>
-                        </span>
-                        <div class="min-w-0 flex-1">
-                          <p class="text-sm font-medium text-slate-900 truncate">
-                            {notification_title(notif)}
-                          </p>
-                          <p class="text-xs text-slate-500 truncate">{notification_message(notif)}</p>
-                          <p class="text-[10px] text-slate-400 mt-1">
-                            {format_dt(notif.inserted_at)}
-                          </p>
-                          <%= if notif.type == "team_invite" && is_map(notif.metadata) && Map.get(notif.metadata, "member_id") do %>
-                            <%= if !notif.read do %>
-                              <div class="flex gap-2 mt-2">
-                                <button
-                                  phx-click="accept_invitation"
-                                  phx-value-id={notif.metadata["member_id"]}
-                                  class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-medium"
-                                >
-                                  {gettext("Aceptar")}
-                                </button>
-                                <button
-                                  phx-click="reject_invitation"
-                                  phx-value-id={notif.metadata["member_id"]}
-                                  class="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-[11px] font-medium"
-                                >
-                                  {gettext("Rechazar")}
-                                </button>
-                              </div>
-                            <% else %>
-                              <p class="text-[10px] text-emerald-600 mt-1 font-medium">
-                                {gettext("Respondida")}
-                              </p>
+                  <%= if @notifications == [] do %>
+                    <div class="px-4 py-8 text-center text-sm text-slate-400">
+                      {gettext("Sin notificaciones")}
+                    </div>
+                  <% else %>
+                    <%= for notif <- @notifications do %>
+                      <div
+                        class={"px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition cursor-pointer #{if !notif.read, do: "bg-indigo-50/50"}"}
+                        phx-click="mark_notification_read"
+                        phx-value-id={notif.id}
+                      >
+                        <div class="flex items-start gap-2">
+                          <span class={"mt-1 w-2 h-2 rounded-full shrink-0 #{if !notif.read, do: "bg-indigo-500", else: "bg-transparent"}"}>
+                          </span>
+                          <div class="min-w-0 flex-1">
+                            <p class="text-sm font-medium text-slate-900 truncate">
+                              {notification_title(notif)}
+                            </p>
+                            <p class="text-xs text-slate-500 truncate">
+                              {notification_message(notif)}
+                            </p>
+                            <p class="text-[10px] text-slate-400 mt-1">
+                              {format_dt(notif.inserted_at)}
+                            </p>
+                            <%= if notif.type == "team_invite" && is_map(notif.metadata) && Map.get(notif.metadata, "member_id") do %>
+                              <%= if !notif.read do %>
+                                <div class="flex gap-2 mt-2">
+                                  <button
+                                    phx-click="accept_invitation"
+                                    phx-value-id={notif.metadata["member_id"]}
+                                    class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-medium"
+                                  >
+                                    {gettext("Aceptar")}
+                                  </button>
+                                  <button
+                                    phx-click="reject_invitation"
+                                    phx-value-id={notif.metadata["member_id"]}
+                                    class="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-[11px] font-medium"
+                                  >
+                                    {gettext("Rechazar")}
+                                  </button>
+                                </div>
+                              <% else %>
+                                <p class="text-[10px] text-emerald-600 mt-1 font-medium">
+                                  {gettext("Respondida")}
+                                </p>
+                              <% end %>
                             <% end %>
-                          <% end %>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    <% end %>
                   <% end %>
-                <% end %>
-              </div>
-            <% end %>
+                </div>
+              <% end %>
+            </div>
           </div>
         </div>
+
+        <%!-- ===== ONBOARDING WIZARD (#26) ===== --%>
+        <%= if @onboarding_step do %>
+          <div class="mb-6 bg-indigo-50 border border-indigo-200 rounded-xl p-4 sm:p-6">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <.icon name="hero-rocket-launch" class="w-5 h-5 text-indigo-600" />
+                <h3 class="font-semibold text-indigo-900">
+                  {gettext("Guía de inicio")}
+                  <span class="text-sm font-normal text-indigo-600 ml-2">
+                    {gettext("Paso %{step} de 4", step: @onboarding_step)}
+                  </span>
+                </h3>
+              </div>
+              <button
+                phx-click="skip_onboarding"
+                class="text-xs text-indigo-500 hover:text-indigo-700"
+              >
+                {gettext("Cerrar")}
+              </button>
+            </div>
+            <div class="flex gap-1.5 mb-4">
+              <%= for i <- 1..4 do %>
+                <div class={"h-1.5 flex-1 rounded-full #{if i <= @onboarding_step, do: "bg-indigo-500", else: "bg-indigo-200"}"}>
+                </div>
+              <% end %>
+            </div>
+            <div class="text-sm text-indigo-800">
+              <%= case @onboarding_step do %>
+                <% 1 -> %>
+                  <p class="font-medium mb-1">{gettext("1. Copia tu API Token")}</p>
+                  <p>
+                    {gettext(
+                      "En la pestaña Overview encontrarás tu token. Úsalo en el header Authorization: Bearer <token> o X-Api-Key."
+                    )}
+                  </p>
+                <% 2 -> %>
+                  <p class="font-medium mb-1">{gettext("2. Crea un Webhook")}</p>
+                  <p>
+                    {gettext(
+                      "Ve a la pestaña Webhooks y crea uno con la URL de tu endpoint. Filtra por topics para recibir solo lo que necesitas."
+                    )}
+                  </p>
+                <% 3 -> %>
+                  <p class="font-medium mb-1">{gettext("3. Envía tu primer evento")}</p>
+                  <p>
+                    {gettext(
+                      "Usa el formulario de Test Event en Overview, o haz un POST a /api/v1/events con tu API key."
+                    )}
+                  </p>
+                <% 4 -> %>
+                  <p class="font-medium mb-1">{gettext("4. Monitorea entregas")}</p>
+                  <p>
+                    {gettext(
+                      "Revisa el estado de tus entregas en la pestaña Webhooks. Si algo falla, puedes reintentar o revisar el Dead Letter Queue."
+                    )}
+                  </p>
+              <% end %>
+            </div>
+            <div class="flex justify-end mt-3">
+              <button
+                phx-click="next_onboarding"
+                class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition"
+              >
+                {if @onboarding_step >= 4, do: gettext("Finalizar"), else: gettext("Siguiente")}
+              </button>
+            </div>
+          </div>
+        <% end %>
 
         <%= if @project do %>
           <%!-- ===== KPI CARDS ===== --%>
@@ -1921,13 +2167,38 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   # ===== TAB: EVENTS =====
   defp render_events_tab(assigns) do
     ~H"""
-    <%!-- Events table (full width with export) --%>
+    <%!-- Events table (full width with export + search) --%>
     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <h2 class="text-base lg:text-lg font-semibold text-slate-900">
           {gettext("Eventos recientes")}
         </h2>
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <%!-- Search bar (#24) --%>
+          <.form for={%{}} id="event-search-form" phx-submit="search_events" class="flex gap-1">
+            <div class="relative">
+              <input
+                type="text"
+                name="q"
+                value={@search_query}
+                placeholder={gettext("Buscar por topic o ID...")}
+                class="w-40 sm:w-56 border border-slate-300 rounded-lg px-3 py-1.5 pl-8 text-xs sm:text-sm"
+              />
+              <.icon
+                name="hero-magnifying-glass"
+                class="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"
+              />
+            </div>
+            <%= if @search_query != "" do %>
+              <button
+                type="button"
+                phx-click="clear_search"
+                class="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+              >
+                <.icon name="hero-x-mark" class="w-4 h-4" />
+              </button>
+            <% end %>
+          </.form>
           <a
             href="/export/events?format=csv"
             target="_blank"
@@ -1944,6 +2215,14 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           </a>
         </div>
       </div>
+      <%= if @search_results do %>
+        <p class="text-xs text-slate-500 mb-2">
+          {gettext("%{count} resultados para \"%{query}\"",
+            count: length(@search_results),
+            query: @search_query
+          )}
+        </p>
+      <% end %>
       <div class="overflow-x-auto rounded-lg border border-slate-200">
         <table class="min-w-full">
           <thead>
@@ -1963,9 +2242,14 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             </tr>
           </thead>
           <tbody>
-            <%= for e <- @events do %>
-              <tr class="border-b border-slate-100 last:border-0">
-                <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600">
+            <% display_events = @search_results || @events %>
+            <%= for e <- display_events do %>
+              <tr
+                class="border-b border-slate-100 last:border-0 hover:bg-indigo-50/50 cursor-pointer transition"
+                phx-click="show_event_detail"
+                phx-value-id={e.id}
+              >
+                <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-indigo-600">
                   {String.slice(e.id, 0, 8)}...
                 </td>
                 <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-700 truncate max-w-[8rem] sm:max-w-none">
@@ -2517,12 +2801,53 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     <%!-- Dead Letter Queue --%>
     <%= if @dead_letters != [] do %>
       <section class="bg-white rounded-xl border border-red-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-          <h2 class="text-base font-semibold text-red-900">{gettext("Dead Letter Queue")}</h2>
-          <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-medium">
-            {length(@dead_letters)}
-          </span>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+            <h2 class="text-base font-semibold text-red-900">{gettext("Dead Letter Queue")}</h2>
+            <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-medium">
+              {length(@dead_letters)}
+            </span>
+          </div>
+          <%!-- Bulk actions (#25) --%>
+          <%= if can_manage_team?(@current_user_role) do %>
+            <div class="flex items-center gap-2">
+              <%= if @selected_dead_letters != [] do %>
+                <span class="text-xs text-slate-500">
+                  {gettext("%{count} seleccionados", count: length(@selected_dead_letters))}
+                </span>
+                <button
+                  phx-click="bulk_retry_dl"
+                  phx-disable-with={gettext("...")}
+                  class="px-2.5 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition"
+                >
+                  {gettext("Reintentar seleccionados")}
+                </button>
+                <button
+                  phx-click="bulk_resolve_dl"
+                  phx-disable-with={gettext("...")}
+                  class="px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
+                >
+                  {gettext("Descartar seleccionados")}
+                </button>
+              <% end %>
+              <%= if @selected_dead_letters == [] do %>
+                <button
+                  phx-click="select_all_dl"
+                  class="px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                >
+                  {gettext("Seleccionar todo")}
+                </button>
+              <% else %>
+                <button
+                  phx-click="deselect_all_dl"
+                  class="px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                >
+                  {gettext("Deseleccionar")}
+                </button>
+              <% end %>
+            </div>
+          <% end %>
         </div>
         <p class="text-sm text-red-700 mb-4">
           {gettext("Entregas que agotaron todos los reintentos. Puedes reintentar o descartar.")}
@@ -2531,6 +2856,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           <table class="min-w-full divide-y divide-red-100">
             <thead>
               <tr class="bg-red-50/50">
+                <%= if can_manage_team?(@current_user_role) do %>
+                  <th class="w-8 px-3 py-2"></th>
+                <% end %>
                 <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 uppercase">
                   {gettext("Webhook")}
                 </th>
@@ -2551,6 +2879,17 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             <tbody class="divide-y divide-red-50">
               <%= for dl <- @dead_letters do %>
                 <tr class="hover:bg-red-50/30 transition">
+                  <%= if can_manage_team?(@current_user_role) do %>
+                    <td class="w-8 px-3 py-2">
+                      <input
+                        type="checkbox"
+                        checked={dl.id in @selected_dead_letters}
+                        phx-click="toggle_dl_select"
+                        phx-value-id={dl.id}
+                        class="rounded border-red-300 text-red-600 focus:ring-red-500"
+                      />
+                    </td>
+                  <% end %>
                   <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs text-slate-600 truncate max-w-[6rem] sm:max-w-[10rem] lg:max-w-none">
                     {if dl.webhook, do: dl.webhook.url, else: "—"}
                   </td>
@@ -3158,6 +3497,131 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   # ===== MODALS (rendered outside tabs) =====
   defp render_modals(assigns) do
     ~H"""
+    <%!-- Event Detail Modal (#21 + #22) --%>
+    <%= if @event_detail do %>
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+        <div
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          phx-click="close_event_detail"
+          aria-hidden="true"
+        >
+        </div>
+        <div
+          class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div class="px-6 pt-6 pb-4 flex items-start justify-between border-b border-slate-200">
+            <div>
+              <h2 class="text-lg font-semibold text-slate-900">
+                {gettext("Detalle del evento")}
+              </h2>
+              <p class="text-xs text-slate-500 font-mono mt-1">{@event_detail.id}</p>
+            </div>
+            <button
+              type="button"
+              phx-click="close_event_detail"
+              class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+            >
+              <.icon name="hero-x-mark" class="w-5 h-5" />
+            </button>
+          </div>
+          <div class="px-6 py-4 space-y-4">
+            <%!-- Event info --%>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span class="text-slate-500">{gettext("Topic")}</span>
+                <p class="font-medium text-slate-900">{@event_detail.topic || "—"}</p>
+              </div>
+              <div>
+                <span class="text-slate-500">{gettext("Estado")}</span>
+                <p>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
+                    {@event_detail.status}
+                  </span>
+                </p>
+              </div>
+              <div>
+                <span class="text-slate-500">{gettext("Fecha")}</span>
+                <p class="font-medium text-slate-900">{format_dt(@event_detail.occurred_at)}</p>
+              </div>
+              <div>
+                <span class="text-slate-500">{gettext("Hash")}</span>
+                <p class="font-mono text-xs text-slate-600 truncate">
+                  {@event_detail.payload_hash || "—"}
+                </p>
+              </div>
+            </div>
+            <%!-- Payload --%>
+            <div>
+              <span class="text-sm text-slate-500">{gettext("Payload")}</span>
+              <pre class="mt-1 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-700 overflow-x-auto max-h-40">{Jason.encode!(@event_detail.payload || %{}, pretty: true)}</pre>
+            </div>
+            <%!-- Delivery Timeline (#22) --%>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900 mb-3">
+                <.icon name="hero-arrow-path" class="w-4 h-4 inline mr-1" />
+                {gettext("Timeline de entregas")}
+                <span class="ml-1 text-xs font-normal text-slate-500">
+                  ({length(@event_deliveries)})
+                </span>
+              </h3>
+              <%= if @event_deliveries == [] do %>
+                <p class="text-sm text-slate-400">{gettext("Sin entregas para este evento.")}</p>
+              <% else %>
+                <div class="relative pl-6 space-y-3">
+                  <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-slate-200"></div>
+                  <%= for d <- @event_deliveries do %>
+                    <div class="relative">
+                      <div class={"absolute -left-[14px] top-1.5 w-3 h-3 rounded-full border-2 border-white #{delivery_dot_color(d.status)}"}>
+                      </div>
+                      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                            <span class={[
+                              "px-2 py-0.5 rounded text-xs font-medium",
+                              delivery_status_class(d.status)
+                            ]}>
+                              {d.status}
+                            </span>
+                            <span class="text-xs text-slate-500">
+                              {gettext("Intento")} #{d.attempt_number}
+                            </span>
+                            <%= if d.response_latency_ms do %>
+                              <span class="text-xs text-slate-400">
+                                {d.response_latency_ms}ms
+                              </span>
+                            <% end %>
+                          </div>
+                          <span class="text-xs text-slate-400">{format_dt(d.inserted_at)}</span>
+                        </div>
+                        <%= if d.webhook do %>
+                          <p class="text-xs font-mono text-slate-500 mt-1 truncate">
+                            {d.webhook.url}
+                          </p>
+                        <% end %>
+                        <%= if d.response_status do %>
+                          <p class="text-xs text-slate-500 mt-1">
+                            HTTP {d.response_status}
+                            <%= if d.response_body && d.response_body != "" do %>
+                              —
+                              <span class="text-red-600 truncate">
+                                {String.slice(d.response_body || "", 0, 100)}
+                              </span>
+                            <% end %>
+                          </p>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <%!-- Replay Modal --%>
     <%= if @replay_modal do %>
       <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
@@ -3936,6 +4400,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       _ -> %{}
     end
   end
+
+  defp delivery_dot_color("success"), do: "bg-emerald-500"
+  defp delivery_dot_color("pending"), do: "bg-amber-400"
+  defp delivery_dot_color("failed"), do: "bg-red-500"
+  defp delivery_dot_color(_), do: "bg-slate-400"
+
+  defp delivery_status_class("success"), do: "bg-emerald-100 text-emerald-800"
+  defp delivery_status_class("pending"), do: "bg-amber-100 text-amber-800"
+  defp delivery_status_class("failed"), do: "bg-red-100 text-red-800"
+  defp delivery_status_class(_), do: "bg-slate-100 text-slate-600"
 
   defp replay_status_class("pending"), do: "bg-slate-100 text-slate-700"
   defp replay_status_class("running"), do: "bg-blue-100 text-blue-800"

@@ -105,19 +105,20 @@
   display: contents;
 }
 
-/* This file is for your main application CSS */
+/* ================================================================
+   LIGHT MODE DEFAULTS
+   ================================================================ */
 
-/* Base: ensure body text is readable */
 body {
   color: #0f172a;
 }
 
-/* Form elements: always readable (background + text) */
+/* Form elements */
 input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
-  background-color: #fff !important;
-  color: #0f172a !important;
+  background-color: #fff;
+  color: #0f172a;
   border: 1px solid #cbd5e1;
 }
 input::placeholder,
@@ -127,14 +128,14 @@ textarea::placeholder {
 label,
 .label,
 .fieldset .label {
-  color: #334155 !important;
+  color: #334155;
 }
 select option {
   background-color: #fff;
   color: #0f172a;
 }
 
-/* Flash / alerts: readable text */
+/* Flash / alerts */
 .alert-info {
   background-color: #e0f2fe;
   color: #0c4a6e;
@@ -145,6 +146,503 @@ select option {
   color: #991b1b;
   border-color: #fca5a5;
 }
+
+/* ================================================================
+   DARK MODE — Comprehensive theme overrides
+   All overrides use [data-theme=dark] selector for higher specificity
+   over Tailwind's @layer utilities. This avoids modifying 4000+ lines
+   of templates while providing complete dark mode coverage.
+   ================================================================ */
+
+/* --- Body & scrollbar --- */
+[data-theme=dark] body {
+  background-color: oklch(20.15% 0.012 254.09);
+  color: oklch(90% 0.015 256);
+}
+
+[data-theme=dark] {
+  scrollbar-color: oklch(40% 0.03 257) oklch(20.15% 0.012 254.09);
+}
+
+/* --- Form elements (dark) --- */
+[data-theme=dark] input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+[data-theme=dark] textarea,
+[data-theme=dark] select {
+  background-color: oklch(25.26% 0.014 253.1) !important;
+  color: oklch(92% 0.015 256) !important;
+  border-color: oklch(40% 0.03 257) !important;
+}
+[data-theme=dark] input::placeholder,
+[data-theme=dark] textarea::placeholder {
+  color: oklch(55% 0.015 256);
+}
+[data-theme=dark] label,
+[data-theme=dark] .label,
+[data-theme=dark] .fieldset .label {
+  color: oklch(78% 0.015 256) !important;
+}
+[data-theme=dark] select option {
+  background-color: oklch(25.26% 0.014 253.1);
+  color: oklch(92% 0.015 256);
+}
+
+/* --- Flash / alerts (dark) --- */
+[data-theme=dark] .alert-info {
+  background-color: oklch(25% 0.06 242);
+  color: oklch(80% 0.1 242);
+  border-color: oklch(40% 0.08 242);
+}
+[data-theme=dark] .alert-error {
+  background-color: oklch(25% 0.06 18);
+  color: oklch(80% 0.12 18);
+  border-color: oklch(40% 0.1 18);
+}
+
+/* --- Backgrounds: white → dark surface --- */
+[data-theme=dark] .bg-white {
+  background-color: oklch(25.26% 0.014 253.1) !important;
+}
+[data-theme=dark] .bg-white\/95 {
+  background-color: oklch(25.26% 0.014 253.1 / 0.95) !important;
+}
+[data-theme=dark] .bg-white\/80 {
+  background-color: oklch(25.26% 0.014 253.1 / 0.8) !important;
+}
+
+/* --- Backgrounds: slate → dark tones --- */
+[data-theme=dark] .bg-slate-50,
+[data-theme=dark] .bg-slate-50\/50,
+[data-theme=dark] .bg-slate-50\/80 {
+  background-color: oklch(20.15% 0.012 254.09) !important;
+}
+[data-theme=dark] .bg-slate-100 {
+  background-color: oklch(25.26% 0.014 253.1) !important;
+}
+[data-theme=dark] .bg-slate-200 {
+  background-color: oklch(30.33% 0.016 252.42) !important;
+}
+
+/* --- Text: slate → light equivalents --- */
+[data-theme=dark] .text-slate-900 {
+  color: oklch(95% 0.01 256) !important;
+}
+[data-theme=dark] .text-slate-800 {
+  color: oklch(90% 0.01 256) !important;
+}
+[data-theme=dark] .text-slate-700 {
+  color: oklch(82% 0.01 256) !important;
+}
+[data-theme=dark] .text-slate-600 {
+  color: oklch(72% 0.015 256) !important;
+}
+[data-theme=dark] .text-slate-500 {
+  color: oklch(62% 0.015 256) !important;
+}
+[data-theme=dark] .text-slate-400 {
+  color: oklch(55% 0.015 256) !important;
+}
+[data-theme=dark] .text-slate-300 {
+  color: oklch(48% 0.015 256) !important;
+}
+[data-theme=dark] .text-slate-200 {
+  color: oklch(42% 0.015 256) !important;
+}
+
+/* --- Borders: slate → dark borders --- */
+[data-theme=dark] .border-slate-100 {
+  border-color: oklch(30% 0.02 257) !important;
+}
+[data-theme=dark] .border-slate-200 {
+  border-color: oklch(35% 0.025 257) !important;
+}
+[data-theme=dark] .border-slate-200\/60 {
+  border-color: oklch(35% 0.025 257 / 0.6) !important;
+}
+[data-theme=dark] .border-slate-200\/80 {
+  border-color: oklch(35% 0.025 257 / 0.8) !important;
+}
+[data-theme=dark] .border-slate-300 {
+  border-color: oklch(38% 0.03 257) !important;
+}
+
+/* --- Dividers --- */
+[data-theme=dark] .divide-slate-100 > :not(:last-child) {
+  border-color: oklch(30% 0.02 257) !important;
+}
+[data-theme=dark] .divide-slate-200 > :not(:last-child) {
+  border-color: oklch(35% 0.025 257) !important;
+}
+
+/* --- Rings --- */
+[data-theme=dark] .ring-slate-200 {
+  --tw-ring-color: oklch(35% 0.025 257) !important;
+}
+
+/* --- Hover: backgrounds --- */
+[data-theme=dark] .hover\:bg-slate-50:hover {
+  background-color: oklch(28% 0.014 253) !important;
+}
+[data-theme=dark] .hover\:bg-slate-100:hover {
+  background-color: oklch(30% 0.016 252) !important;
+}
+[data-theme=dark] .hover\:bg-white:hover {
+  background-color: oklch(30% 0.016 252) !important;
+}
+
+/* --- Hover: text --- */
+[data-theme=dark] .hover\:text-slate-900:hover {
+  color: oklch(95% 0.01 256) !important;
+}
+[data-theme=dark] .hover\:text-slate-700:hover {
+  color: oklch(82% 0.01 256) !important;
+}
+[data-theme=dark] .hover\:text-slate-600:hover {
+  color: oklch(72% 0.015 256) !important;
+}
+
+/* --- Hover: borders --- */
+[data-theme=dark] .hover\:border-slate-300:hover {
+  border-color: oklch(40% 0.03 257) !important;
+}
+[data-theme=dark] .hover\:border-indigo-200:hover {
+  border-color: oklch(45% 0.12 277) !important;
+}
+
+/* --- Accent backgrounds (badges, alerts, status indicators) --- */
+/* Indigo */
+[data-theme=dark] .bg-indigo-50 {
+  background-color: oklch(25% 0.06 277) !important;
+}
+[data-theme=dark] .bg-indigo-50\/30 {
+  background-color: oklch(25% 0.06 277 / 0.3) !important;
+}
+[data-theme=dark] .bg-indigo-100 {
+  background-color: oklch(28% 0.08 277) !important;
+}
+[data-theme=dark] .bg-indigo-200\/80 {
+  background-color: oklch(32% 0.1 277 / 0.8) !important;
+}
+[data-theme=dark] .hover\:bg-indigo-50\/30:hover {
+  background-color: oklch(28% 0.07 277 / 0.4) !important;
+}
+
+/* Emerald */
+[data-theme=dark] .bg-emerald-50 {
+  background-color: oklch(25% 0.05 185) !important;
+}
+[data-theme=dark] .bg-emerald-100 {
+  background-color: oklch(28% 0.06 185) !important;
+}
+[data-theme=dark] .text-emerald-800 {
+  color: oklch(72% 0.1 185) !important;
+}
+[data-theme=dark] .text-emerald-700 {
+  color: oklch(68% 0.1 185) !important;
+}
+[data-theme=dark] .border-emerald-100 {
+  border-color: oklch(32% 0.06 185) !important;
+}
+
+/* Red */
+[data-theme=dark] .bg-red-50 {
+  background-color: oklch(25% 0.05 18) !important;
+}
+[data-theme=dark] .bg-red-100 {
+  background-color: oklch(28% 0.06 18) !important;
+}
+[data-theme=dark] .text-red-700 {
+  color: oklch(68% 0.12 18) !important;
+}
+[data-theme=dark] .text-red-800 {
+  color: oklch(72% 0.12 18) !important;
+}
+[data-theme=dark] .border-red-100 {
+  border-color: oklch(32% 0.06 18) !important;
+}
+
+/* Amber/Yellow */
+[data-theme=dark] .bg-amber-50 {
+  background-color: oklch(25% 0.05 58) !important;
+}
+[data-theme=dark] .bg-amber-100 {
+  background-color: oklch(28% 0.06 58) !important;
+}
+[data-theme=dark] .text-amber-800 {
+  color: oklch(72% 0.1 58) !important;
+}
+[data-theme=dark] .text-amber-700 {
+  color: oklch(68% 0.1 58) !important;
+}
+
+/* Blue */
+[data-theme=dark] .bg-blue-50 {
+  background-color: oklch(25% 0.05 242) !important;
+}
+[data-theme=dark] .bg-blue-100 {
+  background-color: oklch(28% 0.06 242) !important;
+}
+[data-theme=dark] .text-blue-800 {
+  color: oklch(72% 0.1 242) !important;
+}
+
+/* Purple */
+[data-theme=dark] .bg-purple-50 {
+  background-color: oklch(25% 0.05 293) !important;
+}
+[data-theme=dark] .bg-purple-100 {
+  background-color: oklch(28% 0.06 293) !important;
+}
+
+/* Orange */
+[data-theme=dark] .bg-orange-50 {
+  background-color: oklch(25% 0.05 40) !important;
+}
+[data-theme=dark] .bg-orange-100 {
+  background-color: oklch(28% 0.06 40) !important;
+}
+
+/* --- Gray colors (admin pages use gray-* instead of slate-*) --- */
+/* Backgrounds */
+[data-theme=dark] .bg-gray-50 {
+  background-color: oklch(20.15% 0.012 254.09) !important;
+}
+[data-theme=dark] .bg-gray-100 {
+  background-color: oklch(20.15% 0.012 254.09) !important;
+}
+[data-theme=dark] .bg-gray-200 {
+  background-color: oklch(30.33% 0.016 252.42) !important;
+}
+/* Text */
+[data-theme=dark] .text-gray-900 {
+  color: oklch(95% 0.01 256) !important;
+}
+[data-theme=dark] .text-gray-800 {
+  color: oklch(90% 0.01 256) !important;
+}
+[data-theme=dark] .text-gray-700 {
+  color: oklch(82% 0.01 256) !important;
+}
+[data-theme=dark] .text-gray-600 {
+  color: oklch(72% 0.015 256) !important;
+}
+[data-theme=dark] .text-gray-500 {
+  color: oklch(62% 0.015 256) !important;
+}
+[data-theme=dark] .text-gray-400 {
+  color: oklch(55% 0.015 256) !important;
+}
+[data-theme=dark] .text-gray-300 {
+  color: oklch(48% 0.015 256) !important;
+}
+[data-theme=dark] .text-gray-200 {
+  color: oklch(42% 0.015 256) !important;
+}
+/* Borders */
+[data-theme=dark] .border-gray-200 {
+  border-color: oklch(35% 0.025 257) !important;
+}
+[data-theme=dark] .border-gray-300 {
+  border-color: oklch(38% 0.03 257) !important;
+}
+/* Dividers */
+[data-theme=dark] .divide-gray-200 > :not(:last-child) {
+  border-color: oklch(35% 0.025 257) !important;
+}
+/* Hover */
+[data-theme=dark] .hover\:bg-gray-50:hover {
+  background-color: oklch(28% 0.014 253) !important;
+}
+[data-theme=dark] .hover\:bg-gray-100:hover {
+  background-color: oklch(30% 0.016 252) !important;
+}
+[data-theme=dark] .hover\:text-gray-600:hover {
+  color: oklch(72% 0.015 256) !important;
+}
+
+/* --- Missing accent borders & hover states --- */
+/* Indigo borders */
+[data-theme=dark] .border-indigo-200 {
+  border-color: oklch(35% 0.08 277) !important;
+}
+[data-theme=dark] .border-indigo-100 {
+  border-color: oklch(30% 0.06 277) !important;
+}
+[data-theme=dark] .hover\:border-indigo-300:hover {
+  border-color: oklch(42% 0.1 277) !important;
+}
+[data-theme=dark] .hover\:bg-indigo-100:hover {
+  background-color: oklch(30% 0.08 277) !important;
+}
+/* Indigo text */
+[data-theme=dark] .text-indigo-700 {
+  color: oklch(68% 0.15 277) !important;
+}
+[data-theme=dark] .text-indigo-600 {
+  color: oklch(65% 0.18 277) !important;
+}
+/* Amber borders */
+[data-theme=dark] .border-amber-200 {
+  border-color: oklch(35% 0.06 58) !important;
+}
+[data-theme=dark] .border-amber-300 {
+  border-color: oklch(40% 0.08 58) !important;
+}
+[data-theme=dark] .border-amber-100 {
+  border-color: oklch(30% 0.04 58) !important;
+}
+/* Red borders & hover */
+[data-theme=dark] .border-red-200 {
+  border-color: oklch(35% 0.06 18) !important;
+}
+[data-theme=dark] .hover\:bg-red-50:hover {
+  background-color: oklch(28% 0.06 18) !important;
+}
+[data-theme=dark] .hover\:border-red-200:hover {
+  border-color: oklch(38% 0.08 18) !important;
+}
+[data-theme=dark] .hover\:text-red-700:hover {
+  color: oklch(68% 0.12 18) !important;
+}
+[data-theme=dark] .hover\:text-red-900:hover {
+  color: oklch(75% 0.12 18) !important;
+}
+[data-theme=dark] .hover\:bg-red-100:hover {
+  background-color: oklch(30% 0.06 18) !important;
+}
+[data-theme=dark] .hover\:border-red-300:hover {
+  border-color: oklch(40% 0.08 18) !important;
+}
+/* Blue text */
+[data-theme=dark] .text-blue-700 {
+  color: oklch(68% 0.1 242) !important;
+}
+[data-theme=dark] .text-blue-600 {
+  color: oklch(65% 0.12 242) !important;
+}
+/* Orange */
+[data-theme=dark] .bg-orange-100 {
+  background-color: oklch(28% 0.06 40) !important;
+}
+[data-theme=dark] .text-orange-700 {
+  color: oklch(68% 0.1 40) !important;
+}
+/* Green */
+[data-theme=dark] .text-green-700 {
+  color: oklch(68% 0.1 160) !important;
+}
+[data-theme=dark] .text-green-600 {
+  color: oklch(65% 0.12 160) !important;
+}
+
+/* --- Missing accent text --- */
+[data-theme=dark] .text-amber-900 {
+  color: oklch(75% 0.1 58) !important;
+}
+[data-theme=dark] .hover\:text-amber-900:hover {
+  color: oklch(78% 0.1 58) !important;
+}
+[data-theme=dark] .text-red-600 {
+  color: oklch(65% 0.15 18) !important;
+}
+[data-theme=dark] .hover\:text-red-800:hover {
+  color: oklch(72% 0.12 18) !important;
+}
+/* Group-hover accent overrides */
+[data-theme=dark] .group:hover .group-hover\:bg-red-100 {
+  background-color: oklch(28% 0.06 18) !important;
+}
+[data-theme=dark] .group:hover .group-hover\:bg-indigo-200 {
+  background-color: oklch(32% 0.08 277) !important;
+}
+
+/* --- Shadow (plain) --- */
+[data-theme=dark] .shadow {
+  box-shadow: 0 1px 3px 0 oklch(10% 0.01 257 / 0.4), 0 1px 2px -1px oklch(10% 0.01 257 / 0.4) !important;
+}
+
+/* --- Admin sidebar: already dark, prevent double-dark --- */
+[data-theme=dark] .bg-gray-900 {
+  background-color: oklch(15% 0.01 254) !important;
+}
+[data-theme=dark] .bg-gray-800 {
+  background-color: oklch(22% 0.012 254) !important;
+}
+[data-theme=dark] .border-gray-800 {
+  border-color: oklch(25% 0.014 254) !important;
+}
+[data-theme=dark] .hover\:bg-gray-800:hover {
+  background-color: oklch(25% 0.014 254) !important;
+}
+[data-theme=dark] .bg-gray-600 {
+  background-color: oklch(40% 0.02 254) !important;
+}
+
+/* --- Admin mobile header dark --- */
+[data-theme=dark] .hover\:bg-gray-100:hover {
+  background-color: oklch(30% 0.016 252) !important;
+}
+
+/* --- Gradients --- */
+[data-theme=dark] .bg-gradient-to-b.from-slate-50.to-slate-100 {
+  background-image: linear-gradient(to bottom, oklch(20.15% 0.012 254.09), oklch(25.26% 0.014 253.1)) !important;
+}
+[data-theme=dark] .bg-gradient-to-b.from-slate-50.to-white {
+  background-image: linear-gradient(to bottom, oklch(20.15% 0.012 254.09), oklch(25.26% 0.014 253.1)) !important;
+}
+[data-theme=dark] .from-indigo-50\/60 {
+  --tw-gradient-from: oklch(25% 0.06 277 / 0.3) !important;
+}
+
+/* --- Placeholder text --- */
+[data-theme=dark] .placeholder-slate-400::placeholder {
+  color: oklch(55% 0.015 256) !important;
+}
+
+/* --- Shadows: softer in dark mode --- */
+[data-theme=dark] .shadow-sm {
+  box-shadow: 0 1px 2px 0 oklch(10% 0.01 257 / 0.4) !important;
+}
+[data-theme=dark] .shadow-lg {
+  box-shadow: 0 10px 15px -3px oklch(10% 0.01 257 / 0.5), 0 4px 6px -4px oklch(10% 0.01 257 / 0.5) !important;
+}
+[data-theme=dark] .shadow-xl {
+  box-shadow: 0 20px 25px -5px oklch(10% 0.01 257 / 0.5), 0 8px 10px -6px oklch(10% 0.01 257 / 0.5) !important;
+}
+[data-theme=dark] .shadow-2xl {
+  box-shadow: 0 25px 50px -12px oklch(10% 0.01 257 / 0.6) !important;
+}
+
+/* --- Code/pre blocks in dark mode --- */
+/* Only override inline code; pre blocks with bg-slate-800 keep their own styles */
+[data-theme=dark] code:not([class*="bg-"]) {
+  background-color: oklch(25% 0.014 253);
+  color: oklch(85% 0.02 256);
+}
+[data-theme=dark] pre:not([class*="bg-"]) {
+  background-color: oklch(20.15% 0.012 254.09);
+  color: oklch(85% 0.02 256);
+}
+
+/* --- Tables in dark mode --- */
+[data-theme=dark] th {
+  color: oklch(72% 0.015 256);
+  border-color: oklch(35% 0.025 257);
+}
+[data-theme=dark] td {
+  border-color: oklch(30% 0.02 257);
+}
+[data-theme=dark] tr:hover td {
+  background-color: oklch(28% 0.014 253);
+}
+
+/* --- Focus visible ring (works in both themes) --- */
+[data-theme=dark] .focus\:ring-indigo-500\/20:focus {
+  --tw-ring-color: oklch(58% 0.2 277 / 0.3) !important;
+}
+
+/* ================================================================
+   SHARED (theme-independent)
+   ================================================================ */
 
 /* Skip link: visible on focus for keyboard/screen reader (AAA) */
 .skip-link {
@@ -175,7 +673,7 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-/* Docs: evita desbordamiento de bloques pre/code en móvil y pantallas pequeñas */
+/* Docs: prevent pre/code overflow on mobile */
 .docs-main pre {
   max-width: 100%;
   overflow-x: auto;
