@@ -189,6 +189,66 @@ defmodule StreamflixCore.GDPR do
     end
   end
 
+  # ── Consent versioning ──────────────────────────────────────────
+
+  @current_versions %{
+    "terms" => "1.0",
+    "privacy" => "1.0",
+    "data_processing" => "1.0",
+    "marketing" => "1.0"
+  }
+
+  @doc "Returns the current policy versions."
+  def current_consent_versions, do: @current_versions
+
+  @doc """
+  Check which consents need re-acceptance due to version changes.
+  Returns a list of `%{purpose, current_version, user_version}` for outdated consents.
+  """
+  def outdated_consents(user_id) do
+    active = list_active_consents(user_id)
+
+    Enum.reduce(@current_versions, [], fn {purpose, current_ver}, acc ->
+      user_consent = Enum.find(active, &(&1.purpose == purpose))
+
+      cond do
+        is_nil(user_consent) ->
+          [%{purpose: purpose, current_version: current_ver, user_version: nil} | acc]
+
+        user_consent.version != current_ver ->
+          [
+            %{
+              purpose: purpose,
+              current_version: current_ver,
+              user_version: user_consent.version
+            }
+            | acc
+          ]
+
+        true ->
+          acc
+      end
+    end)
+  end
+
+  @doc """
+  Re-accept a consent with the current version. Revokes the old consent and creates a new one.
+  """
+  def re_accept_consent(user_id, purpose, opts \\ []) when purpose in @purposes do
+    current_ver = Map.get(@current_versions, purpose, "1.0")
+
+    # Revoke existing active consent for this purpose
+    active =
+      Consent
+      |> where([c], c.user_id == ^user_id and c.purpose == ^purpose and is_nil(c.revoked_at))
+      |> Repo.one()
+
+    if active, do: active |> Consent.revoke_changeset() |> Repo.update()
+
+    # Grant new consent with current version
+    grant_consent(user_id, purpose, Keyword.merge(opts, version: current_ver))
+  end
+
   @doc "List all consents for a user."
   def list_consents(user_id) do
     Consent
