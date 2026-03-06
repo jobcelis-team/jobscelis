@@ -25,6 +25,31 @@ class JobcelisClient:
             "X-Api-Key": self.api_key,
         })
 
+    # --- Auth ---
+
+    def register(self, email: str, password: str, name: str | None = None) -> dict:
+        """Register a new account. Does not use API key auth."""
+        body = {"email": email, "password": password}
+        if name is not None:
+            body["name"] = name
+        return self._post_public("/api/v1/auth/register", body)
+
+    def login(self, email: str, password: str) -> dict:
+        """Log in and receive JWT + refresh token. Does not use API key auth."""
+        return self._post_public("/api/v1/auth/login", {"email": email, "password": password})
+
+    def refresh_token(self, refresh_token: str) -> dict:
+        """Refresh an expired JWT using a refresh token. Does not use API key auth."""
+        return self._post_public("/api/v1/auth/refresh", {"refresh_token": refresh_token})
+
+    def verify_mfa(self, token: str, code: str) -> dict:
+        """Verify MFA code. Requires Bearer token set via set_auth_token()."""
+        return self._post("/api/v1/auth/mfa/verify", {"token": token, "code": code})
+
+    def set_auth_token(self, token: str):
+        """Set JWT bearer token for authenticated requests."""
+        self._session.headers["Authorization"] = f"Bearer {token}"
+
     # --- Events ---
 
     def send_event(self, topic: str, payload: dict, **kwargs) -> dict:
@@ -416,6 +441,24 @@ class JobcelisClient:
 
     def _delete(self, path: str) -> None:
         self._request("DELETE", path)
+
+    def _post_public(self, path: str, body: dict) -> dict:
+        """POST without X-Api-Key header (for public auth endpoints)."""
+        resp = requests.post(
+            f"{self.base_url}{path}",
+            json=body,
+            headers={"Content-Type": "application/json"},
+            timeout=self.timeout,
+        )
+        if not resp.ok:
+            try:
+                detail = resp.json()
+            except ValueError:
+                detail = resp.text
+            raise JobcelisError(resp.status_code, detail.get("error", detail) if isinstance(detail, dict) else detail)
+        if resp.status_code == 204:
+            return None
+        return resp.json()
 
     def _request(self, method: str, path: str, **kwargs) -> dict | None:
         params = kwargs.pop("params", None)

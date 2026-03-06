@@ -19,6 +19,34 @@ client = JobcelisClient(
 )
 ```
 
+## Authentication
+
+The auth methods do not require an API key. Use them to register, log in, and manage JWT tokens.
+
+```python
+from jobcelis import JobcelisClient
+
+client = JobcelisClient(api_key="unused", base_url="https://jobcelis.com")
+
+# Register a new account
+user = client.register("alice@example.com", "SecurePass123!", name="Alice")
+
+# Log in — returns JWT access token and refresh token
+session = client.login("alice@example.com", "SecurePass123!")
+access_token = session["token"]
+refresh_token = session["refresh_token"]
+
+# Set the JWT for subsequent authenticated calls
+client.set_auth_token(access_token)
+
+# Refresh an expired token
+new_session = client.refresh_token(refresh_token)
+client.set_auth_token(new_session["token"])
+
+# Verify MFA (requires Bearer token already set)
+result = client.verify_mfa(token=access_token, code="123456")
+```
+
 ## Events
 
 ```python
