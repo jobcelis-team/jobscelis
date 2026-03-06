@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import * as commands from "./commands.js";
+import * as commands from "./commands";
 
 const VERSION = "1.0.0";
 
