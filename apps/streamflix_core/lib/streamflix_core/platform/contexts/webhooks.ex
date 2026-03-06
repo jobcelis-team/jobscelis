@@ -164,7 +164,39 @@ defmodule StreamflixCore.Platform.Webhooks do
   def topic_matches?(_topics, nil), do: false
 
   def topic_matches?(topics, event_topic) when is_list(topics) do
-    event_topic in topics
+    event_segments = String.split(event_topic, ".")
+
+    Enum.any?(topics, fn pattern ->
+      pattern_segments = String.split(pattern, ".")
+      segments_match?(pattern_segments, event_segments)
+    end)
+  end
+
+  defp segments_match?([], []), do: true
+  defp segments_match?([], _remaining), do: false
+  defp segments_match?(["#"], [_ | _]), do: true
+  defp segments_match?(["#"], []), do: false
+  defp segments_match?(["#" | rest], event_segments), do: hash_match?(rest, event_segments)
+  defp segments_match?(_pattern, []), do: false
+
+  defp segments_match?(["*" | p_rest], [_e | e_rest]),
+    do: segments_match?(p_rest, e_rest)
+
+  defp segments_match?([p | p_rest], [e | e_rest]) when p == e,
+    do: segments_match?(p_rest, e_rest)
+
+  defp segments_match?(_pattern, _event), do: false
+
+  # `#` matches one or more segments, so try dropping 1..N segments from event
+  # `#` consumed one or more segments; check if remaining pattern matches remaining event
+  defp hash_match?([], event_segments), do: event_segments != []
+  defp hash_match?(_rest, []), do: false
+
+  defp hash_match?(rest, event_segments) do
+    # Try consuming 1..N segments with `#`, then match rest of pattern
+    Enum.any?(1..length(event_segments), fn drop ->
+      segments_match?(rest, Enum.drop(event_segments, drop))
+    end)
   end
 
   def filters_match?([], _topic, _payload), do: true
@@ -377,7 +409,7 @@ defmodule StreamflixCore.Platform.Webhooks do
           "content-type" => "application/json",
           "x-signature" => signature
         },
-        matched_by_topics: topic in (webhook.topics || []) or webhook.topics == [],
+        matched_by_topics: topic_matches?(webhook.topics || [], topic),
         matched_by_filters: filters_match?(webhook.filters || [], topic, payload)
       }
     end)

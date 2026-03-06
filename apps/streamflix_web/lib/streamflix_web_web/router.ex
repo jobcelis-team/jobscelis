@@ -49,6 +49,7 @@ defmodule StreamflixWebWeb.Router do
 
   pipeline :api_key_auth do
     plug StreamflixWebWeb.Plugs.ApiKeyAuth
+    plug StreamflixWebWeb.Plugs.ProjectRateLimit
   end
 
   pipeline :openapi do
@@ -159,6 +160,7 @@ defmodule StreamflixWebWeb.Router do
 
     post "/send", PlatformEventsController, :create
     post "/events", PlatformEventsController, :create
+    post "/events/batch", PlatformEventsController, :batch
     get "/events", PlatformEventsController, :index
     get "/events/:id", PlatformEventsController, :show
     delete "/events/:id", PlatformEventsController, :delete

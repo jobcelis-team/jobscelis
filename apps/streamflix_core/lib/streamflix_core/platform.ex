@@ -50,6 +50,7 @@ defmodule StreamflixCore.Platform do
 
   # ---------- Events ----------
   defdelegate create_event(project_id, body), to: StreamflixCore.Platform.Events
+  defdelegate create_events_batch(project_id, events), to: StreamflixCore.Platform.Events
   defdelegate list_events(project_id), to: StreamflixCore.Platform.Events
   defdelegate list_events(project_id, opts), to: StreamflixCore.Platform.Events
   defdelegate get_event(id), to: StreamflixCore.Platform.Events

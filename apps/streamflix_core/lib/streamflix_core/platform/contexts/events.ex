@@ -196,6 +196,56 @@ defmodule StreamflixCore.Platform.Events do
     |> Repo.update()
   end
 
+  # ---------- Batch Ingestion ----------
+
+  @max_batch_size 1000
+
+  @doc """
+  Ingest a batch of events for a project.
+
+  Accepts up to #{@max_batch_size} events. Each event is validated individually;
+  one bad event does not reject the entire batch.
+
+  Returns `{:ok, %{accepted: N, rejected: N, events: [...]}}`.
+  """
+  def create_events_batch(project_id, events) when is_list(events) do
+    if length(events) > @max_batch_size do
+      {:error, :batch_too_large}
+    else
+      project = StreamflixCore.Platform.Projects.get_project(project_id)
+
+      if project && !user_processing_allowed?(project.user_id) do
+        {:error, :processing_restricted}
+      else
+        results = Enum.map(events, &process_single_batch_event(project_id, &1))
+
+        accepted = Enum.count(results, &(&1.status == "accepted"))
+        rejected = Enum.count(results, &(&1.status == "rejected"))
+
+        {:ok, %{accepted: accepted, rejected: rejected, events: results}}
+      end
+    end
+  end
+
+  def create_events_batch(_project_id, _events), do: {:error, :invalid_payload}
+
+  defp process_single_batch_event(project_id, event_map) when is_map(event_map) do
+    case create_event(project_id, event_map) do
+      {:ok, event} ->
+        %{id: event.id, topic: event.topic, status: "accepted"}
+
+      {:error, _reason} ->
+        topic =
+          Map.get(event_map, "topic") || Map.get(event_map, :topic)
+
+        %{id: nil, topic: topic, status: "rejected"}
+    end
+  end
+
+  defp process_single_batch_event(_project_id, _invalid) do
+    %{id: nil, topic: nil, status: "rejected"}
+  end
+
   # ---------- Delayed Events ----------
 
   def process_delayed_events() do

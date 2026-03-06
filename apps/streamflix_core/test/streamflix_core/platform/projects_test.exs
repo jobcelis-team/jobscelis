@@ -78,6 +78,45 @@ defmodule StreamflixCore.Platform.ProjectsTest do
     end
   end
 
+  describe "rate limit fields" do
+    test "project has default rate limit values" do
+      user = create_test_user()
+      attrs = %{name: "Rate Limited Project", user_id: user.id}
+
+      assert {:ok, project} = Platform.create_project(attrs)
+      assert project.rate_limit_events_per_minute == 1000
+      assert project.rate_limit_api_calls_per_minute == 500
+    end
+
+    test "rate limit fields can be set on creation" do
+      user = create_test_user()
+
+      attrs = %{
+        name: "Custom Limits",
+        user_id: user.id,
+        rate_limit_events_per_minute: 2000,
+        rate_limit_api_calls_per_minute: 100
+      }
+
+      assert {:ok, project} = Platform.create_project(attrs)
+      assert project.rate_limit_events_per_minute == 2000
+      assert project.rate_limit_api_calls_per_minute == 100
+    end
+
+    test "rate limit fields can be updated" do
+      project = insert(:project)
+
+      assert {:ok, updated} =
+               Platform.update_project(project, %{
+                 rate_limit_api_calls_per_minute: 250,
+                 rate_limit_events_per_minute: 500
+               })
+
+      assert updated.rate_limit_api_calls_per_minute == 250
+      assert updated.rate_limit_events_per_minute == 500
+    end
+  end
+
   describe "get_project/1" do
     test "returns project by id" do
       project = insert(:project)

@@ -14,6 +14,8 @@ defmodule StreamflixCore.Schemas.Project do
     field(:settings, :map, default: %{})
     field(:user_id, :binary_id)
     field(:is_default, :boolean, default: false)
+    field(:rate_limit_events_per_minute, :integer, default: 1000)
+    field(:rate_limit_api_calls_per_minute, :integer, default: 500)
 
     has_many(:api_keys, StreamflixCore.Schemas.ApiKey)
     has_many(:webhooks, StreamflixCore.Schemas.Webhook)
@@ -26,7 +28,15 @@ defmodule StreamflixCore.Schemas.Project do
 
   def changeset(project, attrs) do
     project
-    |> cast(attrs, [:user_id, :name, :status, :settings, :is_default])
+    |> cast(attrs, [
+      :user_id,
+      :name,
+      :status,
+      :settings,
+      :is_default,
+      :rate_limit_events_per_minute,
+      :rate_limit_api_calls_per_minute
+    ])
     |> validate_required([:name])
     |> validate_inclusion(:status, ~w(active inactive))
     |> foreign_key_constraint(:user_id)

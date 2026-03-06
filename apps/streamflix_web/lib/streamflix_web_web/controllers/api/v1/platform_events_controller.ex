@@ -8,7 +8,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
   plug StreamflixWebWeb.Plugs.RequireScope, "events:read" when action in [:index, :show]
 
   plug StreamflixWebWeb.Plugs.RequireScope,
-       "events:write" when action in [:create, :delete, :simulate]
+       "events:write" when action in [:create, :batch, :delete, :simulate]
 
   action_fallback StreamflixWebWeb.FallbackController
 
@@ -66,6 +66,57 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
 
   def create(conn, _),
     do: send_resp(conn, 422, Jason.encode!(%{error: "Body must be a JSON object"}))
+
+  operation(:batch,
+    summary: "Send a batch of events",
+    description:
+      "Ingest up to 1000 events in a single request. " <>
+        "Each event is validated individually; one bad event does not reject the batch.",
+    request_body: {"Batch payload", "application/json", Schemas.BatchEventsCreate},
+    responses: [
+      accepted: {"Batch result", "application/json", Schemas.BatchEventsResponse},
+      unprocessable_entity: {"Invalid payload", "application/json", Schemas.ErrorResponse}
+    ]
+  )
+
+  @doc """
+  POST /api/v1/events/batch - Send multiple events in one request.
+  """
+  def batch(conn, %{"events" => events}) when is_list(events) do
+    project = conn.assigns.current_project
+
+    case Platform.create_events_batch(project.id, events) do
+      {:ok, result} ->
+        conn
+        |> put_status(:accepted)
+        |> json(%{
+          accepted: result.accepted,
+          rejected: result.rejected,
+          events: result.events
+        })
+
+      {:error, :batch_too_large} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "Batch too large, maximum 1000 events"})
+
+      {:error, :processing_restricted} ->
+        conn
+        |> put_status(:forbidden)
+        |> json(%{error: "Processing restricted"})
+
+      {:error, :invalid_payload} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "Invalid payload"})
+    end
+  end
+
+  def batch(conn, _),
+    do:
+      conn
+      |> put_status(:unprocessable_entity)
+      |> json(%{error: "Body must contain an 'events' array"})
 
   operation(:index,
     summary: "List events",
