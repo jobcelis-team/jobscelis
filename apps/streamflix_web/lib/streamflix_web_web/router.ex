@@ -270,6 +270,10 @@ defmodule StreamflixWebWeb.Router do
     post "/invitations/:id/accept", PlatformMembersController, :accept
     post "/invitations/:id/reject", PlatformMembersController, :reject
 
+    # GDPR — Consent management
+    get "/me/consents", GDPRController, :consent_status
+    post "/me/consents/:purpose/accept", GDPRController, :accept_consent
+
     # GDPR — Data export (DSAR)
     get "/me/data", GDPRController, :export_my_data
 
