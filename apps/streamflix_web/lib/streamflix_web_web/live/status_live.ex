@@ -94,7 +94,7 @@ defmodule StreamflixWebWeb.StatusLive do
 
         <div class="space-y-4">
           <.check_row name={gettext("Base de datos")} status={@checks.database} />
-          <.check_row name={gettext("Cola de trabajos (Oban)")} status={@checks.oban} />
+          <.check_row name={gettext("Cola de trabajos")} status={@checks.oban} />
           <.check_row name={gettext("Caché")} status={@checks.cache} />
         </div>
 

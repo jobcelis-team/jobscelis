@@ -16,17 +16,14 @@ defmodule StreamflixWebWeb.HealthController do
   )
 
   def index(conn, _params) do
-    checks = %{
-      database: check_database(),
-      oban: check_oban(),
-      cache: check_cache(),
-      backup: check_backup()
-    }
+    db = check_database()
+    oban = check_oban()
+    cache = check_cache()
 
     {status_code, status_label} =
       cond do
-        checks.database != "ok" -> {503, "unhealthy"}
-        checks.oban != "ok" or checks.cache != "ok" -> {200, "degraded"}
+        db != "ok" -> {503, "unhealthy"}
+        oban != "ok" or cache != "ok" -> {200, "degraded"}
         true -> {200, "healthy"}
       end
 
@@ -34,7 +31,6 @@ defmodule StreamflixWebWeb.HealthController do
     |> put_status(status_code)
     |> json(%{
       status: status_label,
-      checks: checks,
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
     })
   end
@@ -64,14 +60,6 @@ defmodule StreamflixWebWeb.HealthController do
         _ -> "error"
       end
     rescue
-      _ -> "error"
-    end
-  end
-
-  defp check_backup do
-    case StreamflixCore.Platform.Backup.last_backup_info() do
-      {:ok, nil} -> "no_backups"
-      {:ok, info} -> "ok (#{info.filename})"
       _ -> "error"
     end
   end

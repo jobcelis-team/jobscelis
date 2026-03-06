@@ -92,18 +92,19 @@ defmodule StreamflixWebWeb.Router do
     end
   end
 
-  # OpenAPI spec (JSON)
-  scope "/api" do
-    pipe_through [:api, :openapi]
+  # OpenAPI spec + Swagger UI (dev/test only — not exposed in production)
+  if Application.compile_env(:streamflix_web, :dev_routes) do
+    scope "/api" do
+      pipe_through [:api, :openapi]
 
-    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
-  end
+      get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+    end
 
-  # Swagger UI (HTML)
-  scope "/api" do
-    pipe_through [:browser, :openapi]
+    scope "/api" do
+      pipe_through [:browser, :openapi]
 
-    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+      get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+    end
   end
 
   # Sandbox catch-all (receives webhook test requests)
