@@ -107,6 +107,9 @@ logs/
 Session.vim
 .netrwhist
 
+# Claude Code
+.claude/settings.local.json
+
 # Emacs
 *~
 \#*\#
