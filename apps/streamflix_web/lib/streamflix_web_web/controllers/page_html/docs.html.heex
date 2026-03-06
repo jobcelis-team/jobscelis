@@ -2700,6 +2700,19 @@
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">X-API-Version</h3>
+              <p class="text-slate-700 text-sm mb-3">
+                {gettext(
+                  "Cada respuesta de la API incluye la versión actual. Útil para verificar compatibilidad y planificar migraciones."
+                )}
+              </p>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >X-API-Version: 1</pre>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
                 {gettext("Rate Limiting")}
               </h3>

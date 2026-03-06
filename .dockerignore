@@ -1,0 +1,12 @@
+.devbox
+.git
+.github
+_build
+deps
+node_modules
+.elixir_ls
+.env
+.env.*
+k6
+docs
+*.md
