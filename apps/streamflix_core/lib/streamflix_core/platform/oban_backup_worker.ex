@@ -16,7 +16,7 @@ defmodule StreamflixCore.Platform.ObanBackupWorker do
 
   @impl Oban.Worker
   def perform(_job) do
-    Logger.info("[BackupWorker] Iniciando backup programado")
+    Logger.info("Starting scheduled backup", worker: "BackupWorker")
 
     case Backup.run() do
       {:ok, :disabled} ->
@@ -32,16 +32,24 @@ defmodule StreamflixCore.Platform.ObanBackupWorker do
           }
         )
 
-        # Limpiar backups antiguos
         case Backup.cleanup() do
           {:ok, deleted} when deleted > 0 ->
-            Logger.info("[BackupWorker] Limpieza completada: #{deleted} backups eliminados")
+            Logger.info("Backup cleanup completed",
+              worker: "BackupWorker",
+              backups_deleted: deleted
+            )
 
           _ ->
             :ok
         end
 
-        Logger.info("[BackupWorker] Backup completado exitosamente")
+        Logger.info("Backup completed successfully",
+          worker: "BackupWorker",
+          file: Path.basename(file),
+          size_bytes: size,
+          duration_ms: duration
+        )
+
         :ok
 
       {:error, reason} ->
@@ -49,7 +57,7 @@ defmodule StreamflixCore.Platform.ObanBackupWorker do
           metadata: %{error: to_string(reason)}
         )
 
-        Logger.error("[BackupWorker] Backup falló: #{reason}")
+        Logger.error("Backup failed", worker: "BackupWorker", error: to_string(reason))
         {:error, reason}
     end
   end

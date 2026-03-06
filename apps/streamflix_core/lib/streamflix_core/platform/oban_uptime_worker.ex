@@ -22,7 +22,11 @@ defmodule StreamflixCore.Platform.ObanUptimeWorker do
         :ok
 
       {:error, reason} ->
-        Logger.error("[ObanUptimeWorker] Failed to perform health check: #{inspect(reason)}")
+        Logger.error("Health check failed",
+          worker: "UptimeWorker",
+          error: inspect(reason)
+        )
+
         :ok
     end
   end

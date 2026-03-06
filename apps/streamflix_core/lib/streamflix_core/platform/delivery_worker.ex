@@ -26,22 +26,38 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
 
     case delivery do
       nil ->
-        Logger.warning("[DeliveryWorker] Delivery not found: #{delivery_id}")
+        Logger.warning("Delivery not found",
+          worker: "DeliveryWorker",
+          delivery_id: delivery_id
+        )
+
         {:error, :not_found}
 
       %{status: "success"} ->
         {:ok, delivery}
 
       %{event: nil} ->
-        Logger.warning("[DeliveryWorker] Delivery #{delivery_id} has no event")
+        Logger.warning("Delivery has no event",
+          worker: "DeliveryWorker",
+          delivery_id: delivery_id
+        )
+
         mark_failed(delivery, nil, "missing event")
 
       %{webhook: nil} ->
-        Logger.warning("[DeliveryWorker] Delivery #{delivery_id} has no webhook")
+        Logger.warning("Delivery has no webhook",
+          worker: "DeliveryWorker",
+          delivery_id: delivery_id
+        )
+
         mark_failed(delivery, nil, "missing webhook")
 
       %{webhook: %{status: "inactive"}} ->
-        Logger.info("[DeliveryWorker] Webhook inactive for delivery #{delivery_id}, skipping")
+        Logger.info("Webhook inactive, skipping delivery",
+          worker: "DeliveryWorker",
+          delivery_id: delivery_id
+        )
+
         {:ok, delivery}
 
       d ->
@@ -49,8 +65,9 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         project = Repo.get(StreamflixCore.Schemas.Project, d.event.project_id)
 
         if project && !Platform.user_processing_allowed?(project.user_id) do
-          Logger.info(
-            "[DeliveryWorker] Skipping delivery #{delivery_id}, user processing restricted"
+          Logger.info("Skipping delivery, user processing restricted",
+            worker: "DeliveryWorker",
+            delivery_id: delivery_id
           )
 
           {:ok, delivery}
@@ -72,7 +89,13 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
 
     headers = build_headers(webhook, body_json)
 
-    Logger.info("[DeliveryWorker] Starting POST to #{url} for delivery #{delivery.id}")
+    Logger.info("Starting webhook delivery",
+      worker: "DeliveryWorker",
+      delivery_id: delivery.id,
+      webhook_id: webhook.id,
+      event_id: event.id,
+      url: url
+    )
 
     opts = [
       json: body,
@@ -87,18 +110,45 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     case Req.post(url, opts) do
       {:ok, %{status: status} = resp} when status >= 200 and status < 300 ->
         latency_ms = System.monotonic_time(:millisecond) - start_time
-        Logger.info("[DeliveryWorker] Success #{status} for delivery #{delivery.id}")
+
+        Logger.info("Delivery succeeded",
+          worker: "DeliveryWorker",
+          delivery_id: delivery.id,
+          webhook_id: webhook.id,
+          event_id: event.id,
+          status: status,
+          duration_ms: latency_ms
+        )
+
         mark_success(delivery, status, resp, latency_ms)
 
       {:ok, %{status: status} = resp} ->
         latency_ms = System.monotonic_time(:millisecond) - start_time
-        Logger.warning("[DeliveryWorker] Non-2xx #{status} for delivery #{delivery.id}")
+
+        Logger.warning("Delivery got non-2xx response",
+          worker: "DeliveryWorker",
+          delivery_id: delivery.id,
+          webhook_id: webhook.id,
+          event_id: event.id,
+          status: status,
+          duration_ms: latency_ms
+        )
+
         resp_body = format_response_body(resp)
         mark_failed(delivery, status, resp_body, latency_ms, flatten_headers(resp.headers))
 
       {:error, reason} ->
         latency_ms = System.monotonic_time(:millisecond) - start_time
-        Logger.error("[DeliveryWorker] Error for delivery #{delivery.id}: #{inspect(reason)}")
+
+        Logger.error("Delivery failed with error",
+          worker: "DeliveryWorker",
+          delivery_id: delivery.id,
+          webhook_id: webhook.id,
+          event_id: event.id,
+          error: inspect(reason),
+          duration_ms: latency_ms
+        )
+
         mark_failed(delivery, nil, inspect(reason), latency_ms, nil)
     end
   end
@@ -218,8 +268,12 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         )
       end
 
-      Logger.warning(
-        "[DeliveryWorker] Delivery #{delivery.id} moved to Dead Letter Queue after #{delivery.attempt_number} attempts"
+      Logger.warning("Delivery moved to Dead Letter Queue",
+        worker: "DeliveryWorker",
+        delivery_id: delivery.id,
+        webhook_id: delivery.webhook_id,
+        event_id: delivery.event_id,
+        attempts: delivery.attempt_number
       )
     end
   end
