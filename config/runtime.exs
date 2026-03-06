@@ -60,15 +60,28 @@ if config_env() == :prod do
   host = System.get_env("PHX_HOST") || "jobcelis.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
-  config :streamflix_web, StreamflixWebWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
-    http: [
-      # IPv4 0.0.0.0 para que Azure y el health check puedan conectar (evitar solo IPv6)
-      ip: {0, 0, 0, 0},
-      port: port
-    ],
-    secret_key_base: secret_key_base,
-    server: true
+  # CDN for static assets (optional — set CDN_HOST to enable)
+  static_url =
+    if cdn_host = System.get_env("CDN_HOST") do
+      [scheme: "https", host: cdn_host, port: 443]
+    end
+
+  endpoint_config =
+    [
+      url: [host: host, port: 443, scheme: "https"],
+      http: [
+        # IPv4 0.0.0.0 para que Azure y el health check puedan conectar (evitar solo IPv6)
+        ip: {0, 0, 0, 0},
+        port: port
+      ],
+      secret_key_base: secret_key_base,
+      server: true
+    ]
+    |> then(fn config ->
+      if static_url, do: Keyword.put(config, :static_url, static_url), else: config
+    end)
+
+  config :streamflix_web, StreamflixWebWeb.Endpoint, endpoint_config
 
   # Guardian Secret Key
   guardian_secret =
