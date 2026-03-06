@@ -183,6 +183,10 @@ class JobcelisClient:
         """Delete a pipeline."""
         self._delete(f"/api/v1/pipelines/{pipeline_id}")
 
+    def test_pipeline(self, pipeline_id: str, payload: dict) -> dict:
+        """Test a pipeline with a sample payload."""
+        return self._post(f"/api/v1/pipelines/{pipeline_id}/test", payload)
+
     # --- Event Schemas ---
 
     def create_event_schema(self, topic: str, schema: dict, **kwargs) -> dict:
@@ -314,6 +318,20 @@ class JobcelisClient:
     def remove_member(self, project_id: str, member_id: str) -> None:
         """Remove a member from a project."""
         self._delete(f"/api/v1/projects/{project_id}/members/{member_id}")
+
+    # --- Invitations ---
+
+    def list_pending_invitations(self) -> dict:
+        """List pending invitations for the current user."""
+        return self._get("/api/v1/invitations/pending")
+
+    def accept_invitation(self, invitation_id: str) -> dict:
+        """Accept an invitation."""
+        return self._post(f"/api/v1/invitations/{invitation_id}/accept", {})
+
+    def reject_invitation(self, invitation_id: str) -> dict:
+        """Reject an invitation."""
+        return self._post(f"/api/v1/invitations/{invitation_id}/reject", {})
 
     # --- Audit ---
 
