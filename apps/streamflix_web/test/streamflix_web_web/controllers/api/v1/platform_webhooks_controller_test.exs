@@ -20,7 +20,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksControllerTest do
 
       conn = get(conn, "/api/v1/webhooks")
       resp = json_response(conn, 200)
-      assert length(resp["webhooks"]) >= 1
+      assert resp["webhooks"] != []
     end
   end
 
@@ -111,7 +111,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksControllerTest do
       conn = get(conn, "/api/v1/webhooks/templates")
       resp = json_response(conn, 200)
       assert is_list(resp["templates"])
-      assert length(resp["templates"]) > 0
+      assert resp["templates"] != []
     end
   end
 end

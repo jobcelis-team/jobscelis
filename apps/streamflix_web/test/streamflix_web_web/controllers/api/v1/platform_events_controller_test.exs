@@ -58,7 +58,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsControllerTest do
       conn = get(conn, "/api/v1/events")
       resp = json_response(conn, 200)
       assert is_list(resp["events"])
-      assert length(resp["events"]) >= 1
+      assert resp["events"] != []
     end
   end
 
