@@ -725,7 +725,7 @@ Todos los SDKs cubren el **100% de la API** (84+ endpoints) con documentación c
 | **C# / .NET SDK** | [nuget.org/packages/Jobcelis](https://www.nuget.org/packages/Jobcelis) | `dotnet add package Jobcelis` | v1.0.0 |
 | **Rust SDK** | [crates.io/crates/jobcelis](https://crates.io/crates/jobcelis) · [docs](https://docs.rs/jobcelis) | `cargo add jobcelis` | v1.0.0 |
 | **Swift SDK** | [github.com/vladimirCeli/jobcelis-swift](https://github.com/vladimirCeli/jobcelis-swift) | `.package(url: "...jobcelis-swift", from: "1.0.0")` | v1.0.0 |
-| **Java SDK** | [github.com/vladimirCeli/jobcelis-java](https://github.com/vladimirCeli/jobcelis-java) | `com.jobcelis:jobcelis:1.0.0` | v1.0.0 |
+| **Java SDK** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis/1.0.0/) · [GitHub](https://github.com/vladimirCeli/jobcelis-java) | `com.jobcelis:jobcelis:1.0.0` | v1.0.0 |
 | **Dart/Flutter SDK** | [pub.dev/packages/jobcelis](https://pub.dev/packages/jobcelis) | `dart pub add jobcelis` | v1.0.0 |
 | **Kotlin SDK** | [github.com/vladimirCeli/jobcelis-kotlin](https://github.com/vladimirCeli/jobcelis-kotlin) | `com.jobcelis:jobcelis:1.0.0` | v1.0.0 |
 | **Terraform Provider** | [registry.terraform.io/vladimirCeli/jobcelis](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | Ver bloque `required_providers` | v1.0.0 |
