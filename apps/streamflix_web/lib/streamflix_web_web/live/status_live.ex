@@ -11,7 +11,14 @@ defmodule StreamflixWebWeb.StatusLive do
   def mount(_params, _session, socket) do
     if connected?(socket), do: Process.send_after(self(), :refresh, @refresh_interval)
 
-    {:ok, assign(socket, page_title: gettext("Estado del sistema"), checks: run_checks())}
+    {:ok,
+     assign(socket,
+       page_title: gettext("Estado del sistema"),
+       meta_description:
+         gettext("Estado actual de la plataforma Jobcelis: base de datos, workers y caché."),
+       current_path: "/status",
+       checks: run_checks()
+     )}
   end
 
   @impl true
