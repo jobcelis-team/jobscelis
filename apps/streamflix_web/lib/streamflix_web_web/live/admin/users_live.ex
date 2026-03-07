@@ -15,6 +15,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
       |> assign(:users, [])
       |> assign(:loading, true)
       |> assign(:search, "")
+      |> assign(:all_users, [])
       |> assign(:editing_user, nil)
       |> assign(:current_user_role, current_user.role)
 
@@ -31,10 +32,17 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
 
     socket =
       socket
-      |> assign(:users, users)
+      |> assign(:all_users, users)
+      |> assign(:users, filter_users(users, socket.assigns.search))
       |> assign(:loading, false)
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("search", %{"search" => term}, socket) do
+    filtered = filter_users(socket.assigns.all_users, term)
+    {:noreply, assign(socket, search: term, users: filtered)}
   end
 
   @impl true
@@ -123,6 +131,19 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
     |> Enum.map_join("; ", fn {field, errors} -> "#{field}: #{Enum.join(errors, ", ")}" end)
   end
 
+  defp filter_users(users, ""), do: users
+  defp filter_users(users, nil), do: users
+
+  defp filter_users(users, term) do
+    term = String.downcase(term)
+
+    Enum.filter(users, fn user ->
+      String.contains?(String.downcase(user.name || ""), term) or
+        String.contains?(String.downcase(user.email || ""), term) or
+        String.contains?(String.downcase(user.role || ""), term)
+    end)
+  end
+
   defp load_users_from_db() do
     User
     |> order_by([u], desc: u.inserted_at)
@@ -150,13 +171,16 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
     <.admin_layout active="users" current_user_role={@current_user_role}>
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">{gettext("Usuarios")}</h1>
       <%!-- Search --%>
-      <div class="bg-white rounded-lg shadow p-4 mb-6">
+      <form phx-change="search" class="bg-white rounded-lg shadow p-4 mb-6">
         <input
           type="text"
+          name="search"
+          value={@search}
           placeholder={gettext("Buscar usuarios...")}
+          phx-debounce="300"
           class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white"
         />
-      </div>
+      </form>
       <%!-- Users Table --%>
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
