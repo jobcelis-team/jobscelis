@@ -7,7 +7,7 @@ defmodule StreamflixWebWeb.ErrorHTML do
 
   embed_templates "error_html/*"
 
-  def locale(conn) do
+  def locale(%Plug.Conn{} = conn) do
     cookie_header =
       conn
       |> Plug.Conn.get_req_header("cookie")
@@ -20,6 +20,8 @@ defmodule StreamflixWebWeb.ErrorHTML do
   rescue
     _ -> "en"
   end
+
+  def locale(_), do: "en"
 
   # Fallback for any status code without a custom template
   def render(template, _assigns) do
