@@ -133,9 +133,14 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - `sdks/cli/` — CLI tool (`@jobcelis/cli` on npm)
 - `sdks/python/` — Python SDK (`jobcelis` on PyPI)
 - `sdks/go/` — Go SDK (synced to external repo)
+- `sdks/php/` — PHP SDK (`jobcelis/sdk` on Packagist)
+- `sdks/ruby/` — Ruby SDK (`jobcelis` on RubyGems)
+- `sdks/github-action/` — GitHub Action (used directly from this repo)
 
 ### External repos (required by their registries)
 - **Go SDK**: `github.com/vladimirCeli/go-jobcelis` — pkg.go.dev requires own repo with `go.mod` at root
+- **PHP SDK**: `github.com/vladimirCeli/jobcelis-php` — Packagist requires `composer.json` at repo root
+- **Ruby SDK**: `github.com/vladimirCeli/jobcelis-ruby` — public repo for RubyGems + code visibility
 - **Terraform Provider**: `github.com/vladimirCeli/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
 
 ### SDK publishing rules
@@ -143,15 +148,20 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **PyPI**: Uses `__token__` auth. GitHub secret: `PYPI_TOKEN`. `setup.py` must include `long_description` from README
 - **Go**: Tag-based (`git tag v1.x.0 && git push origin v1.x.0`). No token needed for public repos
 - **Terraform**: GoReleaser on tag push. Requires `GPG_PRIVATE_KEY` secret for signing
+- **RubyGems**: GitHub secret: `RUBYGEMS_API_KEY`. Version in `lib/jobcelis.rb` and `jobcelis.gemspec`
+- **Packagist**: Auto-sync via GitHub webhook — register package on packagist.org, no CI secret needed
+- **GitHub Action**: No publishing — used directly from repo with `uses: vladimirCeli/jobscelis/sdks/github-action@main`
 - **Workflow**: `.github/workflows/publish-sdks.yml` — manual trigger with package choice
-- Always bump version in `package.json`/`setup.py` before publishing — registries reject duplicate versions
+- Always bump version in `package.json`/`setup.py`/`gemspec` before publishing — registries reject duplicate versions
 
 ### SDK code conventions
 - TypeScript SDKs need `@types/node` in devDependencies and `"types": ["node"]` in tsconfig
 - TypeScript imports: use `"./module"` not `"./module.js"` with `commonjs` module
 - Python `setup.py`: always include `long_description` + `long_description_content_type="text/markdown"` for PyPI README
 - Go SDK: three auth modes — `doRequest` (API key), `doAuthenticatedRequest` (Bearer), `doPublicRequest` (no auth)
-- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs
+- PHP SDK: native cURL, PSR-4 autoload, requires PHP 8.1+
+- Ruby SDK: net/http, no external dependencies, requires Ruby 3.0+
+- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs (Node, Python, Go, PHP, Ruby, CLI)
 
 ### Syncing external repos
 When updating Go SDK or Terraform provider:

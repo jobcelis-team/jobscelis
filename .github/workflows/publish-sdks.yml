@@ -11,6 +11,8 @@ on:
           - npm-sdk
           - npm-cli
           - pypi
+          - packagist
+          - rubygems
           - all
 
 jobs:
@@ -82,3 +84,27 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
+  publish-rubygems:
+    name: Publish jobcelis gem to RubyGems
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'rubygems' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+
+      - name: Build gem
+        working-directory: sdks/ruby
+        run: gem build jobcelis.gemspec
+
+      - name: Publish to RubyGems
+        working-directory: sdks/ruby
+        run: |
+          mkdir -p ~/.gem
+          echo "---" > ~/.gem/credentials
+          echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" >> ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+          gem push jobcelis-*.gem
