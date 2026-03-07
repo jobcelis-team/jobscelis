@@ -24,7 +24,7 @@ public static class WebhookVerifier
 
         using var hmac = new HMACSHA256(keyBytes);
         var hash = hmac.ComputeHash(bodyBytes);
-        var expected = Convert.ToHexStringLower(hash);
+        var expected = Convert.ToHexString(hash).ToLowerInvariant();
 
         return CryptographicOperations.FixedTimeEquals(
             Encoding.UTF8.GetBytes(expected),
