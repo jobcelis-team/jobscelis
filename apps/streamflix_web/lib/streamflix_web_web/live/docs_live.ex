@@ -3217,7 +3217,9 @@ func VerifySignature(secret, body, signature string) bool {
           copy_id="copy-health"
         />
         <.code_block
-          code={~s|// Response (200 OK)\n{\n  "status": "healthy",\n  "timestamp": "2026-03-07T14:30:00Z"\n}|}
+          code={
+            ~s|// Response (200 OK)\n{\n  "status": "healthy",\n  "timestamp": "2026-03-07T14:30:00Z"\n}|
+          }
           copy_id="copy-health-response"
           title={gettext("Respuesta")}
         />
