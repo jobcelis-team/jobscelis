@@ -229,7 +229,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2466
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4289
 #: lib/streamflix_web_web/live/docs_live.ex:100
-#: lib/streamflix_web_web/live/docs_live.ex:2437
+#: lib/streamflix_web_web/live/docs_live.ex:100
+#: lib/streamflix_web_web/live/docs_live.ex:2479
+#: lib/streamflix_web_web/live/docs_live.ex:2479
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:3802
 #, elixir-autogen, elixir-format
 msgid "Analíticas"
@@ -257,7 +259,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:59
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:852
 #: lib/streamflix_web_web/live/docs_live.ex:69
-#: lib/streamflix_web_web/live/docs_live.ex:1001
+#: lib/streamflix_web_web/live/docs_live.ex:69
+#: lib/streamflix_web_web/live/docs_live.ex:1043
+#: lib/streamflix_web_web/live/docs_live.ex:1043
 #, elixir-autogen, elixir-format
 msgid "Autenticación"
 msgstr ""
@@ -373,7 +377,8 @@ msgid "Cancelar"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:547
-#: lib/streamflix_web_web/live/docs_live.ex:779
+#: lib/streamflix_web_web/live/docs_live.ex:821
+#: lib/streamflix_web_web/live/docs_live.ex:821
 #, elixir-autogen, elixir-format
 msgid "Capacidades principales"
 msgstr ""
@@ -428,7 +433,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:32
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:614
 #: lib/streamflix_web_web/live/docs_live.ex:60
-#: lib/streamflix_web_web/live/docs_live.ex:829
+#: lib/streamflix_web_web/live/docs_live.ex:60
+#: lib/streamflix_web_web/live/docs_live.ex:871
+#: lib/streamflix_web_web/live/docs_live.ex:871
 #, elixir-autogen, elixir-format
 msgid "Conceptos básicos"
 msgstr ""
@@ -443,6 +450,7 @@ msgstr ""
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:369
 #: lib/streamflix_web_web/live/admin/settings_live.ex:10
 #: lib/streamflix_web_web/live/admin/settings_live.ex:21
+#: lib/streamflix_web_web/live/docs_live.ex:66
 #: lib/streamflix_web_web/live/docs_live.ex:66
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2148
 #, elixir-autogen, elixir-format
@@ -534,7 +542,8 @@ msgid "Cookies y similares"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:752
-#: lib/streamflix_web_web/live/docs_live.ex:903
+#: lib/streamflix_web_web/live/docs_live.ex:945
+#: lib/streamflix_web_web/live/docs_live.ex:945
 #, elixir-autogen, elixir-format
 msgid "Copia tu API Token"
 msgstr ""
@@ -567,7 +576,8 @@ msgid "Crea un endpoint temporal para recibir y ver requests en tiempo real."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:804
-#: lib/streamflix_web_web/live/docs_live.ex:930
+#: lib/streamflix_web_web/live/docs_live.ex:972
+#: lib/streamflix_web_web/live/docs_live.ex:972
 #, elixir-autogen, elixir-format
 msgid "Crea un job (opcional)"
 msgstr ""
@@ -588,7 +598,8 @@ msgid "Crea un sandbox endpoint. Body: name (requerido). Respuesta incluye slug 
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:788
-#: lib/streamflix_web_web/live/docs_live.ex:921
+#: lib/streamflix_web_web/live/docs_live.ex:963
+#: lib/streamflix_web_web/live/docs_live.ex:963
 #, elixir-autogen, elixir-format
 msgid "Crea un webhook"
 msgstr ""
@@ -658,7 +669,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:486
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2917
 #: lib/streamflix_web_web/live/docs_live.ex:149
-#: lib/streamflix_web_web/live/docs_live.ex:3113
+#: lib/streamflix_web_web/live/docs_live.ex:149
+#: lib/streamflix_web_web/live/docs_live.ex:3155
+#: lib/streamflix_web_web/live/docs_live.ex:3155
 #, elixir-autogen, elixir-format
 msgid "Códigos de respuesta"
 msgstr ""
@@ -837,6 +850,7 @@ msgstr ""
 #: lib/streamflix_web_web/components/layouts.ex:326
 #: lib/streamflix_web_web/controllers/page_html/contact.html.heex:164
 #: lib/streamflix_web_web/live/docs_live.ex:38
+#: lib/streamflix_web_web/live/docs_live.ex:38
 #, elixir-autogen, elixir-format
 msgid "Documentación"
 msgstr ""
@@ -852,7 +866,8 @@ msgid "Documentación ampliada: conceptos básicos (eventos, webhooks, entregas,
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:496
-#: lib/streamflix_web_web/live/docs_live.ex:726
+#: lib/streamflix_web_web/live/docs_live.ex:768
+#: lib/streamflix_web_web/live/docs_live.ex:768
 #, elixir-autogen, elixir-format
 msgid "Documentación de la API"
 msgstr ""
@@ -946,7 +961,8 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3343
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3388
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3515
-#: lib/streamflix_web_web/live/docs_live.ex:843
+#: lib/streamflix_web_web/live/docs_live.ex:885
+#: lib/streamflix_web_web/live/docs_live.ex:885
 #, elixir-autogen, elixir-format
 msgid "Ejemplo"
 msgstr ""
@@ -1113,7 +1129,8 @@ msgid "En la medida permitida por la ley, no seremos responsables por daños ind
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:742
-#: lib/streamflix_web_web/live/docs_live.ex:898
+#: lib/streamflix_web_web/live/docs_live.ex:940
+#: lib/streamflix_web_web/live/docs_live.ex:940
 #, elixir-autogen, elixir-format
 msgid "En la web, regístrate con tu email y contraseña. Entra al Dashboard."
 msgstr ""
@@ -1157,7 +1174,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1439
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4223
 #: lib/streamflix_web_web/live/docs_live.ex:80
-#: lib/streamflix_web_web/live/docs_live.ex:1358
+#: lib/streamflix_web_web/live/docs_live.ex:80
+#: lib/streamflix_web_web/live/docs_live.ex:1400
+#: lib/streamflix_web_web/live/docs_live.ex:1400
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2957
 #, elixir-autogen, elixir-format
 msgid "Entregas"
@@ -1194,7 +1213,8 @@ msgid "Entregas recientes"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:564
-#: lib/streamflix_web_web/live/docs_live.ex:793
+#: lib/streamflix_web_web/live/docs_live.ex:835
+#: lib/streamflix_web_web/live/docs_live.ex:835
 #, elixir-autogen, elixir-format
 msgid "Entregas:"
 msgstr ""
@@ -1221,7 +1241,8 @@ msgid "Enviar evento de prueba"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:768
-#: lib/streamflix_web_web/live/docs_live.ex:910
+#: lib/streamflix_web_web/live/docs_live.ex:952
+#: lib/streamflix_web_web/live/docs_live.ex:952
 #, elixir-autogen, elixir-format
 msgid "Envía tu primer evento"
 msgstr ""
@@ -1363,7 +1384,8 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:203
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2211
-#: lib/streamflix_web_web/live/docs_live.ex:1842
+#: lib/streamflix_web_web/live/docs_live.ex:1884
+#: lib/streamflix_web_web/live/docs_live.ex:1884
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2637
 #, elixir-autogen, elixir-format
 msgid "Event Replay"
@@ -1385,8 +1407,11 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4201
 #: lib/streamflix_web_web/controllers/page_html/home.html.heex:274
 #: lib/streamflix_web_web/live/docs_live.ex:78
-#: lib/streamflix_web_web/live/docs_live.ex:744
-#: lib/streamflix_web_web/live/docs_live.ex:1173
+#: lib/streamflix_web_web/live/docs_live.ex:78
+#: lib/streamflix_web_web/live/docs_live.ex:786
+#: lib/streamflix_web_web/live/docs_live.ex:786
+#: lib/streamflix_web_web/live/docs_live.ex:1215
+#: lib/streamflix_web_web/live/docs_live.ex:1215
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2108
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:3819
 #, elixir-autogen, elixir-format
@@ -1432,7 +1457,8 @@ msgid "Eventos, webhooks, entregas y jobs programados (diario, semanal, mensual,
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:552
-#: lib/streamflix_web_web/live/docs_live.ex:783
+#: lib/streamflix_web_web/live/docs_live.ex:825
+#: lib/streamflix_web_web/live/docs_live.ex:825
 #, elixir-autogen, elixir-format
 msgid "Eventos:"
 msgstr ""
@@ -1572,7 +1598,8 @@ msgid "GitHub"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:585
-#: lib/streamflix_web_web/live/docs_live.ex:806
+#: lib/streamflix_web_web/live/docs_live.ex:848
+#: lib/streamflix_web_web/live/docs_live.ex:848
 #, elixir-autogen, elixir-format
 msgid "Grupos de rutas"
 msgstr ""
@@ -1621,8 +1648,10 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:871
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:878
-#: lib/streamflix_web_web/live/docs_live.ex:1009
-#: lib/streamflix_web_web/live/docs_live.ex:1015
+#: lib/streamflix_web_web/live/docs_live.ex:1051
+#: lib/streamflix_web_web/live/docs_live.ex:1051
+#: lib/streamflix_web_web/live/docs_live.ex:1057
+#: lib/streamflix_web_web/live/docs_live.ex:1057
 #, elixir-autogen, elixir-format
 msgid "Header"
 msgstr ""
@@ -1644,7 +1673,8 @@ msgid "Health Check"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:216
-#: lib/streamflix_web_web/live/docs_live.ex:2157
+#: lib/streamflix_web_web/live/docs_live.ex:2199
+#: lib/streamflix_web_web/live/docs_live.ex:2199
 #, elixir-autogen, elixir-format
 msgid "Herramientas"
 msgstr ""
@@ -1731,7 +1761,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:26
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:530
 #: lib/streamflix_web_web/live/docs_live.ex:59
-#: lib/streamflix_web_web/live/docs_live.ex:768
+#: lib/streamflix_web_web/live/docs_live.ex:59
+#: lib/streamflix_web_web/live/docs_live.ex:810
+#: lib/streamflix_web_web/live/docs_live.ex:810
 #, elixir-autogen, elixir-format
 msgid "Introducción"
 msgstr ""
@@ -2053,7 +2085,8 @@ msgid "Mínimo 8 caracteres, con mayúsculas, minúsculas y números."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:13
-#: lib/streamflix_web_web/live/docs_live.ex:178
+#: lib/streamflix_web_web/live/docs_live.ex:179
+#: lib/streamflix_web_web/live/docs_live.ex:179
 #, elixir-autogen, elixir-format
 msgid "Navegación de la documentación"
 msgstr ""
@@ -2306,7 +2339,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:510
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:724
 #: lib/streamflix_web_web/live/docs_live.ex:57
-#: lib/streamflix_web_web/live/docs_live.ex:738
+#: lib/streamflix_web_web/live/docs_live.ex:57
+#: lib/streamflix_web_web/live/docs_live.ex:780
+#: lib/streamflix_web_web/live/docs_live.ex:780
 #, elixir-autogen, elixir-format
 msgid "Primeros pasos"
 msgstr ""
@@ -2365,7 +2400,9 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:170
 #: lib/streamflix_web_web/live/docs_live.ex:82
-#: lib/streamflix_web_web/live/docs_live.ex:1541
+#: lib/streamflix_web_web/live/docs_live.ex:82
+#: lib/streamflix_web_web/live/docs_live.ex:1583
+#: lib/streamflix_web_web/live/docs_live.ex:1583
 #, elixir-autogen, elixir-format
 msgid "Proyecto y token"
 msgstr ""
@@ -2481,6 +2518,7 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:126
 #: lib/streamflix_web_web/live/docs_live.ex:75
+#: lib/streamflix_web_web/live/docs_live.ex:75
 #, elixir-autogen, elixir-format
 msgid "Referencia API"
 msgstr ""
@@ -2553,7 +2591,8 @@ msgid "Regístrate"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:738
-#: lib/streamflix_web_web/live/docs_live.ex:896
+#: lib/streamflix_web_web/live/docs_live.ex:938
+#: lib/streamflix_web_web/live/docs_live.ex:938
 #, elixir-autogen, elixir-format
 msgid "Regístrate e inicia sesión"
 msgstr ""
@@ -2656,7 +2695,8 @@ msgid "Respuesta ejemplo:"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:603
-#: lib/streamflix_web_web/live/docs_live.ex:820
+#: lib/streamflix_web_web/live/docs_live.ex:862
+#: lib/streamflix_web_web/live/docs_live.ex:862
 #, elixir-autogen, elixir-format
 msgid "Respuestas en JSON. CORS habilitado. Payload máximo 256 KB."
 msgstr ""
@@ -2705,7 +2745,8 @@ msgid "Rutas con API Key (Jobcelis)"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:596
-#: lib/streamflix_web_web/live/docs_live.ex:814
+#: lib/streamflix_web_web/live/docs_live.ex:856
+#: lib/streamflix_web_web/live/docs_live.ex:856
 #, elixir-autogen, elixir-format
 msgid "Rutas con API Key:"
 msgstr ""
@@ -2737,7 +2778,8 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/mfa_verify.html.heex:2
 #: lib/streamflix_web_web/controllers/page_html/mfa_verify.html.heex:2
 #: lib/streamflix_web_web/controllers/page_html/signup.html.heex:2
-#: lib/streamflix_web_web/live/docs_live.ex:166
+#: lib/streamflix_web_web/live/docs_live.ex:167
+#: lib/streamflix_web_web/live/docs_live.ex:167
 #, elixir-autogen, elixir-format
 msgid "Saltar al contenido"
 msgstr ""
@@ -2812,13 +2854,15 @@ msgid "Si tienes dudas, contacta a"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1757
-#: lib/streamflix_web_web/live/docs_live.ex:3121
+#: lib/streamflix_web_web/live/docs_live.ex:3163
+#: lib/streamflix_web_web/live/docs_live.ex:3163
 #, elixir-autogen, elixir-format
 msgid "Significado"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:727
-#: lib/streamflix_web_web/live/docs_live.ex:891
+#: lib/streamflix_web_web/live/docs_live.ex:933
+#: lib/streamflix_web_web/live/docs_live.ex:933
 #, elixir-autogen, elixir-format
 msgid "Sigue estos pasos para tener todo funcionando en pocos minutos."
 msgstr ""
@@ -2830,7 +2874,9 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:185
 #: lib/streamflix_web_web/live/docs_live.ex:115
-#: lib/streamflix_web_web/live/docs_live.ex:2714
+#: lib/streamflix_web_web/live/docs_live.ex:115
+#: lib/streamflix_web_web/live/docs_live.ex:2756
+#: lib/streamflix_web_web/live/docs_live.ex:2756
 #, elixir-autogen, elixir-format
 msgid "Simulador"
 msgstr ""
@@ -3092,7 +3138,8 @@ msgid "URL pública para enviar peticiones de prueba. Acepta cualquier método H
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:558
-#: lib/streamflix_web_web/live/docs_live.ex:788
+#: lib/streamflix_web_web/live/docs_live.ex:830
+#: lib/streamflix_web_web/live/docs_live.ex:830
 #, elixir-autogen, elixir-format
 msgid "URLs de destino, filtros (topic, amount, status), body_config (full, pick, rename, extra)."
 msgstr ""
@@ -3321,7 +3368,8 @@ msgid "body_mode: full o pick. body_pick: array de campos. body_rename: {old: ne
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:570
-#: lib/streamflix_web_web/live/docs_live.ex:798
+#: lib/streamflix_web_web/live/docs_live.ex:840
+#: lib/streamflix_web_web/live/docs_live.ex:840
 #, elixir-autogen, elixir-format
 msgid "daily, weekly, monthly o cron. Emitir evento o POST a URL."
 msgstr ""
@@ -3352,13 +3400,15 @@ msgid "es un proyecto original desarrollado por"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:576
-#: lib/streamflix_web_web/live/docs_live.ex:802
+#: lib/streamflix_web_web/live/docs_live.ex:844
+#: lib/streamflix_web_web/live/docs_live.ex:844
 #, elixir-autogen, elixir-format
 msgid "etiquetas para filtrar y organizar eventos."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:596
-#: lib/streamflix_web_web/live/docs_live.ex:814
+#: lib/streamflix_web_web/live/docs_live.ex:856
+#: lib/streamflix_web_web/live/docs_live.ex:856
 #, elixir-autogen, elixir-format
 msgid "eventos, webhooks, deliveries, jobs, proyecto. Token en Dashboard."
 msgstr ""
@@ -3403,7 +3453,8 @@ msgid "registro e inicio de sesión; Dashboard para proyecto, token, eventos y w
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:590
-#: lib/streamflix_web_web/live/docs_live.ex:809
+#: lib/streamflix_web_web/live/docs_live.ex:851
+#: lib/streamflix_web_web/live/docs_live.ex:851
 #, elixir-autogen, elixir-format
 msgid "registro, login, refresh JWT. Sin API Key."
 msgstr ""
@@ -3584,7 +3635,8 @@ msgid "Sin jobs recientes"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3119
-#: lib/streamflix_web_web/live/docs_live.ex:3286
+#: lib/streamflix_web_web/live/docs_live.ex:3354
+#: lib/streamflix_web_web/live/docs_live.ex:3354
 #, elixir-autogen, elixir-format
 msgid "Acceso total"
 msgstr ""
@@ -3674,7 +3726,9 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:305
 #: lib/streamflix_web_web/live/docs_live.ex:98
-#: lib/streamflix_web_web/live/docs_live.ex:2269
+#: lib/streamflix_web_web/live/docs_live.ex:98
+#: lib/streamflix_web_web/live/docs_live.ex:2311
+#: lib/streamflix_web_web/live/docs_live.ex:2311
 #, elixir-autogen, elixir-format
 msgid "Equipos"
 msgstr ""
@@ -3721,7 +3775,8 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:287
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3190
-#: lib/streamflix_web_web/live/docs_live.ex:1924
+#: lib/streamflix_web_web/live/docs_live.ex:1966
+#: lib/streamflix_web_web/live/docs_live.ex:1966
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2540
 #, elixir-autogen, elixir-format
 msgid "Event Schemas"
@@ -3730,7 +3785,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:293
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3313
 #: lib/streamflix_web_web/live/docs_live.ex:110
-#: lib/streamflix_web_web/live/docs_live.ex:2620
+#: lib/streamflix_web_web/live/docs_live.ex:110
+#: lib/streamflix_web_web/live/docs_live.ex:2662
+#: lib/streamflix_web_web/live/docs_live.ex:2662
 #, elixir-autogen, elixir-format
 msgid "Eventos diferidos"
 msgstr ""
@@ -3786,19 +3843,22 @@ msgid "Leer entregas"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3126
-#: lib/streamflix_web_web/live/docs_live.ex:3250
+#: lib/streamflix_web_web/live/docs_live.ex:3318
+#: lib/streamflix_web_web/live/docs_live.ex:3318
 #, elixir-autogen, elixir-format
 msgid "Leer eventos"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3154
-#: lib/streamflix_web_web/live/docs_live.ex:3274
+#: lib/streamflix_web_web/live/docs_live.ex:3342
+#: lib/streamflix_web_web/live/docs_live.ex:3342
 #, elixir-autogen, elixir-format
 msgid "Leer jobs"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3140
-#: lib/streamflix_web_web/live/docs_live.ex:3262
+#: lib/streamflix_web_web/live/docs_live.ex:3330
+#: lib/streamflix_web_web/live/docs_live.ex:3330
 #, elixir-autogen, elixir-format
 msgid "Leer webhooks"
 msgstr ""
@@ -3831,7 +3891,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:275
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2953
 #: lib/streamflix_web_web/live/docs_live.ex:97
-#: lib/streamflix_web_web/live/docs_live.ex:2201
+#: lib/streamflix_web_web/live/docs_live.ex:97
+#: lib/streamflix_web_web/live/docs_live.ex:2243
+#: lib/streamflix_web_web/live/docs_live.ex:2243
 #, elixir-autogen, elixir-format
 msgid "Multi-proyecto"
 msgstr ""
@@ -3930,8 +3992,10 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:281
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3095
-#: lib/streamflix_web_web/live/docs_live.ex:152
-#: lib/streamflix_web_web/live/docs_live.ex:3236
+#: lib/streamflix_web_web/live/docs_live.ex:153
+#: lib/streamflix_web_web/live/docs_live.ex:153
+#: lib/streamflix_web_web/live/docs_live.ex:3304
+#: lib/streamflix_web_web/live/docs_live.ex:3304
 #, elixir-autogen, elixir-format
 msgid "Scopes de API Key"
 msgstr ""
@@ -4163,7 +4227,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3751
 #: lib/streamflix_web_web/live/account_live.ex:1677
 #: lib/streamflix_web_web/live/docs_live.ex:87
-#: lib/streamflix_web_web/live/docs_live.ex:2040
+#: lib/streamflix_web_web/live/docs_live.ex:87
+#: lib/streamflix_web_web/live/docs_live.ex:2082
+#: lib/streamflix_web_web/live/docs_live.ex:2082
 #, elixir-autogen, elixir-format
 msgid "Exportar datos"
 msgstr ""
@@ -4197,7 +4263,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:320
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3647
 #: lib/streamflix_web_web/live/docs_live.ex:112
-#: lib/streamflix_web_web/live/docs_live.ex:2661
+#: lib/streamflix_web_web/live/docs_live.ex:112
+#: lib/streamflix_web_web/live/docs_live.ex:2703
+#: lib/streamflix_web_web/live/docs_live.ex:2703
 #, elixir-autogen, elixir-format
 msgid "Paginación cursor"
 msgstr ""
@@ -4220,7 +4288,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:338
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3835
 #: lib/streamflix_web_web/live/docs_live.ex:113
-#: lib/streamflix_web_web/live/docs_live.ex:2677
+#: lib/streamflix_web_web/live/docs_live.ex:113
+#: lib/streamflix_web_web/live/docs_live.ex:2719
+#: lib/streamflix_web_web/live/docs_live.ex:2719
 #, elixir-autogen, elixir-format
 msgid "Plantillas webhook"
 msgstr ""
@@ -4604,7 +4674,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4078
 #: lib/streamflix_web_web/controllers/page_html/forgot_password.html.heex:36
 #: lib/streamflix_web_web/live/docs_live.ex:96
-#: lib/streamflix_web_web/live/docs_live.ex:2182
+#: lib/streamflix_web_web/live/docs_live.ex:96
+#: lib/streamflix_web_web/live/docs_live.ex:2224
+#: lib/streamflix_web_web/live/docs_live.ex:2224
 #, elixir-autogen, elixir-format
 msgid "Recuperar contraseña"
 msgstr ""
@@ -4857,7 +4929,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:80
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:3970
 #: lib/streamflix_web_web/live/docs_live.ex:95
-#: lib/streamflix_web_web/live/docs_live.ex:2170
+#: lib/streamflix_web_web/live/docs_live.ex:95
+#: lib/streamflix_web_web/live/docs_live.ex:2212
+#: lib/streamflix_web_web/live/docs_live.ex:2212
 #, elixir-autogen, elixir-format
 msgid "Gestión de cuenta"
 msgstr ""
@@ -4960,6 +5034,7 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4256
 #: lib/streamflix_web_web/live/docs_live.ex:85
+#: lib/streamflix_web_web/live/docs_live.ex:85
 #, elixir-autogen, elixir-format
 msgid "Replays"
 msgstr ""
@@ -4975,6 +5050,7 @@ msgid "Revisar correo:"
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4267
+#: lib/streamflix_web_web/live/docs_live.ex:86
 #: lib/streamflix_web_web/live/docs_live.ex:86
 #, elixir-autogen, elixir-format
 msgid "Schemas"
@@ -5049,7 +5125,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:397
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4814
 #: lib/streamflix_web_web/live/docs_live.ex:131
-#: lib/streamflix_web_web/live/docs_live.ex:2885
+#: lib/streamflix_web_web/live/docs_live.ex:131
+#: lib/streamflix_web_web/live/docs_live.ex:2927
+#: lib/streamflix_web_web/live/docs_live.ex:2927
 #, elixir-autogen, elixir-format
 msgid "Bloqueo de cuenta"
 msgstr ""
@@ -5681,7 +5759,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5172
 #: lib/streamflix_web_web/live/account_live.ex:1767
 #: lib/streamflix_web_web/live/docs_live.ex:142
-#: lib/streamflix_web_web/live/docs_live.ex:3058
+#: lib/streamflix_web_web/live/docs_live.ex:142
+#: lib/streamflix_web_web/live/docs_live.ex:3100
+#: lib/streamflix_web_web/live/docs_live.ex:3100
 #, elixir-autogen, elixir-format
 msgid "Consentimientos"
 msgstr ""
@@ -5744,7 +5824,8 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5853
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:6007
-#: lib/streamflix_web_web/live/docs_live.ex:3184
+#: lib/streamflix_web_web/live/docs_live.ex:3252
+#: lib/streamflix_web_web/live/docs_live.ex:3252
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:3463
 #, elixir-autogen, elixir-format
 msgid "Descripción"
@@ -5761,7 +5842,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5380
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5741
 #: lib/streamflix_web_web/live/docs_live.ex:137
-#: lib/streamflix_web_web/live/docs_live.ex:2970
+#: lib/streamflix_web_web/live/docs_live.ex:137
+#: lib/streamflix_web_web/live/docs_live.ex:3012
+#: lib/streamflix_web_web/live/docs_live.ex:3012
 #, elixir-autogen, elixir-format
 msgid "Detección de brechas"
 msgstr ""
@@ -5976,7 +6059,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:433
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5454
 #: lib/streamflix_web_web/live/docs_live.ex:138
-#: lib/streamflix_web_web/live/docs_live.ex:2982
+#: lib/streamflix_web_web/live/docs_live.ex:138
+#: lib/streamflix_web_web/live/docs_live.ex:3024
+#: lib/streamflix_web_web/live/docs_live.ex:3024
 #, elixir-autogen, elixir-format
 msgid "Integridad de eventos"
 msgstr ""
@@ -6145,7 +6230,9 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:439
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5530
 #: lib/streamflix_web_web/live/docs_live.ex:134
-#: lib/streamflix_web_web/live/docs_live.ex:2926
+#: lib/streamflix_web_web/live/docs_live.ex:134
+#: lib/streamflix_web_web/live/docs_live.ex:2968
+#: lib/streamflix_web_web/live/docs_live.ex:2968
 #, elixir-autogen, elixir-format
 msgid "Política de contraseñas"
 msgstr ""
@@ -6990,8 +7077,10 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:254
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2721
-#: lib/streamflix_web_web/live/docs_live.ex:150
-#: lib/streamflix_web_web/live/docs_live.ex:3176
+#: lib/streamflix_web_web/live/docs_live.ex:151
+#: lib/streamflix_web_web/live/docs_live.ex:151
+#: lib/streamflix_web_web/live/docs_live.ex:3244
+#: lib/streamflix_web_web/live/docs_live.ex:3244
 #, elixir-autogen, elixir-format
 msgid "Headers de respuesta"
 msgstr ""
@@ -7204,7 +7293,8 @@ msgid "Volumen sospechoso de exportaciones de datos por un mismo usuario."
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:564
-#: lib/streamflix_web_web/live/docs_live.ex:793
+#: lib/streamflix_web_web/live/docs_live.ex:835
+#: lib/streamflix_web_web/live/docs_live.ex:835
 #, elixir-autogen, elixir-format
 msgid "reintentos automáticos con backoff exponencial."
 msgstr ""
@@ -7442,7 +7532,9 @@ msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:377
 #: lib/streamflix_web_web/live/docs_live.ex:124
-#: lib/streamflix_web_web/live/docs_live.ex:2852
+#: lib/streamflix_web_web/live/docs_live.ex:124
+#: lib/streamflix_web_web/live/docs_live.ex:2894
+#: lib/streamflix_web_web/live/docs_live.ex:2894
 #, elixir-autogen, elixir-format
 msgid "Verificación de webhooks"
 msgstr ""
@@ -7611,1303 +7703,1628 @@ msgstr ""
 msgid "¿Eliminar jobs completados/descartados/cancelados de más de 7 días?"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2162
+#: lib/streamflix_web_web/live/docs_live.ex:2204
+#: lib/streamflix_web_web/live/docs_live.ex:2204
 #, elixir-autogen, elixir-format
 msgid "API Token: ver y regenerar"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3031
+#: lib/streamflix_web_web/live/docs_live.ex:3073
+#: lib/streamflix_web_web/live/docs_live.ex:3073
 #, elixir-autogen, elixir-format
 msgid "Acceso:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3084
+#: lib/streamflix_web_web/live/docs_live.ex:3126
+#: lib/streamflix_web_web/live/docs_live.ex:3126
 #, elixir-autogen, elixir-format
 msgid "Acepta un consentimiento."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1567
+#: lib/streamflix_web_web/live/docs_live.ex:1609
+#: lib/streamflix_web_web/live/docs_live.ex:1609
 #, elixir-autogen, elixir-format
 msgid "Actualiza el nombre del proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3036
+#: lib/streamflix_web_web/live/docs_live.ex:3078
+#: lib/streamflix_web_web/live/docs_live.ex:3078
 #, elixir-autogen, elixir-format
 msgid "Actualiza tu perfil desde la cuenta"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1467
+#: lib/streamflix_web_web/live/docs_live.ex:1509
+#: lib/streamflix_web_web/live/docs_live.ex:1509
 #, elixir-autogen, elixir-format
 msgid "Actualiza un job."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1708
+#: lib/streamflix_web_web/live/docs_live.ex:1750
+#: lib/streamflix_web_web/live/docs_live.ex:1750
 #, elixir-autogen, elixir-format
 msgid "Actualiza un pipeline."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1986
+#: lib/streamflix_web_web/live/docs_live.ex:2028
+#: lib/streamflix_web_web/live/docs_live.ex:2028
 #, elixir-autogen, elixir-format
 msgid "Actualiza un schema."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1321
+#: lib/streamflix_web_web/live/docs_live.ex:1363
+#: lib/streamflix_web_web/live/docs_live.ex:1363
 #, elixir-autogen, elixir-format
 msgid "Actualiza un webhook."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2160
+#: lib/streamflix_web_web/live/docs_live.ex:2202
+#: lib/streamflix_web_web/live/docs_live.ex:2202
 #, elixir-autogen, elixir-format
 msgid "Audit Log: registro de acciones"
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:77
-#: lib/streamflix_web_web/live/docs_live.ex:1090
+#: lib/streamflix_web_web/live/docs_live.ex:77
+#: lib/streamflix_web_web/live/docs_live.ex:1132
+#: lib/streamflix_web_web/live/docs_live.ex:1132
 #, elixir-autogen, elixir-format
 msgid "Auth (registro/login)"
 msgstr ""
 
+#: lib/streamflix_web_web/live/docs_live.ex:107
 #: lib/streamflix_web_web/live/docs_live.ex:107
 #, elixir-autogen, elixir-format
 msgid "Avanzado"
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:140
-#: lib/streamflix_web_web/live/docs_live.ex:3011
+#: lib/streamflix_web_web/live/docs_live.ex:140
+#: lib/streamflix_web_web/live/docs_live.ex:3053
+#: lib/streamflix_web_web/live/docs_live.ex:3053
 #, elixir-autogen, elixir-format
 msgid "Backups"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2318
+#: lib/streamflix_web_web/live/docs_live.ex:2360
+#: lib/streamflix_web_web/live/docs_live.ex:2360
 #, elixir-autogen, elixir-format
 msgid "Cambia rol de un miembro."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1904
+#: lib/streamflix_web_web/live/docs_live.ex:1946
+#: lib/streamflix_web_web/live/docs_live.ex:1946
 #, elixir-autogen, elixir-format
 msgid "Cancela un replay en curso."
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:135
-#: lib/streamflix_web_web/live/docs_live.ex:2941
+#: lib/streamflix_web_web/live/docs_live.ex:135
+#: lib/streamflix_web_web/live/docs_live.ex:2983
+#: lib/streamflix_web_web/live/docs_live.ex:2983
 #, elixir-autogen, elixir-format
 msgid "Cifrado de datos"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3120
+#: lib/streamflix_web_web/live/docs_live.ex:3162
+#: lib/streamflix_web_web/live/docs_live.ex:3162
 #, elixir-autogen, elixir-format
 msgid "Codigo"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2597
+#: lib/streamflix_web_web/live/docs_live.ex:2639
+#: lib/streamflix_web_web/live/docs_live.ex:2639
 #, elixir-autogen, elixir-format
 msgid "Coincide con"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2270
+#: lib/streamflix_web_web/live/docs_live.ex:2312
+#: lib/streamflix_web_web/live/docs_live.ex:2312
 #, elixir-autogen, elixir-format
 msgid "Colabora con tu equipo en proyectos compartidos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2384
+#: lib/streamflix_web_web/live/docs_live.ex:2426
+#: lib/streamflix_web_web/live/docs_live.ex:2426
 #, elixir-autogen, elixir-format
 msgid "Crea un endpoint sandbox."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1430
+#: lib/streamflix_web_web/live/docs_live.ex:1472
+#: lib/streamflix_web_web/live/docs_live.ex:1472
 #, elixir-autogen, elixir-format
 msgid "Crea un job programado."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1672
+#: lib/streamflix_web_web/live/docs_live.ex:1714
+#: lib/streamflix_web_web/live/docs_live.ex:1714
 #, elixir-autogen, elixir-format
 msgid "Crea un pipeline nuevo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2232
+#: lib/streamflix_web_web/live/docs_live.ex:2274
+#: lib/streamflix_web_web/live/docs_live.ex:2274
 #, elixir-autogen, elixir-format
 msgid "Crea un proyecto nuevo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1850
+#: lib/streamflix_web_web/live/docs_live.ex:1892
+#: lib/streamflix_web_web/live/docs_live.ex:1892
 #, elixir-autogen, elixir-format
 msgid "Crea un replay de eventos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1950
+#: lib/streamflix_web_web/live/docs_live.ex:1992
+#: lib/streamflix_web_web/live/docs_live.ex:1992
 #, elixir-autogen, elixir-format
 msgid "Crea un schema de validacion."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1283
+#: lib/streamflix_web_web/live/docs_live.ex:1325
+#: lib/streamflix_web_web/live/docs_live.ex:1325
 #, elixir-autogen, elixir-format
 msgid "Crea un webhook nuevo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1098
+#: lib/streamflix_web_web/live/docs_live.ex:1140
+#: lib/streamflix_web_web/live/docs_live.ex:1140
 #, elixir-autogen, elixir-format
 msgid "Crea una cuenta nueva."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3256
+#: lib/streamflix_web_web/live/docs_live.ex:3324
+#: lib/streamflix_web_web/live/docs_live.ex:3324
 #, elixir-autogen, elixir-format
 msgid "Crear eventos"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3280
+#: lib/streamflix_web_web/live/docs_live.ex:3348
+#: lib/streamflix_web_web/live/docs_live.ex:3348
 #, elixir-autogen, elixir-format
 msgid "Crear/editar jobs"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3268
+#: lib/streamflix_web_web/live/docs_live.ex:3336
+#: lib/streamflix_web_web/live/docs_live.ex:3336
 #, elixir-autogen, elixir-format
 msgid "Crear/editar webhooks"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1925
+#: lib/streamflix_web_web/live/docs_live.ex:1967
+#: lib/streamflix_web_web/live/docs_live.ex:1967
 #, elixir-autogen, elixir-format
 msgid "Define y valida la estructura de tus eventos con JSON Schema."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2041
+#: lib/streamflix_web_web/live/docs_live.ex:2083
+#: lib/streamflix_web_web/live/docs_live.ex:2083
 #, elixir-autogen, elixir-format
 msgid "Descarga datos en CSV o JSON."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1788
+#: lib/streamflix_web_web/live/docs_live.ex:1830
+#: lib/streamflix_web_web/live/docs_live.ex:1830
 #, elixir-autogen, elixir-format
 msgid "Detalle de un dead letter."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1219
+#: lib/streamflix_web_web/live/docs_live.ex:1261
+#: lib/streamflix_web_web/live/docs_live.ex:1261
 #, elixir-autogen, elixir-format
 msgid "Detalle de un evento."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1449
+#: lib/streamflix_web_web/live/docs_live.ex:1491
+#: lib/streamflix_web_web/live/docs_live.ex:1491
 #, elixir-autogen, elixir-format
 msgid "Detalle de un job."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1690
+#: lib/streamflix_web_web/live/docs_live.ex:1732
+#: lib/streamflix_web_web/live/docs_live.ex:1732
 #, elixir-autogen, elixir-format
 msgid "Detalle de un pipeline."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1886
+#: lib/streamflix_web_web/live/docs_live.ex:1928
+#: lib/streamflix_web_web/live/docs_live.ex:1928
 #, elixir-autogen, elixir-format
 msgid "Detalle de un replay."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1968
+#: lib/streamflix_web_web/live/docs_live.ex:2010
+#: lib/streamflix_web_web/live/docs_live.ex:2010
 #, elixir-autogen, elixir-format
 msgid "Detalle de un schema."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1302
+#: lib/streamflix_web_web/live/docs_live.ex:1344
+#: lib/streamflix_web_web/live/docs_live.ex:1344
 #, elixir-autogen, elixir-format
 msgid "Detalle de un webhook."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1549
+#: lib/streamflix_web_web/live/docs_live.ex:1591
+#: lib/streamflix_web_web/live/docs_live.ex:1591
 #, elixir-autogen, elixir-format
 msgid "Detalle del proyecto actual."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3218
+#: lib/streamflix_web_web/live/docs_live.ex:3286
+#: lib/streamflix_web_web/live/docs_live.ex:3286
 #, elixir-autogen, elixir-format
 msgid "Devuelve 200 si la plataforma esta operativa."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2736
+#: lib/streamflix_web_web/live/docs_live.ex:2778
+#: lib/streamflix_web_web/live/docs_live.ex:2778
 #, elixir-autogen, elixir-format
 msgid "El simulador no guarda el evento ni crea entregas reales. Solo muestra que webhooks recibirian el evento y como se veria el payload."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:879
+#: lib/streamflix_web_web/live/docs_live.ex:921
+#: lib/streamflix_web_web/live/docs_live.ex:921
 #, elixir-autogen, elixir-format
 msgid "El topic es una etiqueta opcional para clasificar eventos (ej. order.created, payment.completed). Sirve para filtrar en webhooks. Tu inventas los nombres."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2420
+#: lib/streamflix_web_web/live/docs_live.ex:2462
+#: lib/streamflix_web_web/live/docs_live.ex:2462
 #, elixir-autogen, elixir-format
 msgid "Elimina un endpoint sandbox."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1238
+#: lib/streamflix_web_web/live/docs_live.ex:1280
+#: lib/streamflix_web_web/live/docs_live.ex:1280
 #, elixir-autogen, elixir-format
 msgid "Elimina un evento."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1485
+#: lib/streamflix_web_web/live/docs_live.ex:1527
+#: lib/streamflix_web_web/live/docs_live.ex:1527
 #, elixir-autogen, elixir-format
 msgid "Elimina un job."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2336
+#: lib/streamflix_web_web/live/docs_live.ex:2378
+#: lib/streamflix_web_web/live/docs_live.ex:2378
 #, elixir-autogen, elixir-format
 msgid "Elimina un miembro."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1726
+#: lib/streamflix_web_web/live/docs_live.ex:1768
+#: lib/streamflix_web_web/live/docs_live.ex:1768
 #, elixir-autogen, elixir-format
 msgid "Elimina un pipeline."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2004
+#: lib/streamflix_web_web/live/docs_live.ex:2046
+#: lib/streamflix_web_web/live/docs_live.ex:2046
 #, elixir-autogen, elixir-format
 msgid "Elimina un schema."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1340
+#: lib/streamflix_web_web/live/docs_live.ex:1382
+#: lib/streamflix_web_web/live/docs_live.ex:1382
 #, elixir-autogen, elixir-format
 msgid "Elimina un webhook."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:932
+#: lib/streamflix_web_web/live/docs_live.ex:974
+#: lib/streamflix_web_web/live/docs_live.ex:974
 #, elixir-autogen, elixir-format
 msgid "En el Dashboard, Jobs > Crear. Elige programacion y accion (emitir evento o POST a URL)."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:923
+#: lib/streamflix_web_web/live/docs_live.ex:965
+#: lib/streamflix_web_web/live/docs_live.ex:965
 #, elixir-autogen, elixir-format
 msgid "En el Dashboard, Webhooks > Crear. Pon una URL que pueda recibir POST. Opcional: elige un topic para filtrar."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3212
+#: lib/streamflix_web_web/live/docs_live.ex:3280
+#: lib/streamflix_web_web/live/docs_live.ex:3280
 #, elixir-autogen, elixir-format
 msgid "Endpoint para monitoreo externo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2354
+#: lib/streamflix_web_web/live/docs_live.ex:2396
+#: lib/streamflix_web_web/live/docs_live.ex:2396
 #, elixir-autogen, elixir-format
 msgid "Endpoints de prueba para recibir webhooks."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2463
+#: lib/streamflix_web_web/live/docs_live.ex:2505
+#: lib/streamflix_web_web/live/docs_live.ex:2505
 #, elixir-autogen, elixir-format
 msgid "Entregas por dia."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2152
+#: lib/streamflix_web_web/live/docs_live.ex:2194
+#: lib/streamflix_web_web/live/docs_live.ex:2194
 #, elixir-autogen, elixir-format
 msgid "Entregas: historial, reintentos"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2499
+#: lib/streamflix_web_web/live/docs_live.ex:2541
+#: lib/streamflix_web_web/live/docs_live.ex:2541
 #, elixir-autogen, elixir-format
 msgid "Estadisticas de webhooks."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3066
+#: lib/streamflix_web_web/live/docs_live.ex:3108
+#: lib/streamflix_web_web/live/docs_live.ex:3108
 #, elixir-autogen, elixir-format
 msgid "Estado de tus consentimientos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:830
+#: lib/streamflix_web_web/live/docs_live.ex:872
+#: lib/streamflix_web_web/live/docs_live.ex:872
 #, elixir-autogen, elixir-format
 msgid "Estos son los conceptos que necesitas para usar Jobcelis."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2445
+#: lib/streamflix_web_web/live/docs_live.ex:2487
+#: lib/streamflix_web_web/live/docs_live.ex:2487
 #, elixir-autogen, elixir-format
 msgid "Eventos por dia."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1763
+#: lib/streamflix_web_web/live/docs_live.ex:1805
+#: lib/streamflix_web_web/live/docs_live.ex:1805
 #, elixir-autogen, elixir-format
 msgid "Eventos que agotaron los reintentos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2150
+#: lib/streamflix_web_web/live/docs_live.ex:2192
+#: lib/streamflix_web_web/live/docs_live.ex:2192
 #, elixir-autogen, elixir-format
 msgid "Eventos: lista, detalle, filtros"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2102
+#: lib/streamflix_web_web/live/docs_live.ex:2144
+#: lib/streamflix_web_web/live/docs_live.ex:2144
 #, elixir-autogen, elixir-format
 msgid "Exporta audit log."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2066
+#: lib/streamflix_web_web/live/docs_live.ex:2108
+#: lib/streamflix_web_web/live/docs_live.ex:2108
 #, elixir-autogen, elixir-format
 msgid "Exporta entregas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2048
+#: lib/streamflix_web_web/live/docs_live.ex:2090
+#: lib/streamflix_web_web/live/docs_live.ex:2090
 #, elixir-autogen, elixir-format
 msgid "Exporta eventos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2084
+#: lib/streamflix_web_web/live/docs_live.ex:2126
+#: lib/streamflix_web_web/live/docs_live.ex:2126
 #, elixir-autogen, elixir-format
 msgid "Exporta jobs."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3031
+#: lib/streamflix_web_web/live/docs_live.ex:3073
+#: lib/streamflix_web_web/live/docs_live.ex:3073
 #, elixir-autogen, elixir-format
 msgid "Exporta todos tus datos personales (GET /api/v1/me/data)"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2539
+#: lib/streamflix_web_web/live/docs_live.ex:2581
+#: lib/streamflix_web_web/live/docs_live.ex:2581
 #, elixir-autogen, elixir-format
 msgid "Filtros opcionales: action, actor_email, from, to."
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:141
-#: lib/streamflix_web_web/live/docs_live.ex:3023
+#: lib/streamflix_web_web/live/docs_live.ex:141
+#: lib/streamflix_web_web/live/docs_live.ex:3065
+#: lib/streamflix_web_web/live/docs_live.ex:3065
 #, elixir-autogen, elixir-format
 msgid "GDPR / RGPD"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2983
+#: lib/streamflix_web_web/live/docs_live.ex:3025
+#: lib/streamflix_web_web/live/docs_live.ex:3025
 #, elixir-autogen, elixir-format
 msgid "Garantiza que los eventos no se modifiquen."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3177
+#: lib/streamflix_web_web/live/docs_live.ex:3245
+#: lib/streamflix_web_web/live/docs_live.ex:3245
 #, elixir-autogen, elixir-format
 msgid "Headers incluidos en las respuestas de la API."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1052
+#: lib/streamflix_web_web/live/docs_live.ex:1094
+#: lib/streamflix_web_web/live/docs_live.ex:1094
 #, elixir-autogen, elixir-format
 msgid "Headers permitidos:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1502
+#: lib/streamflix_web_web/live/docs_live.ex:1544
+#: lib/streamflix_web_web/live/docs_live.ex:1544
 #, elixir-autogen, elixir-format
 msgid "Historial de ejecuciones de un job."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1359
+#: lib/streamflix_web_web/live/docs_live.ex:1401
+#: lib/streamflix_web_web/live/docs_live.ex:1401
 #, elixir-autogen, elixir-format
 msgid "Historial de entregas y reintentos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2624
+#: lib/streamflix_web_web/live/docs_live.ex:2666
+#: lib/streamflix_web_web/live/docs_live.ex:2666
 #, elixir-autogen, elixir-format
 msgid "Incluye el campo deliver_at con una fecha ISO 8601 en el futuro. El evento se almacena inmediatamente pero no se entrega hasta la fecha indicada."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:460
+#: lib/streamflix_web_web/live/docs_live.ex:461
+#: lib/streamflix_web_web/live/docs_live.ex:461
 #, elixir-autogen, elixir-format
 msgid "Instalar:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2300
+#: lib/streamflix_web_web/live/docs_live.ex:2342
+#: lib/streamflix_web_web/live/docs_live.ex:2342
 #, elixir-autogen, elixir-format
 msgid "Invita un miembro."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3027
+#: lib/streamflix_web_web/live/docs_live.ex:3069
+#: lib/streamflix_web_web/live/docs_live.ex:3069
 #, elixir-autogen, elixir-format
 msgid "Jobcelis cumple con el RGPD/GDPR. Como usuario tienes derecho a:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2153
+#: lib/streamflix_web_web/live/docs_live.ex:2195
+#: lib/streamflix_web_web/live/docs_live.ex:2195
 #, elixir-autogen, elixir-format
 msgid "Jobs: crear, editar, ver ejecuciones"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1047
+#: lib/streamflix_web_web/live/docs_live.ex:1089
+#: lib/streamflix_web_web/live/docs_live.ex:1089
 #, elixir-autogen, elixir-format
 msgid "La API tiene CORS habilitado para cualquier origen (Access-Control-Allow-Origin: *). Cualquier frontend puede consumir la API sin bloqueos del navegador."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1770
+#: lib/streamflix_web_web/live/docs_live.ex:1812
+#: lib/streamflix_web_web/live/docs_live.ex:1812
 #, elixir-autogen, elixir-format
 msgid "Lista dead letters."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2366
+#: lib/streamflix_web_web/live/docs_live.ex:2408
+#: lib/streamflix_web_web/live/docs_live.ex:2408
 #, elixir-autogen, elixir-format
 msgid "Lista endpoints sandbox."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1366
+#: lib/streamflix_web_web/live/docs_live.ex:1408
+#: lib/streamflix_web_web/live/docs_live.ex:1408
 #, elixir-autogen, elixir-format
 msgid "Lista entregas con filtros opcionales."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1411
+#: lib/streamflix_web_web/live/docs_live.ex:1453
+#: lib/streamflix_web_web/live/docs_live.ex:1453
 #, elixir-autogen, elixir-format
 msgid "Lista jobs del proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2282
+#: lib/streamflix_web_web/live/docs_live.ex:2324
+#: lib/streamflix_web_web/live/docs_live.ex:2324
 #, elixir-autogen, elixir-format
 msgid "Lista miembros del proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1654
+#: lib/streamflix_web_web/live/docs_live.ex:1696
+#: lib/streamflix_web_web/live/docs_live.ex:1696
 #, elixir-autogen, elixir-format
 msgid "Lista pipelines del proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2684
+#: lib/streamflix_web_web/live/docs_live.ex:2726
+#: lib/streamflix_web_web/live/docs_live.ex:2726
 #, elixir-autogen, elixir-format
 msgid "Lista plantillas disponibles."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1868
+#: lib/streamflix_web_web/live/docs_live.ex:1910
+#: lib/streamflix_web_web/live/docs_live.ex:1910
 #, elixir-autogen, elixir-format
 msgid "Lista replays."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1932
+#: lib/streamflix_web_web/live/docs_live.ex:1974
+#: lib/streamflix_web_web/live/docs_live.ex:1974
 #, elixir-autogen, elixir-format
 msgid "Lista schemas del proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1585
+#: lib/streamflix_web_web/live/docs_live.ex:1627
+#: lib/streamflix_web_web/live/docs_live.ex:1627
 #, elixir-autogen, elixir-format
 msgid "Lista todos los topics usados."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2214
+#: lib/streamflix_web_web/live/docs_live.ex:2256
+#: lib/streamflix_web_web/live/docs_live.ex:2256
 #, elixir-autogen, elixir-format
 msgid "Lista tus proyectos (requiere JWT)."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1264
+#: lib/streamflix_web_web/live/docs_live.ex:1306
+#: lib/streamflix_web_web/live/docs_live.ex:1306
 #, elixir-autogen, elixir-format
 msgid "Lista webhooks del proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2945
+#: lib/streamflix_web_web/live/docs_live.ex:2987
+#: lib/streamflix_web_web/live/docs_live.ex:2987
 #, elixir-autogen, elixir-format
 msgid "Los datos personales (email, nombre) se cifran en reposo con cifrado de nivel industrial. Las busquedas por email usan un hash determinista para que no sea necesario descifrar para buscar."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1824
+#: lib/streamflix_web_web/live/docs_live.ex:1866
+#: lib/streamflix_web_web/live/docs_live.ex:1866
 #, elixir-autogen, elixir-format
 msgid "Marca un dead letter como resuelto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2250
+#: lib/streamflix_web_web/live/docs_live.ex:2292
+#: lib/streamflix_web_web/live/docs_live.ex:2292
 #, elixir-autogen, elixir-format
 msgid "Marca un proyecto como predeterminado."
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:139
-#: lib/streamflix_web_web/live/docs_live.ex:2999
+#: lib/streamflix_web_web/live/docs_live.ex:139
+#: lib/streamflix_web_web/live/docs_live.ex:3041
+#: lib/streamflix_web_web/live/docs_live.ex:3041
 #, elixir-autogen, elixir-format
 msgid "Monitoreo"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2971
+#: lib/streamflix_web_web/live/docs_live.ex:3013
+#: lib/streamflix_web_web/live/docs_live.ex:3013
 #, elixir-autogen, elixir-format
 msgid "Monitoreo continuo de seguridad."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1603
+#: lib/streamflix_web_web/live/docs_live.ex:1645
+#: lib/streamflix_web_web/live/docs_live.ex:1645
 #, elixir-autogen, elixir-format
 msgid "Muestra info del token actual (prefix)."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1036
+#: lib/streamflix_web_web/live/docs_live.ex:1078
+#: lib/streamflix_web_web/live/docs_live.ex:1078
 #, elixir-autogen, elixir-format
 msgid "No envies API Key. Registro y login devuelven un JWT para usar en tu app."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3044
+#: lib/streamflix_web_web/live/docs_live.ex:3086
+#: lib/streamflix_web_web/live/docs_live.ex:3086
 #, elixir-autogen, elixir-format
 msgid "Objeta el procesamiento (POST /api/v1/me/object)"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2596
+#: lib/streamflix_web_web/live/docs_live.ex:2638
+#: lib/streamflix_web_web/live/docs_live.ex:2638
 #, elixir-autogen, elixir-format
 msgid "Patron"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3237
+#: lib/streamflix_web_web/live/docs_live.ex:3305
+#: lib/streamflix_web_web/live/docs_live.ex:3305
 #, elixir-autogen, elixir-format
 msgid "Permisos granulares para API keys."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3198
+#: lib/streamflix_web_web/live/docs_live.ex:3266
+#: lib/streamflix_web_web/live/docs_live.ex:3266
 #, elixir-autogen, elixir-format
 msgid "Peticiones restantes en la ventana"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1647
+#: lib/streamflix_web_web/live/docs_live.ex:1689
+#: lib/streamflix_web_web/live/docs_live.ex:1689
 #, elixir-autogen, elixir-format
 msgid "Pipelines de procesamiento de eventos con pasos encadenados."
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:92
+#: lib/streamflix_web_web/live/docs_live.ex:92
 #, elixir-autogen, elixir-format
 msgid "Plataforma"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3049
+#: lib/streamflix_web_web/live/docs_live.ex:3091
+#: lib/streamflix_web_web/live/docs_live.ex:3091
 #, elixir-autogen, elixir-format
 msgid "Portabilidad:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1521
+#: lib/streamflix_web_web/live/docs_live.ex:1563
+#: lib/streamflix_web_web/live/docs_live.ex:1563
 #, elixir-autogen, elixir-format
 msgid "Previsualiza proximas ejecuciones de una expresion cron."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2621
+#: lib/streamflix_web_web/live/docs_live.ex:2663
+#: lib/streamflix_web_web/live/docs_live.ex:2663
 #, elixir-autogen, elixir-format
 msgid "Programa un evento para que se procese en el futuro."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2959
+#: lib/streamflix_web_web/live/docs_live.ex:3001
+#: lib/streamflix_web_web/live/docs_live.ex:3001
 #, elixir-autogen, elixir-format
 msgid "Proteccion automatica para webhooks inestables."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2886
+#: lib/streamflix_web_web/live/docs_live.ex:2928
+#: lib/streamflix_web_web/live/docs_live.ex:2928
 #, elixir-autogen, elixir-format
 msgid "Proteccion contra ataques de fuerza bruta."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2942
+#: lib/streamflix_web_web/live/docs_live.ex:2984
+#: lib/streamflix_web_web/live/docs_live.ex:2984
 #, elixir-autogen, elixir-format
 msgid "Proteccion de datos personales."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1742
+#: lib/streamflix_web_web/live/docs_live.ex:1784
+#: lib/streamflix_web_web/live/docs_live.ex:1784
 #, elixir-autogen, elixir-format
 msgid "Prueba un pipeline con un payload de ejemplo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3240
+#: lib/streamflix_web_web/live/docs_live.ex:3308
+#: lib/streamflix_web_web/live/docs_live.ex:3308
 #, elixir-autogen, elixir-format
 msgid "Puedes configurar scopes para limitar lo que puede hacer cada API key. Los scopes disponibles incluyen:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2588
+#: lib/streamflix_web_web/live/docs_live.ex:2630
+#: lib/streamflix_web_web/live/docs_live.ex:2630
 #, elixir-autogen, elixir-format
 msgid "Puedes usar * como comodin en los topics de un webhook. Por ejemplo, order.* coincide con order.created, order.updated, order.deleted, etc."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1021
+#: lib/streamflix_web_web/live/docs_live.ex:1063
+#: lib/streamflix_web_web/live/docs_live.ex:1063
 #, elixir-autogen, elixir-format
 msgid "Query param"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2547
+#: lib/streamflix_web_web/live/docs_live.ex:2589
+#: lib/streamflix_web_web/live/docs_live.ex:2589
 #, elixir-autogen, elixir-format
 msgid "Recibe eventos en tiempo real via Server-Sent Events."
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:147
+#: lib/streamflix_web_web/live/docs_live.ex:147
 #, elixir-autogen, elixir-format
 msgid "Referencia"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1621
+#: lib/streamflix_web_web/live/docs_live.ex:1663
+#: lib/streamflix_web_web/live/docs_live.ex:1663
 #, elixir-autogen, elixir-format
 msgid "Regenera el API token. El anterior deja de funcionar."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2519
+#: lib/streamflix_web_web/live/docs_live.ex:2561
+#: lib/streamflix_web_web/live/docs_live.ex:2561
 #, elixir-autogen, elixir-format
 msgid "Registro inmutable de acciones en tu proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1806
+#: lib/streamflix_web_web/live/docs_live.ex:1848
+#: lib/streamflix_web_web/live/docs_live.ex:1848
 #, elixir-autogen, elixir-format
 msgid "Reintenta un dead letter."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1385
+#: lib/streamflix_web_web/live/docs_live.ex:1427
+#: lib/streamflix_web_web/live/docs_live.ex:1427
 #, elixir-autogen, elixir-format
 msgid "Reintenta una entrega fallida."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1136
+#: lib/streamflix_web_web/live/docs_live.ex:1178
+#: lib/streamflix_web_web/live/docs_live.ex:1178
 #, elixir-autogen, elixir-format
 msgid "Renueva un JWT."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3039
+#: lib/streamflix_web_web/live/docs_live.ex:3081
+#: lib/streamflix_web_web/live/docs_live.ex:3081
 #, elixir-autogen, elixir-format
 msgid "Restringe el procesamiento (POST /api/v1/me/restrict)"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1005
+#: lib/streamflix_web_web/live/docs_live.ex:1047
+#: lib/streamflix_web_web/live/docs_live.ex:1047
 #, elixir-autogen, elixir-format
 msgid "Rutas con API Key"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1034
+#: lib/streamflix_web_web/live/docs_live.ex:1076
+#: lib/streamflix_web_web/live/docs_live.ex:1076
 #, elixir-autogen, elixir-format
 msgid "Rutas publicas (Auth)"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1091
+#: lib/streamflix_web_web/live/docs_live.ex:1133
+#: lib/streamflix_web_web/live/docs_live.ex:1133
 #, elixir-autogen, elixir-format
 msgid "Rutas publicas sin API Key. Body y respuesta en JSON."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:809
+#: lib/streamflix_web_web/live/docs_live.ex:851
+#: lib/streamflix_web_web/live/docs_live.ex:851
 #, elixir-autogen, elixir-format
 msgid "Rutas publicas:"
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:122
-#: lib/streamflix_web_web/live/docs_live.ex:2754
+#: lib/streamflix_web_web/live/docs_live.ex:122
+#: lib/streamflix_web_web/live/docs_live.ex:2796
+#: lib/streamflix_web_web/live/docs_live.ex:2796
 #, elixir-autogen, elixir-format
 msgid "SDKs (12 lenguajes)"
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:120
+#: lib/streamflix_web_web/live/docs_live.ex:120
 #, elixir-autogen, elixir-format
 msgid "SDKs y herramientas"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2161
+#: lib/streamflix_web_web/live/docs_live.ex:2203
+#: lib/streamflix_web_web/live/docs_live.ex:2203
 #, elixir-autogen, elixir-format
 msgid "Sandbox: endpoints de prueba"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2933
+#: lib/streamflix_web_web/live/docs_live.ex:2975
+#: lib/streamflix_web_web/live/docs_live.ex:2975
 #, elixir-autogen, elixir-format
 msgid "Se recomienda usar caracteres especiales"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2147
+#: lib/streamflix_web_web/live/docs_live.ex:2189
+#: lib/streamflix_web_web/live/docs_live.ex:2189
 #, elixir-autogen, elixir-format
 msgid "Secciones principales"
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:129
+#: lib/streamflix_web_web/live/docs_live.ex:129
 #, elixir-autogen, elixir-format
 msgid "Seguridad y cumplimiento"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:940
+#: lib/streamflix_web_web/live/docs_live.ex:982
+#: lib/streamflix_web_web/live/docs_live.ex:982
 #, elixir-autogen, elixir-format
 msgid "Si algo falla, revisa que el token este bien en el header y que la URL del webhook sea accesible. Las entregas fallidas se pueden reintentar desde el Dashboard."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1404
+#: lib/streamflix_web_web/live/docs_live.ex:1446
+#: lib/streamflix_web_web/live/docs_live.ex:1446
 #, elixir-autogen, elixir-format
 msgid "Tareas programadas: daily, weekly, monthly o cron."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3202
+#: lib/streamflix_web_web/live/docs_live.ex:3270
+#: lib/streamflix_web_web/live/docs_live.ex:3270
 #, elixir-autogen, elixir-format
 msgid "Timestamp de reset del rate limit"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2758
+#: lib/streamflix_web_web/live/docs_live.ex:2800
+#: lib/streamflix_web_web/live/docs_live.ex:2800
 #, elixir-autogen, elixir-format
 msgid "Todas las SDKs cubren el 100%% de las rutas de la API. Elige tu lenguaje favorito:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:989
+#: lib/streamflix_web_web/live/docs_live.ex:1031
+#: lib/streamflix_web_web/live/docs_live.ex:1031
 #, elixir-autogen, elixir-format
 msgid "Todos los ejemplos usan la base URL actual:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2611
+#: lib/streamflix_web_web/live/docs_live.ex:2653
+#: lib/streamflix_web_web/live/docs_live.ex:2653
 #, elixir-autogen, elixir-format
 msgid "Todos los topics"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2481
+#: lib/streamflix_web_web/live/docs_live.ex:2523
+#: lib/streamflix_web_web/live/docs_live.ex:2523
 #, elixir-autogen, elixir-format
 msgid "Topics mas usados."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:870
+#: lib/streamflix_web_web/live/docs_live.ex:912
+#: lib/streamflix_web_web/live/docs_live.ex:912
 #, elixir-autogen, elixir-format
 msgid "Un job es una tarea programada: daily, weekly, monthly o cron. Cuando se ejecuta, puede emitir un evento interno o hacer un POST a una URL externa."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:850
+#: lib/streamflix_web_web/live/docs_live.ex:892
+#: lib/streamflix_web_web/live/docs_live.ex:892
 #, elixir-autogen, elixir-format
 msgid "Un webhook es una URL de destino que tu configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos que tu eliges."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2118
+#: lib/streamflix_web_web/live/docs_live.ex:2160
+#: lib/streamflix_web_web/live/docs_live.ex:2160
 #, elixir-autogen, elixir-format
 msgid "Usa el query param ?format=csv para CSV o ?format=json para JSON. Por defecto es CSV."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1044
+#: lib/streamflix_web_web/live/docs_live.ex:1086
+#: lib/streamflix_web_web/live/docs_live.ex:1086
 #, elixir-autogen, elixir-format
 msgid "Uso de la API desde el navegador u otros origenes."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:462
+#: lib/streamflix_web_web/live/docs_live.ex:463
+#: lib/streamflix_web_web/live/docs_live.ex:463
 #, elixir-autogen, elixir-format
 msgid "Uso:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2020
+#: lib/streamflix_web_web/live/docs_live.ex:2062
+#: lib/streamflix_web_web/live/docs_live.ex:2062
 #, elixir-autogen, elixir-format
 msgid "Valida un payload contra un schema sin guardarlo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2853
+#: lib/streamflix_web_web/live/docs_live.ex:2895
+#: lib/streamflix_web_web/live/docs_live.ex:2895
 #, elixir-autogen, elixir-format
 msgid "Verifica la firma de cada entrega para asegurar que proviene de Jobcelis."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2151
+#: lib/streamflix_web_web/live/docs_live.ex:2193
+#: lib/streamflix_web_web/live/docs_live.ex:2193
 #, elixir-autogen, elixir-format
 msgid "Webhooks: crear, editar, activar/desactivar"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:284
+#: lib/streamflix_web_web/live/docs_live.ex:285
+#: lib/streamflix_web_web/live/docs_live.ex:285
 #, elixir-autogen, elixir-format
 msgid "Abrir navegación"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2991
+#: lib/streamflix_web_web/live/docs_live.ex:3033
+#: lib/streamflix_web_web/live/docs_live.ex:3033
 #, elixir-autogen, elixir-format
 msgid "Ademas, cada evento tiene un idempotency_key opcional para evitar duplicados. Si envías dos eventos con el mismo idempotency_key, solo el primero se procesa."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2918
+#: lib/streamflix_web_web/live/docs_live.ex:2960
+#: lib/streamflix_web_web/live/docs_live.ex:2960
 #, elixir-autogen, elixir-format
 msgid "Al activar MFA se generan códigos de respaldo de un solo uso. Guárdalos en un lugar seguro para poder acceder si pierdes tu dispositivo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1635
+#: lib/streamflix_web_web/live/docs_live.ex:1677
+#: lib/streamflix_web_web/live/docs_live.ex:1677
 #, elixir-autogen, elixir-format
 msgid "Al regenerar, el token anterior se invalida inmediatamente. Actualiza tu código con el nuevo token."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2910
+#: lib/streamflix_web_web/live/docs_live.ex:2952
+#: lib/streamflix_web_web/live/docs_live.ex:2952
 #, elixir-autogen, elixir-format
 msgid "Autenticación de dos factores."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2856
+#: lib/streamflix_web_web/live/docs_live.ex:2898
+#: lib/streamflix_web_web/live/docs_live.ex:2898
 #, elixir-autogen, elixir-format
 msgid "Cada entrega incluye una firma HMAC en el header X-Signature. Siempre verifica las firmas para asegurar que la petición proviene de Jobcelis."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2986
+#: lib/streamflix_web_web/live/docs_live.ex:3028
+#: lib/streamflix_web_web/live/docs_live.ex:3028
 #, elixir-autogen, elixir-format
 msgid "Cada evento recibe un hash criptográfico único al crearse. Esto permite verificar que el contenido no ha sido alterado. Los eventos se almacenan de forma inmutable."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:229
+#: lib/streamflix_web_web/live/docs_live.ex:230
+#: lib/streamflix_web_web/live/docs_live.ex:230
 #, elixir-autogen, elixir-format
 msgid "Cerrar navegación"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2678
+#: lib/streamflix_web_web/live/docs_live.ex:2720
+#: lib/streamflix_web_web/live/docs_live.ex:2720
 #, elixir-autogen, elixir-format
 msgid "Configuraciónes predefinidas para webhooks."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:363
+#: lib/streamflix_web_web/live/docs_live.ex:364
+#: lib/streamflix_web_web/live/docs_live.ex:364
 #, elixir-autogen, elixir-format
 msgid "Copiar código"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3012
+#: lib/streamflix_web_web/live/docs_live.ex:3054
+#: lib/streamflix_web_web/live/docs_live.ex:3054
 #, elixir-autogen, elixir-format
 msgid "Copias de seguridad automáticas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3114
+#: lib/streamflix_web_web/live/docs_live.ex:3156
+#: lib/streamflix_web_web/live/docs_live.ex:3156
 #, elixir-autogen, elixir-format
 msgid "Códigos HTTP estándar usados por la API."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2932
+#: lib/streamflix_web_web/live/docs_live.ex:2974
+#: lib/streamflix_web_web/live/docs_live.ex:2974
 #, elixir-autogen, elixir-format
 msgid "Debe incluir mayúsculas, minúsculas y números"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:912
+#: lib/streamflix_web_web/live/docs_live.ex:954
+#: lib/streamflix_web_web/live/docs_live.ex:954
 #, elixir-autogen, elixir-format
 msgid "Desde tu código o con curl: POST /api/v1/events con body JSON."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2974
+#: lib/streamflix_web_web/live/docs_live.ex:3016
+#: lib/streamflix_web_web/live/docs_live.ex:3016
 #, elixir-autogen, elixir-format
 msgid "El sistema monitorea continuamente patrones anómalos como múltiples intentos fallidos, accesos desde ubicaciones inusuales y otros indicadores de posibles brechas de seguridad."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2637
+#: lib/streamflix_web_web/live/docs_live.ex:2679
+#: lib/streamflix_web_web/live/docs_live.ex:2679
 #, elixir-autogen, elixir-format
 msgid "Envía múltiples eventos en una sola petición."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2643
+#: lib/streamflix_web_web/live/docs_live.ex:2685
+#: lib/streamflix_web_web/live/docs_live.ex:2685
 #, elixir-autogen, elixir-format
 msgid "Envía un array de eventos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1181
+#: lib/streamflix_web_web/live/docs_live.ex:1223
+#: lib/streamflix_web_web/live/docs_live.ex:1223
 #, elixir-autogen, elixir-format
 msgid "Envía un nuevo evento."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3049
+#: lib/streamflix_web_web/live/docs_live.ex:3091
+#: lib/streamflix_web_web/live/docs_live.ex:3091
 #, elixir-autogen, elixir-format
 msgid "Exporta datos en formato JSON estándar"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3190
+#: lib/streamflix_web_web/live/docs_live.ex:3258
+#: lib/streamflix_web_web/live/docs_live.ex:3258
 #, elixir-autogen, elixir-format
 msgid "ID único de la petición para debugging"
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:61
-#: lib/streamflix_web_web/live/docs_live.ex:890
+#: lib/streamflix_web_web/live/docs_live.ex:61
+#: lib/streamflix_web_web/live/docs_live.ex:932
+#: lib/streamflix_web_web/live/docs_live.ex:932
 #, elixir-autogen, elixir-format
 msgid "Inicio rápido"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2273
+#: lib/streamflix_web_web/live/docs_live.ex:2315
+#: lib/streamflix_web_web/live/docs_live.ex:2315
 #, elixir-autogen, elixir-format
 msgid "Invita miembros a tus proyectos con roles diferenciados (admin, member, viewer). Los miembros invitados reciben un email y pueden aceptar o rechazar la invitación."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:772
+#: lib/streamflix_web_web/live/docs_live.ex:814
+#: lib/streamflix_web_web/live/docs_live.ex:814
 #, elixir-autogen, elixir-format
 msgid "Jobcelis es una plataforma de eventos y webhooks 100%% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tu defines topics, payloads y reglas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3003
+#: lib/streamflix_web_web/live/docs_live.ex:3045
+#: lib/streamflix_web_web/live/docs_live.ex:3045
 #, elixir-autogen, elixir-format
 msgid "La plataforma se monitorea de forma continua. Puedes ver el estado actual en la página de estado (/status). Los componentes monitoreados incluyen la base de datos, el sistema de procesamiento y la cache."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2934
+#: lib/streamflix_web_web/live/docs_live.ex:2976
+#: lib/streamflix_web_web/live/docs_live.ex:2976
 #, elixir-autogen, elixir-format
 msgid "Las contraseñas se almacenan con hashing seguro basado en memoria"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2931
+#: lib/streamflix_web_web/live/docs_live.ex:2973
+#: lib/streamflix_web_web/live/docs_live.ex:2973
 #, elixir-autogen, elixir-format
 msgid "Longitud mínima requerida"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1073
+#: lib/streamflix_web_web/live/docs_live.ex:1115
+#: lib/streamflix_web_web/live/docs_live.ex:1115
 #, elixir-autogen, elixir-format
 msgid "Métodos: GET, POST, PUT, PATCH, DELETE, OPTIONS."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:225
+#: lib/streamflix_web_web/live/docs_live.ex:226
+#: lib/streamflix_web_web/live/docs_live.ex:226
 #, elixir-autogen, elixir-format
 msgid "Navegación"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3044
+#: lib/streamflix_web_web/live/docs_live.ex:3086
+#: lib/streamflix_web_web/live/docs_live.ex:3086
 #, elixir-autogen, elixir-format
 msgid "Objeción:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2662
+#: lib/streamflix_web_web/live/docs_live.ex:2704
+#: lib/streamflix_web_web/live/docs_live.ex:2704
 #, elixir-autogen, elixir-format
 msgid "Paginación eficiente basada en cursor para listas grandes."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2171
+#: lib/streamflix_web_web/live/docs_live.ex:2213
+#: lib/streamflix_web_web/live/docs_live.ex:2213
 #, elixir-autogen, elixir-format
 msgid "Perfil, email, contraseña y MFA."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:769
+#: lib/streamflix_web_web/live/docs_live.ex:811
+#: lib/streamflix_web_web/live/docs_live.ex:811
 #, elixir-autogen, elixir-format
 msgid "Qué es Jobcelis y que puedes hacer con la API."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:834
+#: lib/streamflix_web_web/live/docs_live.ex:876
+#: lib/streamflix_web_web/live/docs_live.ex:876
 #, elixir-autogen, elixir-format
 msgid "Qué es un evento?"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:868
+#: lib/streamflix_web_web/live/docs_live.ex:910
+#: lib/streamflix_web_web/live/docs_live.ex:910
 #, elixir-autogen, elixir-format
 msgid "Qué es un job?"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:877
+#: lib/streamflix_web_web/live/docs_live.ex:919
+#: lib/streamflix_web_web/live/docs_live.ex:919
 #, elixir-autogen, elixir-format
 msgid "Qué es un topic?"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:848
+#: lib/streamflix_web_web/live/docs_live.ex:890
+#: lib/streamflix_web_web/live/docs_live.ex:890
 #, elixir-autogen, elixir-format
 msgid "Qué es un webhook?"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:858
+#: lib/streamflix_web_web/live/docs_live.ex:900
+#: lib/streamflix_web_web/live/docs_live.ex:900
 #, elixir-autogen, elixir-format
 msgid "Qué es una entrega (delivery)?"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1843
+#: lib/streamflix_web_web/live/docs_live.ex:1885
+#: lib/streamflix_web_web/live/docs_live.ex:1885
 #, elixir-autogen, elixir-format
 msgid "Re-envía eventos históricos a tus webhooks."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3036
+#: lib/streamflix_web_web/live/docs_live.ex:3078
+#: lib/streamflix_web_web/live/docs_live.ex:3078
 #, elixir-autogen, elixir-format
 msgid "Rectificación:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:729
+#: lib/streamflix_web_web/live/docs_live.ex:771
+#: lib/streamflix_web_web/live/docs_live.ex:771
 #, elixir-autogen, elixir-format
 msgid "Referencia completa: rutas, autenticación, CORS, ejemplos y que probar en cada endpoint."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2927
+#: lib/streamflix_web_web/live/docs_live.ex:2969
+#: lib/streamflix_web_web/live/docs_live.ex:2969
 #, elixir-autogen, elixir-format
 msgid "Requisitos para contraseñas seguras."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3039
+#: lib/streamflix_web_web/live/docs_live.ex:3081
+#: lib/streamflix_web_web/live/docs_live.ex:3081
 #, elixir-autogen, elixir-format
 msgid "Restricción:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2703
+#: lib/streamflix_web_web/live/docs_live.ex:2745
+#: lib/streamflix_web_web/live/docs_live.ex:2745
 #, elixir-autogen, elixir-format
 msgid "Restringe el acceso a la API a IPs específicas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3015
+#: lib/streamflix_web_web/live/docs_live.ex:3057
+#: lib/streamflix_web_web/live/docs_live.ex:3057
 #, elixir-autogen, elixir-format
 msgid "Se realizan copias de seguridad automáticas de forma periódica. Los backups se almacenan de forma segura y cifrada. En caso de incidente, los datos se pueden restaurar rápidamente."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2962
+#: lib/streamflix_web_web/live/docs_live.ex:3004
+#: lib/streamflix_web_web/live/docs_live.ex:3004
 #, elixir-autogen, elixir-format
 msgid "Si un webhook falla repetidamente, el circuit breaker lo desactiva temporalmente para evitar sobrecarga. Cuando el endpoint se recupera, el webhook se reactiva automáticamente."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2585
+#: lib/streamflix_web_web/live/docs_live.ex:2627
+#: lib/streamflix_web_web/live/docs_live.ex:2627
 #, elixir-autogen, elixir-format
 msgid "Usa patrones con * para filtrar múltiples topics en webhooks."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:783
+#: lib/streamflix_web_web/live/docs_live.ex:825
+#: lib/streamflix_web_web/live/docs_live.ex:825
 #, elixir-autogen, elixir-format
 msgid "envía JSON con topic opcional via POST. Sin esquemas fijos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2553
+#: lib/streamflix_web_web/live/docs_live.ex:2595
+#: lib/streamflix_web_web/live/docs_live.ex:2595
 #, elixir-autogen, elixir-format
 msgid "Abre una conexión SSE para recibir eventos en tiempo real."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2913
+#: lib/streamflix_web_web/live/docs_live.ex:2955
+#: lib/streamflix_web_web/live/docs_live.ex:2955
 #, elixir-autogen, elixir-format
 msgid "Activa la autenticación de dos factores desde la página de cuenta. Usa una app de autenticación (Google Authenticator, Authy, etc.) para escanear el código QR. Cada vez que inicies sesión, ademas de tu contraseña necesitarás el código temporal de la app."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2159
+#: lib/streamflix_web_web/live/docs_live.ex:2201
+#: lib/streamflix_web_web/live/docs_live.ex:2201
 #, elixir-autogen, elixir-format
 msgid "Analíticas: gráficos y métricas"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:861
+#: lib/streamflix_web_web/live/docs_live.ex:903
+#: lib/streamflix_web_web/live/docs_live.ex:903
 #, elixir-autogen, elixir-format
 msgid "Cada vez que Jobcelis intenta enviar un evento a una URL de webhook, se crea una entrega. Esa entrega tiene un estado: pendiente, éxito o fallo. Si falla, Jobcelis reintenta automáticamente con backoff exponencial."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1002
+#: lib/streamflix_web_web/live/docs_live.ex:1044
+#: lib/streamflix_web_web/live/docs_live.ex:1044
 #, elixir-autogen, elixir-format
 msgid "Como enviar el API Key o usar JWT en las peticiones."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1542
+#: lib/streamflix_web_web/live/docs_live.ex:1584
+#: lib/streamflix_web_web/live/docs_live.ex:1584
 #, elixir-autogen, elixir-format
 msgid "Consultar y actualizar tu proyecto, gestiónar API tokens."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2898
+#: lib/streamflix_web_web/live/docs_live.ex:2940
+#: lib/streamflix_web_web/live/docs_live.ex:2940
 #, elixir-autogen, elixir-format
 msgid "Control de sesiónes activas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2357
+#: lib/streamflix_web_web/live/docs_live.ex:2399
+#: lib/streamflix_web_web/live/docs_live.ex:2399
 #, elixir-autogen, elixir-format
 msgid "Crea endpoints sandbox para probar tus webhooks sin necesitar un servidor externo. Cada endpoint tiene una URL única que captura todas las peticiones recibidas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1257
+#: lib/streamflix_web_web/live/docs_live.ex:1299
+#: lib/streamflix_web_web/live/docs_live.ex:1299
 #, elixir-autogen, elixir-format
 msgid "Crear, listar y gestiónar webhooks."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3024
+#: lib/streamflix_web_web/live/docs_live.ex:3066
+#: lib/streamflix_web_web/live/docs_live.ex:3066
 #, elixir-autogen, elixir-format
 msgid "Derechos de protección de datos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2174
+#: lib/streamflix_web_web/live/docs_live.ex:2216
+#: lib/streamflix_web_web/live/docs_live.ex:2216
 #, elixir-autogen, elixir-format
 msgid "Desde la página de cuenta puedes actualizar tu nombre, email y contraseña. También puedes activar la autenticación de dos factores (MFA) para mayor seguridad."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2889
+#: lib/streamflix_web_web/live/docs_live.ex:2931
+#: lib/streamflix_web_web/live/docs_live.ex:2931
 #, elixir-autogen, elixir-format
 msgid "Después de múltiples intentos de login fallidos en un periodo corto, la cuenta se bloquea temporalmente. Esto protege contra ataques de fuerza bruta y credenciales robadas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2140
+#: lib/streamflix_web_web/live/docs_live.ex:2182
+#: lib/streamflix_web_web/live/docs_live.ex:2182
 #, elixir-autogen, elixir-format
 msgid "El Dashboard es tu centro de control. Desde ahi puedes ver eventos, webhooks, entregas, jobs, analíticas, audit log y gestiónar tu API token. Accede desde la web después de iniciar sesión."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2950
+#: lib/streamflix_web_web/live/docs_live.ex:2992
+#: lib/streamflix_web_web/live/docs_live.ex:2992
 #, elixir-autogen, elixir-format
 msgid "El cifrado en reposo protege tus datos incluso si alguien accede a la base de datos directamente. Solo la aplicación puede descifrar los datos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2192
+#: lib/streamflix_web_web/live/docs_live.ex:2234
+#: lib/streamflix_web_web/live/docs_live.ex:2234
 #, elixir-autogen, elixir-format
 msgid "El enlace de recuperación expira en un periodo corto de tiempo por seguridad. Si expira, solicita uno nuevo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1028
+#: lib/streamflix_web_web/live/docs_live.ex:1070
+#: lib/streamflix_web_web/live/docs_live.ex:1070
 #, elixir-autogen, elixir-format
 msgid "El token se obtiene en el Dashboard (sección API Token). El valor completo solo se muestra una vez; guárdalo."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:905
+#: lib/streamflix_web_web/live/docs_live.ex:947
+#: lib/streamflix_web_web/live/docs_live.ex:947
 #, elixir-autogen, elixir-format
 msgid "En el Dashboard, sección API Token, verás el token. Guárdalo; lo usarás en todas las peticiones con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:993
+#: lib/streamflix_web_web/live/docs_live.ex:1035
+#: lib/streamflix_web_web/live/docs_live.ex:1035
 #, elixir-autogen, elixir-format
 msgid "En producción la base URL será tu dominio. Los ejemplos curl ya incluyen esta base."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2821
+#: lib/streamflix_web_web/live/docs_live.ex:2863
+#: lib/streamflix_web_web/live/docs_live.ex:2863
 #, elixir-autogen, elixir-format
 msgid "Enviar un evento"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1174
+#: lib/streamflix_web_web/live/docs_live.ex:1216
+#: lib/streamflix_web_web/live/docs_live.ex:1216
 #, elixir-autogen, elixir-format
 msgid "Enviar, listar y gestiónar eventos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2183
+#: lib/streamflix_web_web/live/docs_live.ex:2225
+#: lib/streamflix_web_web/live/docs_live.ex:2225
 #, elixir-autogen, elixir-format
 msgid "Flujo de recuperación de contraseña."
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:132
-#: lib/streamflix_web_web/live/docs_live.ex:2897
+#: lib/streamflix_web_web/live/docs_live.ex:132
+#: lib/streamflix_web_web/live/docs_live.ex:2939
+#: lib/streamflix_web_web/live/docs_live.ex:2939
 #, elixir-autogen, elixir-format
 msgid "Gestión de sesiónes"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3059
+#: lib/streamflix_web_web/live/docs_live.ex:3101
+#: lib/streamflix_web_web/live/docs_live.ex:3101
 #, elixir-autogen, elixir-format
 msgid "Gestión versiónada de consentimientos GDPR."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2202
+#: lib/streamflix_web_web/live/docs_live.ex:2244
+#: lib/streamflix_web_web/live/docs_live.ex:2244
 #, elixir-autogen, elixir-format
 msgid "Gestióna múltiples proyectos desde una sola cuenta."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1117
+#: lib/streamflix_web_web/live/docs_live.ex:1159
+#: lib/streamflix_web_web/live/docs_live.ex:1159
 #, elixir-autogen, elixir-format
 msgid "Inicia sesión y obtiene JWT."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2831
+#: lib/streamflix_web_web/live/docs_live.ex:2873
+#: lib/streamflix_web_web/live/docs_live.ex:2873
 #, elixir-autogen, elixir-format
 msgid "Interfaz de línea de comandos para gestiónar eventos, webhooks y mas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2568
+#: lib/streamflix_web_web/live/docs_live.ex:2610
+#: lib/streamflix_web_web/live/docs_live.ex:2610
 #, elixir-autogen, elixir-format
 msgid "La conexión permanece abierta y envía eventos a medida que ocurren. Usa EventSource en JavaScript o curl -N para probar."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2665
+#: lib/streamflix_web_web/live/docs_live.ex:2707
+#: lib/streamflix_web_web/live/docs_live.ex:2707
 #, elixir-autogen, elixir-format
 msgid "Las listas soportan paginación basada en cursor. Usa el campo next_cursor de la respuesta como parámetro cursor en la siguiente petición."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2901
+#: lib/streamflix_web_web/live/docs_live.ex:2943
+#: lib/streamflix_web_web/live/docs_live.ex:2943
 #, elixir-autogen, elixir-format
 msgid "Las sesiónes web utilizan cookies cifradas con timeout de inactividad. Si no hay actividad durante un periodo, la sesión se cierra automáticamente."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2755
+#: lib/streamflix_web_web/live/docs_live.ex:2797
+#: lib/streamflix_web_web/live/docs_live.ex:2797
 #, elixir-autogen, elixir-format
 msgid "Librerías oficiales para todos los lenguajes populares."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3194
+#: lib/streamflix_web_web/live/docs_live.ex:3262
+#: lib/streamflix_web_web/live/docs_live.ex:3262
 #, elixir-autogen, elixir-format
 msgid "Limite de peticiones por ventana"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2525
+#: lib/streamflix_web_web/live/docs_live.ex:2567
+#: lib/streamflix_web_web/live/docs_live.ex:2567
 #, elixir-autogen, elixir-format
 msgid "Lista entradas del audit log con paginación."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1200
+#: lib/streamflix_web_web/live/docs_live.ex:1242
+#: lib/streamflix_web_web/live/docs_live.ex:1242
 #, elixir-autogen, elixir-format
 msgid "Lista eventos con paginación."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2438
+#: lib/streamflix_web_web/live/docs_live.ex:2480
+#: lib/streamflix_web_web/live/docs_live.ex:2480
 #, elixir-autogen, elixir-format
 msgid "Metricas y gráficos de tu plataforma."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2137
+#: lib/streamflix_web_web/live/docs_live.ex:2179
+#: lib/streamflix_web_web/live/docs_live.ex:2179
 #, elixir-autogen, elixir-format
 msgid "Panel principal para gestiónar tu plataforma."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2715
+#: lib/streamflix_web_web/live/docs_live.ex:2757
+#: lib/streamflix_web_web/live/docs_live.ex:2757
 #, elixir-autogen, elixir-format
 msgid "Prueba webhooks sin enviar eventos reales."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2706
+#: lib/streamflix_web_web/live/docs_live.ex:2748
+#: lib/streamflix_web_web/live/docs_live.ex:2748
 #, elixir-autogen, elixir-format
 msgid "Puedes configurar una lista de IPs permitidas para tu API key. Solo las peticiones desde esas IPs serán aceptadas. Configurable al actualizar tu proyecto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2205
+#: lib/streamflix_web_web/live/docs_live.ex:2247
+#: lib/streamflix_web_web/live/docs_live.ex:2247
 #, elixir-autogen, elixir-format
 msgid "Puedes crear múltiples proyectos, cada uno con su propio API token, webhooks, eventos y configuración. Útil para separar entornos (dev, staging, prod) o distintas aplicaciónes."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1006
+#: lib/streamflix_web_web/live/docs_live.ex:1048
+#: lib/streamflix_web_web/live/docs_live.ex:1048
 #, elixir-autogen, elixir-format
 msgid "Puedes enviar el token de tres maneras:"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2187
+#: lib/streamflix_web_web/live/docs_live.ex:2229
+#: lib/streamflix_web_web/live/docs_live.ex:2229
 #, elixir-autogen, elixir-format
 msgid "Si olvidaste tu contraseña, solicita un enlace de recuperación desde la página de login. Recibirás un email con un enlace temporal para establecer una nueva contraseña."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2867
+#: lib/streamflix_web_web/live/docs_live.ex:2909
+#: lib/streamflix_web_web/live/docs_live.ex:2909
 #, elixir-autogen, elixir-format
 msgid "Siempre usa comparación de tiempo constante. Nunca uses == o === para verificar firmas. Verifica el body crudo, no una versión re-serializada."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2721
+#: lib/streamflix_web_web/live/docs_live.ex:2763
+#: lib/streamflix_web_web/live/docs_live.ex:2763
 #, elixir-autogen, elixir-format
 msgid "Simula el envío de un evento para probar tus webhooks."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:3000
+#: lib/streamflix_web_web/live/docs_live.ex:3042
+#: lib/streamflix_web_web/live/docs_live.ex:3042
 #, elixir-autogen, elixir-format
 msgid "Supervisión automatica de la plataforma."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:836
+#: lib/streamflix_web_web/live/docs_live.ex:878
+#: lib/streamflix_web_web/live/docs_live.ex:878
 #, elixir-autogen, elixir-format
 msgid "Un evento es un mensaje JSON que envías a Jobcelis desde tu aplicación (con un POST). Puede ser cualquier JSON: un pedido, un pago, un registro, etc. Opcionalmente le pones un topic para clasificarlo. Jobcelis guarda el evento y segun los webhooks que tengas configurados, envía esa información a las URLs que tu indiques."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2402
+#: lib/streamflix_web_web/live/docs_live.ex:2444
+#: lib/streamflix_web_web/live/docs_live.ex:2444
 #, elixir-autogen, elixir-format
 msgid "Ve las peticiones recibidas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1153
+#: lib/streamflix_web_web/live/docs_live.ex:1195
+#: lib/streamflix_web_web/live/docs_live.ex:1195
 #, elixir-autogen, elixir-format
 msgid "Verifica código MFA después del login."
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2842
+#: lib/streamflix_web_web/live/docs_live.ex:2884
+#: lib/streamflix_web_web/live/docs_live.ex:2884
 #, elixir-autogen, elixir-format
 msgid " en npm"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:2782
+#: lib/streamflix_web_web/live/docs_live.ex:2824
+#: lib/streamflix_web_web/live/docs_live.ex:2824
 #, elixir-autogen, elixir-format
 msgid "Links de instalación"
 msgstr ""
 
-#: lib/streamflix_web_web/live/docs_live.ex:1109
-#: lib/streamflix_web_web/live/docs_live.ex:1128
-#: lib/streamflix_web_web/live/docs_live.ex:1145
-#: lib/streamflix_web_web/live/docs_live.ex:1164
-#: lib/streamflix_web_web/live/docs_live.ex:1192
-#: lib/streamflix_web_web/live/docs_live.ex:1211
-#: lib/streamflix_web_web/live/docs_live.ex:1230
-#: lib/streamflix_web_web/live/docs_live.ex:1247
-#: lib/streamflix_web_web/live/docs_live.ex:1275
-#: lib/streamflix_web_web/live/docs_live.ex:1294
-#: lib/streamflix_web_web/live/docs_live.ex:1313
-#: lib/streamflix_web_web/live/docs_live.ex:1332
-#: lib/streamflix_web_web/live/docs_live.ex:1349
-#: lib/streamflix_web_web/live/docs_live.ex:1377
-#: lib/streamflix_web_web/live/docs_live.ex:1394
-#: lib/streamflix_web_web/live/docs_live.ex:1422
-#: lib/streamflix_web_web/live/docs_live.ex:1441
-#: lib/streamflix_web_web/live/docs_live.ex:1460
-#: lib/streamflix_web_web/live/docs_live.ex:1478
-#: lib/streamflix_web_web/live/docs_live.ex:1494
-#: lib/streamflix_web_web/live/docs_live.ex:1513
-#: lib/streamflix_web_web/live/docs_live.ex:1532
-#: lib/streamflix_web_web/live/docs_live.ex:1560
-#: lib/streamflix_web_web/live/docs_live.ex:1578
-#: lib/streamflix_web_web/live/docs_live.ex:1596
-#: lib/streamflix_web_web/live/docs_live.ex:1614
-#: lib/streamflix_web_web/live/docs_live.ex:1632
-#: lib/streamflix_web_web/live/docs_live.ex:1665
-#: lib/streamflix_web_web/live/docs_live.ex:1683
-#: lib/streamflix_web_web/live/docs_live.ex:1701
-#: lib/streamflix_web_web/live/docs_live.ex:1719
-#: lib/streamflix_web_web/live/docs_live.ex:1735
-#: lib/streamflix_web_web/live/docs_live.ex:1753
-#: lib/streamflix_web_web/live/docs_live.ex:1781
-#: lib/streamflix_web_web/live/docs_live.ex:1799
-#: lib/streamflix_web_web/live/docs_live.ex:1817
-#: lib/streamflix_web_web/live/docs_live.ex:1833
-#: lib/streamflix_web_web/live/docs_live.ex:1861
-#: lib/streamflix_web_web/live/docs_live.ex:1879
-#: lib/streamflix_web_web/live/docs_live.ex:1897
-#: lib/streamflix_web_web/live/docs_live.ex:1915
-#: lib/streamflix_web_web/live/docs_live.ex:1943
-#: lib/streamflix_web_web/live/docs_live.ex:1961
-#: lib/streamflix_web_web/live/docs_live.ex:1979
-#: lib/streamflix_web_web/live/docs_live.ex:1997
-#: lib/streamflix_web_web/live/docs_live.ex:2013
-#: lib/streamflix_web_web/live/docs_live.ex:2031
-#: lib/streamflix_web_web/live/docs_live.ex:2059
-#: lib/streamflix_web_web/live/docs_live.ex:2077
-#: lib/streamflix_web_web/live/docs_live.ex:2095
-#: lib/streamflix_web_web/live/docs_live.ex:2113
-#: lib/streamflix_web_web/live/docs_live.ex:2225
-#: lib/streamflix_web_web/live/docs_live.ex:2243
-#: lib/streamflix_web_web/live/docs_live.ex:2261
-#: lib/streamflix_web_web/live/docs_live.ex:2293
-#: lib/streamflix_web_web/live/docs_live.ex:2311
-#: lib/streamflix_web_web/live/docs_live.ex:2329
-#: lib/streamflix_web_web/live/docs_live.ex:2345
-#: lib/streamflix_web_web/live/docs_live.ex:2377
-#: lib/streamflix_web_web/live/docs_live.ex:2395
-#: lib/streamflix_web_web/live/docs_live.ex:2413
-#: lib/streamflix_web_web/live/docs_live.ex:2429
-#: lib/streamflix_web_web/live/docs_live.ex:2456
-#: lib/streamflix_web_web/live/docs_live.ex:2474
-#: lib/streamflix_web_web/live/docs_live.ex:2492
-#: lib/streamflix_web_web/live/docs_live.ex:2510
-#: lib/streamflix_web_web/live/docs_live.ex:2536
-#: lib/streamflix_web_web/live/docs_live.ex:2564
-#: lib/streamflix_web_web/live/docs_live.ex:2654
-#: lib/streamflix_web_web/live/docs_live.ex:2695
-#: lib/streamflix_web_web/live/docs_live.ex:2732
-#: lib/streamflix_web_web/live/docs_live.ex:3077
-#: lib/streamflix_web_web/live/docs_live.ex:3095
-#: lib/streamflix_web_web/live/docs_live.ex:3229
+#: lib/streamflix_web_web/live/docs_live.ex:1151
+#: lib/streamflix_web_web/live/docs_live.ex:1151
+#: lib/streamflix_web_web/live/docs_live.ex:1170
+#: lib/streamflix_web_web/live/docs_live.ex:1170
+#: lib/streamflix_web_web/live/docs_live.ex:1187
+#: lib/streamflix_web_web/live/docs_live.ex:1187
+#: lib/streamflix_web_web/live/docs_live.ex:1206
+#: lib/streamflix_web_web/live/docs_live.ex:1206
+#: lib/streamflix_web_web/live/docs_live.ex:1234
+#: lib/streamflix_web_web/live/docs_live.ex:1234
+#: lib/streamflix_web_web/live/docs_live.ex:1253
+#: lib/streamflix_web_web/live/docs_live.ex:1253
+#: lib/streamflix_web_web/live/docs_live.ex:1272
+#: lib/streamflix_web_web/live/docs_live.ex:1272
+#: lib/streamflix_web_web/live/docs_live.ex:1289
+#: lib/streamflix_web_web/live/docs_live.ex:1289
+#: lib/streamflix_web_web/live/docs_live.ex:1317
+#: lib/streamflix_web_web/live/docs_live.ex:1317
+#: lib/streamflix_web_web/live/docs_live.ex:1336
+#: lib/streamflix_web_web/live/docs_live.ex:1336
+#: lib/streamflix_web_web/live/docs_live.ex:1355
+#: lib/streamflix_web_web/live/docs_live.ex:1355
+#: lib/streamflix_web_web/live/docs_live.ex:1374
+#: lib/streamflix_web_web/live/docs_live.ex:1374
+#: lib/streamflix_web_web/live/docs_live.ex:1391
+#: lib/streamflix_web_web/live/docs_live.ex:1391
+#: lib/streamflix_web_web/live/docs_live.ex:1419
+#: lib/streamflix_web_web/live/docs_live.ex:1419
+#: lib/streamflix_web_web/live/docs_live.ex:1436
+#: lib/streamflix_web_web/live/docs_live.ex:1436
+#: lib/streamflix_web_web/live/docs_live.ex:1464
+#: lib/streamflix_web_web/live/docs_live.ex:1464
+#: lib/streamflix_web_web/live/docs_live.ex:1483
+#: lib/streamflix_web_web/live/docs_live.ex:1483
+#: lib/streamflix_web_web/live/docs_live.ex:1502
+#: lib/streamflix_web_web/live/docs_live.ex:1502
+#: lib/streamflix_web_web/live/docs_live.ex:1520
+#: lib/streamflix_web_web/live/docs_live.ex:1520
+#: lib/streamflix_web_web/live/docs_live.ex:1536
+#: lib/streamflix_web_web/live/docs_live.ex:1536
+#: lib/streamflix_web_web/live/docs_live.ex:1555
+#: lib/streamflix_web_web/live/docs_live.ex:1555
+#: lib/streamflix_web_web/live/docs_live.ex:1574
+#: lib/streamflix_web_web/live/docs_live.ex:1574
+#: lib/streamflix_web_web/live/docs_live.ex:1602
+#: lib/streamflix_web_web/live/docs_live.ex:1602
+#: lib/streamflix_web_web/live/docs_live.ex:1620
+#: lib/streamflix_web_web/live/docs_live.ex:1620
+#: lib/streamflix_web_web/live/docs_live.ex:1638
+#: lib/streamflix_web_web/live/docs_live.ex:1638
+#: lib/streamflix_web_web/live/docs_live.ex:1656
+#: lib/streamflix_web_web/live/docs_live.ex:1656
+#: lib/streamflix_web_web/live/docs_live.ex:1674
+#: lib/streamflix_web_web/live/docs_live.ex:1674
+#: lib/streamflix_web_web/live/docs_live.ex:1707
+#: lib/streamflix_web_web/live/docs_live.ex:1707
+#: lib/streamflix_web_web/live/docs_live.ex:1725
+#: lib/streamflix_web_web/live/docs_live.ex:1725
+#: lib/streamflix_web_web/live/docs_live.ex:1743
+#: lib/streamflix_web_web/live/docs_live.ex:1743
+#: lib/streamflix_web_web/live/docs_live.ex:1761
+#: lib/streamflix_web_web/live/docs_live.ex:1761
+#: lib/streamflix_web_web/live/docs_live.ex:1777
+#: lib/streamflix_web_web/live/docs_live.ex:1777
+#: lib/streamflix_web_web/live/docs_live.ex:1795
+#: lib/streamflix_web_web/live/docs_live.ex:1795
+#: lib/streamflix_web_web/live/docs_live.ex:1823
+#: lib/streamflix_web_web/live/docs_live.ex:1823
+#: lib/streamflix_web_web/live/docs_live.ex:1841
+#: lib/streamflix_web_web/live/docs_live.ex:1841
+#: lib/streamflix_web_web/live/docs_live.ex:1859
+#: lib/streamflix_web_web/live/docs_live.ex:1859
+#: lib/streamflix_web_web/live/docs_live.ex:1875
+#: lib/streamflix_web_web/live/docs_live.ex:1875
+#: lib/streamflix_web_web/live/docs_live.ex:1903
+#: lib/streamflix_web_web/live/docs_live.ex:1903
+#: lib/streamflix_web_web/live/docs_live.ex:1921
+#: lib/streamflix_web_web/live/docs_live.ex:1921
+#: lib/streamflix_web_web/live/docs_live.ex:1939
+#: lib/streamflix_web_web/live/docs_live.ex:1939
+#: lib/streamflix_web_web/live/docs_live.ex:1957
+#: lib/streamflix_web_web/live/docs_live.ex:1957
+#: lib/streamflix_web_web/live/docs_live.ex:1985
+#: lib/streamflix_web_web/live/docs_live.ex:1985
+#: lib/streamflix_web_web/live/docs_live.ex:2003
+#: lib/streamflix_web_web/live/docs_live.ex:2003
+#: lib/streamflix_web_web/live/docs_live.ex:2021
+#: lib/streamflix_web_web/live/docs_live.ex:2021
+#: lib/streamflix_web_web/live/docs_live.ex:2039
+#: lib/streamflix_web_web/live/docs_live.ex:2039
+#: lib/streamflix_web_web/live/docs_live.ex:2055
+#: lib/streamflix_web_web/live/docs_live.ex:2055
+#: lib/streamflix_web_web/live/docs_live.ex:2073
+#: lib/streamflix_web_web/live/docs_live.ex:2073
+#: lib/streamflix_web_web/live/docs_live.ex:2101
+#: lib/streamflix_web_web/live/docs_live.ex:2101
+#: lib/streamflix_web_web/live/docs_live.ex:2119
+#: lib/streamflix_web_web/live/docs_live.ex:2119
+#: lib/streamflix_web_web/live/docs_live.ex:2137
+#: lib/streamflix_web_web/live/docs_live.ex:2137
+#: lib/streamflix_web_web/live/docs_live.ex:2155
+#: lib/streamflix_web_web/live/docs_live.ex:2155
+#: lib/streamflix_web_web/live/docs_live.ex:2267
+#: lib/streamflix_web_web/live/docs_live.ex:2267
+#: lib/streamflix_web_web/live/docs_live.ex:2285
+#: lib/streamflix_web_web/live/docs_live.ex:2285
+#: lib/streamflix_web_web/live/docs_live.ex:2303
+#: lib/streamflix_web_web/live/docs_live.ex:2303
+#: lib/streamflix_web_web/live/docs_live.ex:2335
+#: lib/streamflix_web_web/live/docs_live.ex:2335
+#: lib/streamflix_web_web/live/docs_live.ex:2353
+#: lib/streamflix_web_web/live/docs_live.ex:2353
+#: lib/streamflix_web_web/live/docs_live.ex:2371
+#: lib/streamflix_web_web/live/docs_live.ex:2371
+#: lib/streamflix_web_web/live/docs_live.ex:2387
+#: lib/streamflix_web_web/live/docs_live.ex:2387
+#: lib/streamflix_web_web/live/docs_live.ex:2419
+#: lib/streamflix_web_web/live/docs_live.ex:2419
+#: lib/streamflix_web_web/live/docs_live.ex:2437
+#: lib/streamflix_web_web/live/docs_live.ex:2437
+#: lib/streamflix_web_web/live/docs_live.ex:2455
+#: lib/streamflix_web_web/live/docs_live.ex:2455
+#: lib/streamflix_web_web/live/docs_live.ex:2471
+#: lib/streamflix_web_web/live/docs_live.ex:2471
+#: lib/streamflix_web_web/live/docs_live.ex:2498
+#: lib/streamflix_web_web/live/docs_live.ex:2498
+#: lib/streamflix_web_web/live/docs_live.ex:2516
+#: lib/streamflix_web_web/live/docs_live.ex:2516
+#: lib/streamflix_web_web/live/docs_live.ex:2534
+#: lib/streamflix_web_web/live/docs_live.ex:2534
+#: lib/streamflix_web_web/live/docs_live.ex:2552
+#: lib/streamflix_web_web/live/docs_live.ex:2552
+#: lib/streamflix_web_web/live/docs_live.ex:2578
+#: lib/streamflix_web_web/live/docs_live.ex:2578
+#: lib/streamflix_web_web/live/docs_live.ex:2606
+#: lib/streamflix_web_web/live/docs_live.ex:2606
+#: lib/streamflix_web_web/live/docs_live.ex:2696
+#: lib/streamflix_web_web/live/docs_live.ex:2696
+#: lib/streamflix_web_web/live/docs_live.ex:2737
+#: lib/streamflix_web_web/live/docs_live.ex:2737
+#: lib/streamflix_web_web/live/docs_live.ex:2774
+#: lib/streamflix_web_web/live/docs_live.ex:2774
+#: lib/streamflix_web_web/live/docs_live.ex:3119
+#: lib/streamflix_web_web/live/docs_live.ex:3119
+#: lib/streamflix_web_web/live/docs_live.ex:3137
+#: lib/streamflix_web_web/live/docs_live.ex:3137
+#: lib/streamflix_web_web/live/docs_live.ex:3297
+#: lib/streamflix_web_web/live/docs_live.ex:3297
 #, elixir-autogen, elixir-format
 msgid "Respuesta"
 msgstr ""
@@ -8917,6 +9334,7 @@ msgstr ""
 msgid "Contacta con el equipo de Jobcelis para soporte o consultas."
 msgstr ""
 
+#: lib/streamflix_web_web/live/docs_live.ex:40
 #: lib/streamflix_web_web/live/docs_live.ex:40
 #, elixir-autogen, elixir-format
 msgid "Documentación completa de la API de Jobcelis: 74 endpoints, ejemplos curl, respuestas JSON, 13 SDKs."
@@ -9483,4 +9901,36 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/home.html.heex:158
 #, elixir-autogen, elixir-format
 msgid "Ejecutar"
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs_live.ex:3222
+#: lib/streamflix_web_web/live/docs_live.ex:3222
+#, elixir-autogen, elixir-format
+msgid "Cuando una petición falla, la API devuelve un JSON con el campo \"error\" describiendo el problema."
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs_live.ex:3232
+#: lib/streamflix_web_web/live/docs_live.ex:3232
+#, elixir-autogen, elixir-format
+msgid "Ejemplos de errores comunes"
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs_live.ex:3236
+#: lib/streamflix_web_web/live/docs_live.ex:3236
+#, elixir-autogen, elixir-format
+msgid "El campo \"error\" siempre es un string legible. Algunos endpoints pueden incluir campos adicionales como \"details\" con información más específica."
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs_live.ex:3219
+#: lib/streamflix_web_web/live/docs_live.ex:3219
+#, elixir-autogen, elixir-format
+msgid "Formato estándar de errores devueltos por la API."
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs_live.ex:150
+#: lib/streamflix_web_web/live/docs_live.ex:150
+#: lib/streamflix_web_web/live/docs_live.ex:3218
+#: lib/streamflix_web_web/live/docs_live.ex:3218
+#, elixir-autogen, elixir-format
+msgid "Respuestas de error"
 msgstr ""
