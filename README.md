@@ -1,132 +1,144 @@
 # Jobcelis
 
-**Plataforma de eventos, webhooks y jobs programados** — todo en una sola API. Publica eventos con cualquier payload, configura webhooks con filtros avanzados, recibe POST en tiempo real, y programa tareas recurrentes con cron. Incluye dashboard en tiempo real, sistema de equipos, cifrado de datos, cumplimiento GDPR, backups automatizados y más.
+**Event infrastructure platform for developers** — publish events with any payload, configure webhooks with advanced filters, receive real-time POST deliveries, and schedule recurring jobs with cron. Includes a real-time dashboard, team collaboration, data encryption, GDPR compliance, automated backups, and more.
 
-Construido con **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1** y **PostgreSQL**.
+Built with **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1**, and **PostgreSQL**.
 
 ---
 
-## Tabla de contenidos
+## Table of Contents
 
-- [Características principales](#características-principales)
-- [Arquitectura](#arquitectura)
-- [Requisitos](#requisitos)
-- [Configuración rápida](#configuración-rápida)
-- [Variables de entorno](#variables-de-entorno)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [API](#api)
+- [Key Features](#key-features)
+- [Architecture](#architecture)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [Environment Variables](#environment-variables)
+- [Project Structure](#project-structure)
+- [API Reference](#api-reference)
 - [Dashboard](#dashboard)
-- [Seguridad](#seguridad)
-- [GDPR](#gdpr)
+- [Security](#security)
+- [GDPR Compliance](#gdpr-compliance)
 - [Webhooks](#webhooks)
-- [Jobs programados](#jobs-programados)
-- [Sistema de replay](#sistema-de-replay)
-- [Sandbox](#sandbox-testing-de-webhooks)
-- [Equipos y colaboración](#equipos-y-colaboración)
+- [Scheduled Jobs](#scheduled-jobs)
+- [Event Replay](#event-replay)
+- [Sandbox](#sandbox)
+- [Pipelines](#pipelines)
+- [Teams & Collaboration](#teams--collaboration)
 - [Analytics](#analytics)
-- [Exportación de datos](#exportación-de-datos)
-- [Streaming en tiempo real](#streaming-en-tiempo-real)
+- [Data Export](#data-export)
+- [Real-time Streaming](#real-time-streaming)
 - [OpenAPI / Swagger](#openapi--swagger)
 - [Backups](#backups)
-- [Uptime y monitoreo](#uptime-y-monitoreo)
-- [Workers en background](#workers-en-background)
-- [Internacionalización](#internacionalización-i18n)
+- [Uptime & Monitoring](#uptime--monitoring)
+- [Background Workers](#background-workers)
+- [Internationalization](#internationalization-i18n)
+- [Public Pages & SEO](#public-pages--seo)
 - [CI/CD](#cicd)
 - [Docker](#docker)
-- [Tecnologías](#tecnologías)
-- [SDKs y herramientas](#sdks-y-herramientas)
-- [Licencia](#licencia)
+- [Tech Stack](#tech-stack)
+- [SDKs & Tools](#sdks--tools)
+- [License](#license)
 
 ---
 
-## Características principales
+## Key Features
 
-| Categoría | Descripción |
-|-----------|-------------|
-| **Eventos** | Publica eventos con `topic` y payload JSON vía API. Sin esquemas fijos, o con validación JSON Schema opcional por topic. Soporte para entrega diferida (`deliver_at`). |
-| **Webhooks** | URLs de destino con filtros por topic o campos del payload. POST en tiempo real con reintentos configurables, circuit breaker, entregas en batch, y 5 templates integrados (Slack, Discord, Telegram, JSON genérico, custom). |
-| **Jobs programados** | Tareas recurrentes: diario, semanal, mensual o expresión cron. Acción: emitir evento o POST a URL con payload configurable. Historial de ejecuciones. |
-| **Dashboard LiveView** | Dashboard en tiempo real con KPIs, analytics, gestión de webhooks/jobs/eventos, dead letter queue, sandbox, esquemas, equipo y más. |
-| **Multi-proyecto** | Múltiples proyectos por usuario. Selector de proyecto con persistencia en URL. Invitación de miembros con roles (owner/editor/viewer). |
-| **Seguridad** | Cifrado de datos en reposo, MFA/TOTP, gestión de sesiones, rate limiting, IP allowlist, circuit breaker, detección de anomalías, headers de seguridad, cookie consent (GDPR). |
-| **GDPR** | Derecho al olvido (Art. 17), restricción de procesamiento (Art. 18), derecho de oposición (Art. 21), exportación de datos personales (Art. 15/20), gestión de consentimientos. |
-| **API completa** | 90+ endpoints REST con autenticación JWT y API Key. OpenAPI 3.0 con Swagger UI interactivo. SSE y WebSocket para streaming. |
-| **Backups** | `pg_dump` automatizado diario con compresión gzip. Almacenamiento local o Azure Blob Storage. Política de retención configurable. |
-| **Observabilidad** | Uptime monitoring periódico, health checks (DB, jobs, cache, backup), audit log inmutable, logs JSON estructurados en producción. |
-| **Admin** | Panel de superadmin: usuarios, proyectos, métricas de Oban, configuración de plataforma. |
+| Category | Description |
+|----------|-------------|
+| **Events** | Publish events with `topic` and JSON payload via API. Schema-free, or with optional JSON Schema validation per topic. Supports deferred delivery (`deliver_at`) and batch events. |
+| **Webhooks** | Destination URLs with topic and payload field filters. Real-time POST with configurable retries, circuit breaker, batch delivery, and 5 built-in templates (Slack, Discord, Telegram, generic JSON, custom). |
+| **Scheduled Jobs** | Recurring tasks: daily, weekly, monthly, or cron expression. Actions: emit event or POST to external URL with configurable payload. Execution history tracking. |
+| **Pipelines** | Multi-step event processing workflows with transformations. Chain events through configurable pipeline stages. |
+| **Dashboard** | Real-time LiveView dashboard with KPIs, analytics charts, webhook/job/event management, dead letter queue, sandbox, schemas, team management, and more. |
+| **Multi-project** | Multiple projects per user. Project selector with URL persistence. Invite members with roles (owner/editor/viewer). |
+| **Security** | Industry-standard encryption at rest, MFA/TOTP, session management, rate limiting, IP allowlist, circuit breaker, anomaly detection, security headers, cookie consent. |
+| **GDPR** | Right to erasure (Art. 17), restriction of processing (Art. 18), right to object (Art. 21), personal data export (Art. 15/20), consent management. |
+| **API** | 90+ REST endpoints with JWT and API Key authentication. OpenAPI 3.0 with interactive Swagger UI. SSE and WebSocket for streaming. |
+| **Backups** | Automated daily database backups with compression. Local or Azure Blob Storage. Configurable retention policy. |
+| **Observability** | Periodic uptime monitoring, health checks (database, jobs, cache, backup), immutable audit log, structured JSON logs in production. |
+| **Admin Panel** | Superadmin panel: user management with search, project overview, system metrics, platform settings. |
 
 ---
 
-## Arquitectura
+## Architecture
 
-Aplicación umbrella con 3 apps:
+Umbrella application with 3 apps and strict dependency flow:
 
 ```
-streamflix/
+streamflix_web → streamflix_accounts → streamflix_core
+```
+
+```
+jobcelis/
 ├── apps/
-│   ├── streamflix_core/       # Dominio: proyectos, API keys, eventos, webhooks,
+│   ├── streamflix_core/       # Domain: projects, API keys, events, webhooks,
 │   │                          # deliveries, jobs, dead letters, replays, sandbox,
-│   │                          # schemas, analytics, audit, equipos, notificaciones,
-│   │                          # uptime, GDPR, backups, circuit breaker, cifrado
-│   ├── streamflix_accounts/   # Usuarios, autenticación (Guardian/JWT), MFA, sesiones
-│   └── streamflix_web/        # Web (LiveView), API REST, plugs, docs, admin
-├── config/                    # Configuración por entorno
+│   │                          # schemas, pipelines, analytics, audit, teams,
+│   │                          # notifications, uptime, GDPR, backups, circuit breaker
+│   ├── streamflix_accounts/   # Users, authentication (JWT), MFA, sessions
+│   └── streamflix_web/        # Web (LiveView), REST API, plugs, docs, admin
+├── sdks/                      # 13 SDKs + CLI + GitHub Action
+├── docs/                      # Public documentation
+├── config/                    # Per-environment configuration
+├── Dockerfile                 # Multi-stage build (dev + prod)
 ├── docker-compose.yml
-├── Dockerfile
-├── .env.example
-└── mix.exs
+└── .github/workflows/
+    ├── ci.yml                 # Tests, format, Credo, Sobelow, Dialyzer, Trivy
+    ├── deploy-azure.yml       # Production deploy
+    ├── deploy-staging.yml     # Staging deploy
+    └── publish-sdks.yml       # SDK publishing
 ```
 
 ---
 
-## Requisitos
+## Requirements
 
 - **Elixir** 1.17+
-- **Erlang/OTP** 26+
+- **Erlang/OTP** 27+
 - **PostgreSQL** 15+
-- **Node.js** 20+ (para compilar assets)
+- **Node.js** 20+ (for asset compilation)
 
 ---
 
-## Configuración rápida
+## Quick Start
 
-### 1. Clonar y dependencias
+### 1. Clone and install dependencies
 
 ```bash
 git clone <repo>
-cd streamflix
+cd jobcelis
 mix deps.get
 ```
 
-### 2. Variables de entorno
+### 2. Environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-Edita `.env` y configura al menos:
+Edit `.env` and configure at least:
 
 ```bash
-# Seguridad (generar con los comandos indicados)
+# Security (generate with the commands below)
 SECRET_KEY_BASE=          # mix phx.gen.secret
 GUARDIAN_SECRET_KEY=      # mix guardian.gen.secret
-LIVE_VIEW_SIGNING_SALT=   # 32+ caracteres
+LIVE_VIEW_SIGNING_SALT=   # 32+ characters
 
-# Base de datos
+# Database
 DB_USERNAME=postgres
-DB_PASSWORD=tu_password
+DB_PASSWORD=your_password
 DB_HOSTNAME=localhost
-DB_DATABASE=jobscelis_dev
+DB_DATABASE=jobcelis_dev
 ```
 
-Generar secretos:
+Generate secrets:
 
 ```bash
 mix phx.gen.secret        # SECRET_KEY_BASE
 mix guardian.gen.secret    # GUARDIAN_SECRET_KEY
 ```
 
-### 3. Base de datos
+### 3. Database
 
 ```bash
 mix ecto.create
@@ -134,492 +146,531 @@ mix ecto.migrate
 mix run apps/streamflix_core/priv/repo/seeds.exs
 ```
 
-### 4. Arrancar
+### 4. Start the server
 
 ```bash
-# Cargar .env (Linux/macOS)
-export $(grep -v '^#' .env | xargs)
-
-# O en PowerShell (Windows):
-# Get-Content .env | ForEach-Object { if ($_ -match '^([^#=]+)=(.*)$') { [Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), 'Process') } }
+# Load .env (Linux/macOS)
+set -a && source .env && set +a
 
 mix phx.server
 ```
 
-Abre **http://localhost:4000**
+Open **http://localhost:4000**
 
-### 5. Crear superadmin
-
-Crea un usuario administrador desde la consola interactiva:
+### 5. Create superadmin
 
 ```bash
 iex -S mix
-# Luego ejecuta las funciones de creación de usuario con rol superadmin
+# Then call the user creation functions with superadmin role
 ```
 
 ---
 
-## Variables de entorno
+## Environment Variables
 
-| Variable | Requerida | Descripción |
-|----------|-----------|-------------|
-| `SECRET_KEY_BASE` | Si | Clave de cifrado de sesiones Phoenix |
-| `GUARDIAN_SECRET_KEY` | Si | Clave de firma JWT |
-| `LIVE_VIEW_SIGNING_SALT` | Si | Salt para tokens LiveView |
-| `DATABASE_URL` | Si* | Cadena de conexión PostgreSQL (alternativa a `DB_*`) |
-| `DB_USERNAME` / `DB_PASSWORD` / `DB_HOSTNAME` / `DB_DATABASE` | Si* | Conexión a PostgreSQL (alternativa a `DATABASE_URL`) |
-| `CLOAK_KEY` | Producción | Clave de cifrado en reposo (Base64) |
-| `HMAC_SECRET` | Producción | Secreto para hashing determinístico de emails |
-| `RESEND_API_KEY` | Opcional | API key de Resend para emails transaccionales |
-| `AZURE_STORAGE_ACCOUNT` / `AZURE_STORAGE_KEY` | Opcional | Azure Blob Storage para backups |
-| `AZURE_CONTAINER_BACKUPS` | Opcional | Nombre del container en Azure |
-| `BACKUP_ENABLED` / `BACKUP_PATH` / `BACKUP_RETENTION_DAYS` | Opcional | Configuración de backups |
-| `DB_POOL_SIZE` | Opcional | Tamaño del pool de conexiones (default: 10) |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SECRET_KEY_BASE` | Yes | Phoenix session encryption key |
+| `GUARDIAN_SECRET_KEY` | Yes | JWT signing key |
+| `LIVE_VIEW_SIGNING_SALT` | Yes | LiveView token signing salt |
+| `DATABASE_URL` | Yes* | PostgreSQL connection string (alternative to `DB_*`) |
+| `DB_USERNAME` / `DB_PASSWORD` / `DB_HOSTNAME` / `DB_DATABASE` | Yes* | PostgreSQL connection (alternative to `DATABASE_URL`) |
+| `CLOAK_KEY` | Production | Encryption key for data at rest (Base64) |
+| `HMAC_SECRET` | Production | Secret for deterministic email hashing |
+| `RESEND_API_KEY` | Optional | Resend API key for transactional emails |
+| `PHX_HOST` | Production | Production domain |
+| `CDN_HOST` | Optional | CDN domain for static assets |
+| `AZURE_STORAGE_ACCOUNT` / `AZURE_STORAGE_KEY` | Optional | Azure Blob Storage for backups |
+| `AZURE_CONTAINER_BACKUPS` | Optional | Azure container name |
+| `BACKUP_ENABLED` / `BACKUP_PATH` / `BACKUP_RETENTION_DAYS` | Optional | Backup configuration |
 
 ---
 
-## Estructura del proyecto
+## Project Structure
 
 ```
-streamflix/
+jobcelis/
 ├── apps/
 │   ├── streamflix_core/
 │   │   ├── lib/
-│   │   │   ├── platform.ex           # Contexto principal (~55KB)
-│   │   │   ├── audit.ex              # Audit log inmutable
-│   │   │   ├── notifications.ex      # Notificaciones in-app + PubSub
-│   │   │   ├── teams.ex              # Equipos y colaboración
-│   │   │   ├── gdpr.ex               # Cumplimiento GDPR
-│   │   │   ├── uptime.ex             # Monitoreo de salud
-│   │   │   ├── circuit_breaker.ex    # Circuit breaker para webhooks
-│   │   │   ├── vault.ex              # Cifrado en reposo
-│   │   │   └── workers/              # Background workers
+│   │   │   ├── platform.ex              # Main context module
+│   │   │   ├── platform/
+│   │   │   │   ├── contexts/            # Business contexts (events, webhooks, jobs, etc.)
+│   │   │   │   ├── pipelines.ex         # Pipeline processing engine
+│   │   │   │   ├── transformer.ex       # Payload transformations
+│   │   │   │   └── ...                  # Background workers
+│   │   │   ├── schemas/                 # Ecto schemas (20+ domain entities)
+│   │   │   ├── audit.ex                 # Immutable audit log
+│   │   │   ├── gdpr.ex                  # GDPR compliance
+│   │   │   ├── circuit_breaker.ex       # Webhook circuit breaker
+│   │   │   ├── notifications.ex         # In-app notifications + PubSub
+│   │   │   └── release.ex              # Auto-migration on startup
 │   │   └── priv/repo/migrations/
 │   ├── streamflix_accounts/
 │   │   └── lib/
-│   │       └── accounts.ex           # Auth, MFA, sesiones, password history
+│   │       ├── schemas/                 # User, session, token, password history
+│   │       └── services/               # Authentication, MFA
 │   └── streamflix_web/
 │       └── lib/
-│           ├── controllers/           # API REST controllers
-│           ├── live/                   # LiveView (dashboard modular, account, admin)
-│           ├── plugs/                 # Auth, rate limit, CORS, security headers
-│           └── channels/             # WebSocket channels
+│           ├── controllers/             # REST API controllers + page controllers
+│           ├── live/
+│           │   ├── platform_dashboard/  # Modular dashboard (helpers, tabs, modals)
+│           │   ├── platform_dashboard_live.ex
+│           │   ├── admin/              # Admin LiveViews
+│           │   └── account/            # Account settings LiveView
+│           ├── plugs/                  # Auth, rate limit, CORS, security headers, locale
+│           └── channels/              # WebSocket channels
 ├── config/
-│   ├── config.exs                     # Base
+│   ├── config.exs                      # Base configuration
 │   ├── dev.exs / test.exs / prod.exs
-│   └── runtime.exs                    # Variables de entorno
-├── docs/                              # Documentación pública (arquitectura, quickstart, SLA, webhooks)
-├── sdks/                              # 13 SDKs + CLI + GitHub Action + Terraform
-├── docker-compose.yml
-├── Dockerfile                         # Multi-stage (dev + prod)
-└── .github/workflows/
-    ├── ci.yml                         # Tests, format, Credo, Sobelow, Dialyzer
-    ├── deploy-azure.yml               # Deploy a producción
-    ├── deploy-staging.yml             # Deploy a staging
-    └── publish-sdks.yml               # Publicación de SDKs
+│   └── runtime.exs                     # Runtime env vars
+├── sdks/                               # 13 SDKs + CLI + GitHub Action
+├── docs/                               # Public docs (architecture, quickstart, SLA, webhooks)
+└── .github/workflows/                  # CI, deploy, SDK publishing
 ```
 
 ---
 
-## API
+## API Reference
 
-### Autenticación (público)
+Authentication header: `Authorization: Bearer <jwt_token>` or `X-Api-Key: <api_key>`
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| POST | `/api/v1/auth/register` | Registro (email, password, name) |
-| POST | `/api/v1/auth/login` | Login → JWT + MFA si habilitado |
-| POST | `/api/v1/auth/refresh` | Refrescar JWT |
-| POST | `/api/v1/auth/mfa/verify` | Verificar código TOTP |
+Interactive docs: **https://jobcelis.com/docs** | Swagger UI: **https://jobcelis.com/api/swaggerui**
 
-### Eventos (API Key)
+### Auth (Public)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| POST | `/api/v1/events` | Crear evento (topic + payload). Soporta `deliver_at` |
-| POST | `/api/v1/send` | Alias para crear evento |
-| GET | `/api/v1/events` | Listar eventos (paginación por cursor) |
-| GET | `/api/v1/events/:id` | Detalle de evento |
-| DELETE | `/api/v1/events/:id` | Soft-delete evento |
-| POST | `/api/v1/simulate` | Simular evento (sin entregas reales) |
-| GET | `/api/v1/topics` | Listar todos los topics del proyecto |
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/v1/auth/register` | Register (email, password, name) |
+| POST | `/api/v1/auth/login` | Login → JWT + MFA if enabled |
+| POST | `/api/v1/auth/refresh` | Refresh JWT token |
+| POST | `/api/v1/auth/mfa/verify` | Verify TOTP code |
+
+### Events (API Key)
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/v1/events` | Create event (topic + payload). Supports `deliver_at` |
+| POST | `/api/v1/send` | Alias for creating an event |
+| POST | `/api/v1/events/batch` | Send multiple events in a single request |
+| GET | `/api/v1/events` | List events (cursor pagination) |
+| GET | `/api/v1/events/:id` | Event details |
+| DELETE | `/api/v1/events/:id` | Soft-delete event |
+| POST | `/api/v1/simulate` | Simulate event (no real deliveries) |
+| GET | `/api/v1/topics` | List all topics in the project |
 
 ### Webhooks (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/webhooks` | Listar webhooks |
-| POST | `/api/v1/webhooks` | Crear webhook (URL, topics, filtros, retry, batch, template) |
-| GET | `/api/v1/webhooks/:id` | Detalle de webhook |
-| PATCH | `/api/v1/webhooks/:id` | Actualizar webhook |
-| DELETE | `/api/v1/webhooks/:id` | Desactivar webhook |
-| GET | `/api/v1/webhooks/:id/health` | Salud: tasa de éxito, latencia promedio, última entrega |
-| GET | `/api/v1/webhooks/templates` | Templates disponibles (Slack, Discord, Telegram, etc.) |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/webhooks` | List webhooks |
+| POST | `/api/v1/webhooks` | Create webhook (URL, topics, filters, retry, batch, template) |
+| GET | `/api/v1/webhooks/:id` | Webhook details |
+| PATCH | `/api/v1/webhooks/:id` | Update webhook |
+| DELETE | `/api/v1/webhooks/:id` | Deactivate webhook |
+| GET | `/api/v1/webhooks/:id/health` | Health: success rate, avg latency, last delivery |
+| GET | `/api/v1/webhooks/templates` | Available templates (Slack, Discord, Telegram, etc.) |
 
-### Entregas (API Key)
+### Deliveries (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/deliveries` | Listar entregas (status, intentos, response) |
-| POST | `/api/v1/deliveries/:id/retry` | Reintentar entrega fallida |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/deliveries` | List deliveries (status, attempts, response) |
+| POST | `/api/v1/deliveries/:id/retry` | Retry failed delivery |
 
 ### Dead Letter Queue (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/dead-letters` | Listar dead letters |
-| GET | `/api/v1/dead-letters/:id` | Detalle de dead letter |
-| POST | `/api/v1/dead-letters/:id/retry` | Reintentar dead letter |
-| PATCH | `/api/v1/dead-letters/:id/resolve` | Marcar como resuelto |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/dead-letters` | List dead letters |
+| GET | `/api/v1/dead-letters/:id` | Dead letter details |
+| POST | `/api/v1/dead-letters/:id/retry` | Retry dead letter |
+| PATCH | `/api/v1/dead-letters/:id/resolve` | Mark as resolved |
 
 ### Replays (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| POST | `/api/v1/replays` | Iniciar replay (filtro por topic, fechas, webhook) |
-| GET | `/api/v1/replays` | Listar replays |
-| GET | `/api/v1/replays/:id` | Estado del replay |
-| DELETE | `/api/v1/replays/:id` | Cancelar replay |
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/v1/replays` | Start replay (filter by topic, dates, webhook) |
+| GET | `/api/v1/replays` | List replays |
+| GET | `/api/v1/replays/:id` | Replay status |
+| DELETE | `/api/v1/replays/:id` | Cancel replay |
 
-### Jobs programados (API Key)
+### Scheduled Jobs (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/jobs` | Listar jobs |
-| POST | `/api/v1/jobs` | Crear job (schedule + action) |
-| GET | `/api/v1/jobs/:id` | Detalle de job |
-| PATCH | `/api/v1/jobs/:id` | Actualizar job |
-| DELETE | `/api/v1/jobs/:id` | Desactivar job |
-| GET | `/api/v1/jobs/:id/runs` | Historial de ejecuciones |
-| GET | `/api/v1/jobs/cron-preview` | Preview de próximas ejecuciones cron |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/jobs` | List jobs |
+| POST | `/api/v1/jobs` | Create job (schedule + action) |
+| GET | `/api/v1/jobs/:id` | Job details |
+| PATCH | `/api/v1/jobs/:id` | Update job |
+| DELETE | `/api/v1/jobs/:id` | Deactivate job |
+| GET | `/api/v1/jobs/:id/runs` | Execution history |
+| GET | `/api/v1/jobs/cron-preview` | Preview next cron executions |
+
+### Pipelines (API Key)
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/pipelines` | List pipelines |
+| POST | `/api/v1/pipelines` | Create pipeline |
+| GET | `/api/v1/pipelines/:id` | Pipeline details |
+| PATCH | `/api/v1/pipelines/:id` | Update pipeline |
+| DELETE | `/api/v1/pipelines/:id` | Delete pipeline |
+| POST | `/api/v1/pipelines/:id/test` | Test pipeline with sample data |
 
 ### Sandbox (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/sandbox-endpoints` | Listar endpoints de sandbox |
-| POST | `/api/v1/sandbox-endpoints` | Crear endpoint temporal |
-| DELETE | `/api/v1/sandbox-endpoints/:id` | Eliminar endpoint |
-| GET | `/api/v1/sandbox-endpoints/:id/requests` | Ver requests capturados |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/sandbox-endpoints` | List sandbox endpoints |
+| POST | `/api/v1/sandbox-endpoints` | Create temporary endpoint |
+| DELETE | `/api/v1/sandbox-endpoints/:id` | Delete endpoint |
+| GET | `/api/v1/sandbox-endpoints/:id/requests` | View captured requests |
 
 ### Event Schemas (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/event-schemas` | Listar schemas |
-| POST | `/api/v1/event-schemas` | Crear schema (JSON Schema por topic) |
-| GET | `/api/v1/event-schemas/:id` | Detalle de schema |
-| PATCH | `/api/v1/event-schemas/:id` | Actualizar schema |
-| DELETE | `/api/v1/event-schemas/:id` | Eliminar schema |
-| POST | `/api/v1/event-schemas/validate` | Validar payload contra schema |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/event-schemas` | List schemas |
+| POST | `/api/v1/event-schemas` | Create schema (JSON Schema per topic) |
+| GET | `/api/v1/event-schemas/:id` | Schema details |
+| PATCH | `/api/v1/event-schemas/:id` | Update schema |
+| DELETE | `/api/v1/event-schemas/:id` | Delete schema |
+| POST | `/api/v1/event-schemas/validate` | Validate payload against schema |
 
 ### Analytics (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/analytics/events-per-day` | Eventos por día (hasta 90 días) |
-| GET | `/api/v1/analytics/deliveries-per-day` | Entregas por día |
-| GET | `/api/v1/analytics/top-topics` | Topics con más volumen |
-| GET | `/api/v1/analytics/webhook-stats` | Stats por webhook (éxito, fallo, latencia) |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/analytics/events-per-day` | Events per day (up to 90 days) |
+| GET | `/api/v1/analytics/deliveries-per-day` | Deliveries per day |
+| GET | `/api/v1/analytics/top-topics` | Topics by volume |
+| GET | `/api/v1/analytics/webhook-stats` | Per-webhook stats (success, failure, latency) |
 
 ### Audit Log (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/audit-log` | Consultar audit log del proyecto |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/audit-log` | Query project audit log |
 
-### Exportación (API Key)
+### Export (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/export/events` | Exportar eventos (CSV/JSON, hasta 10K registros) |
-| GET | `/api/v1/export/deliveries` | Exportar entregas |
-| GET | `/api/v1/export/jobs` | Exportar jobs |
-| GET | `/api/v1/export/audit-log` | Exportar audit log |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/export/events` | Export events (CSV/JSON) |
+| GET | `/api/v1/export/deliveries` | Export deliveries |
+| GET | `/api/v1/export/jobs` | Export jobs |
+| GET | `/api/v1/export/audit-log` | Export audit log |
 
-### Proyectos y equipos (JWT)
+### Projects & Teams (JWT)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/projects` | Listar proyectos |
-| POST | `/api/v1/projects` | Crear proyecto |
-| GET | `/api/v1/projects/:id` | Detalle de proyecto |
-| PATCH | `/api/v1/projects/:id` | Actualizar proyecto |
-| DELETE | `/api/v1/projects/:id` | Eliminar proyecto |
-| PATCH | `/api/v1/projects/:id/default` | Establecer como proyecto default |
-| GET | `/api/v1/projects/:id/members` | Listar miembros |
-| POST | `/api/v1/projects/:id/members` | Invitar miembro |
-| PATCH | `/api/v1/projects/:id/members/:mid` | Cambiar rol |
-| DELETE | `/api/v1/projects/:id/members/:mid` | Remover miembro |
-| GET | `/api/v1/invitations/pending` | Invitaciones pendientes |
-| POST | `/api/v1/invitations/:id/accept` | Aceptar invitación |
-| POST | `/api/v1/invitations/:id/reject` | Rechazar invitación |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/projects` | List projects |
+| POST | `/api/v1/projects` | Create project |
+| GET | `/api/v1/projects/:id` | Project details |
+| PATCH | `/api/v1/projects/:id` | Update project |
+| DELETE | `/api/v1/projects/:id` | Delete project |
+| PATCH | `/api/v1/projects/:id/default` | Set as default project |
+| GET | `/api/v1/projects/:id/members` | List members |
+| POST | `/api/v1/projects/:id/members` | Invite member |
+| PATCH | `/api/v1/projects/:id/members/:mid` | Change role |
+| DELETE | `/api/v1/projects/:id/members/:mid` | Remove member |
+| GET | `/api/v1/invitations/pending` | Pending invitations |
+| POST | `/api/v1/invitations/:id/accept` | Accept invitation |
+| POST | `/api/v1/invitations/:id/reject` | Reject invitation |
 
 ### GDPR (JWT)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/me/data` | Exportar datos personales (DSAR Art. 15/20) |
-| POST | `/api/v1/me/restrict` | Restringir procesamiento (Art. 18) |
-| DELETE | `/api/v1/me/restrict` | Levantar restricción |
-| POST | `/api/v1/me/object` | Derecho de oposición (Art. 21) |
-| DELETE | `/api/v1/me/object` | Restaurar consentimiento |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/me/data` | Export personal data (DSAR Art. 15/20) |
+| POST | `/api/v1/me/restrict` | Restrict processing (Art. 18) |
+| DELETE | `/api/v1/me/restrict` | Lift restriction |
+| POST | `/api/v1/me/object` | Right to object (Art. 21) |
+| DELETE | `/api/v1/me/object` | Restore consent |
+| GET | `/api/v1/consents` | List consents |
+| POST | `/api/v1/consents` | Grant consent |
+| DELETE | `/api/v1/consents/:id` | Revoke consent |
 
-### Token y proyecto (API Key)
+### Token & Project (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/project` | Ver proyecto actual |
-| PATCH | `/api/v1/project` | Actualizar proyecto |
-| GET | `/api/v1/token` | Ver prefijo del API Key |
-| POST | `/api/v1/token/regenerate` | Regenerar API Key (se muestra una sola vez) |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/project` | View current project |
+| PATCH | `/api/v1/project` | Update project |
+| GET | `/api/v1/token` | View API Key prefix |
+| POST | `/api/v1/token/regenerate` | Regenerate API Key (shown once) |
 
 ### Streaming (API Key)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/v1/stream` | Server-Sent Events en tiempo real |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/stream` | Server-Sent Events (real-time) |
 
-### Health check (público)
+### Health (Public)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/health` | Estado del sistema (DB, Oban, cache, backup) |
-
-Header de autenticación: `Authorization: Bearer <token>` o `X-Api-Key: <token>`
-
-Documentación interactiva: **http://localhost:4000/docs** | Swagger UI: **http://localhost:4000/api/swaggerui**
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/health` | System status (database, jobs, cache, backup) |
 
 ---
 
 ## Dashboard
 
-Dashboard LiveView en tiempo real (`/platform`) con las siguientes secciones:
+Real-time LiveView dashboard at `/platform` with modular architecture:
 
-| Tab | Funcionalidades |
-|-----|-----------------|
-| **Overview** | KPIs (eventos hoy, tasa de éxito), uptime (24h/7d/30d), gráficos de analytics, eventos recientes, entregas recientes, dead letters, sandbox |
-| **Events** | Lista completa con paginación, simulación de eventos, modal de replay, actualizaciones en tiempo real vía PubSub |
-| **Webhooks** | Crear/editar/desactivar webhooks, salud por webhook, estado del circuit breaker, configuración de batch |
-| **Jobs** | Crear/editar/desactivar jobs (daily/weekly/monthly/cron), preview de expresiones cron, historial de ejecuciones |
-| **Settings** | Renombrar proyecto, API key (mostrar/regenerar), schemas de eventos, gestión de equipo (invitar/roles/remover), invitaciones pendientes |
+| Tab | Features |
+|-----|----------|
+| **Overview** | KPIs (events today, success rate), uptime (24h/7d/30d), analytics charts, recent events, recent deliveries, dead letters, sandbox |
+| **Events** | Full list with pagination, event simulation, replay modal, real-time updates via PubSub |
+| **Webhooks** | Create/edit/deactivate webhooks, per-webhook health, circuit breaker status, batch configuration |
+| **Jobs** | Create/edit/deactivate jobs (daily/weekly/monthly/cron), cron expression preview, execution history |
+| **Settings** | Rename project, API key (show/regenerate), event schemas, team management (invite/roles/remove), pending invitations |
 
-Funcionalidades transversales:
-- **Selector de proyecto** con persistencia en URL (`?project=ID`)
-- **Campana de notificaciones** en tiempo real con badge de no leídas
-- **Overlay de carga** al cambiar de proyecto
-- Totalmente **responsive** (mobile-first)
+Cross-cutting features:
+- **Project selector** with URL persistence (`?project=ID`)
+- **Notification bell** with real-time unread badge
+- **Loading overlay** when switching projects
+- Fully **responsive** (mobile-first)
+- **Dark mode** support across all pages
 
-### Cuenta de usuario (`/account`)
+### User Account (`/account`)
 
-- Cambiar email, contraseña (con indicador de fortaleza), nombre
-- **MFA/TOTP**: activar con QR, verificar, códigos de respaldo, desactivar
-- **Sesiones**: listar dispositivos activos, revocar sesiones individuales o todas
-- **Consentimientos GDPR**: ver, revocar, restringir procesamiento
-- Eliminar cuenta
-- Reenviar verificación de email
+- Change email, password (with visual strength indicator), name
+- **MFA/TOTP**: enable with QR code, verify, backup codes, disable
+- **Sessions**: list active devices, revoke individual or all sessions
+- **GDPR consents**: view, revoke, restrict processing
+- Delete account
+- Resend email verification
 
-### Panel admin (`/admin`)
+### Admin Panel (`/admin`)
 
-- Dashboard: total usuarios, proyectos, eventos, métricas del sistema
-- Gestión de usuarios: activar/desactivar cuentas, búsqueda funcional
-- Gestión de proyectos: ver detalles por proyecto
-- Configuración de plataforma
-
----
-
-## Seguridad
-
-| Característica | Descripción |
-|----------------|-------------|
-| **Hashing de contraseñas** | Algoritmo memory-hard (OWASP recomendado) con rehash automático de hashes legacy |
-| **Cifrado en reposo** | Cifrado industria-estándar para datos sensibles (email, nombre, secreto MFA) |
-| **Búsqueda segura** | Hash determinístico para búsqueda de campos cifrados |
-| **JWT** | Tokens con expiración, tracking por identificador único, revocación de sesiones |
-| **MFA/TOTP** | Autenticación de dos factores con QR, códigos de respaldo de un solo uso |
-| **Bloqueo de cuenta** | Bloqueo temporal tras múltiples intentos fallidos, auto-desbloqueo |
-| **Rate limiting** | Limitación por IP en rutas sensibles (login, registro, API, MFA) |
-| **Scopes de API Key** | Permisos granulares: `events:read`, `events:write`, `webhooks:*`, `jobs:*`, `deliveries:*`, `analytics:read` |
-| **IP allowlist** | Restricción de acceso por IP configurable por API Key |
-| **Circuit breaker** | Protección automática por webhook ante fallos consecutivos |
-| **Detección de anomalías** | Monitoreo continuo de patrones sospechosos (fuerza bruta, exfiltración, ataques coordinados) |
-| **Headers de seguridad** | CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy |
-| **Firma de webhooks** | Cada entrega firmada con secreto único por webhook |
-| **Historial de contraseñas** | Previene reutilización de contraseñas recientes |
-| **Blacklist de contraseñas** | Lista de contraseñas comunes rechazadas |
-| **Timeout de sesión** | Expiración automática por inactividad |
-| **Cookie consent** | Banner de consentimiento de cookies (GDPR compliance) |
-| **Indicador de contraseña** | Indicador visual de fortaleza en registro y reset |
-| **Force SSL** | Habilitado en producción |
+- Dashboard: total users, projects, events, system metrics
+- User management: activate/deactivate accounts, functional search
+- Project management: view details per project
+- Platform settings
 
 ---
 
-## GDPR
+## Security
 
-| Artículo | Funcionalidad |
-|----------|---------------|
-| **Art. 15/20** | Exportación completa de datos personales (perfil, proyectos, webhooks, eventos, entregas, jobs, sesiones, consentimientos, audit) |
-| **Art. 17** | Derecho al olvido: eliminación atómica en cascada con pseudonimización de audit logs |
-| **Art. 18** | Restricción de procesamiento con motivo |
-| **Art. 21** | Derecho de oposición al procesamiento |
-| **Consentimientos** | Por propósito (terms, privacy, data_processing, marketing) con versión, IP y timestamps. Auto-registro al signup |
+| Feature | Description |
+|---------|-------------|
+| **Password hashing** | Memory-hard algorithm (OWASP recommended) with automatic legacy rehashing |
+| **Encryption at rest** | Industry-standard encryption for sensitive data (email, name, MFA secret) |
+| **Secure lookups** | Deterministic hashing for searching encrypted fields |
+| **JWT** | Tokens with expiration, unique ID tracking, session revocation |
+| **MFA/TOTP** | Two-factor authentication with QR code, single-use backup codes |
+| **Account lockout** | Temporary lockout after multiple failed attempts, auto-unlock |
+| **Rate limiting** | Per-IP limiting on sensitive routes (login, registration, API, MFA) |
+| **API Key scopes** | Granular permissions: `events:read`, `events:write`, `webhooks:*`, `jobs:*`, `deliveries:*`, `analytics:read` |
+| **IP allowlist** | Per-API Key IP restriction |
+| **Circuit breaker** | Automatic per-webhook protection on consecutive failures |
+| **Anomaly detection** | Continuous monitoring for suspicious patterns (brute force, data exfiltration, coordinated attacks) |
+| **Security headers** | CSP (nonce-based), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy |
+| **Webhook signatures** | Each delivery signed with a unique per-webhook secret |
+| **Password history** | Prevents reuse of recent passwords |
+| **Password blocklist** | Common passwords rejected |
+| **Password strength** | Visual strength indicator on signup and password reset |
+| **Session timeout** | Automatic expiration on inactivity |
+| **Cookie consent** | GDPR-compliant cookie consent banner |
+| **Force SSL** | Enabled in production |
 
-Los datos se clasifican en 4 niveles (Public, Internal, Confidential, Restricted) con controles de acceso apropiados para cada nivel.
+---
+
+## GDPR Compliance
+
+| Article | Feature |
+|---------|---------|
+| **Art. 15/20** | Full personal data export (profile, projects, webhooks, events, deliveries, jobs, sessions, consents, audit) |
+| **Art. 17** | Right to erasure: atomic cascade deletion with audit log pseudonymization |
+| **Art. 18** | Restriction of processing with stated reason |
+| **Art. 21** | Right to object to processing |
+| **Consents** | Per-purpose (terms, privacy, data_processing, marketing) with version, IP, and timestamps. Auto-registered at signup |
+
+Data is classified into 4 levels (Public, Internal, Confidential, Restricted) with appropriate access controls for each level.
 
 ---
 
 ## Webhooks
 
-- **Routing por topic**: suscribe webhooks a topics específicos
-- **Filtros avanzados**: por campos del payload (tipo Ecto custom `WebhookFilters`)
-- **5 templates integrados**: Slack (Block Kit), Discord (embeds), Telegram Bot API, JSON genérico, Custom
-- **Body personalizado**: template tipo Mustache con `{{topic}}`, `{{payload}}`
-- **Headers custom** por webhook
-- **Reintentos configurables**: backoff personalizado y máximo de intentos por webhook
-- **Batch delivery**: acumulación de eventos por ventana de tiempo o tamaño máximo
-- **Circuit breaker**: se abre automáticamente tras fallos consecutivos, recuperación gradual en half-open
-- **Health metrics**: tasa de éxito, latencia promedio, última entrega
-- **Firma HMAC**: cada payload firmado con el secreto del webhook
+- **Topic routing**: subscribe webhooks to specific topics
+- **Advanced filters**: filter by payload fields
+- **5 built-in templates**: Slack (Block Kit), Discord (embeds), Telegram Bot API, generic JSON, Custom
+- **Custom body**: Mustache-style template with `{{topic}}`, `{{payload}}`
+- **Custom headers** per webhook
+- **Configurable retries**: custom backoff and max attempts per webhook
+- **Batch delivery**: accumulate events by time window or max size
+- **Circuit breaker**: automatically opens on consecutive failures, gradual recovery in half-open state
+- **Health metrics**: success rate, average latency, last delivery
+- **Signature verification**: each payload signed with the webhook's unique secret
 
 ---
 
-## Jobs programados
+## Scheduled Jobs
 
-- **Tipos de schedule**: `daily`, `weekly`, `monthly`, `cron` (cualquier expresión cron)
-- **Tipos de acción**: `emit_event` (inyectar evento en la plataforma) o `post_url` (HTTP POST a URL externa)
-- **Payload configurable** por job
-- **Historial de ejecuciones**: tabla `job_runs` con status y output
-- **Preview de cron**: endpoint que muestra las próximas N ejecuciones
-- **Notificaciones** automáticas en caso de fallo
-
----
-
-## Sistema de replay
-
-- Replay de eventos filtrado por: topic, rango de fechas (`from_date` / `to_date`), webhook específico
-- Tracking de progreso: `processed_events / total_events`
-- Broadcast en tiempo real al dashboard vía PubSub
-- Cancelable en cualquier momento
-- Notificación in-app al completar
-- Estados: `pending → running → completed / cancelled`
+- **Schedule types**: `daily`, `weekly`, `monthly`, `cron` (any cron expression)
+- **Action types**: `emit_event` (inject event into the platform) or `post_url` (HTTP POST to external URL)
+- **Configurable payload** per job
+- **Execution history**: tracked with status and output
+- **Cron preview**: endpoint showing next N executions
+- **Automatic notifications** on failure
 
 ---
 
-## Sandbox (testing de webhooks)
+## Event Replay
 
-- Crea endpoints HTTP temporales con slugs únicos
-- Acepta cualquier método HTTP (GET, POST, PUT, PATCH, DELETE, etc.)
-- Captura request completo: método, path, headers, body, query params, IP
-- Expiración automática configurable
-- Visualización de requests capturados en el dashboard
-- Limpieza automática periódica
+- Replay events filtered by: topic, date range (`from_date` / `to_date`), specific webhook
+- Progress tracking: `processed_events / total_events`
+- Real-time broadcast to dashboard via PubSub
+- Cancelable at any time
+- In-app notification on completion
+- States: `pending → running → completed / cancelled`
 
 ---
 
-## Equipos y colaboración
+## Sandbox
+
+- Create temporary HTTP endpoints with unique slugs
+- Accept any HTTP method (GET, POST, PUT, PATCH, DELETE, etc.)
+- Capture full request: method, path, headers, body, query params, IP
+- Configurable automatic expiration
+- View captured requests in the dashboard
+- Automatic periodic cleanup
+
+---
+
+## Pipelines
+
+- Create multi-step event processing workflows
+- Configure transformation stages for event payloads
+- Test pipelines with sample data before activation
+- Full CRUD management via API and dashboard
+
+---
+
+## Teams & Collaboration
 
 - **Roles**: `owner`, `editor`, `viewer`
-- **Invitación por email** con notificación in-app al invitado
-- **Aceptar/rechazar** invitaciones pendientes
-- **Gestión de miembros**: cambiar roles, remover (el owner no puede ser removido)
-- **Control de acceso**: `viewer` (lectura), `editor` (lectura + escritura), `owner` (todo + admin del proyecto)
-- **Multi-proyecto**: un usuario puede ser dueño o miembro de múltiples proyectos
+- **Email invitations** with in-app notification to the invitee
+- **Accept/reject** pending invitations
+- **Member management**: change roles, remove (owner cannot be removed)
+- **Access control**: `viewer` (read-only), `editor` (read + write), `owner` (full + project admin)
+- **Multi-project**: a user can own or be a member of multiple projects
 
 ---
 
 ## Analytics
 
-- **Eventos por día**: hasta 90 días de lookback
-- **Entregas por día**: hasta 90 días de lookback
-- **Top topics**: topics con más volumen (configurable, hasta 50)
-- **Stats por webhook**: total, éxito, fallo, tasa de éxito, latencia promedio
-- **KPIs en dashboard**: eventos hoy, tasa de éxito global
+- **Events per day**: up to 90-day lookback
+- **Deliveries per day**: up to 90-day lookback
+- **Top topics**: topics by volume (configurable)
+- **Per-webhook stats**: total, success, failure, success rate, average latency
+- **Dashboard KPIs**: events today, global success rate
 
 ---
 
-## Exportación de datos
+## Data Export
 
-| Tipo | Formatos | Máx. registros | Acceso |
-|------|----------|-----------------|--------|
-| Eventos | CSV, JSON | 10,000 | API Key (`events:read`) o sesión |
-| Entregas | CSV, JSON | 10,000 | API Key (`deliveries:read`) o sesión |
-| Jobs | CSV, JSON | 10,000 | API Key (`jobs:read`) o sesión |
-| Audit log | CSV, JSON | 10,000 | API Key o sesión |
-| Datos personales (GDPR) | JSON | Completo | JWT o sesión |
+| Type | Formats | Access |
+|------|---------|--------|
+| Events | CSV, JSON | API Key (`events:read`) or session |
+| Deliveries | CSV, JSON | API Key (`deliveries:read`) or session |
+| Jobs | CSV, JSON | API Key (`jobs:read`) or session |
+| Audit log | CSV, JSON | API Key or session |
+| Personal data (GDPR) | JSON | JWT or session |
 
-Parámetro `?format=csv|json&days=N` en todos los endpoints de exportación.
+Parameter `?format=csv|json&days=N` on all export endpoints.
 
 ---
 
-## Streaming en tiempo real
+## Real-time Streaming
 
-| Canal | Descripción |
-|-------|-------------|
-| **SSE** | `GET /api/v1/stream` — push de `event.created` y `delivery.updated`, keepalive 30s |
-| **WebSocket** | Phoenix Channel `events:<project_id>` — broadcast de eventos y entregas |
-| **PubSub** | Interno para dashboard LiveView: actualizaciones en tiempo real, notificaciones, progreso de replay |
+| Channel | Description |
+|---------|-------------|
+| **SSE** | `GET /api/v1/stream` — push `event.created` and `delivery.updated` events |
+| **WebSocket** | Phoenix Channel `events:<project_id>` — broadcast events and deliveries |
+| **PubSub** | Internal for LiveView dashboard: real-time updates, notifications, replay progress |
 
 ---
 
 ## OpenAPI / Swagger
 
-- Spec OpenAPI 3.0 generada con `OpenApiSpex` desde anotaciones de controllers
-- **Swagger UI interactivo**: `/api/swaggerui`
-- **Spec JSON**: `/api/openapi`
-- Dos esquemas de seguridad: `api_key` (X-Api-Key o Bearer) y `bearer` (JWT)
-- Tags: Events, Webhooks, Deliveries, Dead Letters, Replays, Analytics, Jobs, Sandbox, Audit, Auth, GDPR, System
+- OpenAPI 3.0 spec generated from controller annotations
+- **Interactive Swagger UI**: `/api/swaggerui`
+- **JSON spec**: `/api/openapi`
+- Two security schemes: `api_key` (X-Api-Key or Bearer) and `bearer` (JWT)
+- Tags: Events, Webhooks, Deliveries, Dead Letters, Replays, Analytics, Jobs, Pipelines, Sandbox, Audit, Auth, GDPR, System
 
 ---
 
 ## Backups
 
-- **Backup automatizado** diario con compresión
-- **Dual storage**: local o Azure Blob Storage (auto-upload si configurado)
-- **Retención configurable** con limpieza automática de backups antiguos
-- Estado visible en `/health` y dashboard de uptime
-- Auditado en audit log
+- **Automated daily backups** with compression
+- **Dual storage**: local or Azure Blob Storage (auto-upload if configured)
+- **Configurable retention** with automatic cleanup of old backups
+- Status visible in `/health` and uptime dashboard
+- Tracked in audit log
 
 ---
 
-## Uptime y monitoreo
+## Uptime & Monitoring
 
-- **Health checks periódicos** automáticos
-- Verifica: base de datos, jobs en background, cache, estado de backups
-- **Historial de uptime**: porcentaje calculado para 24h, 7d y 30d
-- **Notificación a admins** si el estado es degradado
-- **Endpoint público**: `GET /health` con estado actual y checks detallados
-- **Detección de anomalías** continua con alertas automáticas
-
----
-
-## Workers en background
-
-El sistema utiliza Oban para procesamiento en background con las siguientes categorías de workers:
-
-| Categoría | Tipo | Descripción |
-|-----------|------|-------------|
-| **Entregas** | On demand | Entrega payloads a webhooks via HTTP POST con retry, circuit breaker y batch |
-| **Jobs programados** | On demand | Ejecuta jobs programados (emitir evento o POST a URL) |
-| **Replay** | On demand | Procesa replays de eventos con broadcast de progreso |
-| **Eventos diferidos** | Periódico | Procesa eventos con entrega programada (`deliver_at`) |
-| **Batch** | Periódico | Flush de batch items cuando se cumple ventana o tamaño |
-| **Purga** | Programado | Limpieza automática de datos antiguos (entregas, sandbox, dead letters) |
-| **Backups** | Programado | Backup de base de datos con compresión y upload opcional |
-| **Monitoreo** | Periódico | Health checks del sistema con notificaciones |
-| **Seguridad** | Periódico | Detección de anomalías en patrones de acceso |
-| **Sesiones** | Programado | Limpieza de sesiones revocadas e inactivas |
-| **Emails** | On demand | Envío de emails transaccionales |
+- **Periodic automated health checks**
+- Verifies: database, background jobs, cache, backup status
+- **Uptime history**: percentage calculated for 24h, 7d, and 30d
+- **Admin notifications** when status is degraded
+- **Public endpoint**: `GET /health` with current status and detailed checks
+- **Continuous anomaly detection** with automatic alerts
 
 ---
 
-## Internacionalización (i18n)
+## Background Workers
 
-- **Bilingüe completo**: Español (default) e Inglés (1670+ strings traducidas)
-- Todo texto visible usa `gettext()` — sin strings hardcodeados
-- Cubre: flash messages, labels, headers, botones, placeholders, notificaciones, emails, errores, títulos de página, meta descriptions
-- **Selector de idioma**: `GET /locale/:locale` (almacena en sesión y cookie)
-- Backend: notificaciones en español en BD, traducción por tipo al renderizar en dashboard
-- **SEO bilingüe**: títulos y sufijos de página traducidos automáticamente según el idioma
+The system uses Oban for background processing:
+
+| Category | Type | Description |
+|----------|------|-------------|
+| **Deliveries** | On demand | Deliver payloads to webhooks via HTTP POST with retry, circuit breaker, and batch |
+| **Scheduled jobs** | On demand | Execute scheduled jobs (emit event or POST to URL) |
+| **Replay** | On demand | Process event replays with progress broadcast |
+| **Deferred events** | Periodic | Process events with scheduled delivery (`deliver_at`) |
+| **Batch** | Periodic | Flush batch items when window or size threshold is reached |
+| **Purge** | Scheduled | Automatic cleanup of old data (deliveries, sandbox, dead letters) |
+| **Backups** | Scheduled | Database backup with compression and optional upload |
+| **Monitoring** | Periodic | System health checks with notifications |
+| **Security** | Periodic | Anomaly detection in access patterns |
+| **Sessions** | Scheduled | Cleanup of revoked and inactive sessions |
+| **Emails** | On demand | Transactional email delivery |
+
+---
+
+## Internationalization (i18n)
+
+- **Fully bilingual**: English and Spanish (1,769+ translated strings)
+- All visible text uses `gettext()` — no hardcoded strings
+- Covers: flash messages, labels, headers, buttons, placeholders, notifications, emails, errors, page titles, meta descriptions
+- **Language selector**: `GET /locale/:locale` (stored in session and cookie)
+- **Bilingual SEO**: page titles and suffixes translated automatically based on locale
+
+---
+
+## Public Pages & SEO
+
+The platform includes bilingual (EN/ES), responsive, SEO-optimized informational pages:
+
+`/` (landing) · `/pricing` · `/about` · `/faq` · `/contact` · `/changelog` · `/docs` · `/status` · `/terms` · `/privacy` · `/cookies` · `/sitemap.xml`
+
+**SEO features:**
+- Canonical tags on all pages
+- `hreflang` tags (en/es/x-default)
+- Unique meta descriptions per page
+- Dynamic Open Graph tags per page
+- Dynamic XML sitemap
+- Preconnect for external CDNs
+- Structured bilingual page titles
 
 ---
 
@@ -627,143 +678,109 @@ El sistema utiliza Oban para procesamiento en background con las siguientes cate
 
 ### GitHub Actions CI
 
-Se ejecuta en push a `main`/`develop` y PRs a `main`:
+Runs on push to `main`/`develop` and PRs to `main`:
 
 1. `mix compile --warnings-as-errors`
 2. `mix format --check-formatted`
-3. **Credo** — análisis estático (prioridad mínima: high)
-4. **Sobelow** — scanner de seguridad
+3. **Credo** — static analysis
+4. **Sobelow** — security scanner
 5. `mix deps.audit` — CVE scanning
-6. `mix hex.audit` — paquetes retirados
-7. Migraciones + `mix test`
+6. `mix hex.audit` — retired packages
+7. Migrations + `mix test`
 8. **Dialyzer** — type checking
+9. **Trivy** — container security scan (CRITICAL/HIGH CVEs block merge)
 
 ### Deploy
 
-| Entorno | Branch | Trigger |
-|---------|--------|---------|
-| **Staging** | `develop` | Push automático → ACR → Azure Web App |
-| **Producción** | `main` | Push automático → ACR → Azure Web App |
+| Environment | Branch | Trigger |
+|-------------|--------|---------|
+| **Staging** | `develop` | Auto push → Container Registry → Azure Web App |
+| **Production** | `main` | Auto push → Container Registry → Azure Web App |
 
-Flujo recomendado: `develop` (staging) → verificar → `main` (producción).
+Recommended flow: `develop` (staging) → verify → `main` (production).
 
 ---
 
 ## Docker
 
-### Desarrollo
+### Development
 
 ```bash
 cp .env.example .env
-# Editar .env con los secretos necesarios
+# Edit .env with the required secrets
 
 docker compose up --build
 ```
 
-App en **http://localhost:4000**, PostgreSQL en `localhost:5432`.
+App at **http://localhost:4000**, PostgreSQL at `localhost:5432`.
 
 ```bash
-# Migraciones (primera vez)
+# Migrations (first time)
 docker compose exec jobscelis mix ecto.migrate
 docker compose exec jobscelis mix run apps/streamflix_core/priv/repo/seeds.exs
 ```
 
-### Producción
+### Production
 
-Dockerfile multi-stage:
-- **Build stage**: compila assets (`mix assets.deploy`) y crea release (`mix release`)
-- **Runtime stage**: imagen mínima Alpine, usuario non-root, healthcheck integrado
-
----
-
-## Tecnologías
-
-| Tecnología | Uso |
-|------------|-----|
-| **Elixir / OTP** | Lenguaje y runtime |
-| **Phoenix 1.8** | Framework web y API |
-| **Phoenix LiveView 1.1** | Dashboard y pantallas en tiempo real |
-| **Ecto** | ORM y migraciones (PostgreSQL) |
-| **Oban** | Jobs en background (entregas, replays, cron, purge, backups, uptime, emails) |
-| **Guardian** | Autenticación JWT |
-| **MFA/TOTP** | Autenticación de dos factores |
-| **Cifrado en reposo** | Protección de datos sensibles (PII) con cifrado industria-estándar |
-| **Cachex** | Cache en memoria con TTL |
-| **Bandit** | Servidor HTTP |
-| **Finch** | Cliente HTTP (pool de conexiones) |
-| **OpenApiSpex** | Generación de spec OpenAPI 3.0 + Swagger UI |
-| **LoggerJSON** | Logs JSON estructurados (producción) |
-| **Tailwind CSS v4** | Estilos (utility-first, responsive) |
-| **Resend** | Emails transaccionales |
-| **Azure Blob Storage** | Almacenamiento de backups (opcional) |
+Multi-stage Dockerfile:
+- **Build stage**: compile assets (`mix assets.deploy`) and create release (`mix release`)
+- **Runtime stage**: minimal Alpine image, non-root user, built-in healthcheck
 
 ---
 
-## Usuarios y roles
+## Tech Stack
 
-- **Usuario normal**: se registra, tiene proyectos y API Keys. Gestiona eventos, webhooks y jobs desde el dashboard.
-- **Admin / Superadmin**: acceso a `/admin` para gestionar usuarios, proyectos y métricas de la plataforma.
-- **Roles de equipo**: `owner` (todo), `editor` (lectura + escritura), `viewer` (solo lectura).
+| Technology | Usage |
+|------------|-------|
+| **Elixir / OTP** | Language and runtime |
+| **Phoenix 1.8** | Web framework and API |
+| **Phoenix LiveView 1.1** | Real-time dashboard and interactive pages |
+| **Ecto** | ORM and migrations (PostgreSQL) |
+| **Oban** | Background jobs (deliveries, replays, cron, purge, backups, monitoring, emails) |
+| **Guardian** | JWT authentication |
+| **Finch** | HTTP client (connection pooling) |
+| **OpenApiSpex** | OpenAPI 3.0 spec generation + Swagger UI |
+| **Tailwind CSS v4** | Styles (utility-first, responsive, dark mode) |
+| **Resend** | Transactional emails |
+| **Azure Blob Storage** | Backup storage (optional) |
 
 ---
 
-## Páginas públicas
+## Users & Roles
 
-La plataforma incluye páginas informativas bilingües (ES/EN), responsive y optimizadas para SEO:
-
-`/` (landing) · `/pricing` · `/about` · `/faq` · `/contact` · `/changelog` · `/docs` · `/status` · `/terms` · `/privacy` · `/cookies` · `/sitemap.xml`
-
-**SEO incluido:** canonical tags, hreflang (es/en/x-default), meta descriptions únicas por página, Open Graph dinámico, sitemap XML dinámico, preconnect para CDN externos.
+- **Regular user**: registers, creates projects and API Keys. Manages events, webhooks, and jobs from the dashboard.
+- **Admin / Superadmin**: access to `/admin` for managing users, projects, and platform metrics.
+- **Team roles**: `owner` (full access), `editor` (read + write), `viewer` (read-only).
 
 ---
 
-## SDKs y herramientas
+## SDKs & Tools
 
-Todos los SDKs cubren el **100% de la API** (84+ endpoints) con documentación completa.
+All SDKs cover **100% of the API** (84+ endpoints) with full documentation.
 
-### Paquetes publicados
+### Published Packages
 
-| Paquete | Registry | Instalación | Versión |
-|---------|----------|-------------|---------|
-| **Node.js/TypeScript SDK** | [npmjs.com/@jobcelis/sdk](https://www.npmjs.com/package/@jobcelis/sdk) | `npm install @jobcelis/sdk` | v1.5.0 |
-| **CLI** | [npmjs.com/@jobcelis/cli](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.0.2 |
-| **Python SDK** | [pypi.org/project/jobcelis](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.4.0 |
-| **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.1.0 |
-| **PHP SDK** | [packagist.org/packages/jobcelis/sdk](https://packagist.org/packages/jobcelis/sdk) | `composer require jobcelis/sdk` | v1.0.0 |
-| **Ruby SDK** | [rubygems.org/gems/jobcelis](https://rubygems.org/gems/jobcelis) | `gem install jobcelis` | v1.0.0 |
-| **Elixir SDK** | [hex.pm/packages/jobcelis](https://hex.pm/packages/jobcelis) · [docs](https://hexdocs.pm/jobcelis) | `{:jobcelis, "~> 1.0"}` | v1.0.0 |
-| **C# / .NET SDK** | [nuget.org/packages/Jobcelis](https://www.nuget.org/packages/Jobcelis) | `dotnet add package Jobcelis` | v1.0.0 |
-| **Rust SDK** | [crates.io/crates/jobcelis](https://crates.io/crates/jobcelis) · [docs](https://docs.rs/jobcelis) | `cargo add jobcelis` | v1.0.0 |
-| **Swift SDK** | [github.com/vladimirCeli/jobcelis-swift](https://github.com/vladimirCeli/jobcelis-swift) | `.package(url: "...jobcelis-swift", from: "1.0.0")` | v1.0.0 |
-| **Java SDK** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis/1.0.0/) · [GitHub](https://github.com/vladimirCeli/jobcelis-java) | `com.jobcelis:jobcelis:1.0.0` | v1.0.0 |
-| **Dart/Flutter SDK** | [pub.dev/packages/jobcelis](https://pub.dev/packages/jobcelis) | `dart pub add jobcelis` | v1.0.0 |
-| **Kotlin SDK** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis-kotlin/1.0.0/) · [GitHub](https://github.com/vladimirCeli/jobcelis-kotlin) | `com.jobcelis:jobcelis-kotlin:1.0.0` | v1.0.0 |
-| **Terraform Provider** | [registry.terraform.io/vladimirCeli/jobcelis](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | Ver bloque `required_providers` | v1.0.0 |
-| **GitHub Action** | Este monorepo (`sdks/github-action`) | `uses: vladimirCeli/jobscelis/sdks/github-action@main` | - |
+| Package | Registry | Install | Version |
+|---------|----------|---------|---------|
+| **Node.js/TypeScript** | [npm](https://www.npmjs.com/package/@jobcelis/sdk) | `npm install @jobcelis/sdk` | v1.5.0 |
+| **CLI** | [npm](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.0.2 |
+| **Python** | [PyPI](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.4.0 |
+| **Go** | [GitHub](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.1.0 |
+| **PHP** | [Packagist](https://packagist.org/packages/jobcelis/sdk) | `composer require jobcelis/sdk` | v1.0.0 |
+| **Ruby** | [RubyGems](https://rubygems.org/gems/jobcelis) | `gem install jobcelis` | v1.0.0 |
+| **Elixir** | [Hex](https://hex.pm/packages/jobcelis) · [Docs](https://hexdocs.pm/jobcelis) | `{:jobcelis, "~> 1.0"}` | v1.0.0 |
+| **C# / .NET** | [NuGet](https://www.nuget.org/packages/Jobcelis) | `dotnet add package Jobcelis` | v1.0.0 |
+| **Rust** | [crates.io](https://crates.io/crates/jobcelis) · [Docs](https://docs.rs/jobcelis) | `cargo add jobcelis` | v1.0.0 |
+| **Swift** | [GitHub](https://github.com/vladimirCeli/jobcelis-swift) | `.package(url: "...jobcelis-swift", from: "1.0.0")` | v1.0.0 |
+| **Java** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis/1.0.0/) | `com.jobcelis:jobcelis:1.0.0` | v1.0.0 |
+| **Dart/Flutter** | [pub.dev](https://pub.dev/packages/jobcelis) | `dart pub add jobcelis` | v1.0.0 |
+| **Kotlin** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis-kotlin/1.0.0/) | `com.jobcelis:jobcelis-kotlin:1.0.0` | v1.0.0 |
+| **Terraform** | [Registry](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | See `required_providers` block | v1.0.0 |
+| **GitHub Action** | This monorepo | `uses: vladimirCeli/jobscelis/sdks/github-action@main` | — |
 
-### Repositorios externos
+### Quick Start Examples
 
-Los siguientes SDKs viven en repositorios separados (requerido por sus registros):
-
-| Repo | URL | Motivo |
-|------|-----|--------|
-| **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `pkg.go.dev` requiere repo propio con `go.mod` en raíz |
-| **PHP SDK** | [github.com/vladimirCeli/jobcelis-php](https://github.com/vladimirCeli/jobcelis-php) | Packagist requiere `composer.json` en raíz del repo |
-| **Ruby SDK** | [github.com/vladimirCeli/jobcelis-ruby](https://github.com/vladimirCeli/jobcelis-ruby) | Repo público para RubyGems y visibilidad del código |
-| **Elixir SDK** | [github.com/vladimirCeli/jobcelis-elixir](https://github.com/vladimirCeli/jobcelis-elixir) | Hex.pm requiere repo propio para publicación |
-| **C# / .NET SDK** | [github.com/vladimirCeli/jobcelis-dotnet](https://github.com/vladimirCeli/jobcelis-dotnet) | NuGet requiere repo propio para publicación |
-| **Rust SDK** | [github.com/vladimirCeli/jobcelis-rust](https://github.com/vladimirCeli/jobcelis-rust) | crates.io requiere repo propio para publicación |
-| **Swift SDK** | [github.com/vladimirCeli/jobcelis-swift](https://github.com/vladimirCeli/jobcelis-swift) | Swift Package Manager usa URL del repo directamente |
-| **Java SDK** | [github.com/vladimirCeli/jobcelis-java](https://github.com/vladimirCeli/jobcelis-java) | Maven Central requiere repo propio para publicación |
-| **Dart/Flutter SDK** | [github.com/vladimirCeli/jobcelis-dart](https://github.com/vladimirCeli/jobcelis-dart) | pub.dev requiere repo propio para publicación |
-| **Kotlin SDK** | [github.com/vladimirCeli/jobcelis-kotlin](https://github.com/vladimirCeli/jobcelis-kotlin) | Maven Central requiere repo propio para publicación |
-| **Terraform Provider** | [github.com/vladimirCeli/terraform-provider-jobcelis](https://github.com/vladimirCeli/terraform-provider-jobcelis) | Terraform Registry requiere repo `terraform-provider-*` |
-
-> El código fuente canónico de todos los SDKs está en `sdks/` de este monorepo. Los repos externos se sincronizan manualmente.
-
-### Quick Start por SDK
-
-Todos los SDKs se conectan a `https://jobcelis.com` automáticamente — solo necesitas tu API key.
+All SDKs connect to `https://jobcelis.com` by default — you only need your API key.
 
 **Node.js / TypeScript:**
 
@@ -925,7 +942,6 @@ terraform {
 
 provider "jobcelis" {
   api_key = var.jobcelis_api_key
-  # Connects to https://jobcelis.com by default
 }
 
 resource "jobcelis_webhook" "slack" {
@@ -940,9 +956,9 @@ resource "jobcelis_job" "daily_report" {
 }
 ```
 
-### Cobertura de la API por SDK
+### API Coverage per SDK
 
-Todos los SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cubren las 84 rutas de la API:
+All SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cover all 84 API routes:
 
 - **Auth**: register, login, refresh, MFA verify
 - **Events**: send, batch, list, get, delete, simulate
@@ -964,38 +980,30 @@ Todos los SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java,
 - **GDPR**: consents, data export, restrict, object
 - **Health**: status check
 
-El **CLI** cubre todas las rutas. El **Terraform Provider** cubre 5 recursos con CRUD completo (webhooks, pipelines, jobs, event schemas, projects). El **GitHub Action** permite enviar eventos desde workflows de CI/CD.
+The **CLI** covers all routes. The **Terraform Provider** covers 5 resources with full CRUD (webhooks, pipelines, jobs, event schemas, projects). The **GitHub Action** enables sending events from CI/CD workflows.
 
-### Publicación de SDKs
+### External Repositories
 
-Los SDKs de npm, PyPI, Packagist y RubyGems se publican via GitHub Actions:
+The following SDKs live in separate repositories (required by their registries):
 
-```bash
-# Publicar todos los paquetes
-gh workflow run publish-sdks.yml -f package=all
+| Repo | URL | Reason |
+|------|-----|--------|
+| **Go** | [go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `pkg.go.dev` requires own repo with `go.mod` at root |
+| **PHP** | [jobcelis-php](https://github.com/vladimirCeli/jobcelis-php) | Packagist requires `composer.json` at repo root |
+| **Ruby** | [jobcelis-ruby](https://github.com/vladimirCeli/jobcelis-ruby) | Public repo for RubyGems and code visibility |
+| **Elixir** | [jobcelis-elixir](https://github.com/vladimirCeli/jobcelis-elixir) | Hex.pm requires own repo for publishing |
+| **C# / .NET** | [jobcelis-dotnet](https://github.com/vladimirCeli/jobcelis-dotnet) | NuGet requires own repo for publishing |
+| **Rust** | [jobcelis-rust](https://github.com/vladimirCeli/jobcelis-rust) | crates.io requires own repo for publishing |
+| **Swift** | [jobcelis-swift](https://github.com/vladimirCeli/jobcelis-swift) | Swift Package Manager uses GitHub repo URL directly |
+| **Java** | [jobcelis-java](https://github.com/vladimirCeli/jobcelis-java) | Maven Central requires own repo for publishing |
+| **Dart/Flutter** | [jobcelis-dart](https://github.com/vladimirCeli/jobcelis-dart) | pub.dev requires own repo for publishing |
+| **Kotlin** | [jobcelis-kotlin](https://github.com/vladimirCeli/jobcelis-kotlin) | Maven Central requires own repo for publishing |
+| **Terraform** | [terraform-provider-jobcelis](https://github.com/vladimirCeli/terraform-provider-jobcelis) | Terraform Registry requires `terraform-provider-*` naming |
 
-# Publicar individualmente
-gh workflow run publish-sdks.yml -f package=npm-sdk
-gh workflow run publish-sdks.yml -f package=npm-cli
-gh workflow run publish-sdks.yml -f package=pypi
-gh workflow run publish-sdks.yml -f package=packagist
-gh workflow run publish-sdks.yml -f package=rubygems
-```
-
-**Secrets requeridos en GitHub:**
-- `NPM_TOKEN` — Token granular de npm con scope `@jobcelis` y bypass 2FA
-- `PYPI_TOKEN` — Token de API de PyPI
-- `RUBYGEMS_API_KEY` — API key de rubygems.org
-- Packagist: auto-sync via webhook desde GitHub (no requiere secret)
-
-**Go SDK:** Se publica automáticamente al crear un tag (`git tag v1.x.0 && git push origin v1.x.0`) en el repo `go-jobcelis`.
-
-**Terraform:** Se publica via GoReleaser al crear un tag en el repo `terraform-provider-jobcelis`. Requiere secret `GPG_PRIVATE_KEY` para firmado.
-
-**GitHub Action:** No requiere publicación — se usa directamente desde este repo con `uses: vladimirCeli/jobscelis/sdks/github-action@main`.
+> Canonical source code for all SDKs is in `sdks/` of this monorepo. External repos are synced manually.
 
 ---
 
-## Licencia
+## License
 
 MIT
