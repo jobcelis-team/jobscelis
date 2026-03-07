@@ -1,6 +1,8 @@
 # jobcelis
 
-Official Python SDK for the Jobcelis Event Infrastructure Platform.
+Official Python SDK for the [Jobcelis](https://jobcelis.com) Event Infrastructure Platform.
+
+All API calls go to `https://jobcelis.com` by default — you only need your API key to get started.
 
 ## Installation
 
@@ -13,11 +15,14 @@ pip install jobcelis
 ```python
 from jobcelis import JobcelisClient
 
-client = JobcelisClient(
-    api_key="your_api_key",
-    base_url="https://jobcelis.com",  # optional
-)
+# Only your API key is required — connects to https://jobcelis.com automatically
+client = JobcelisClient(api_key="your_api_key")
 ```
+
+> **Custom URL:** If you're self-hosting Jobcelis, you can override the base URL:
+> ```python
+> client = JobcelisClient(api_key="your_api_key", base_url="https://your-instance.example.com")
+> ```
 
 ## Authentication
 
@@ -26,7 +31,7 @@ The auth methods do not require an API key. Use them to register, log in, and ma
 ```python
 from jobcelis import JobcelisClient
 
-client = JobcelisClient(api_key="unused", base_url="https://jobcelis.com")
+client = JobcelisClient(api_key="")
 
 # Register a new account
 user = client.register("alice@example.com", "SecurePass123!", name="Alice")

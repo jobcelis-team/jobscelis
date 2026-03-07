@@ -1,6 +1,8 @@
 # @jobcelis/sdk
 
-Official Node.js/TypeScript SDK for the Jobcelis Event Infrastructure Platform.
+Official Node.js/TypeScript SDK for the [Jobcelis](https://jobcelis.com) Event Infrastructure Platform.
+
+All API calls go to `https://jobcelis.com` by default — you only need your API key to get started.
 
 ## Installation
 
@@ -13,10 +15,8 @@ npm install @jobcelis/sdk
 ```typescript
 import { JobcelisClient } from '@jobcelis/sdk';
 
-const client = new JobcelisClient({
-  apiKey: 'your_api_key',
-  baseUrl: 'https://jobcelis.com', // optional, defaults to this
-});
+// Only your API key is required — connects to https://jobcelis.com automatically
+const client = new JobcelisClient({ apiKey: 'your_api_key' });
 
 // Send an event
 const event = await client.sendEvent({
@@ -39,6 +39,11 @@ const webhook = await client.createWebhook({
   topics: ['order.*'],
 });
 ```
+
+> **Custom URL:** If you're self-hosting Jobcelis, you can override the base URL:
+> ```typescript
+> const client = new JobcelisClient({ apiKey: 'key', baseUrl: 'https://your-instance.example.com' });
+> ```
 
 ## Webhook Signature Verification
 
