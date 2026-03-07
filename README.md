@@ -721,6 +721,7 @@ Todos los SDKs cubren el **100% de la API** (84+ endpoints) con documentación c
 | **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.1.0 |
 | **PHP SDK** | [packagist.org/packages/jobcelis/sdk](https://packagist.org/packages/jobcelis/sdk) | `composer require jobcelis/sdk` | v1.0.0 |
 | **Ruby SDK** | [rubygems.org/gems/jobcelis](https://rubygems.org/gems/jobcelis) | `gem install jobcelis` | v1.0.0 |
+| **Elixir SDK** | [hex.pm/packages/jobcelis](https://hex.pm/packages/jobcelis) | `{:jobcelis, "~> 1.0"}` | v1.0.0 |
 | **Terraform Provider** | [registry.terraform.io/vladimirCeli/jobcelis](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | Ver bloque `required_providers` | v1.0.0 |
 | **GitHub Action** | Este monorepo (`sdks/github-action`) | `uses: vladimirCeli/jobscelis/sdks/github-action@main` | - |
 
@@ -733,6 +734,7 @@ Los siguientes SDKs viven en repositorios separados (requerido por sus registros
 | **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `pkg.go.dev` requiere repo propio con `go.mod` en raíz |
 | **PHP SDK** | [github.com/vladimirCeli/jobcelis-php](https://github.com/vladimirCeli/jobcelis-php) | Packagist requiere `composer.json` en raíz del repo |
 | **Ruby SDK** | [github.com/vladimirCeli/jobcelis-ruby](https://github.com/vladimirCeli/jobcelis-ruby) | Repo público para RubyGems y visibilidad del código |
+| **Elixir SDK** | [github.com/vladimirCeli/jobcelis-elixir](https://github.com/vladimirCeli/jobcelis-elixir) | Hex.pm requiere repo propio para publicación |
 | **Terraform Provider** | [github.com/vladimirCeli/terraform-provider-jobcelis](https://github.com/vladimirCeli/terraform-provider-jobcelis) | Terraform Registry requiere repo `terraform-provider-*` |
 
 > El código fuente canónico de todos los SDKs está en `sdks/` de este monorepo. Los repos externos se sincronizan manualmente.
@@ -804,6 +806,14 @@ event = client.send_event("order.created", { order_id: "123" })
 webhooks = client.list_webhooks
 ```
 
+**Elixir:**
+
+```elixir
+client = Jobcelis.client("your_api_key")
+{:ok, event} = Jobcelis.send_event(client, "order.created", %{order_id: "123"})
+{:ok, webhooks} = Jobcelis.list_webhooks(client)
+```
+
 **GitHub Action:**
 
 ```yaml
@@ -844,7 +854,7 @@ resource "jobcelis_job" "daily_report" {
 
 ### Cobertura de la API por SDK
 
-Todos los SDKs (Node, Python, Go, PHP, Ruby) cubren las 84 rutas de la API:
+Todos los SDKs (Node, Python, Go, PHP, Ruby, Elixir) cubren las 84 rutas de la API:
 
 - **Auth**: register, login, refresh, MFA verify
 - **Events**: send, batch, list, get, delete, simulate
