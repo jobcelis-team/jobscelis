@@ -1006,4 +1006,10 @@ The following SDKs live in separate repositories (required by their registries):
 
 ## License
 
-MIT
+Business Source License 1.1 (BUSL-1.1) — see [LICENSE](LICENSE) for full terms.
+
+**What this means:**
+- You can view, fork, modify, and contribute to the code
+- You can use it for your own projects and internal tools
+- You **cannot** offer Jobcelis as a hosted/managed service to third parties
+- On 2030-03-07, the license automatically converts to Apache 2.0
