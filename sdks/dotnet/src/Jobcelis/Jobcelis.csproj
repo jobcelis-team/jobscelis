@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Jobcelis</RootNamespace>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Jobcelis</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Jobcelis</Authors>
+    <Description>Official .NET SDK for the Jobcelis Event Infrastructure Platform</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://jobcelis.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vladimirCeli/jobcelis-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>jobcelis;webhooks;events;sdk;api</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>
