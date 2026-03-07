@@ -1,5 +1,4 @@
-<% locale = StreamflixWebWeb.ErrorHTML.locale(@conn) %>
-<!DOCTYPE html>
+<% locale = StreamflixWebWeb.ErrorHTML.locale(@conn) %> <!DOCTYPE html>
 <html lang={locale}>
   <head>
     <meta charset="utf-8" />
@@ -75,25 +74,23 @@
     <div class="container">
       <p class="code">404</p>
       <h1 class="title">
-        <%= if locale == "es", do: "Página no encontrada", else: "Page not found" %>
+        {if locale == "es", do: "Página no encontrada", else: "Page not found"}
       </h1>
       <p class="description">
-        <%= if locale == "es",
+        {if locale == "es",
           do: "La página que buscas no existe o fue movida.",
-          else: "The page you're looking for doesn't exist or has been moved." %>
+          else: "The page you're looking for doesn't exist or has been moved."}
       </p>
       <a href="/" class="btn">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
-        <%= if locale == "es", do: "Volver al inicio", else: "Back to home" %>
+        {if locale == "es", do: "Volver al inicio", else: "Back to home"}
       </a>
       <div class="footer">
-        <a href="/docs"><%= if locale == "es", do: "Documentación", else: "Docs" %></a>
-        &middot;
-        <a href="/status">Status</a>
-        &middot;
-        <a href="/contact"><%= if locale == "es", do: "Contacto", else: "Contact" %></a>
+        <a href="/docs">{if locale == "es", do: "Documentación", else: "Docs"}</a>
+        &middot; <a href="/status">Status</a>
+        &middot; <a href="/contact">{if locale == "es", do: "Contacto", else: "Contact"}</a>
       </div>
     </div>
   </body>
