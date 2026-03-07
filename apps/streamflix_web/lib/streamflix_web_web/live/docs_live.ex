@@ -2807,7 +2807,7 @@ func VerifySignature(secret, body, signature string) bool {
           <.sdk_link
             label="Kotlin"
             registry="Maven Central"
-            url="https://central.sonatype.com/artifact/com.jobcelis/jobcelis"
+            url="https://central.sonatype.com/artifact/com.jobcelis/jobcelis-kotlin"
           />
         </div>
       </div>
