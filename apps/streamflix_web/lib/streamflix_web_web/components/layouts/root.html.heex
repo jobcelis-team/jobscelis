@@ -14,26 +14,64 @@
     <link rel="icon" type="image/png" sizes="48x48" href={~p"/images/favicon-48x48.png"} />
     <link rel="icon" type="image/png" sizes="192x192" href={~p"/images/logo.png"} />
     <link rel="apple-touch-icon" sizes="180x180" href={~p"/images/logo.png"} />
-    <meta name="theme-color" content="#0f172a" /> <%!-- SEO: Brand and Open Graph --%>
+    <meta name="theme-color" content="#0f172a" />
+    <%!-- SEO: Brand, description, canonical, hreflang --%>
     <meta name="application-name" content="Jobcelis" />
     <meta
       name="description"
-      content="Events, webhooks and scheduled jobs platform for developers. Send events with a simple POST and trigger webhooks in real time."
-    /> <meta property="og:site_name" content="Jobcelis" />
+      content={
+        assigns[:meta_description] ||
+          "Events, webhooks and scheduled jobs platform for developers. Send events with a simple POST and trigger webhooks in real time."
+      }
+    />
+    <link rel="canonical" href={"https://jobcelis.com#{assigns[:current_path] || "/"}"} />
+    <link
+      rel="alternate"
+      hreflang="es"
+      href={"https://jobcelis.com#{assigns[:current_path] || "/"}"}
+    />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href={"https://jobcelis.com#{assigns[:current_path] || "/"}"}
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={"https://jobcelis.com#{assigns[:current_path] || "/"}"}
+    />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <%!-- Open Graph --%>
+    <meta property="og:site_name" content="Jobcelis" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://jobcelis.com" />
-    <meta property="og:title" content="Jobcelis · Events, webhooks and jobs" />
+    <meta property="og:url" content={"https://jobcelis.com#{assigns[:current_path] || "/"}"} />
+    <meta
+      property="og:title"
+      content={assigns[:page_title] || "Jobcelis · Events, webhooks and jobs"}
+    />
     <meta
       property="og:description"
-      content="Events, webhooks and scheduled jobs platform for developers."
-    /> <meta property="og:image" content="https://jobcelis.com/images/logo.png" />
-    <%!-- Twitter Cards --%> <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Jobcelis · Events, webhooks and jobs" />
+      content={
+        assigns[:meta_description] ||
+          "Events, webhooks and scheduled jobs platform for developers."
+      }
+    />
+    <meta property="og:image" content="https://jobcelis.com/images/logo.png" />
+    <%!-- Twitter Cards --%>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content={assigns[:page_title] || "Jobcelis · Events, webhooks and jobs"}
+    />
     <meta
       name="twitter:description"
-      content="Events, webhooks and scheduled jobs platform for developers."
-    /> <meta name="twitter:image" content="https://jobcelis.com/images/logo.png" />
-    <%!-- Schema.org: For Google to recognize logo and application type --%>
+      content={
+        assigns[:meta_description] ||
+          "Events, webhooks and scheduled jobs platform for developers."
+      }
+    />
+    <meta name="twitter:image" content="https://jobcelis.com/images/logo.png" />
+    <%!-- Schema.org --%>
     <script type="application/ld+json" nonce={assigns[:csp_nonce]}>
       {
         "@context": "https://schema.org",
