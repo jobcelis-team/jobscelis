@@ -1,9 +1,15 @@
 {
   "name": "@jobcelis/cli",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "CLI for the Jobcelis Event Infrastructure Platform",
   "bin": { "jobcelis": "./dist/index.js" },
   "scripts": { "build": "tsc", "prepublishOnly": "npm run build" },
+  "homepage": "https://jobcelis.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vladimirCeli/jobscelis",
+    "directory": "sdks/cli"
+  },
   "engines": { "node": ">=18" },
   "files": ["dist"],
   "license": "MIT",
