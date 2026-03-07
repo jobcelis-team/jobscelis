@@ -715,11 +715,14 @@ Todos los SDKs cubren el **100% de la API** (84+ endpoints) con documentación c
 
 | Paquete | Registry | Instalación | Versión |
 |---------|----------|-------------|---------|
-| **Node.js/TypeScript SDK** | [npmjs.com/@jobcelis/sdk](https://www.npmjs.com/package/@jobcelis/sdk) | `npm install @jobcelis/sdk` | v1.3.0 |
-| **CLI** | [npmjs.com/@jobcelis/cli](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.0.0 |
-| **Python SDK** | [pypi.org/project/jobcelis](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.3.0 |
+| **Node.js/TypeScript SDK** | [npmjs.com/@jobcelis/sdk](https://www.npmjs.com/package/@jobcelis/sdk) | `npm install @jobcelis/sdk` | v1.5.0 |
+| **CLI** | [npmjs.com/@jobcelis/cli](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.0.2 |
+| **Python SDK** | [pypi.org/project/jobcelis](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.4.0 |
 | **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.1.0 |
+| **PHP SDK** | [github.com/vladimirCeli/jobcelis-php](https://github.com/vladimirCeli/jobcelis-php) | `composer require jobcelis/sdk` | v1.0.0 |
+| **Ruby SDK** | [github.com/vladimirCeli/jobcelis-ruby](https://github.com/vladimirCeli/jobcelis-ruby) | `gem install jobcelis` | v1.0.0 |
 | **Terraform Provider** | [registry.terraform.io/vladimirCeli/jobcelis](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | Ver bloque `required_providers` | v1.0.0 |
+| **GitHub Action** | Este monorepo (`sdks/github-action`) | `uses: vladimirCeli/jobscelis/sdks/github-action@main` | - |
 
 ### Repositorios externos
 
@@ -728,6 +731,8 @@ Los siguientes SDKs viven en repositorios separados (requerido por sus registros
 | Repo | URL | Motivo |
 |------|-----|--------|
 | **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `pkg.go.dev` requiere repo propio con `go.mod` en raíz |
+| **PHP SDK** | [github.com/vladimirCeli/jobcelis-php](https://github.com/vladimirCeli/jobcelis-php) | Packagist requiere `composer.json` en raíz del repo |
+| **Ruby SDK** | [github.com/vladimirCeli/jobcelis-ruby](https://github.com/vladimirCeli/jobcelis-ruby) | Repo público para RubyGems y visibilidad del código |
 | **Terraform Provider** | [github.com/vladimirCeli/terraform-provider-jobcelis](https://github.com/vladimirCeli/terraform-provider-jobcelis) | Terraform Registry requiere repo `terraform-provider-*` |
 
 > El código fuente canónico de todos los SDKs está en `sdks/` de este monorepo. Los repos externos se sincronizan manualmente.
@@ -779,6 +784,36 @@ jobcelis jobs create --name daily-report --queue default --cron "0 9 * * *"
 jobcelis status
 ```
 
+**PHP:**
+
+```php
+use Jobcelis\Client;
+
+$client = new Client(apiKey: 'your_api_key');
+$event = $client->sendEvent('order.created', ['order_id' => '123']);
+$webhooks = $client->listWebhooks();
+```
+
+**Ruby:**
+
+```ruby
+require "jobcelis"
+
+client = Jobcelis::Client.new(api_key: "your_api_key")
+event = client.send_event("order.created", { order_id: "123" })
+webhooks = client.list_webhooks
+```
+
+**GitHub Action:**
+
+```yaml
+- uses: vladimirCeli/jobscelis/sdks/github-action@main
+  with:
+    api-key: ${{ secrets.JOBCELIS_API_KEY }}
+    topic: deploy.completed
+    payload: '{"environment": "production", "version": "${{ github.sha }}"}'
+```
+
 **Terraform:**
 
 ```hcl
@@ -809,7 +844,7 @@ resource "jobcelis_job" "daily_report" {
 
 ### Cobertura de la API por SDK
 
-Todos los SDKs (Node, Python, Go) cubren las 84 rutas de la API:
+Todos los SDKs (Node, Python, Go, PHP, Ruby) cubren las 84 rutas de la API:
 
 - **Auth**: register, login, refresh, MFA verify
 - **Events**: send, batch, list, get, delete, simulate
@@ -831,11 +866,11 @@ Todos los SDKs (Node, Python, Go) cubren las 84 rutas de la API:
 - **GDPR**: consents, data export, restrict, object
 - **Health**: status check
 
-El **CLI** cubre todas las rutas. El **Terraform Provider** cubre 5 recursos con CRUD completo (webhooks, pipelines, jobs, event schemas, projects).
+El **CLI** cubre todas las rutas. El **Terraform Provider** cubre 5 recursos con CRUD completo (webhooks, pipelines, jobs, event schemas, projects). El **GitHub Action** permite enviar eventos desde workflows de CI/CD.
 
 ### Publicación de SDKs
 
-Los SDKs de npm y PyPI se publican via GitHub Actions:
+Los SDKs de npm, PyPI, Packagist y RubyGems se publican via GitHub Actions:
 
 ```bash
 # Publicar todos los paquetes
@@ -845,15 +880,21 @@ gh workflow run publish-sdks.yml -f package=all
 gh workflow run publish-sdks.yml -f package=npm-sdk
 gh workflow run publish-sdks.yml -f package=npm-cli
 gh workflow run publish-sdks.yml -f package=pypi
+gh workflow run publish-sdks.yml -f package=packagist
+gh workflow run publish-sdks.yml -f package=rubygems
 ```
 
 **Secrets requeridos en GitHub:**
 - `NPM_TOKEN` — Token granular de npm con scope `@jobcelis` y bypass 2FA
 - `PYPI_TOKEN` — Token de API de PyPI
+- `RUBYGEMS_API_KEY` — API key de rubygems.org
+- Packagist: auto-sync via webhook desde GitHub (no requiere secret)
 
 **Go SDK:** Se publica automáticamente al crear un tag (`git tag v1.x.0 && git push origin v1.x.0`) en el repo `go-jobcelis`.
 
 **Terraform:** Se publica via GoReleaser al crear un tag en el repo `terraform-provider-jobcelis`. Requiere secret `GPG_PRIVATE_KEY` para firmado.
+
+**GitHub Action:** No requiere publicación — se usa directamente desde este repo con `uses: vladimirCeli/jobscelis/sdks/github-action@main`.
 
 ---
 

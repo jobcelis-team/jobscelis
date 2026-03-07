@@ -1,0 +1,60 @@
+name: "Jobcelis Send Event"
+description: "Send an event to the Jobcelis Event Infrastructure Platform (https://jobcelis.com)"
+author: "Jobcelis"
+
+branding:
+  icon: "send"
+  color: "blue"
+
+inputs:
+  api-key:
+    description: "Jobcelis API key"
+    required: true
+  topic:
+    description: "Event topic (e.g., deploy.completed, test.passed)"
+    required: true
+  payload:
+    description: "JSON payload for the event"
+    required: false
+    default: "{}"
+  base-url:
+    description: "Jobcelis API base URL"
+    required: false
+    default: "https://jobcelis.com"
+
+outputs:
+  event-id:
+    description: "ID of the created event"
+    value: ${{ steps.send.outputs.event_id }}
+  status:
+    description: "HTTP status code"
+    value: ${{ steps.send.outputs.status }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Send event to Jobcelis
+      id: send
+      shell: bash
+      run: |
+        RESPONSE=$(curl -s -w "\n%{http_code}" \
+          -X POST "${{ inputs.base-url }}/api/v1/events" \
+          -H "Content-Type: application/json" \
+          -H "X-Api-Key: ${{ inputs.api-key }}" \
+          -d '{"topic": "${{ inputs.topic }}", "payload": ${{ inputs.payload }}}')
+
+        HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+        BODY=$(echo "$RESPONSE" | sed '$d')
+
+        echo "status=$HTTP_CODE" >> $GITHUB_OUTPUT
+
+        if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+          EVENT_ID=$(echo "$BODY" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null || echo "")
+          echo "event_id=$EVENT_ID" >> $GITHUB_OUTPUT
+          echo "Event sent successfully (topic: ${{ inputs.topic }})"
+          echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
+        else
+          echo "Failed to send event (HTTP $HTTP_CODE)"
+          echo "$BODY"
+          exit 1
+        fi

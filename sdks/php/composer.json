@@ -1,0 +1,16 @@
+{
+  "name": "jobcelis/sdk",
+  "description": "Official PHP SDK for the Jobcelis Event Infrastructure Platform",
+  "type": "library",
+  "license": "MIT",
+  "homepage": "https://jobcelis.com",
+  "keywords": ["jobcelis", "webhooks", "events", "sdk", "api"],
+  "authors": [{"name": "Jobcelis", "email": "vladiceli6@gmail.com"}],
+  "require": {"php": ">=8.1", "ext-json": "*", "ext-curl": "*"},
+  "autoload": {"psr-4": {"Jobcelis\\": "src/"}},
+  "minimum-stability": "stable",
+  "support": {
+    "source": "https://github.com/vladimirCeli/jobcelis-php",
+    "docs": "https://jobcelis.com/docs"
+  }
+}
