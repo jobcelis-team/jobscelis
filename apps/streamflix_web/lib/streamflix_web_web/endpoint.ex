@@ -10,6 +10,8 @@ defmodule StreamflixWebWeb.Endpoint do
     signing_salt: "Ig7MA6EW",
     encryption_salt: "rK3vPx9Q",
     same_site: "Lax",
+    http_only: true,
+    secure: true,
     # 30 días en segundos (para remember me)
     max_age: 2_592_000
   ]
