@@ -2,12 +2,16 @@ defmodule StreamflixWebWeb.PageController do
   use StreamflixWebWeb, :controller
 
   def home(conn, _params) do
-    render(conn, :home, active_page: :home)
+    render(conn, :home,
+      active_page: :home,
+      meta_description:
+        gettext(
+          "Plataforma de eventos, webhooks y jobs programados para developers. Envía eventos con un simple POST y dispara webhooks en tiempo real."
+        )
+    )
   end
 
-  def login(conn, _params) do
-    render(conn, :login)
-  end
+  def login(conn, _params), do: render(conn, :login)
 
   def signup(conn, params) do
     plan = Map.get(params, "plan", "standard")
@@ -15,14 +19,73 @@ defmodule StreamflixWebWeb.PageController do
     render(conn, :signup, plan: plan, email: email)
   end
 
-  def terms(conn, _params), do: render(conn, :terms, active_page: :terms)
-  def privacy(conn, _params), do: render(conn, :privacy, active_page: :privacy)
-  def faq(conn, _params), do: render(conn, :faq, active_page: :faq)
-  def about(conn, _params), do: render(conn, :about, active_page: :about)
-  def contact(conn, _params), do: render(conn, :contact, active_page: :contact)
-  def pricing(conn, _params), do: render(conn, :pricing, active_page: :pricing)
-  def cookies(conn, _params), do: render(conn, :cookies, active_page: :cookies)
-  def changelog(conn, _params), do: render(conn, :changelog, active_page: :changelog)
+  def terms(conn, _params) do
+    render(conn, :terms,
+      active_page: :terms,
+      meta_description: gettext("Términos y condiciones de uso de Jobcelis.")
+    )
+  end
+
+  def privacy(conn, _params) do
+    render(conn, :privacy,
+      active_page: :privacy,
+      meta_description: gettext("Política de privacidad y protección de datos de Jobcelis.")
+    )
+  end
+
+  def faq(conn, _params) do
+    render(conn, :faq,
+      active_page: :faq,
+      meta_description:
+        gettext(
+          "Preguntas frecuentes sobre Jobcelis: eventos, webhooks, API keys, reintentos y más."
+        )
+    )
+  end
+
+  def about(conn, _params) do
+    render(conn, :about,
+      active_page: :about,
+      meta_description:
+        gettext(
+          "Sobre Jobcelis: plataforma open-source de infraestructura de eventos construida con Elixir y Phoenix."
+        )
+    )
+  end
+
+  def contact(conn, _params) do
+    render(conn, :contact,
+      active_page: :contact,
+      meta_description: gettext("Contacta con el equipo de Jobcelis para soporte o consultas.")
+    )
+  end
+
+  def pricing(conn, _params) do
+    render(conn, :pricing,
+      active_page: :pricing,
+      meta_description:
+        gettext(
+          "Jobcelis es gratis. Sin planes, sin límites. Eventos ilimitados, 13 SDKs, replay, pipelines y más."
+        )
+    )
+  end
+
+  def cookies(conn, _params) do
+    render(conn, :cookies,
+      active_page: :cookies,
+      meta_description:
+        gettext("Política de cookies de Jobcelis. Solo cookies técnicas esenciales.")
+    )
+  end
+
+  def changelog(conn, _params) do
+    render(conn, :changelog,
+      active_page: :changelog,
+      meta_description:
+        gettext("Historial de cambios, nuevas features y correcciones de Jobcelis.")
+    )
+  end
+
   def forgot_password(conn, _params), do: render(conn, :forgot_password)
   def reset_password(conn, %{"token" => token}), do: render(conn, :reset_password, token: token)
 

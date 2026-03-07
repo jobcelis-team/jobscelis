@@ -12,6 +12,7 @@ defmodule StreamflixWebWeb.SitemapController do
     paths = [
       "/",
       "/docs",
+      "/status",
       "/faq",
       "/about",
       "/contact",
