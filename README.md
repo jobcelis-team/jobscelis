@@ -727,6 +727,7 @@ Todos los SDKs cubren el **100% de la API** (84+ endpoints) con documentación c
 | **Swift SDK** | [github.com/vladimirCeli/jobcelis-swift](https://github.com/vladimirCeli/jobcelis-swift) | `.package(url: "...jobcelis-swift", from: "1.0.0")` | v1.0.0 |
 | **Java SDK** | [github.com/vladimirCeli/jobcelis-java](https://github.com/vladimirCeli/jobcelis-java) | `com.jobcelis:jobcelis:1.0.0` | v1.0.0 |
 | **Dart/Flutter SDK** | [pub.dev/packages/jobcelis](https://pub.dev/packages/jobcelis) | `dart pub add jobcelis` | v1.0.0 |
+| **Kotlin SDK** | [github.com/vladimirCeli/jobcelis-kotlin](https://github.com/vladimirCeli/jobcelis-kotlin) | `com.jobcelis:jobcelis:1.0.0` | v1.0.0 |
 | **Terraform Provider** | [registry.terraform.io/vladimirCeli/jobcelis](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | Ver bloque `required_providers` | v1.0.0 |
 | **GitHub Action** | Este monorepo (`sdks/github-action`) | `uses: vladimirCeli/jobscelis/sdks/github-action@main` | - |
 
@@ -745,6 +746,7 @@ Los siguientes SDKs viven en repositorios separados (requerido por sus registros
 | **Swift SDK** | [github.com/vladimirCeli/jobcelis-swift](https://github.com/vladimirCeli/jobcelis-swift) | Swift Package Manager usa URL del repo directamente |
 | **Java SDK** | [github.com/vladimirCeli/jobcelis-java](https://github.com/vladimirCeli/jobcelis-java) | Maven Central requiere repo propio para publicación |
 | **Dart/Flutter SDK** | [github.com/vladimirCeli/jobcelis-dart](https://github.com/vladimirCeli/jobcelis-dart) | pub.dev requiere repo propio para publicación |
+| **Kotlin SDK** | [github.com/vladimirCeli/jobcelis-kotlin](https://github.com/vladimirCeli/jobcelis-kotlin) | Maven Central requiere repo propio para publicación |
 | **Terraform Provider** | [github.com/vladimirCeli/terraform-provider-jobcelis](https://github.com/vladimirCeli/terraform-provider-jobcelis) | Terraform Registry requiere repo `terraform-provider-*` |
 
 > El código fuente canónico de todos los SDKs está en `sdks/` de este monorepo. Los repos externos se sincronizan manualmente.
@@ -876,6 +878,20 @@ final event = await client.sendEvent('order.created', {'order_id': '123'});
 final webhooks = await client.listWebhooks();
 ```
 
+**Kotlin:**
+
+```kotlin
+import com.jobcelis.JobcelisClient
+import kotlinx.coroutines.runBlocking
+
+fun main() = runBlocking {
+    val client = JobcelisClient("your_api_key")
+    val event = client.sendEvent("order.created", mapOf("order_id" to "123"))
+    val webhooks = client.listWebhooks()
+    client.close()
+}
+```
+
 **GitHub Action:**
 
 ```yaml
@@ -916,7 +932,7 @@ resource "jobcelis_job" "daily_report" {
 
 ### Cobertura de la API por SDK
 
-Todos los SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart) cubren las 84 rutas de la API:
+Todos los SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cubren las 84 rutas de la API:
 
 - **Auth**: register, login, refresh, MFA verify
 - **Events**: send, batch, list, get, delete, simulate
