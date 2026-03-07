@@ -679,3 +679,28 @@ textarea:focus-visible {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* Docs sidebar: thin scrollbar */
+#docs-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+#docs-sidebar::-webkit-scrollbar-thumb {
+  background-color: oklch(70% 0.02 256);
+  border-radius: 2px;
+}
+#docs-sidebar {
+  scrollbar-width: thin;
+}
+
+/* Details/summary chevron rotation */
+details[open] > summary .details-chevron {
+  transform: rotate(180deg);
+}
+
+/* Hide default details marker */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}

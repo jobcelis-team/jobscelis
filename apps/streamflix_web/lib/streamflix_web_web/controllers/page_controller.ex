@@ -15,10 +15,6 @@ defmodule StreamflixWebWeb.PageController do
     render(conn, :signup, plan: plan, email: email)
   end
 
-  def docs(conn, _params) do
-    render(conn, :docs, active_page: :docs, base_url: build_base_url(conn))
-  end
-
   def terms(conn, _params), do: render(conn, :terms, active_page: :terms)
   def privacy(conn, _params), do: render(conn, :privacy, active_page: :privacy)
   def faq(conn, _params), do: render(conn, :faq, active_page: :faq)
