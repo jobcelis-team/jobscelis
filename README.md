@@ -1012,4 +1012,4 @@ Business Source License 1.1 (BUSL-1.1) — see [LICENSE](LICENSE) for full terms
 - You can view, fork, modify, and contribute to the code
 - You can use it for your own projects and internal tools
 - You **cannot** offer Jobcelis as a hosted/managed service to third parties
-- On 2030-03-07, the license automatically converts to Apache 2.0
+- On 2030-04-20, the license automatically converts to Apache 2.0
