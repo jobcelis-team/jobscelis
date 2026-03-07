@@ -59,6 +59,89 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+// Hero code demo: language tabs + run simulation
+document.addEventListener("DOMContentLoaded", function () {
+  const demo = document.getElementById("hero-code-demo");
+  if (!demo) return;
+
+  const panels = demo.querySelectorAll("[data-panel]");
+  const tabs = demo.querySelectorAll(".hero-code-tab");
+  const runBtn = demo.querySelector("#hero-run-btn");
+  const statusEl = demo.querySelector("#hero-run-status");
+  const responseArea = demo.querySelector("#hero-response-area");
+  const responseJson = demo.querySelector("#hero-response-json");
+
+  // Tab switching
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) { t.classList.remove("active"); });
+      panels.forEach(function (p) { p.classList.add("hidden"); });
+      tab.classList.add("active");
+      const lang = tab.getAttribute("data-lang");
+      demo.querySelector('[data-panel="' + lang + '"]').classList.remove("hidden");
+      // Reset response on tab switch
+      responseArea.classList.add("hidden");
+      responseJson.textContent = "";
+      if (statusEl) statusEl.textContent = "";
+      if (runBtn) runBtn.disabled = false;
+    });
+  });
+
+  // Run simulation
+  if (!runBtn) return;
+
+  const fakeResponse = JSON.stringify({
+    id: "evt_" + Math.random().toString(36).substring(2, 10),
+    topic: "user.signup",
+    payload: { user_id: "u_123", plan: "free" },
+    deliveries: 1,
+    created_at: new Date().toISOString()
+  }, null, 2);
+
+  runBtn.addEventListener("click", function () {
+    if (runBtn.disabled) return;
+    runBtn.disabled = true;
+    responseArea.classList.add("hidden");
+    responseJson.textContent = "";
+
+    // Phase 1: "Sending..."
+    statusEl.textContent = "Sending...";
+    statusEl.style.opacity = "1";
+
+    setTimeout(function () {
+      // Phase 2: "Connected" + show response area
+      var ms = 28 + Math.floor(Math.random() * 35);
+      statusEl.textContent = ms + "ms";
+      var badge = responseArea.querySelector(".hero-response-time");
+      if (badge) badge.textContent = "~" + ms + "ms";
+      responseArea.classList.remove("hidden");
+      responseArea.style.opacity = "0";
+      responseArea.style.transform = "translateY(8px)";
+
+      // Animate in
+      requestAnimationFrame(function () {
+        responseArea.style.transition = "opacity 0.3s, transform 0.3s";
+        responseArea.style.opacity = "1";
+        responseArea.style.transform = "translateY(0)";
+      });
+
+      // Phase 3: Typewriter effect for JSON
+      var i = 0;
+      var speed = 8;
+      function typeChar() {
+        if (i < fakeResponse.length) {
+          responseJson.textContent += fakeResponse.charAt(i);
+          i++;
+          setTimeout(typeChar, speed);
+        } else {
+          runBtn.disabled = false;
+        }
+      }
+      typeChar();
+    }, 600 + Math.floor(Math.random() * 400));
+  });
+});
+
 // Establish Phoenix Socket and LiveView configuration.
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";

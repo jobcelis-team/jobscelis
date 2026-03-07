@@ -8,23 +8,263 @@
   <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Planes y precios")}</h1>
 
   <p class="text-slate-600 mb-10">
-    {gettext("%{product} es un servicio gratuito. No hay planes de pago ni facturación.",
+    {gettext(
+      "%{product} es un servicio gratuito. No hay planes de pago ni facturación.",
       product: Map.get(@legal, :product_name, "Jobcelis")
     )}
   </p>
 
   <div class="space-y-8">
-    <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-xl font-semibold text-slate-900 mb-2">{gettext("Uso gratuito")}</h2>
+    <section class="bg-white rounded-xl border-2 border-indigo-200 p-6 relative">
+      <span class="absolute -top-3 left-6 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+        {gettext("Único plan")}
+      </span>
 
-      <p class="text-slate-600 mb-4">
+      <div class="flex items-baseline gap-2 mb-4 mt-2">
+        <span class="text-4xl font-bold text-slate-900">$0</span>
+
+        <span class="text-slate-500 text-sm">{gettext("para siempre")}</span>
+      </div>
+
+      <p class="text-slate-600 mb-6 text-sm">
         {gettext(
-          "Puedes registrarte, usar eventos, webhooks y jobs programados sin coste. No hay límites de pago ni suscripciones. El servicio se ofrece tal cual, sin garantías comerciales."
+          "Todo incluido. Sin límites artificiales, sin tarjeta de crédito, sin periodo de prueba."
         )}
       </p>
 
-      <p class="text-slate-500 text-sm">
-        {gettext("Los detalles de uso aceptable figuran en los Términos de uso.")}
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("Eventos ilimitados")}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("Webhooks ilimitados")}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("Jobs programados")}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("13 SDKs oficiales")}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("Replay de eventos")}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">Dead Letter Queue</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">Pipelines</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("Sandbox de pruebas")}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">SSE Streaming</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("MFA y cifrado en reposo")}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("Exportación de datos")}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-emerald-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+
+          <span class="text-slate-700 text-sm">{gettext("Soporte por email")}</span>
+        </div>
+      </div>
+
+      <a
+        href="/signup"
+        class="mt-6 w-full inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition"
+      >
+        {gettext("Crear cuenta gratis")}
+      </a>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("¿Por qué es gratis?")}</h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "Jobcelis es un proyecto personal. No tengo inversores, no vendo datos, no hay publicidad. El objetivo es construir la mejor infraestructura de eventos posible y ofrecerla a la comunidad de developers. Si el proyecto crece y los costos de infraestructura lo requieren, podría añadir un plan de pago en el futuro, pero el plan gratuito siempre existirá."
+        )}
       </p>
     </section>
 
