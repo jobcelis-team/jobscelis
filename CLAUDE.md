@@ -141,6 +141,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - `sdks/swift/` — Swift SDK (via Swift Package Manager, GitHub repo URL)
 - `sdks/java/` — Java SDK (`com.jobcelis:jobcelis` on Maven Central)
 - `sdks/dart/` — Dart/Flutter SDK (`jobcelis` on pub.dev)
+- `sdks/kotlin/` — Kotlin SDK (`com.jobcelis:jobcelis` on Maven Central)
 - `sdks/github-action/` — GitHub Action (used directly from this repo)
 
 ### External repos (required by their registries)
@@ -153,6 +154,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **Swift SDK**: `github.com/vladimirCeli/jobcelis-swift` — Swift Package Manager uses GitHub repo URL directly
 - **Java SDK**: `github.com/vladimirCeli/jobcelis-java` — Maven Central requires own repo for publishing
 - **Dart/Flutter SDK**: `github.com/vladimirCeli/jobcelis-dart` — pub.dev requires own repo for publishing
+- **Kotlin SDK**: `github.com/vladimirCeli/jobcelis-kotlin` — Maven Central requires own repo for publishing
 - **Terraform Provider**: `github.com/vladimirCeli/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
 
 ### SDK publishing rules
@@ -167,6 +169,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **Swift (SPM)**: No registry — users add GitHub repo URL directly. Tag releases with `git tag 1.0.0 && git push origin 1.0.0`
 - **Maven Central (Java)**: Requires Sonatype OSSRH account + GPG signing. Publish with `mvn deploy` from external repo
 - **pub.dev (Dart)**: Requires Google account. Publish with `dart pub publish` from external repo
+- **Maven Central (Kotlin)**: Same as Java — Sonatype OSSRH + GPG signing. Namespace `com.jobcelis` already verified
 - **GitHub Action**: No publishing — used directly from repo with `uses: vladimirCeli/jobscelis/sdks/github-action@main`
 - **Workflow**: `.github/workflows/publish-sdks.yml` — manual trigger with package choice
 - Always bump version in `package.json`/`setup.py`/`gemspec` before publishing — registries reject duplicate versions
@@ -184,7 +187,8 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - Swift SDK: uses URLSession + CryptoKit, async/await, `[String: Any]` returns, targets macOS 13+/iOS 16+
 - Java SDK: uses HttpURLConnection + Gson, Java 11+, `JsonObject` returns, checked exceptions
 - Dart SDK: uses package:http + package:crypto, Dart 3.0+, `Map<String, dynamic>` returns, async/await
-- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs (Node, Python, Go, PHP, Ruby, Elixir, .NET, Rust, Swift, Java, Dart, CLI)
+- Kotlin SDK: uses OkHttp + Gson + Kotlin Coroutines, Kotlin 1.9+, `suspend` functions, `JsonObject` returns, `Closeable`
+- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs (Node, Python, Go, PHP, Ruby, Elixir, .NET, Rust, Swift, Java, Dart, Kotlin, CLI)
 
 ### Syncing external repos
 When updating Go SDK or Terraform provider:
