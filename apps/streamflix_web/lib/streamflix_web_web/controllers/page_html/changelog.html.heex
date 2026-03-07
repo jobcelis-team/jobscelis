@@ -8,15 +8,101 @@
   <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Changelog")}</h1>
 
   <p class="text-slate-600 mb-10">
-    {gettext(
-      "Historial de cambios y novedades del proyecto. El contenido corresponde al archivo CHANGELOG.md del repositorio."
-    )}
+    {gettext("Historial de cambios y novedades de Jobcelis.")}
   </p>
 
   <div class="space-y-10 text-slate-700">
-    <%!-- [Unreleased] - contenido real del proyecto --%>
+    <%!-- v0.3.0 --%>
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mb-4">{gettext("[Sin publicar]")}</h2>
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-slate-900">[0.3.0]</h2>
+
+        <span class="text-sm text-slate-500">— 2026-03-07</span>
+
+        <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
+          {gettext("Último")}
+        </span>
+      </div>
+
+      <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Añadido")}
+      </h3>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>
+          {gettext(
+            "SEO: canonical tags, hreflang, meta descriptions por página, Open Graph dinámico."
+          )}
+        </li>
+
+        <li>
+          {gettext(
+            "Página /docs rediseñada como LiveView con referencia API completa (74+ endpoints)."
+          )}
+        </li>
+
+        <li>{gettext("Documentación de los 13 SDKs con ejemplos de código.")}</li>
+
+        <li>{gettext("Estado del sistema (/status) como LiveView con auto-refresh.")}</li>
+
+        <li>{gettext("Sitemap.xml dinámico para Google Search Console.")}</li>
+
+        <li>{gettext("robots.txt con bloqueo de rutas privadas y API.")}</li>
+      </ul>
+
+      <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Cambiado")}
+      </h3>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>
+          {gettext(
+            "Home page mejorada con sección 'Cómo funciona', ejemplo de código y estadísticas."
+          )}
+        </li>
+
+        <li>{gettext("Pricing con tabla de features incluidas.")}</li>
+
+        <li>
+          {gettext(
+            "FAQ expandida con 8 nuevas preguntas (replay, DLQ, pipelines, sandbox, etc.)."
+          )}
+        </li>
+
+        <li>{gettext("About con historia del proyecto, stack tecnológico y estadísticas.")}</li>
+
+        <li>{gettext("Contact con guía de cuándo contactar y más opciones.")}</li>
+
+        <li>
+          {gettext("Traducciones contextuales mejoradas (Getting Started, Core Concepts, etc.).")}
+        </li>
+      </ul>
+
+      <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Corregido")}
+      </h3>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>
+          {gettext("Bug de rol en redirect: superadmins ahora redirigen correctamente a /admin.")}
+        </li>
+
+        <li>{gettext("TODO obsoleto eliminado en live_auth.ex.")}</li>
+
+        <li>
+          {gettext("Violación de seguridad en FAQ: intervalos exactos de reintento eliminados.")}
+        </li>
+
+        <li>{gettext("Link de SDK de Kotlin corregido (apuntaba al mismo que Java).")}</li>
+      </ul>
+    </section>
+    <%!-- v0.2.0 --%>
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-slate-900">[0.2.0]</h2>
+
+        <span class="text-sm text-slate-500">— 2026-02-15</span>
+      </div>
 
       <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
         {gettext("Añadido")}
@@ -31,31 +117,25 @@
 
         <li>{gettext("Página FAQ con preguntas frecuentes (ES/EN).")}</li>
 
-        <li>{gettext("Manual de usuario en docs/MANUAL-USUARIO.md.")}</li>
-
-        <li>{gettext("Índice de documentación en docs/INDICE-DOCUMENTACION.md.")}</li>
-
-        <li>{gettext("CHANGELOG.md para historial de versiones.")}</li>
-
-        <li>{gettext("Enlaces en footer a FAQ y documentación/guía.")}</li>
-
         <li>{gettext("Página Contacto (/contact): email de contacto, GitHub y perfil.")}</li>
 
         <li>
-          {gettext(
-            "Página Planes y precios (/pricing): servicio gratuito; sección donaciones (PayPal, Payoneer opcionales)."
-          )}
-        </li>
-
-        <li>
-          {gettext(
-            "Config :legal: contact_email, donation_paypal_url, donation_payoneer_url; en producción se pueden sobrescribir con variables de entorno."
-          )}
+          {gettext("Página Planes y precios (/pricing): servicio gratuito; sección donaciones.")}
         </li>
 
         <li>{gettext("Página Sobre nosotros (/about).")}</li>
 
         <li>{gettext("Política de cookies (/cookies) y página Changelog (/changelog).")}</li>
+
+        <li>{gettext("Enlaces en footer a FAQ y documentación/guía.")}</li>
+
+        <li>
+          {gettext(
+            "13 SDKs oficiales: Node.js, Python, Go, PHP, Ruby, Elixir, .NET, Rust, Swift, Java, Dart, Kotlin + CLI."
+          )}
+        </li>
+
+        <li>{gettext("GitHub Action para integración CI/CD.")}</li>
       </ul>
 
       <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
@@ -84,11 +164,17 @@
         </li>
       </ul>
     </section>
-
+    <%!-- v0.1.0 --%>
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mb-4">
-        [0.1.0] — {gettext("Fecha inicial")}
-      </h2>
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-slate-900">[0.1.0]</h2>
+
+        <span class="text-sm text-slate-500">— 2026-01-20</span>
+      </div>
+
+      <h3 class="text-sm font-medium text-slate-600 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Añadido")}
+      </h3>
 
       <ul class="list-disc list-inside space-y-1 text-sm">
         <li>
@@ -112,6 +198,24 @@
         <li>{gettext("Despliegue con GitHub Actions a Azure (ACR + Web App).")}</li>
 
         <li>{gettext("Soporte multidioma (ES/EN) en la interfaz.")}</li>
+
+        <li>{gettext("Replay de eventos, Dead Letter Queue, Pipelines.")}</li>
+
+        <li>{gettext("Sandbox de pruebas para webhooks.")}</li>
+
+        <li>{gettext("SSE Streaming para eventos en tiempo real.")}</li>
+
+        <li>{gettext("Multi-proyecto con gestión de equipos.")}</li>
+
+        <li>{gettext("Audit log completo.")}</li>
+
+        <li>{gettext("Analytics: eventos por día, entregas, top topics, webhook stats.")}</li>
+
+        <li>{gettext("Exportación de datos (eventos, entregas, jobs, audit log).")}</li>
+
+        <li>{gettext("MFA con códigos TOTP y backup codes.")}</li>
+
+        <li>{gettext("GDPR: consentimiento, exportación de datos, restricción, objeción.")}</li>
       </ul>
     </section>
   </div>

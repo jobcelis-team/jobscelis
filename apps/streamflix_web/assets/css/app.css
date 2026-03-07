@@ -641,6 +641,176 @@ select option {
 }
 
 /* ================================================================
+   HERO CODE BLOCK (immune to dark mode slate overrides)
+   ================================================================ */
+
+/* Light mode */
+.hero-code-section {
+  background-color: #0f172a;
+}
+.hero-code-title {
+  color: #f1f5f9;
+}
+.hero-code-subtitle {
+  color: #94a3b8;
+}
+.hero-code-block {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+}
+.hero-code-label {
+  color: #64748b;
+}
+.hero-code-text {
+  color: #cbd5e1;
+  background-color: transparent;
+}
+.hero-code-cmd {
+  color: #34d399;
+}
+.hero-code-string {
+  color: #fbbf24;
+}
+.hero-code-keyword {
+  color: #c084fc;
+}
+.hero-code-variable {
+  color: #67e8f9;
+}
+.hero-code-footer {
+  color: #64748b;
+}
+
+/* Tabs */
+.hero-code-tabs {
+  background-color: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  padding: 0 1rem;
+  gap: 0;
+  scrollbar-width: none;
+  justify-content: center;
+}
+.hero-code-tabs::-webkit-scrollbar {
+  display: none;
+}
+.hero-code-tab {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #64748b;
+  border: none;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+.hero-code-tab:hover {
+  color: #94a3b8;
+}
+.hero-code-tab.active {
+  color: #e2e8f0;
+  border-bottom-color: #818cf8;
+}
+
+/* Run button */
+.hero-run-btn {
+  background-color: #22c55e;
+  color: #052e16;
+  cursor: pointer;
+}
+.hero-run-btn:hover {
+  background-color: #16a34a;
+}
+.hero-run-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Response area */
+.hero-response-badge {
+  background-color: #065f46;
+  color: #6ee7b7;
+}
+.hero-response-time {
+  color: #64748b;
+}
+.hero-response-json {
+  background-color: transparent;
+}
+
+/* Dark mode — slightly lighter bg so it doesn't merge with page */
+[data-theme=dark] .hero-code-section {
+  background-color: #0c1222;
+}
+[data-theme=dark] .hero-code-block {
+  background-color: #152035;
+  border-color: #1e3050;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+}
+[data-theme=dark] .hero-code-title {
+  color: #e2e8f0;
+}
+[data-theme=dark] .hero-code-subtitle {
+  color: #8b9ab8;
+}
+[data-theme=dark] .hero-code-text {
+  color: #c8d6e5;
+  background-color: transparent !important;
+}
+[data-theme=dark] .hero-code-cmd {
+  color: #6ee7b7;
+}
+[data-theme=dark] .hero-code-string {
+  color: #fcd34d;
+}
+[data-theme=dark] .hero-code-label {
+  color: #5a6d88;
+}
+[data-theme=dark] .hero-code-keyword {
+  color: #d8b4fe;
+}
+[data-theme=dark] .hero-code-variable {
+  color: #67e8f9;
+}
+[data-theme=dark] .hero-code-footer {
+  color: #5a6d88;
+}
+[data-theme=dark] .hero-code-tabs {
+  background-color: #080e1a;
+  border-bottom-color: #152035;
+}
+[data-theme=dark] .hero-code-tab {
+  color: #5a6d88;
+}
+[data-theme=dark] .hero-code-tab:hover {
+  color: #8b9ab8;
+}
+[data-theme=dark] .hero-code-tab.active {
+  color: #e2e8f0;
+  border-bottom-color: #a5b4fc;
+}
+[data-theme=dark] .hero-run-btn {
+  background-color: #22c55e;
+  color: #052e16;
+}
+[data-theme=dark] .hero-run-btn:hover {
+  background-color: #16a34a;
+}
+[data-theme=dark] .hero-response-badge {
+  background-color: #064e3b;
+  color: #6ee7b7;
+}
+[data-theme=dark] .hero-response-time {
+  color: #5a6d88;
+}
+[data-theme=dark] .hero-response-json {
+  background-color: transparent !important;
+}
+
+/* ================================================================
    SHARED (theme-independent)
    ================================================================ */
 
