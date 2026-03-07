@@ -65,7 +65,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Jobcelis reintenta automáticamente con pausas (1 min, 5 min, 15 min, 1 h). Puedes ver el estado de cada entrega en el Dashboard y usar \"Reintentar\" manualmente para una entrega fallida. Asegúrate de que la URL del webhook sea accesible (HTTPS en producción) y responda en un tiempo razonable."
+          "Jobcelis reintenta automáticamente con intervalos crecientes. Puedes ver el estado de cada entrega en el Dashboard y usar \"Reintentar\" manualmente para una entrega fallida. Las entregas que agotan todos los reintentos se mueven a la Dead Letter Queue, donde puedes revisarlas y reenviarlas."
         )}
       </p>
     </section>
@@ -83,10 +83,108 @@
     </section>
 
     <section class="border-b border-slate-200 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        {gettext("¿Qué es la Dead Letter Queue?")}
+      </h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "Es donde van las entregas que fallaron después de agotar todos los reintentos automáticos. Desde el Dashboard puedes ver el error, corregir la URL del webhook si es necesario, y reintentar la entrega manualmente. También puedes marcar una dead letter como resuelta."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        {gettext("¿Cómo hago replay de eventos?")}
+      </h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "Puedes reenviar eventos pasados a tus webhooks usando la API de Replay. Filtra por rango de fechas, topic o webhook específico. Es útil para reprocesar datos tras corregir un bug o migrar a un nuevo sistema."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        {gettext("¿Cómo verifico la firma de un webhook?")}
+      </h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "Cada entrega incluye un header de firma que puedes verificar con tu API token. Esto te permite confirmar que el POST viene de Jobcelis y no fue manipulado. La documentación en /docs tiene ejemplos de verificación en todos los SDKs."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        {gettext("¿Qué son los pipelines?")}
+      </h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "Los pipelines te permiten encadenar transformaciones sobre tus eventos antes de entregarlos. Puedes filtrar por condiciones, transformar el payload y enrutar a distintos webhooks con reglas. Son útiles para flujos complejos donde un evento necesita procesamiento diferente según su contenido."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        {gettext("¿Qué es el sandbox?")}
+      </h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "El sandbox te permite crear endpoints de prueba temporales para testear tus webhooks sin necesitar un servidor propio. Creas un endpoint sandbox, lo configuras como URL de tu webhook, y puedes ver todas las peticiones que recibe."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        {gettext("¿Cuál es la diferencia entre API Key y JWT?")}
+      </h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "La API Key (token del proyecto) se usa para todas las operaciones de la plataforma: enviar eventos, configurar webhooks, gestionar jobs, etc. El JWT se usa solo para autenticación del usuario (login/registro) y para gestionar proyectos y equipos. En la práctica, la mayoría de integraciones solo necesitan la API Key."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        {gettext("¿Puedo usar Jobcelis con mi framework favorito?")}
+      </h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "Sí. Jobcelis es una API REST, así que funciona con cualquier lenguaje y framework: React, Next.js, Django, Laravel, Rails, Spring Boot, Express, FastAPI, etc. Además tenemos SDKs oficiales para 12 lenguajes que simplifican la integración."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        {gettext("¿Hay rate limiting en la API?")}
+      </h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "Sí, las rutas de autenticación tienen rate limiting para prevenir abuso. Las rutas de la plataforma (eventos, webhooks, jobs) tienen límites generosos por proyecto. Si necesitas más capacidad, contáctanos."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 pb-6">
       <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("¿Es gratuito?")}</h2>
 
       <p class="text-slate-600 text-sm leading-relaxed">
-        {gettext("Sí. Jobcelis es un servicio gratuito. No hay planes de pago ni facturación.")}
+        {gettext(
+          "Sí. Jobcelis es completamente gratuito: eventos ilimitados, webhooks ilimitados, 13 SDKs, replay, pipelines, sandbox y más. Sin tarjeta de crédito, sin periodo de prueba."
+        )}
       </p>
     </section>
 
@@ -97,7 +195,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "En la web: Documentación (/docs) tiene conceptos, primeros pasos, referencia de la API y la guía de cron. Los Términos y la Política de privacidad incluyen datos de contacto del titular del servicio."
+          "En la Documentación (/docs) tienes conceptos, primeros pasos, referencia completa de la API y guías de integración. Para soporte directo, escríbenos desde la página de Contacto (/contact) o abre un issue en GitHub."
         )}
       </p>
     </section>
