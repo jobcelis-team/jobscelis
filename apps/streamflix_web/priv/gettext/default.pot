@@ -80,6 +80,7 @@ msgid "API de auth (JWT):"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:172
+#: lib/streamflix_web_web/components/layouts.ex:172
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:395
 #, elixir-autogen, elixir-format
 msgid "Abrir menú"
@@ -188,6 +189,8 @@ msgid "Actualizar correo"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:143
+#: lib/streamflix_web_web/components/layouts.ex:143
+#: lib/streamflix_web_web/components/layouts.ex:256
 #: lib/streamflix_web_web/components/layouts.ex:256
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:304
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:406
@@ -241,6 +244,8 @@ msgid "Aplicamos medidas técnicas y organizativas para proteger tu información
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:113
+#: lib/streamflix_web_web/components/layouts.ex:113
+#: lib/streamflix_web_web/components/layouts.ex:219
 #: lib/streamflix_web_web/components/layouts.ex:219
 #: lib/streamflix_web_web/controllers/page_html/pricing.html.heex:272
 #, elixir-autogen, elixir-format
@@ -397,7 +402,6 @@ msgstr ""
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:242
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:82
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1951
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1951
 #, elixir-autogen, elixir-format
 msgid "Cerrar"
 msgstr ""
@@ -408,6 +412,8 @@ msgid "Cerrar menú"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:151
+#: lib/streamflix_web_web/components/layouts.ex:151
+#: lib/streamflix_web_web/components/layouts.ex:264
 #: lib/streamflix_web_web/components/layouts.ex:264
 #: lib/streamflix_web_web/live/account_live.ex:1106
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:381
@@ -415,6 +421,7 @@ msgstr ""
 msgid "Cerrar sesión"
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts.ex:338
 #: lib/streamflix_web_web/components/layouts.ex:338
 #: lib/streamflix_web_web/controllers/page_html/changelog.html.heex:8
 #, elixir-autogen, elixir-format
@@ -445,7 +452,6 @@ msgstr ""
 #: lib/streamflix_web_web/live/admin/settings_live.ex:10
 #: lib/streamflix_web_web/live/admin/settings_live.ex:21
 #: lib/streamflix_web_web/live/docs_live.ex:66
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2154
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2154
 #, elixir-autogen, elixir-format
 msgid "Configuración"
@@ -488,6 +494,7 @@ msgid "Consulta y actualiza el proyecto; gestiona el API Key. Todas las rutas re
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:364
+#: lib/streamflix_web_web/components/layouts.ex:364
 #: lib/streamflix_web_web/controllers/page_html/contact.html.heex:8
 #: lib/streamflix_web_web/controllers/page_html/cookies.html.heex:106
 #: lib/streamflix_web_web/controllers/page_html/terms.html.heex:110
@@ -520,6 +527,7 @@ msgstr ""
 msgid "Contraseña demasiado larga"
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts.ex:382
 #: lib/streamflix_web_web/components/layouts.ex:382
 #, elixir-autogen, elixir-format
 msgid "Cookies"
@@ -645,6 +653,8 @@ msgid "Cualquier parecido con otros nombres o productos es puramente casual y no
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:136
+#: lib/streamflix_web_web/components/layouts.ex:136
+#: lib/streamflix_web_web/components/layouts.ex:249
 #: lib/streamflix_web_web/components/layouts.ex:249
 #: lib/streamflix_web_web/live/account_live.ex:14
 #: lib/streamflix_web_web/live/account_live.ex:819
@@ -686,6 +696,8 @@ msgid "DLQ resuelto"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:126
+#: lib/streamflix_web_web/components/layouts.ex:126
+#: lib/streamflix_web_web/components/layouts.ex:239
 #: lib/streamflix_web_web/components/layouts.ex:239
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:92
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4177
@@ -693,8 +705,6 @@ msgstr ""
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:48
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:322
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:80
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:80
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1768
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1768
 #, elixir-autogen, elixir-format
 msgid "Dashboard"
@@ -837,7 +847,10 @@ msgid "Diario"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:95
+#: lib/streamflix_web_web/components/layouts.ex:95
 #: lib/streamflix_web_web/components/layouts.ex:199
+#: lib/streamflix_web_web/components/layouts.ex:199
+#: lib/streamflix_web_web/components/layouts.ex:326
 #: lib/streamflix_web_web/components/layouts.ex:326
 #: lib/streamflix_web_web/controllers/page_html/contact.html.heex:164
 #: lib/streamflix_web_web/live/docs_live.ex:38
@@ -986,8 +999,6 @@ msgid "El job programado \"%{name}\" falló al ejecutarse"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:247
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:247
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1308
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1308
 #, elixir-autogen, elixir-format
 msgid "El nombre no puede estar vacío."
@@ -1040,7 +1051,6 @@ msgstr ""
 msgid "El uso continuado del Servicio tras los cambios implica la aceptación de los nuevos términos."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:580
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:580
 #, elixir-autogen, elixir-format
 msgid "El webhook está inactivo."
@@ -1151,7 +1161,6 @@ msgid "Entrega movida a DLQ"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:521
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:521
 #, elixir-autogen, elixir-format
 msgid "Entrega no encontrada."
 msgstr ""
@@ -1256,7 +1265,6 @@ msgid "Error al activar usuario"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:830
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:830
 #, elixir-autogen, elixir-format
 msgid "Error al cancelar replay."
 msgstr ""
@@ -1272,7 +1280,6 @@ msgid "Error al crear cuenta: %{details}"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:855
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:855
 #, elixir-autogen, elixir-format
 msgid "Error al crear sandbox."
 msgstr ""
@@ -1283,30 +1290,25 @@ msgid "Error al desactivar usuario"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:443
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:443
 #, elixir-autogen, elixir-format
 msgid "Error al guardar el job."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:812
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:812
 #, elixir-autogen, elixir-format
 msgid "Error al iniciar replay."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:583
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:583
 #, elixir-autogen, elixir-format
 msgid "Error al reintentar."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:601
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:601
 #, elixir-autogen, elixir-format
 msgid "Error al resolver."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:766
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:766
 #, elixir-autogen, elixir-format
 msgid "Error en simulación"
@@ -1404,7 +1406,6 @@ msgstr ""
 #: lib/streamflix_web_web/live/docs_live.ex:1215
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1628
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2114
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2114
 #, elixir-autogen, elixir-format
 msgid "Eventos"
 msgstr ""
@@ -1432,6 +1433,8 @@ msgid "Eventos recientes"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:309
+#: lib/streamflix_web_web/components/layouts.ex:309
+#: lib/streamflix_web_web/components/layouts/root.html.heex:88
 #: lib/streamflix_web_web/components/layouts/root.html.heex:88
 #, elixir-autogen, elixir-format
 msgid "Eventos, webhooks y jobs"
@@ -1475,7 +1478,10 @@ msgid "Expresión de 5 campos para máxima flexibilidad. Formato: minuto hora d�
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:104
+#: lib/streamflix_web_web/components/layouts.ex:104
 #: lib/streamflix_web_web/components/layouts.ex:209
+#: lib/streamflix_web_web/components/layouts.ex:209
+#: lib/streamflix_web_web/components/layouts.ex:332
 #: lib/streamflix_web_web/components/layouts.ex:332
 #, elixir-autogen, elixir-format
 msgid "FAQ"
@@ -1688,6 +1694,7 @@ msgid "Inactivo"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:352
+#: lib/streamflix_web_web/components/layouts.ex:352
 #, elixir-autogen, elixir-format
 msgid "Información"
 msgstr ""
@@ -1718,6 +1725,8 @@ msgid "Iniciar replay"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:158
+#: lib/streamflix_web_web/components/layouts.ex:158
+#: lib/streamflix_web_web/components/layouts.ex:271
 #: lib/streamflix_web_web/components/layouts.ex:271
 #: lib/streamflix_web_web/controllers/page_html/forgot_password.html.heex:120
 #: lib/streamflix_web_web/controllers/page_html/login.html.heex:49
@@ -1779,7 +1788,6 @@ msgid "Job desactivado"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:497
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:497
 #, elixir-autogen, elixir-format
 msgid "Job desactivado."
 msgstr ""
@@ -1790,11 +1798,11 @@ msgid "Job fallido"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:437
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:437
 #, elixir-autogen, elixir-format
 msgid "Job guardado."
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts.ex:82
 #: lib/streamflix_web_web/components/layouts.ex:82
 #: lib/streamflix_web_web/controllers/page_html/login.html.heex:8
 #: lib/streamflix_web_web/controllers/page_html/login.html.heex:39
@@ -1821,7 +1829,6 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4234
 #: lib/streamflix_web_web/live/admin/projects_live.ex:267
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1034
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2130
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2130
 #, elixir-autogen, elixir-format
 msgid "Jobs"
@@ -1979,12 +1986,10 @@ msgid "Marca un dead letter como resuelto sin reintentar. Respuesta: status: \"r
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:597
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:597
 #, elixir-autogen, elixir-format
 msgid "Marcado como resuelto."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1871
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1871
 #, elixir-autogen, elixir-format
 msgid "Marcar todo leído"
@@ -2036,6 +2041,9 @@ msgid "Mostrar token"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:415
+#: lib/streamflix_web_web/components/layouts.ex:415
+#: lib/streamflix_web_web/components/layouts/root.html.heex:149
+#: lib/streamflix_web_web/components/layouts/root.html.heex:149
 #: lib/streamflix_web_web/controllers/page_html/cookies.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "Más información"
@@ -2080,6 +2088,7 @@ msgid "Navegación de la documentación"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:76
+#: lib/streamflix_web_web/components/layouts.ex:76
 #, elixir-autogen, elixir-format
 msgid "Navegación principal"
 msgstr ""
@@ -2115,7 +2124,6 @@ msgid "No hay API token. Genera uno para empezar."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2167
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2167
 #, elixir-autogen, elixir-format
 msgid "No hay proyecto para tu cuenta. Contacta soporte."
 msgstr ""
@@ -2132,12 +2140,10 @@ msgstr ""
 
 #: lib/streamflix_web_web/live/account_live.ex:296
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:258
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:258
 #, elixir-autogen, elixir-format
 msgid "No se pudo actualizar el nombre."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:311
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:311
 #, elixir-autogen, elixir-format
 msgid "No se pudo regenerar el token."
@@ -2178,7 +2184,6 @@ msgid "Nombre del proyecto"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:253
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:253
 #, elixir-autogen, elixir-format
 msgid "Nombre del proyecto actualizado."
 msgstr ""
@@ -2189,7 +2194,6 @@ msgid "Nos reservamos el derecho de suspender o dar de baja cuentas que incumpla
 msgstr ""
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:5726
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1865
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1865
 #, elixir-autogen, elixir-format
 msgid "Notificaciones"
@@ -2274,6 +2278,7 @@ msgid "Pendiente"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:344
+#: lib/streamflix_web_web/components/layouts.ex:344
 #, elixir-autogen, elixir-format
 msgid "Planes"
 msgstr ""
@@ -2338,11 +2343,13 @@ msgid "Primeros pasos"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:376
+#: lib/streamflix_web_web/components/layouts.ex:376
 #: lib/streamflix_web_web/controllers/page_html/signup.html.heex:240
 #, elixir-autogen, elixir-format
 msgid "Privacidad"
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts.ex:320
 #: lib/streamflix_web_web/components/layouts.ex:320
 #, elixir-autogen, elixir-format
 msgid "Producto"
@@ -2384,8 +2391,6 @@ msgstr ""
 
 #: lib/streamflix_web_web/live/admin/projects_live.ex:309
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1333
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1333
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1635
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1635
 #, elixir-autogen, elixir-format
 msgid "Proyecto no encontrado."
@@ -2550,6 +2555,8 @@ msgid "Registrado"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:164
+#: lib/streamflix_web_web/components/layouts.ex:164
+#: lib/streamflix_web_web/components/layouts.ex:277
 #: lib/streamflix_web_web/components/layouts.ex:277
 #, elixir-autogen, elixir-format
 msgid "Registrarse"
@@ -2615,12 +2622,10 @@ msgid "Reintentar"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:575
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:575
 #, elixir-autogen, elixir-format
 msgid "Reintento encolado desde DLQ."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:517
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:517
 #, elixir-autogen, elixir-format
 msgid "Reintento encolado."
@@ -2631,7 +2636,6 @@ msgstr ""
 msgid "Replay cancelado"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:826
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:826
 #, elixir-autogen, elixir-format
 msgid "Replay cancelado."
@@ -2647,7 +2651,6 @@ msgstr ""
 msgid "Replay iniciado"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:807
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:807
 #, elixir-autogen, elixir-format
 msgid "Replay iniciado."
@@ -2764,6 +2767,8 @@ msgid "Salir de tu cuenta"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:454
+#: lib/streamflix_web_web/components/layouts.ex:454
+#: lib/streamflix_web_web/components/layouts.ex:503
 #: lib/streamflix_web_web/components/layouts.ex:503
 #: lib/streamflix_web_web/controllers/page_html/login.html.heex:2
 #: lib/streamflix_web_web/controllers/page_html/mfa_verify.html.heex:2
@@ -2799,12 +2804,10 @@ msgid "Sandbox creado"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:849
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:849
 #, elixir-autogen, elixir-format
 msgid "Sandbox creado."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:889
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:889
 #, elixir-autogen, elixir-format
 msgid "Sandbox eliminado."
@@ -2815,6 +2818,7 @@ msgstr ""
 msgid "Se re-enviaron %{count} eventos exitosamente"
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts.ex:25
 #: lib/streamflix_web_web/components/layouts.ex:25
 #, elixir-autogen, elixir-format
 msgid "Selección de idioma"
@@ -2922,7 +2926,6 @@ msgid "Sin jobs"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1877
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1877
 #, elixir-autogen, elixir-format
 msgid "Sin notificaciones"
 msgstr ""
@@ -2932,6 +2935,7 @@ msgstr ""
 msgid "Sin webhooks"
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts.ex:358
 #: lib/streamflix_web_web/components/layouts.ex:358
 #: lib/streamflix_web_web/controllers/page_html/about.html.heex:8
 #, elixir-autogen, elixir-format
@@ -2994,6 +2998,7 @@ msgid "Todas las rutas requieren API Key. Sustituye YOUR_API_KEY y EVENT_ID por 
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:312
+#: lib/streamflix_web_web/components/layouts.ex:312
 #, elixir-autogen, elixir-format
 msgid "Todos los derechos reservados."
 msgstr ""
@@ -3008,7 +3013,6 @@ msgstr ""
 msgid "Token regenerado"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:299
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:299
 #, elixir-autogen, elixir-format
 msgid "Token regenerado correctamente."
@@ -3093,6 +3097,7 @@ msgstr ""
 msgid "Tus derechos"
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts.ex:370
 #: lib/streamflix_web_web/components/layouts.ex:370
 #: lib/streamflix_web_web/controllers/page_html/signup.html.heex:235
 #, elixir-autogen, elixir-format
@@ -3331,7 +3336,6 @@ msgstr ""
 #: lib/streamflix_web_web/live/admin/projects_live.ex:246
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:210
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:565
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2122
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2122
 #, elixir-autogen, elixir-format
 msgid "Webhooks"
@@ -3668,14 +3672,12 @@ msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:405
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1802
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1802
 #, elixir-autogen, elixir-format
 msgid "Creando..."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:408
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:783
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1805
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1805
 #, elixir-autogen, elixir-format
 msgid "Crear"
@@ -3686,7 +3688,6 @@ msgstr ""
 msgid "Crear/eliminar eventos"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1824
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1824
 #, elixir-autogen, elixir-format
 msgid "Default"
@@ -3725,36 +3726,30 @@ msgid "Equipos / Colaboradores"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1501
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1501
 #, elixir-autogen, elixir-format
 msgid "Error al actualizar rol."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1321
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1321
 #, elixir-autogen, elixir-format
 msgid "Error al crear proyecto."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1398
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1398
 #, elixir-autogen, elixir-format
 msgid "Error al crear schema."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1369
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1369
 #, elixir-autogen, elixir-format
 msgid "Error al eliminar proyecto."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1460
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1460
 #, elixir-autogen, elixir-format
 msgid "Error al invitar miembro."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1483
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1483
 #, elixir-autogen, elixir-format
 msgid "Error al remover miembro."
@@ -3817,7 +3812,6 @@ msgid "JSON Schema (ej: {\"type\":\"object\",\"required\":[\"amount\"]})"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1402
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1402
 #, elixir-autogen, elixir-format
 msgid "JSON inválido para el schema."
 msgstr ""
@@ -3861,18 +3855,15 @@ msgid "Lista todos tus proyectos (propios + donde eres miembro)."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1829
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1829
 #, elixir-autogen, elixir-format
 msgid "Miembro"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1457
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1457
 #, elixir-autogen, elixir-format
 msgid "Miembro invitado."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1477
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1477
 #, elixir-autogen, elixir-format
 msgid "Miembro removido."
@@ -3887,12 +3878,10 @@ msgid "Multi-proyecto"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1480
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1480
 #, elixir-autogen, elixir-format
 msgid "No se puede remover al dueño."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1797
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1797
 #, elixir-autogen, elixir-format
 msgid "Nuevo proyecto..."
@@ -3925,18 +3914,15 @@ msgid "Promover"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1630
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1630
 #, elixir-autogen, elixir-format
 msgid "Proyecto cambiado a: %{name}"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1318
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1318
 #, elixir-autogen, elixir-format
 msgid "Proyecto creado: %{name}"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1349
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1349
 #, elixir-autogen, elixir-format
 msgid "Proyecto eliminado."
@@ -3963,26 +3949,21 @@ msgid "Requiere scope 'events:read' en la API Key."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1498
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1498
 #, elixir-autogen, elixir-format
 msgid "Rol actualizado."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1395
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1395
 #, elixir-autogen, elixir-format
 msgid "Schema creado."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1424
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1424
 #, elixir-autogen, elixir-format
 msgid "Schema eliminado."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1414
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1414
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1426
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1426
 #, elixir-autogen, elixir-format
 msgid "Schema no encontrado."
@@ -4017,7 +3998,6 @@ msgid "Sin schemas. Los eventos no serán validados."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1338
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1338
 #, elixir-autogen, elixir-format
 msgid "Solo el dueño puede eliminar el proyecto."
 msgstr ""
@@ -4042,7 +4022,6 @@ msgstr ""
 msgid "Topic (ej: order.created)"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1442
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1442
 #, elixir-autogen, elixir-format
 msgid "Usuario no encontrado con ese email."
@@ -4389,12 +4368,10 @@ msgid "Eliminar proyecto"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2010
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2010
 #, elixir-autogen, elixir-format
 msgid "Eventos hoy"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2043
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2043
 #, elixir-autogen, elixir-format
 msgid "Jobs activos"
@@ -4402,18 +4379,15 @@ msgstr ""
 
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:123
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2021
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2021
 #, elixir-autogen, elixir-format
 msgid "Tasa de éxito"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2106
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2106
 #, elixir-autogen, elixir-format
 msgid "Vista general"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2032
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2032
 #, elixir-autogen, elixir-format
 msgid "Webhooks activos"
@@ -4429,9 +4403,9 @@ msgstr ""
 msgid "Acepta una invitación pendiente. Solo el usuario invitado puede aceptarla. Cambia el status a 'active'."
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts/root.html.heex:157
+#: lib/streamflix_web_web/components/layouts/root.html.heex:157
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1907
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1907
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2077
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2077
 #, elixir-autogen, elixir-format
 msgid "Aceptar"
@@ -4543,7 +4517,6 @@ msgid "Enviar enlace de recuperación"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1527
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1527
 #, elixir-autogen, elixir-format
 msgid "Error al aceptar invitación."
 msgstr ""
@@ -4553,7 +4526,6 @@ msgstr ""
 msgid "Error al cambiar contraseña: %{details}"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1550
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1550
 #, elixir-autogen, elixir-format
 msgid "Error al rechazar invitación."
@@ -4605,18 +4577,15 @@ msgid "Invitaciones"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2058
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2058
 #, elixir-autogen, elixir-format
 msgid "Invitaciones pendientes"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1524
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1524
 #, elixir-autogen, elixir-format
 msgid "Invitación aceptada."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1547
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1547
 #, elixir-autogen, elixir-format
 msgid "Invitación rechazada."
@@ -4638,7 +4607,6 @@ msgstr ""
 msgid "Lista las invitaciones pendientes del usuario autenticado. Devuelve id, role, project_id y project_name."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1446
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1446
 #, elixir-autogen, elixir-format
 msgid "No puedes invitarte a ti mismo."
@@ -4670,8 +4638,6 @@ msgid "Rechaza una invitación pendiente. Solo el usuario invitado puede rechaza
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1914
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1914
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2085
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2085
 #, elixir-autogen, elixir-format
 msgid "Rechazar"
@@ -4692,7 +4658,6 @@ msgid "Reenviar enlace"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1919
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1919
 #, elixir-autogen, elixir-format
 msgid "Respondida"
 msgstr ""
@@ -4703,7 +4668,6 @@ msgstr ""
 msgid "Restablecer contraseña"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2068
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2068
 #, elixir-autogen, elixir-format
 msgid "Rol: %{role}"
@@ -4762,34 +4726,27 @@ msgid "Volver al login"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:743
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:743
 #, elixir-autogen, elixir-format
 msgid "Webhook activado."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:691
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:691
 #, elixir-autogen, elixir-format
 msgid "Webhook actualizado."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:673
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:673
 #, elixir-autogen, elixir-format
 msgid "Webhook creado."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:721
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:721
 #, elixir-autogen, elixir-format
 msgid "Webhook desactivado."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:621
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:621
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:710
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:710
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:732
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:732
 #, elixir-autogen, elixir-format
 msgid "Webhook no encontrado."
@@ -4815,7 +4772,6 @@ msgstr ""
 msgid "¿Olvidaste tu contraseña?"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2082
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2082
 #, elixir-autogen, elixir-format
 msgid "¿Rechazar esta invitación?"
@@ -5108,7 +5064,6 @@ msgstr ""
 msgid "Panel de administración"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2098
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2098
 #, elixir-autogen, elixir-format
 msgid "Pestañas"
@@ -5900,6 +5855,7 @@ msgid "En producción, los backups se transfieren automáticamente a almacenamie
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:423
+#: lib/streamflix_web_web/components/layouts.ex:423
 #, elixir-autogen, elixir-format
 msgid "Entendido"
 msgstr ""
@@ -5914,7 +5870,6 @@ msgstr ""
 msgid "Envío de emails transaccionales"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:219
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:219
 #, elixir-autogen, elixir-format
 msgid "Error al enviar el evento"
@@ -5968,11 +5923,11 @@ msgid "Este registro documenta todas las actividades de tratamiento de datos per
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:411
+#: lib/streamflix_web_web/components/layouts.ex:411
 #, elixir-autogen, elixir-format
 msgid "Este sitio usa solo cookies técnicas necesarias para el funcionamiento del servicio (sesión y preferencia de idioma). No usamos cookies de seguimiento ni analíticas."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:215
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:215
 #, elixir-autogen, elixir-format
 msgid "Evento enviado. ID: %{id}"
@@ -6072,6 +6027,8 @@ msgid "Integridad de eventos"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:540
+#: lib/streamflix_web_web/components/layouts.ex:540
+#: lib/streamflix_web_web/components/layouts.ex:552
 #: lib/streamflix_web_web/components/layouts.ex:552
 #, elixir-autogen, elixir-format
 msgid "Intentando reconectar"
@@ -6155,6 +6112,7 @@ msgstr ""
 msgid "Mínimo 8 caracteres, máximo 72."
 msgstr ""
 
+#: lib/streamflix_web_web/components/layouts.ex:535
 #: lib/streamflix_web_web/components/layouts.ex:535
 #, elixir-autogen, elixir-format
 msgid "No encontramos la conexión a internet"
@@ -6625,6 +6583,7 @@ msgid "schedule_type + schedule_config"
 msgstr ""
 
 #: lib/streamflix_web_web/components/layouts.ex:547
+#: lib/streamflix_web_web/components/layouts.ex:547
 #, elixir-autogen, elixir-format
 msgid "¡Algo salió mal!"
 msgstr ""
@@ -6701,18 +6660,15 @@ msgid "Todos los días a medianoche (00:00)."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1759
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1759
 #, elixir-autogen, elixir-format
 msgid "Cambiando proyecto..."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1257
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1257
 #, elixir-autogen, elixir-format
 msgid "%{count} entregas descartadas"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1234
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1234
 #, elixir-autogen, elixir-format
 msgid "%{count} entregas reintentadas"
@@ -6729,24 +6685,20 @@ msgid "%{count} seleccionados"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1963
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1963
 #, elixir-autogen, elixir-format
 msgid "1. Copia tu API Token"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1970
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1970
 #, elixir-autogen, elixir-format
 msgid "2. Crea un Webhook"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1977
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1977
 #, elixir-autogen, elixir-format
 msgid "3. Envía tu primer evento"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1984
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1984
 #, elixir-autogen, elixir-format
 msgid "4. Monitorea entregas"
@@ -6773,26 +6725,21 @@ msgid "Detalle del evento"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1965
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1965
 #, elixir-autogen, elixir-format
 msgid "En la pestaña Overview encontrarás tu token. Úsalo en el header Authorization: Bearer <token> o X-Api-Key."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1133
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1133
 #, elixir-autogen, elixir-format
 msgid "Evento no encontrado."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1997
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1997
 #, elixir-autogen, elixir-format
 msgid "Finalizar"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1845
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1845
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1941
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1941
 #, elixir-autogen, elixir-format
 msgid "Guía de inicio"
@@ -6803,7 +6750,6 @@ msgstr ""
 msgid "Hash"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1943
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1943
 #, elixir-autogen, elixir-format
 msgid "Paso %{step} de 4"
@@ -6820,7 +6766,6 @@ msgid "Reintentar seleccionados"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1986
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1986
 #, elixir-autogen, elixir-format
 msgid "Revisa el estado de tus entregas en la pestaña Webhooks. Si algo falla, puedes reintentar o revisar el Dead Letter Queue."
 msgstr ""
@@ -6830,7 +6775,6 @@ msgstr ""
 msgid "Seleccionar todo"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1997
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1997
 #, elixir-autogen, elixir-format
 msgid "Siguiente"
@@ -6847,12 +6791,10 @@ msgid "Timeline de entregas"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1979
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1979
 #, elixir-autogen, elixir-format
 msgid "Usa el formulario de Test Event en Overview, o haz un POST a /api/v1/events con tu API key."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1972
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1972
 #, elixir-autogen, elixir-format
 msgid "Ve a la pestaña Webhooks y crea uno con la URL de tu endpoint. Filtra por topics para recibir solo lo que necesitas."
@@ -7482,7 +7424,6 @@ msgstr ""
 #: lib/streamflix_web_web/controllers/page_html/home.html.heex:382
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1143
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2138
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2138
 #, elixir-autogen, elixir-format
 msgid "Pipelines"
 msgstr ""
@@ -7581,12 +7522,10 @@ msgid "Ej: [{\"type\": \"filter\", \"field\": \"status\", \"operator\": \"eq\", 
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1012
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1012
 #, elixir-autogen, elixir-format
 msgid "Error al desactivar pipeline."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:991
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:991
 #, elixir-autogen, elixir-format
 msgid "Error al guardar pipeline."
@@ -7615,20 +7554,16 @@ msgid "Pasos"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1009
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1009
 #, elixir-autogen, elixir-format
 msgid "Pipeline desactivado."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:985
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:985
 #, elixir-autogen, elixir-format
 msgid "Pipeline guardado."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:923
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:923
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:999
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:999
 #, elixir-autogen, elixir-format
 msgid "Pipeline no encontrado."
@@ -7650,7 +7585,6 @@ msgid "Consentimiento actualizado."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1119
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1119
 #, elixir-autogen, elixir-format
 msgid "%{count} jobs eliminados."
 msgstr ""
@@ -7662,24 +7596,20 @@ msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1395
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2146
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:2146
 #, elixir-autogen, elixir-format
 msgid "Colas"
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1123
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1123
 #, elixir-autogen, elixir-format
 msgid "Error al purgar jobs."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1105
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1105
 #, elixir-autogen, elixir-format
 msgid "Job cancelado."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1089
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1089
 #, elixir-autogen, elixir-format
 msgid "Job reencolado."
@@ -7706,12 +7636,10 @@ msgid "No hay jobs que mostrar."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1109
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1109
 #, elixir-autogen, elixir-format
 msgid "No se pudo cancelar el job."
 msgstr ""
 
-#: lib/streamflix_web_web/live/platform_dashboard_live.ex:1093
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:1093
 #, elixir-autogen, elixir-format
 msgid "No se pudo reintentar el job."
@@ -9630,4 +9558,10 @@ msgstr ""
 #: lib/streamflix_web_web/live/docs_live.ex:3218
 #, elixir-autogen, elixir-format
 msgid "Respuestas de error"
+msgstr ""
+
+#: lib/streamflix_web_web/components/layouts/root.html.heex:142
+#: lib/streamflix_web_web/components/layouts/root.html.heex:142
+#, elixir-autogen, elixir-format
+msgid "Este sitio usa cookies técnicas esenciales para el funcionamiento (sesión, idioma, tema). No usamos cookies de rastreo ni publicidad."
 msgstr ""
