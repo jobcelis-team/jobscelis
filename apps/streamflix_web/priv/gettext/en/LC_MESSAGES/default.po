@@ -440,7 +440,7 @@ msgstr "Completed"
 #: lib/streamflix_web_web/live/docs_live.ex:824
 #, elixir-autogen, elixir-format
 msgid "Conceptos básicos"
-msgstr "Basic concepts"
+msgstr "Core Concepts"
 
 #: lib/streamflix_web_web/controllers/page_html/changelog.html.heex:51
 #, elixir-autogen, elixir-format
@@ -685,7 +685,7 @@ msgstr "HTTP status codes returned by the API."
 #: lib/streamflix_web_web/live/docs_live.ex:3108
 #, elixir-autogen, elixir-format
 msgid "Códigos de respuesta"
-msgstr "Response codes"
+msgstr "HTTP Status Codes"
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:855
 #, elixir-autogen, elixir-format
@@ -2388,7 +2388,7 @@ msgstr "Introduction"
 #: lib/streamflix_web_web/live/docs_live.ex:733
 #, elixir-autogen, elixir-format
 msgid "Primeros pasos"
-msgstr "First steps"
+msgstr "Getting Started"
 
 #: lib/streamflix_web_web/components/layouts.ex:376
 #: lib/streamflix_web_web/controllers/page_html/signup.html.heex:222
@@ -2449,7 +2449,7 @@ msgstr "Project not found."
 #: lib/streamflix_web_web/live/docs_live.ex:1536
 #, elixir-autogen, elixir-format
 msgid "Proyecto y token"
-msgstr "Project and token"
+msgstr "Project & API Token"
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:1861
 #, elixir-autogen, elixir-format
@@ -4334,7 +4334,7 @@ msgstr "Export events. Formats: csv, json. Optional parameters: days (default 30
 #: lib/streamflix_web_web/live/docs_live.ex:2035
 #, elixir-autogen, elixir-format
 msgid "Exportar datos"
-msgstr "Export Data"
+msgstr "Data Export"
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:312
 #, elixir-autogen, elixir-format
@@ -4781,7 +4781,7 @@ msgstr "Reject"
 #: lib/streamflix_web_web/live/docs_live.ex:2177
 #, elixir-autogen, elixir-format
 msgid "Recuperar contraseña"
-msgstr "Recover password"
+msgstr "Password Recovery"
 
 #: lib/streamflix_web_web/live/account_live.ex:872
 #, elixir-autogen, elixir-format
@@ -5037,7 +5037,7 @@ msgstr "Additional dashboard features"
 #: lib/streamflix_web_web/live/docs_live.ex:2165
 #, elixir-autogen, elixir-format
 msgid "Gestión de cuenta"
-msgstr "Account management"
+msgstr "Account Settings"
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:4292
 #, elixir-autogen, elixir-format
@@ -7195,7 +7195,7 @@ msgstr "One-way hash (memory-hard)"
 #: lib/streamflix_web_web/live/docs_live.ex:3171
 #, elixir-autogen, elixir-format
 msgid "Headers de respuesta"
-msgstr "Response headers"
+msgstr "Response Headers"
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:2723
 #, elixir-autogen, elixir-format
@@ -7648,7 +7648,7 @@ msgstr "Variable substitution with double-brace syntax"
 #: lib/streamflix_web_web/live/docs_live.ex:2847
 #, elixir-autogen, elixir-format
 msgid "Verificación de webhooks"
-msgstr "Webhook verification"
+msgstr "Webhook Signature Verification"
 
 #: lib/streamflix_web_web/controllers/page_html/docs.html.heex:383
 #, elixir-autogen, elixir-format
@@ -7914,7 +7914,7 @@ msgstr "Cancel a replay in progress."
 #: lib/streamflix_web_web/live/docs_live.ex:2936
 #, elixir-autogen, elixir-format
 msgid "Cifrado de datos"
-msgstr "PII Data Encryption"
+msgstr "Data Encryption"
 
 #: lib/streamflix_web_web/live/docs_live.ex:3115
 #: lib/streamflix_web_web/live/docs_live.ex:3115
@@ -8524,7 +8524,7 @@ msgstr "Receive events in real time via SSE or WebSocket."
 #: lib/streamflix_web_web/live/docs_live.ex:142
 #, elixir-autogen, elixir-format
 msgid "Referencia"
-msgstr "API Reference"
+msgstr "Reference"
 
 #: lib/streamflix_web_web/live/docs_live.ex:1616
 #: lib/streamflix_web_web/live/docs_live.ex:1616
