@@ -137,6 +137,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - `sdks/ruby/` — Ruby SDK (`jobcelis` on RubyGems)
 - `sdks/elixir/` — Elixir SDK (`jobcelis` on Hex.pm)
 - `sdks/dotnet/` — C# / .NET SDK (`Jobcelis` on NuGet)
+- `sdks/rust/` — Rust SDK (`jobcelis` on crates.io)
 - `sdks/github-action/` — GitHub Action (used directly from this repo)
 
 ### External repos (required by their registries)
@@ -145,6 +146,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **Ruby SDK**: `github.com/vladimirCeli/jobcelis-ruby` — public repo for RubyGems + code visibility
 - **Elixir SDK**: `github.com/vladimirCeli/jobcelis-elixir` — Hex.pm requires own repo for publishing
 - **C# / .NET SDK**: `github.com/vladimirCeli/jobcelis-dotnet` — NuGet requires own repo for publishing
+- **Rust SDK**: `github.com/vladimirCeli/jobcelis-rust` — crates.io requires own repo for publishing
 - **Terraform Provider**: `github.com/vladimirCeli/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
 
 ### SDK publishing rules
@@ -169,7 +171,8 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - Ruby SDK: net/http, no external dependencies, requires Ruby 3.0+
 - Elixir SDK: uses Finch + Jason, OTP application with supervised Finch pool, idiomatic `{:ok, result}` / `{:error, error}` returns
 - .NET SDK: uses HttpClient, async/await, System.Text.Json, targets net8.0, IDisposable pattern
-- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs (Node, Python, Go, PHP, Ruby, Elixir, .NET, CLI)
+- Rust SDK: uses reqwest + serde_json + tokio, async/await, `Result<Value, JobcelisError>` returns
+- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs (Node, Python, Go, PHP, Ruby, Elixir, .NET, Rust, CLI)
 
 ### Syncing external repos
 When updating Go SDK or Terraform provider:
