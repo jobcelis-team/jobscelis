@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/vladimirCeli/jobscelis",
     author="Jobcelis",
-    author_email="vladiceli6@gmail.com",
+    author_email="support@jobcelis.com",
     packages=find_packages(),
     python_requires=">=3.9",
     install_requires=["requests>=2.28.0"],

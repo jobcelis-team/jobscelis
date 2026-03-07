@@ -2,7 +2,7 @@
 name = "jobcelis"
 version = "1.0.0"
 edition = "2021"
-authors = ["Jobcelis <vladiceli6@gmail.com>"]
+authors = ["Jobcelis <support@jobcelis.com>"]
 description = "Official Rust SDK for the Jobcelis Event Infrastructure Platform"
 license = "MIT"
 homepage = "https://jobcelis.com"

@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.summary     = "Official Ruby SDK for the Jobcelis Event Infrastructure Platform"
   s.description = "Ruby client for the Jobcelis API — events, webhooks, jobs, pipelines, and more. Connects to https://jobcelis.com by default."
   s.authors     = ["Jobcelis"]
-  s.email       = "vladiceli6@gmail.com"
+  s.email       = "support@jobcelis.com"
   s.homepage    = "https://jobcelis.com"
   s.license     = "MIT"
   s.files       = Dir["lib/**/*.rb"] + ["README.md", "LICENSE"]
