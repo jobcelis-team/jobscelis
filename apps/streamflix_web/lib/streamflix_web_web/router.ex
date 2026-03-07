@@ -62,6 +62,10 @@ defmodule StreamflixWebWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, module: StreamflixWebWeb.ApiSpec
   end
 
+  pipeline :no_index do
+    plug StreamflixWebWeb.Plugs.NoIndex
+  end
+
   # ============================================
   # PUBLIC ROUTES (redirect if authenticated)
   # ============================================
@@ -307,7 +311,7 @@ defmodule StreamflixWebWeb.Router do
   # ============================================
 
   scope "/", StreamflixWebWeb do
-    pipe_through [:browser]
+    pipe_through [:browser, :no_index]
 
     live_session :default,
       on_mount: [
@@ -321,7 +325,7 @@ defmodule StreamflixWebWeb.Router do
 
   # Browser-initiated export downloads (session-based auth)
   scope "/", StreamflixWebWeb do
-    pipe_through [:browser]
+    pipe_through [:browser, :no_index]
 
     get "/export/events", BrowserExportController, :events
     get "/export/deliveries", BrowserExportController, :deliveries
@@ -335,7 +339,7 @@ defmodule StreamflixWebWeb.Router do
   # ============================================
 
   scope "/admin", StreamflixWebWeb.Admin do
-    pipe_through [:browser]
+    pipe_through [:browser, :no_index]
 
     live_session :admin,
       on_mount: [

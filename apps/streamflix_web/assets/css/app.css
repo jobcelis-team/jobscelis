@@ -640,6 +640,97 @@ select option {
   --tw-ring-color: oklch(58% 0.2 277 / 0.3) !important;
 }
 
+/* --- Missing color overrides: green --- */
+[data-theme=dark] .bg-green-100 {
+  background-color: oklch(25% 0.06 145) !important;
+}
+[data-theme=dark] .text-green-800 {
+  color: oklch(75% 0.15 145) !important;
+}
+[data-theme=dark] .text-green-700 {
+  color: oklch(70% 0.15 145) !important;
+}
+
+/* --- Missing color overrides: yellow --- */
+[data-theme=dark] .bg-yellow-100 {
+  background-color: oklch(28% 0.06 85) !important;
+}
+[data-theme=dark] .bg-yellow-600 {
+  background-color: oklch(65% 0.18 85) !important;
+}
+[data-theme=dark] .text-yellow-800 {
+  color: oklch(75% 0.15 85) !important;
+}
+
+/* --- Missing color overrides: cyan --- */
+[data-theme=dark] .bg-cyan-600 {
+  background-color: oklch(60% 0.12 200) !important;
+}
+[data-theme=dark] .bg-cyan-700 {
+  background-color: oklch(55% 0.12 200) !important;
+}
+[data-theme=dark] .text-cyan-600 {
+  color: oklch(70% 0.12 200) !important;
+}
+[data-theme=dark] .border-cyan-200 {
+  border-color: oklch(35% 0.06 200) !important;
+}
+
+/* --- Missing color overrides: teal --- */
+[data-theme=dark] .bg-teal-100 {
+  background-color: oklch(25% 0.06 175) !important;
+}
+[data-theme=dark] .bg-teal-600 {
+  background-color: oklch(58% 0.12 175) !important;
+}
+[data-theme=dark] .bg-teal-700 {
+  background-color: oklch(53% 0.12 175) !important;
+}
+[data-theme=dark] .text-teal-600 {
+  color: oklch(68% 0.12 175) !important;
+}
+[data-theme=dark] .text-teal-800 {
+  color: oklch(75% 0.12 175) !important;
+}
+[data-theme=dark] .border-teal-200 {
+  border-color: oklch(35% 0.06 175) !important;
+}
+
+/* --- Missing color overrides: violet --- */
+[data-theme=dark] .bg-violet-600 {
+  background-color: oklch(55% 0.2 290) !important;
+}
+
+/* --- Missing color overrides: zinc --- */
+[data-theme=dark] .bg-zinc-100 {
+  background-color: oklch(25% 0.01 250) !important;
+}
+[data-theme=dark] .text-zinc-600 {
+  color: oklch(65% 0.01 250) !important;
+}
+
+/* --- Missing color overrides: purple text --- */
+[data-theme=dark] .text-purple-600 {
+  color: oklch(72% 0.15 300) !important;
+}
+[data-theme=dark] .text-purple-700 {
+  color: oklch(72% 0.15 300) !important;
+}
+[data-theme=dark] .text-purple-800 {
+  color: oklch(75% 0.12 300) !important;
+}
+
+/* --- Missing color overrides: blue accents --- */
+[data-theme=dark] .bg-blue-600 {
+  background-color: oklch(55% 0.18 255) !important;
+}
+[data-theme=dark] .bg-blue-700 {
+  background-color: oklch(50% 0.18 255) !important;
+}
+[data-theme=dark] .text-blue-500 {
+  color: oklch(70% 0.15 255) !important;
+}
+
 /* ================================================================
    HERO CODE BLOCK (immune to dark mode slate overrides)
    ================================================================ */
