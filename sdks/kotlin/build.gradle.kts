@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "2.0.21"
     id("maven-publish")
     id("signing")
 }
@@ -18,14 +18,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
     withSourcesJar()
     withJavadocJar()
-}
-
-kotlin {
-    jvmToolchain(11)
 }
 
 publishing {
@@ -33,6 +27,7 @@ publishing {
         create<MavenPublication>("maven") {
             from(components["java"])
             pom {
+                artifactId = "jobcelis-kotlin"
                 name.set("Jobcelis Kotlin SDK")
                 description.set("Official Kotlin SDK for the Jobcelis Event Infrastructure Platform")
                 url.set("https://github.com/vladimirCeli/jobcelis-kotlin")
