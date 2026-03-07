@@ -216,6 +216,126 @@ Hooks.CookieBanner = {
   },
 };
 
+// Docs scroll spy: watches section[id] elements, highlights active nav item directly
+Hooks.DocsScrollSpy = {
+  mounted() {
+    this._activeId = null;
+    this._sections = [];
+    this._collectSections();
+    this._observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            this._setActive(entry.target.id);
+            break;
+          }
+        }
+      },
+      { rootMargin: "-80px 0px -70% 0px", threshold: 0 },
+    );
+    for (const s of this._sections) this._observer.observe(s);
+    this._setActive("intro");
+  },
+  updated() {
+    if (this._observer) this._observer.disconnect();
+    this._collectSections();
+    for (const s of this._sections) this._observer.observe(s);
+  },
+  destroyed() {
+    if (this._observer) this._observer.disconnect();
+  },
+  _collectSections() {
+    this._sections = Array.from(document.querySelectorAll("section[id]"));
+  },
+  _setActive(id) {
+    if (this._activeId === id) return;
+    const activeClasses = [
+      "text-indigo-700",
+      "bg-indigo-50",
+      "border-l-2",
+      "border-indigo-500",
+      "font-medium",
+    ];
+    const inactiveClasses = ["text-slate-600"];
+    // Deactivate previous
+    if (this._activeId) {
+      const old = document.getElementById("nav-" + this._activeId);
+      if (old) {
+        old.classList.remove(...activeClasses);
+        old.classList.add(...inactiveClasses);
+      }
+    }
+    this._activeId = id;
+    // Activate new
+    const nav = document.getElementById("nav-" + id);
+    if (nav) {
+      nav.classList.remove(...inactiveClasses);
+      nav.classList.add(...activeClasses);
+      nav.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  },
+};
+
+// SDK language switcher: toggles code panels and tab styles purely client-side
+Hooks.SdkSwitcher = {
+  mounted() {
+    this.el.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-sdk-lang]");
+      if (!btn) return;
+      const lang = btn.dataset.sdkLang;
+
+      // Update all tab buttons (in code blocks)
+      document.querySelectorAll(".sdk-tab").forEach((el) => {
+        const isActive = el.dataset.sdkLang === lang;
+        el.classList.toggle("bg-white", isActive);
+        el.classList.toggle("text-indigo-700", isActive);
+        el.classList.toggle("shadow-sm", isActive);
+        el.classList.toggle("text-slate-600", !isActive);
+      });
+
+      // Update grid buttons
+      document.querySelectorAll(".sdk-grid-btn").forEach((el) => {
+        const isActive = el.dataset.sdkLang === lang;
+        el.classList.toggle("bg-indigo-50", isActive);
+        el.classList.toggle("border-indigo-300", isActive);
+        el.classList.toggle("text-indigo-700", isActive);
+        el.classList.toggle("bg-white", !isActive);
+        el.classList.toggle("border-slate-200", !isActive);
+        el.classList.toggle("text-slate-600", !isActive);
+      });
+
+      // Toggle code panels
+      document.querySelectorAll("[data-sdk-panel]").forEach((el) => {
+        el.classList.toggle("hidden", el.dataset.sdkPanel !== lang);
+      });
+    });
+  },
+};
+
+// Copy code block content to clipboard
+Hooks.CopyCode = {
+  mounted() {
+    this.el.addEventListener("click", () => {
+      const code = this.el.getAttribute("data-code");
+      if (!code) return;
+
+      const icon = this.el.querySelector("[data-copy-icon]");
+      const check = this.el.querySelector("[data-check-icon]");
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(() => {
+          if (icon) icon.classList.add("hidden");
+          if (check) check.classList.remove("hidden");
+          setTimeout(() => {
+            if (icon) icon.classList.remove("hidden");
+            if (check) check.classList.add("hidden");
+          }, 2000);
+        });
+      }
+    });
+  },
+};
+
 // Infinite scroll hook for content lists
 Hooks.InfiniteScroll = {
   mounted() {

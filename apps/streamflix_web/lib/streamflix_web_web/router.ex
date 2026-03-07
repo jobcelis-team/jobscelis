@@ -88,8 +88,12 @@ defmodule StreamflixWebWeb.Router do
     pipe_through :browser
 
     live_session :public,
-      on_mount: [{StreamflixWebWeb.LiveLocale, :set}] do
+      on_mount: [
+        {StreamflixWebWeb.LiveLocale, :set},
+        {StreamflixWebWeb.LiveAuth, :mount_current_user_optional}
+      ] do
       live "/status", StatusLive, :index
+      live "/docs", DocsLive, :index
     end
   end
 
@@ -127,7 +131,6 @@ defmodule StreamflixWebWeb.Router do
   scope "/", StreamflixWebWeb do
     pipe_through [:browser, :browser_auth_rate_limit]
 
-    get "/docs", PageController, :docs
     get "/faq", PageController, :faq
     get "/about", PageController, :about
     get "/contact", PageController, :contact
