@@ -29,8 +29,6 @@ defmodule StreamflixWebWeb.LiveAuth do
     if is_nil(socket.assigns.current_user) do
       {:halt, redirect(socket, to: "/login")}
     else
-      # Check if user is admin (for now, check if email contains "admin" or has role field)
-      # TODO: Add proper role field to User schema
       is_admin = check_admin(socket.assigns.current_user)
 
       if is_admin do
