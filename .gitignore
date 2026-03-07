@@ -235,3 +235,51 @@ create_superadmin.ps1
 truncate_db.bat
 truncate_all.ex
 run-with-env.ps1
+
+# ============================================
+# INTERNAL SECURITY & COMPLIANCE DOCS (CRITICAL)
+# ============================================
+# NEVER commit these — they expose detection thresholds,
+# algorithms, incident response procedures, and security gaps.
+docs/PENTEST_REPORT.md
+docs/SOC2_GAP_ANALYSIS.md
+docs/RISK_ASSESSMENT.md
+docs/BREACH_NOTIFICATION.md
+docs/INCIDENT_RESPONSE.md
+docs/ROPA.md
+docs/DATA_CLASSIFICATION.md
+docs/COMPLIANCE_ROADMAP.md
+docs/MASTER_PLAN.md
+
+# ============================================
+# INTERNAL PLANNING DOCUMENTS
+# ============================================
+# Improvement plans, master plans — internal only
+IMPROVEMENT_PLAN.md
+IMPROVEMENT_PLAN_V2.md
+MASTER_PLAN.md
+ADMIN_SETUP.md
+
+# ============================================
+# LOCAL DEVELOPMENT SCRIPTS
+# ============================================
+# Windows batch files — OS-specific, not needed in repo
+*.bat
+
+# PowerShell scripts — OS-specific
+scripts/*.ps1
+
+# Admin creation scripts — contain local setup logic
+scripts/create_admin*.exs
+scripts/create_superadmin.exs
+scripts/load-env.*
+scripts/setup.ps1
+
+# ============================================
+# SUPERSEDED / DUPLICATE DIRECTORIES
+# ============================================
+# Old CLI — replaced by sdks/cli/
+/cli/
+
+# Terraform — canonical source is external repo
+/terraform/
