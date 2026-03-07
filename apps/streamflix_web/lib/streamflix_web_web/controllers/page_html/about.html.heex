@@ -16,6 +16,78 @@
 
   <div class="space-y-6">
     <section class="bg-white rounded-xl border border-slate-200 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Por qué Jobcelis")}</h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed">
+        {gettext(
+          "Jobcelis nació de la frustración de integrar webhooks manualmente en cada proyecto: reintentos, dead letters, logs, filtros. Cada vez, reimplementar lo mismo. Jobcelis centraliza toda esa infraestructura en una API simple para que los developers se concentren en su producto."
+        )}
+      </p>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Stack tecnológico")}</h2>
+
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">
+        {gettext(
+          "Construido con Elixir y Phoenix sobre la máquina virtual BEAM, diseñada para sistemas concurrentes y tolerantes a fallos. PostgreSQL como base de datos, con cifrado en reposo para datos sensibles."
+        )}
+      </p>
+
+      <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-medium border border-purple-200">
+          Elixir / OTP
+        </span>
+
+        <span class="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-medium border border-orange-200">
+          Phoenix
+        </span>
+
+        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium border border-blue-200">
+          PostgreSQL
+        </span>
+
+        <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
+          LiveView
+        </span>
+
+        <span class="px-3 py-1 rounded-full bg-slate-50 text-slate-700 text-xs font-medium border border-slate-200">
+          Tailwind CSS
+        </span>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Números del proyecto")}</h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+        <div class="text-center">
+          <p class="text-2xl font-bold text-indigo-600">74+</p>
+
+          <p class="text-slate-500 text-xs">{gettext("Endpoints API")}</p>
+        </div>
+
+        <div class="text-center">
+          <p class="text-2xl font-bold text-indigo-600">13</p>
+
+          <p class="text-slate-500 text-xs">SDKs</p>
+        </div>
+
+        <div class="text-center">
+          <p class="text-2xl font-bold text-indigo-600">12</p>
+
+          <p class="text-slate-500 text-xs">{gettext("Lenguajes")}</p>
+        </div>
+
+        <div class="text-center">
+          <p class="text-2xl font-bold text-indigo-600">ES/EN</p>
+
+          <p class="text-slate-500 text-xs">{gettext("Bilingüe")}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 p-6">
       <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Titular del servicio")}</h2>
 
       <p class="text-slate-700 text-lg font-medium">{Map.get(@legal, :owner, "Jobcelis")}</p>
