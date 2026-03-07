@@ -2,6 +2,14 @@
 # Allow all crawlers (Google, Bing, etc.) / Permitir todos los rastreadores (Google, Bing, etc.)
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /platform
+Disallow: /admin
+Disallow: /account
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /login
+Disallow: /register
 
 # Sitemap so search engines find all pages / Sitemap para que los buscadores encuentren todas las páginas
 # If you use www, change to: https://www.jobcelis.com/sitemap.xml
