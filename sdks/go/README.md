@@ -46,8 +46,8 @@ func main() {
 ## Configuration
 
 ```go
-// Custom base URL (staging or self-hosted)
-client := jobcelis.NewClient("key").WithBaseURL("https://staging.jobcelis.com")
+// Custom base URL (self-hosted)
+client := jobcelis.NewClient("key").WithBaseURL("https://your-instance.example.com")
 
 // Custom timeout
 client := jobcelis.NewClient("key").WithTimeout(10 * time.Second)
