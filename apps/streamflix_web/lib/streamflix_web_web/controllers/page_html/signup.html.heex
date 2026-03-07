@@ -151,6 +151,7 @@
                 minlength="8"
                 placeholder={gettext("Mínimo 8 caracteres")}
                 autocomplete="new-password"
+                data-password-strength="pw-strength-bar"
                 class="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
               />
               <button
@@ -197,6 +198,23 @@
               </button>
             </div>
 
+            <div id="pw-strength-bar" class="hidden mt-2">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div
+                    data-strength-fill
+                    class="h-full rounded-full transition-all duration-300"
+                    style="width: 0%"
+                  >
+                  </div>
+                </div>
+                <span
+                  data-strength-label
+                  class="text-xs font-medium text-slate-500 w-14 text-right"
+                >
+                </span>
+              </div>
+            </div>
             <p class="text-xs text-slate-400 mt-1.5">{gettext("Mínimo 8 caracteres")}</p>
           </div>
 
