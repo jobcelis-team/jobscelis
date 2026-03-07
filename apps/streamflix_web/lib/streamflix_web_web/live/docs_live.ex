@@ -147,6 +147,7 @@ defmodule StreamflixWebWeb.DocsLive do
         title: gettext("Referencia"),
         items: [
           %{id: "status-codes", label: gettext("Códigos de respuesta")},
+          %{id: "error-responses", label: gettext("Respuestas de error")},
           %{id: "response-headers", label: gettext("Headers de respuesta")},
           %{id: "health", label: "Health Check"},
           %{id: "api-key-scopes", label: gettext("Scopes de API Key")}
@@ -705,6 +706,47 @@ func VerifySignature(secret, body, signature string) bool {
     expected := base64.RawStdEncoding.EncodeToString(mac.Sum(nil))
     return hmac.Equal([]byte(received), []byte(expected))
 }|
+  end
+
+  defp sdk_usage("php", "verify_webhook") do
+    ~s|<?php
+function verifySignature(string $secret, string $body, string $signature): bool {
+    if (!str_starts_with($signature, 'sha256=')) return false;
+    $received = substr($signature, 7);
+    $expected = rtrim(base64_encode(
+        hash_hmac('sha256', $body, $secret, true)
+    ), '=');
+    return hash_equals($received, $expected);
+}|
+  end
+
+  defp sdk_usage("ruby", "verify_webhook") do
+    "require 'openssl'\n" <>
+      "require 'base64'\n\n" <>
+      "def verify_signature(secret, body, signature)\n" <>
+      "  return false unless signature.start_with?('sha256=')\n" <>
+      "  received = signature[7..]\n" <>
+      "  expected = Base64.strict_encode64(\n" <>
+      "    OpenSSL::HMAC.digest('sha256', secret, body)\n" <>
+      "  ).delete_suffix('=')\n" <>
+      "  Rack::Utils.secure_compare(received, expected)\n" <>
+      "end"
+  end
+
+  defp sdk_usage("elixir", "verify_webhook") do
+    "defmodule WebhookVerifier do\n" <>
+      "  def verify_signature(secret, body, signature) do\n" <>
+      "    case signature do\n" <>
+      "      \"sha256=\" <> received ->\n" <>
+      "        expected =\n" <>
+      "          :crypto.mac(:hmac, :sha256, secret, body)\n" <>
+      "          |> Base.encode64(padding: false)\n" <>
+      "        Plug.Crypto.secure_compare(received, expected)\n" <>
+      "      _ ->\n" <>
+      "        false\n" <>
+      "    end\n" <>
+      "  end\n" <>
+      "end"
   end
 
   defp sdk_usage(_, "verify_webhook") do
@@ -3169,6 +3211,32 @@ func VerifySignature(secret, body, signature string) bool {
           </tbody>
         </table>
       </div>
+    </.docs_section>
+
+    <.docs_section
+      id="error-responses"
+      title={gettext("Respuestas de error")}
+      subtitle={gettext("Formato estándar de errores devueltos por la API.")}
+    >
+      <p class="text-slate-700 leading-relaxed mb-4">
+        {gettext(
+          "Cuando una petición falla, la API devuelve un JSON con el campo \"error\" describiendo el problema."
+        )}
+      </p>
+
+      <.code_block
+        code={
+          ~s|// 400 Bad Request — missing or invalid parameters\n{"error": "Missing required field: topic"}\n\n// 401 Unauthorized — invalid or missing API key\n{"error": "Invalid API key"}\n\n// 404 Not Found — resource does not exist\n{"error": "Event not found"}\n\n// 422 Unprocessable Entity — validation error\n{"error": "URL must start with https://"}\n\n// 429 Too Many Requests — rate limit exceeded\n{"error": "Rate limit exceeded. Try again later."}|
+        }
+        copy_id="copy-error-responses"
+        title={gettext("Ejemplos de errores comunes")}
+      />
+
+      <.callout kind="tip">
+        {gettext(
+          "El campo \"error\" siempre es un string legible. Algunos endpoints pueden incluir campos adicionales como \"details\" con información más específica."
+        )}
+      </.callout>
     </.docs_section>
 
     <.docs_section
