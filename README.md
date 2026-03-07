@@ -734,6 +734,8 @@ Los siguientes SDKs viven en repositorios separados (requerido por sus registros
 
 ### Quick Start por SDK
 
+Todos los SDKs se conectan a `https://jobcelis.com` automáticamente — solo necesitas tu API key.
+
 **Node.js / TypeScript:**
 
 ```typescript
@@ -789,8 +791,8 @@ terraform {
 }
 
 provider "jobcelis" {
-  api_key  = var.jobcelis_api_key
-  base_url = "https://jobcelis.com"
+  api_key = var.jobcelis_api_key
+  # Connects to https://jobcelis.com by default
 }
 
 resource "jobcelis_webhook" "slack" {
