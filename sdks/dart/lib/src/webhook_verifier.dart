@@ -2,7 +2,11 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 /// Verifies webhook signatures using HMAC-SHA256 with constant-time comparison.
+///
+/// Use [WebhookVerifier.verify] to validate incoming webhook requests.
 class WebhookVerifier {
+  /// Private constructor -- use the static [verify] method.
+  WebhookVerifier._();
   /// Verify a webhook signature.
   ///
   /// Returns `true` if the signature is valid.
