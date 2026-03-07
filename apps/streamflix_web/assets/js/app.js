@@ -59,6 +59,56 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+// Password strength indicator (signup/reset-password)
+document.addEventListener("DOMContentLoaded", function () {
+  document
+    .querySelectorAll("[data-password-strength]")
+    .forEach(function (input) {
+      const bar = document.getElementById(
+        input.getAttribute("data-password-strength"),
+      );
+      if (!bar) return;
+      const fill = bar.querySelector("[data-strength-fill]");
+      const label = bar.querySelector("[data-strength-label]");
+      if (!fill || !label) return;
+
+      const colors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-emerald-500"];
+      const labels = {
+        en: ["Weak", "Fair", "Good", "Strong"],
+        es: ["Débil", "Regular", "Buena", "Fuerte"],
+      };
+
+      function getLocale() {
+        const m = document.cookie.match(/locale=(es|en)/);
+        return m ? m[1] : "en";
+      }
+
+      function score(pw) {
+        if (!pw || pw.length < 8) return 0;
+        let s = 1;
+        if (pw.length >= 12) s++;
+        if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
+        if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) s++;
+        return Math.min(s, 4);
+      }
+
+      input.addEventListener("input", function () {
+        const s = score(input.value);
+        const locale = getLocale();
+        const widths = ["0%", "25%", "50%", "75%", "100%"];
+
+        bar.classList.toggle("hidden", input.value.length === 0);
+        fill.style.width = widths[s];
+        colors.forEach(function (c) {
+          fill.classList.remove(c);
+        });
+        if (s > 0) fill.classList.add(colors[s - 1]);
+        label.textContent = s > 0 ? (labels[locale] || labels.en)[s - 1] : "";
+      });
+    });
+});
+
 // Hero code demo: language tabs + run simulation
 document.addEventListener("DOMContentLoaded", function () {
   const demo = document.getElementById("hero-code-demo");
