@@ -138,6 +138,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - `sdks/elixir/` — Elixir SDK (`jobcelis` on Hex.pm)
 - `sdks/dotnet/` — C# / .NET SDK (`Jobcelis` on NuGet)
 - `sdks/rust/` — Rust SDK (`jobcelis` on crates.io)
+- `sdks/swift/` — Swift SDK (via Swift Package Manager, GitHub repo URL)
 - `sdks/github-action/` — GitHub Action (used directly from this repo)
 
 ### External repos (required by their registries)
@@ -147,6 +148,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **Elixir SDK**: `github.com/vladimirCeli/jobcelis-elixir` — Hex.pm requires own repo for publishing
 - **C# / .NET SDK**: `github.com/vladimirCeli/jobcelis-dotnet` — NuGet requires own repo for publishing
 - **Rust SDK**: `github.com/vladimirCeli/jobcelis-rust` — crates.io requires own repo for publishing
+- **Swift SDK**: `github.com/vladimirCeli/jobcelis-swift` — Swift Package Manager uses GitHub repo URL directly
 - **Terraform Provider**: `github.com/vladimirCeli/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
 
 ### SDK publishing rules
@@ -158,6 +160,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **Packagist**: Auto-sync via GitHub webhook — register package on packagist.org, no CI secret needed
 - **Hex.pm (Elixir)**: Requires `HEX_API_KEY` secret. Publish with `mix hex.publish` from external repo
 - **NuGet (.NET)**: Requires `NUGET_API_KEY` secret. Publish with `dotnet nuget push` from external repo
+- **Swift (SPM)**: No registry — users add GitHub repo URL directly. Tag releases with `git tag 1.0.0 && git push origin 1.0.0`
 - **GitHub Action**: No publishing — used directly from repo with `uses: vladimirCeli/jobscelis/sdks/github-action@main`
 - **Workflow**: `.github/workflows/publish-sdks.yml` — manual trigger with package choice
 - Always bump version in `package.json`/`setup.py`/`gemspec` before publishing — registries reject duplicate versions
@@ -172,7 +175,8 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - Elixir SDK: uses Finch + Jason, OTP application with supervised Finch pool, idiomatic `{:ok, result}` / `{:error, error}` returns
 - .NET SDK: uses HttpClient, async/await, System.Text.Json, targets net8.0, IDisposable pattern
 - Rust SDK: uses reqwest + serde_json + tokio, async/await, `Result<Value, JobcelisError>` returns
-- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs (Node, Python, Go, PHP, Ruby, Elixir, .NET, Rust, CLI)
+- Swift SDK: uses URLSession + CryptoKit, async/await, `[String: Any]` returns, targets macOS 13+/iOS 16+
+- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs (Node, Python, Go, PHP, Ruby, Elixir, .NET, Rust, Swift, CLI)
 
 ### Syncing external repos
 When updating Go SDK or Terraform provider:
