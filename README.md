@@ -719,8 +719,8 @@ Todos los SDKs cubren el **100% de la API** (84+ endpoints) con documentación c
 | **CLI** | [npmjs.com/@jobcelis/cli](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.0.2 |
 | **Python SDK** | [pypi.org/project/jobcelis](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.4.0 |
 | **Go SDK** | [github.com/vladimirCeli/go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.1.0 |
-| **PHP SDK** | [github.com/vladimirCeli/jobcelis-php](https://github.com/vladimirCeli/jobcelis-php) | `composer require jobcelis/sdk` | v1.0.0 |
-| **Ruby SDK** | [github.com/vladimirCeli/jobcelis-ruby](https://github.com/vladimirCeli/jobcelis-ruby) | `gem install jobcelis` | v1.0.0 |
+| **PHP SDK** | [packagist.org/packages/jobcelis/sdk](https://packagist.org/packages/jobcelis/sdk) | `composer require jobcelis/sdk` | v1.0.0 |
+| **Ruby SDK** | [rubygems.org/gems/jobcelis](https://rubygems.org/gems/jobcelis) | `gem install jobcelis` | v1.0.0 |
 | **Terraform Provider** | [registry.terraform.io/vladimirCeli/jobcelis](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | Ver bloque `required_providers` | v1.0.0 |
 | **GitHub Action** | Este monorepo (`sdks/github-action`) | `uses: vladimirCeli/jobscelis/sdks/github-action@main` | - |
 
