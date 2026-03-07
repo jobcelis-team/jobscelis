@@ -44,6 +44,8 @@ defmodule StreamflixWebWeb.SitemapController do
   end
 
   defp build_sitemap_xml(base_url, paths) do
+    today = Date.utc_today() |> Date.to_iso8601()
+
     url_entries =
       Enum.map_join(paths, "\n", fn path ->
         loc = if path == "/", do: base_url, else: base_url <> path
@@ -51,6 +53,7 @@ defmodule StreamflixWebWeb.SitemapController do
         """
         <url>
           <loc>#{escape_xml(loc)}</loc>
+          <lastmod>#{today}</lastmod>
           <changefreq>weekly</changefreq>
           <priority>#{if path == "/", do: "1.0", else: "0.8"}</priority>
         </url>

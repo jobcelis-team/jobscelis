@@ -1,23 +1,27 @@
 defmodule StreamflixWebWeb.ErrorHTML do
   @moduledoc """
-  This module is invoked by your endpoint in case of errors on HTML requests.
-
-  See config/config.exs.
+  Custom error pages for HTML requests (404, 500, etc.).
+  Detects locale from the `locale` cookie via raw headers.
   """
   use StreamflixWebWeb, :html
 
-  # If you want to customize your error pages,
-  # uncomment the embed_templates/1 call below
-  # and add pages to the error directory:
-  #
-  #   * lib/streamflix_web_web/controllers/error_html/404.html.heex
-  #   * lib/streamflix_web_web/controllers/error_html/500.html.heex
-  #
-  # embed_templates "error_html/*"
+  embed_templates "error_html/*"
 
-  # The default is to render a plain text page based on
-  # the template name. For example, "404.html" becomes
-  # "Not Found".
+  def locale(conn) do
+    cookie_header =
+      conn
+      |> Plug.Conn.get_req_header("cookie")
+      |> List.first("")
+
+    case Regex.run(~r/locale=(es|en)/, cookie_header) do
+      [_, lang] -> lang
+      _ -> "en"
+    end
+  rescue
+    _ -> "en"
+  end
+
+  # Fallback for any status code without a custom template
   def render(template, _assigns) do
     Phoenix.Controller.status_message_from_template(template)
   end
