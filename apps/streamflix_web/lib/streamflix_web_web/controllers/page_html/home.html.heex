@@ -23,12 +23,12 @@
       </p>
 
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-        {gettext("Tu API de eventos en un solo lugar")}
+        {gettext("Infraestructura de eventos para developers")}
       </h1>
 
       <p class="text-lg md:text-xl text-slate-600 mb-10 leading-relaxed">
         {gettext(
-          "Publica eventos con cualquier payload, configura webhooks con filtros y recibe POST en tiempo real. Programa tareas recurrentes (diario, semanal, mensual o cron) que emitan eventos o llamen a tus URLs. Todo con una API simple y un token."
+          "Envía eventos con un POST, configura webhooks con filtros inteligentes y programa jobs recurrentes. Reintentos automáticos, dead letter queue, replay y 13 SDKs. Todo gratis."
         )}
       </p>
 
@@ -37,7 +37,7 @@
           href="/signup"
           class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-base transition shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30"
         >
-          {gettext("Crear cuenta gratis")}
+          {gettext("Empieza gratis en 30 segundos")}
           <svg
             class="ml-2 w-5 h-5"
             fill="none"
@@ -54,19 +54,196 @@
           </svg>
         </a>
         <a
-          href="/login"
+          href="/docs"
           class="inline-flex items-center justify-center bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 px-8 py-4 rounded-xl font-semibold text-base transition"
         >
-          {gettext("Ya tengo cuenta")}
+          {gettext("Ver documentación")}
         </a>
       </div>
     </div>
   </section>
-  <!-- Features -->
+  <%!-- Code example --%>
+  <section class="hero-code-section py-16" id="hero-code-demo">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <h2 class="text-xl font-semibold text-center mb-2 hero-code-title">
+        {gettext("Un POST y listo")}
+      </h2>
+
+      <p class="text-center mb-8 text-sm hero-code-subtitle">
+        {gettext("Envía un evento a Jobcelis con cualquier lenguaje. Así de simple.")}
+      </p>
+
+      <div class="hero-code-block rounded-2xl overflow-hidden max-w-2xl mx-auto">
+        <%!-- Language tabs --%>
+        <div class="hero-code-tabs flex overflow-x-auto">
+          <button class="hero-code-tab active" data-lang="curl">cURL</button>
+          <button class="hero-code-tab" data-lang="node">Node.js</button>
+          <button class="hero-code-tab" data-lang="python">Python</button>
+          <button class="hero-code-tab" data-lang="go">Go</button>
+          <button class="hero-code-tab" data-lang="php">PHP</button>
+          <button class="hero-code-tab" data-lang="ruby">Ruby</button>
+          <button class="hero-code-tab" data-lang="elixir">Elixir</button>
+        </div>
+        <%!-- Code + response area --%>
+        <div class="p-6 md:p-8 font-mono text-[0.8125rem] md:text-sm">
+          <%!-- Code panels --%>
+          <div class="overflow-x-auto" id="hero-code-panels">
+            <pre class="leading-relaxed hero-code-text" data-panel="curl"><span class="hero-code-cmd">curl</span> -X POST https://jobcelis.com/api/v1/events \
+  -H <span class="hero-code-string">"Authorization: Bearer YOUR_TOKEN"</span> \
+  -H <span class="hero-code-string">"Content-Type: application/json"</span> \
+  -d <span class="hero-code-string">'&#123;
+    "topic": "user.signup",
+    "payload": &#123; "user_id": "u_123", "plan": "free" &#125;
+  &#125;'</span></pre>
+            <pre class="leading-relaxed hero-code-text hidden" data-panel="node"><span class="hero-code-keyword">import</span> <span class="hero-code-cmd">Jobcelis</span> <span class="hero-code-keyword">from</span> <span class="hero-code-string">"@jobcelis/sdk"</span>;
+
+<span class="hero-code-keyword">const</span> client = <span class="hero-code-keyword">new</span> <span class="hero-code-cmd">Jobcelis</span>(<span class="hero-code-string">"YOUR_TOKEN"</span>);
+
+<span class="hero-code-keyword">const</span> res = <span class="hero-code-keyword">await</span> client.<span class="hero-code-cmd">sendEvent</span>(<span class="hero-code-string">"user.signup"</span>, &#123;
+  user_id: <span class="hero-code-string">"u_123"</span>,
+  plan: <span class="hero-code-string">"free"</span>
+&#125;);
+console.<span class="hero-code-cmd">log</span>(res);</pre>
+            <pre class="leading-relaxed hero-code-text hidden" data-panel="python"><span class="hero-code-keyword">from</span> jobcelis <span class="hero-code-keyword">import</span> <span class="hero-code-cmd">Jobcelis</span>
+
+client = <span class="hero-code-cmd">Jobcelis</span>(<span class="hero-code-string">"YOUR_TOKEN"</span>)
+
+res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-code-string">"user.signup"</span>, &#123;
+    <span class="hero-code-string">"user_id"</span>: <span class="hero-code-string">"u_123"</span>,
+    <span class="hero-code-string">"plan"</span>: <span class="hero-code-string">"free"</span>
+&#125;)
+<span class="hero-code-cmd">print</span>(res)</pre>
+            <pre class="leading-relaxed hero-code-text hidden" data-panel="go">client := jobcelis.<span class="hero-code-cmd">New</span>(<span class="hero-code-string">"YOUR_TOKEN"</span>)
+
+res, err := client.<span class="hero-code-cmd">SendEvent</span>(ctx, <span class="hero-code-string">"user.signup"</span>, map[string]any&#123;
+    <span class="hero-code-string">"user_id"</span>: <span class="hero-code-string">"u_123"</span>,
+    <span class="hero-code-string">"plan"</span>:    <span class="hero-code-string">"free"</span>,
+&#125;)
+fmt.<span class="hero-code-cmd">Println</span>(res)</pre>
+            <pre class="leading-relaxed hero-code-text hidden" data-panel="php"><span class="hero-code-keyword">use</span> <span class="hero-code-cmd">Jobcelis\Jobcelis</span>;
+
+<span class="hero-code-variable">$client</span> = <span class="hero-code-keyword">new</span> <span class="hero-code-cmd">Jobcelis</span>(<span class="hero-code-string">"YOUR_TOKEN"</span>);
+
+<span class="hero-code-variable">$res</span> = <span class="hero-code-variable">$client</span>-&gt;<span class="hero-code-cmd">sendEvent</span>(<span class="hero-code-string">"user.signup"</span>, [
+    <span class="hero-code-string">"user_id"</span> =&gt; <span class="hero-code-string">"u_123"</span>,
+    <span class="hero-code-string">"plan"</span>    =&gt; <span class="hero-code-string">"free"</span>,
+]);
+<span class="hero-code-cmd">var_dump</span>(<span class="hero-code-variable">$res</span>);</pre>
+            <pre class="leading-relaxed hero-code-text hidden" data-panel="ruby"><span class="hero-code-keyword">require</span> <span class="hero-code-string">"jobcelis"</span>
+
+client = <span class="hero-code-cmd">Jobcelis</span>.<span class="hero-code-cmd">new</span>(<span class="hero-code-string">"YOUR_TOKEN"</span>)
+
+res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-code-string">"user.signup"</span>, &#123;
+  <span class="hero-code-string">user_id:</span> <span class="hero-code-string">"u_123"</span>,
+  <span class="hero-code-string">plan:</span> <span class="hero-code-string">"free"</span>
+&#125;)
+<span class="hero-code-cmd">puts</span> res</pre>
+            <pre class="leading-relaxed hero-code-text hidden" data-panel="elixir">client = <span class="hero-code-cmd">Jobcelis</span>.new(<span class="hero-code-string">"YOUR_TOKEN"</span>)
+
+&#123;<span class="hero-code-keyword">:ok</span>, res&#125; = <span class="hero-code-cmd">Jobcelis</span>.<span class="hero-code-cmd">send_event</span>(client, <span class="hero-code-string">"user.signup"</span>, %&#123;
+  <span class="hero-code-string">"user_id"</span> =&gt; <span class="hero-code-string">"u_123"</span>,
+  <span class="hero-code-string">"plan"</span> =&gt; <span class="hero-code-string">"free"</span>
+&#125;)
+<span class="hero-code-cmd">IO.inspect</span>(res)</pre>
+          </div>
+          <%!-- Run button --%>
+          <div class="mt-4 flex items-center gap-3">
+            <button
+              class="hero-run-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-sans font-semibold transition"
+              id="hero-run-btn"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              {gettext("Ejecutar")}
+            </button>
+            <span class="hero-code-label text-xs font-sans" id="hero-run-status"></span>
+          </div>
+          <%!-- Response panel (hidden until run) --%>
+          <div class="hidden mt-4" id="hero-response-area">
+            <div class="hero-response-divider flex items-center gap-2 mb-3">
+              <span class="hero-response-badge text-[0.6875rem] font-sans font-semibold px-2 py-0.5 rounded">
+                201 Created
+              </span>
+              <span class="hero-response-time text-[0.6875rem] font-sans">~42ms</span>
+            </div>
+
+            <pre
+              class="leading-relaxed hero-code-text hero-response-json"
+              id="hero-response-json"
+            ></pre>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-center mt-4 text-xs hero-code-footer">
+        {gettext("También disponible en")} .NET, Rust, Swift, Java, Dart, Kotlin + CLI
+      </p>
+    </div>
+  </section>
+  <%!-- How it works --%>
   <section class="border-t border-slate-200 bg-white py-20 md:py-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <h2 class="text-2xl md:text-3xl font-bold text-slate-900 text-center mb-4">
-        {gettext("Qué puedes hacer")}
+        {gettext("Cómo funciona")}
+      </h2>
+
+      <p class="text-slate-600 text-center max-w-xl mx-auto mb-14">
+        {gettext("Tres pasos para conectar cualquier sistema con webhooks en tiempo real.")}
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+            <span class="text-xl font-bold">1</span>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Envía un evento")}</h3>
+
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {gettext(
+              "Haz POST a la API con tu token y un JSON. Sin esquemas fijos: envía el payload que necesites con un topic para clasificar."
+            )}
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+            <span class="text-xl font-bold">2</span>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Ruteamos a tus webhooks")}</h3>
+
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {gettext(
+              "Jobcelis entrega el evento a cada webhook que coincida por topic, wildcards o filtros de payload. En tiempo real."
+            )}
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+            <span class="text-xl font-bold">3</span>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 mb-2">
+            {gettext("Reintentos automáticos")}
+          </h3>
+
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {gettext(
+              "Si una entrega falla, reintentamos automáticamente con intervalos crecientes. Las que no se recuperan van a la Dead Letter Queue."
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <%!-- Features --%>
+  <section class="border-t border-slate-200 bg-slate-50/50 py-20 md:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 text-center mb-4">
+        {gettext("Todo lo que necesitas")}
       </h2>
 
       <p class="text-slate-600 text-center max-w-xl mx-auto mb-14">
@@ -76,7 +253,7 @@
       </p>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
             <svg
               class="w-6 h-6"
@@ -103,7 +280,7 @@
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
             <svg
               class="w-6 h-6"
@@ -125,12 +302,12 @@
 
           <p class="text-slate-600 text-sm leading-relaxed">
             {gettext(
-              "Configura URLs de destino, filtros por topic o por campos del payload, y recibe POST en tiempo real. Reintentos automáticos y seguimiento de entregas."
+              "Configura URLs de destino con filtros por topic, wildcards o campos del payload. Entregas en tiempo real con seguimiento completo."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
             <svg
               class="w-6 h-6"
@@ -152,12 +329,12 @@
 
           <p class="text-slate-600 text-sm leading-relaxed">
             {gettext(
-              "Tareas recurrentes: diario, semanal, mensual o cron. Cada ejecución puede emitir un evento o hacer POST a una URL con el payload que definas."
+              "Tareas recurrentes: diario, semanal, mensual o cron. Cada ejecución puede emitir un evento o hacer POST a una URL."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
             <svg
               class="w-6 h-6"
@@ -170,23 +347,161 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("API Key")}</h3>
+          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Replay de eventos")}</h3>
 
           <p class="text-slate-600 text-sm leading-relaxed">
             {gettext(
-              "Un solo token para toda la API: eventos, webhooks, jobs y más. Genera y regenera desde el dashboard. Bearer o X-Api-Key."
+              "Reenvía eventos pasados a tus webhooks. Filtra por rango de fechas, topic o webhook específico."
+            )}
+          </p>
+        </div>
+
+        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Pipelines")}</h3>
+
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {gettext(
+              "Encadena transformaciones sobre tus eventos: filtra, transforma payloads y enruta a distintos webhooks con reglas."
+            )}
+          </p>
+        </div>
+
+        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Dead Letter Queue")}</h3>
+
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {gettext(
+              "Las entregas que agotan reintentos no se pierden. Revísalas, corrige el destino y reenvía con un clic."
+            )}
+          </p>
+        </div>
+
+        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Sandbox")}</h3>
+
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {gettext(
+              "Crea endpoints de prueba temporales para testear webhooks sin necesitar un servidor propio."
+            )}
+          </p>
+        </div>
+
+        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Seguridad")}</h3>
+
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {gettext(
+              "Cifrado en reposo, firma de webhooks verificable, MFA, rate limiting y audit log completo."
             )}
           </p>
         </div>
       </div>
     </div>
   </section>
-  <!-- CTA -->
+  <%!-- Stats --%>
+  <section class="border-t border-slate-200 bg-white py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600">74+</p>
+
+          <p class="text-slate-600 text-sm mt-1">{gettext("Endpoints API")}</p>
+        </div>
+
+        <div>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600">13</p>
+
+          <p class="text-slate-600 text-sm mt-1">SDKs</p>
+        </div>
+
+        <div>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600">12</p>
+
+          <p class="text-slate-600 text-sm mt-1">{gettext("Lenguajes")}</p>
+        </div>
+
+        <div>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600">100%</p>
+
+          <p class="text-slate-600 text-sm mt-1">{gettext("Gratis")}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <%!-- CTA --%>
   <section class="border-t border-slate-200 py-20 bg-gradient-to-b from-slate-50 to-white">
     <div class="max-w-2xl mx-auto px-4 text-center">
       <h2 class="text-2xl font-bold text-slate-900 mb-3">{gettext("¿Listo para empezar?")}</h2>
