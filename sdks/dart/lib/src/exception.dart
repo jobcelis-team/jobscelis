@@ -6,6 +6,7 @@ class JobcelisException implements Exception {
   /// Error detail from the API response.
   final String detail;
 
+  /// Creates a new [JobcelisException] with the given [statusCode] and [detail].
   JobcelisException(this.statusCode, this.detail);
 
   @override
