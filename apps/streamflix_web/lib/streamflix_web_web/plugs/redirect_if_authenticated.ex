@@ -19,7 +19,7 @@ defmodule StreamflixWebWeb.Plugs.RedirectIfAuthenticated do
         case StreamflixAccounts.verify_token(token) do
           {:ok, user, _claims} ->
             redirect_to =
-              if user.role == "admin" do
+              if user.role in ["admin", "superadmin"] do
                 "/admin"
               else
                 "/platform"
