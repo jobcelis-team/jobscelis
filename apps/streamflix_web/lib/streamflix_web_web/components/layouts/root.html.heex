@@ -56,7 +56,9 @@
           "Events, webhooks and scheduled jobs platform for developers."
       }
     />
-    <meta property="og:image" content="https://jobcelis.com/images/logo.png" />
+    <meta property="og:image" content="https://jobcelis.com/images/og-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <%!-- Twitter Cards --%>
     <meta name="twitter:card" content="summary_large_image" />
     <meta
@@ -70,7 +72,7 @@
           "Events, webhooks and scheduled jobs platform for developers."
       }
     />
-    <meta name="twitter:image" content="https://jobcelis.com/images/logo.png" />
+    <meta name="twitter:image" content="https://jobcelis.com/images/og-preview.png" />
     <%!-- Schema.org --%>
     <script type="application/ld+json" nonce={assigns[:csp_nonce]}>
       {
@@ -127,5 +129,36 @@
     </script>
   </head>
 
-  <body>{@inner_content}</body>
+  <body>
+    {@inner_content}
+    <%!-- Cookie consent banner (GDPR) --%>
+    <div
+      id="cookie-banner"
+      class="hidden fixed bottom-0 inset-x-0 z-50 p-4 sm:p-0"
+      role="alert"
+      aria-live="polite"
+    >
+      <div class="mx-auto max-w-4xl sm:mb-4 rounded-xl bg-slate-900 text-white shadow-2xl border border-slate-700 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+        <div class="flex-1 text-sm leading-relaxed">
+          <p>
+            {gettext(
+              "Este sitio usa cookies técnicas esenciales para el funcionamiento (sesión, idioma, tema). No usamos cookies de rastreo ni publicidad."
+            )}
+            <a
+              href="/cookies"
+              class="underline text-indigo-300 hover:text-indigo-200 ml-1"
+            >
+              {gettext("Más información")}
+            </a>
+          </p>
+        </div>
+        <button
+          data-cookie-accept
+          class="shrink-0 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition"
+        >
+          {gettext("Aceptar")}
+        </button>
+      </div>
+    </div>
+  </body>
 </html>
