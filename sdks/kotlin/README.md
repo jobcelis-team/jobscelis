@@ -9,13 +9,13 @@ All API calls go to `https://jobcelis.com` by default -- you only need your API 
 ### Gradle (Kotlin DSL)
 
 ```kotlin
-implementation("com.jobcelis:jobcelis:1.0.0")
+implementation("com.jobcelis:jobcelis-kotlin:1.0.0")
 ```
 
 ### Gradle (Groovy)
 
 ```groovy
-implementation 'com.jobcelis:jobcelis:1.0.0'
+implementation 'com.jobcelis:jobcelis-kotlin:1.0.0'
 ```
 
 ### Maven
@@ -23,7 +23,7 @@ implementation 'com.jobcelis:jobcelis:1.0.0'
 ```xml
 <dependency>
     <groupId>com.jobcelis</groupId>
-    <artifactId>jobcelis</artifactId>
+    <artifactId>jobcelis-kotlin</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
