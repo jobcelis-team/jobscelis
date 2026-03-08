@@ -18,7 +18,7 @@
       <p>
         {gettext("Al utilizar el servicio")}
         <strong>{Map.get(@legal, :product_name, "Jobcelis")}</strong> {gettext(
-          "(«el Servicio»), aceptas estos Términos de uso. El Servicio es ofrecido por"
+          "(«el Servicio»), acepta estos Términos de uso. El Servicio es ofrecido por"
         )} <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>. {gettext(
           "Es un servicio gratuito; no se cobra por su uso."
         )}
@@ -32,9 +32,9 @@
 
       <p>
         {gettext("El Servicio, su marca, diseño, código y documentación son propiedad de")} <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>. {gettext(
-          "No está permitido copiar, clonar, revender ni hacer pasar el Servicio como propio."
+          "No está permitido copiar, clonar, revender ni presentar el Servicio como propio."
         )} {gettext(
-          "Puedes usar el Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación."
+          "Se autoriza el uso del Servicio de forma legítima (enviar eventos, configurar webhooks, consumir la API) según la documentación."
         )}
       </p>
     </section>
@@ -62,7 +62,7 @@
 
       <p>
         {gettext(
-          "Te comprometes a no usar el Servicio para actividades ilegales, spam, abuso de recursos ni para atacar a terceros."
+          "Se prohíbe el uso del Servicio para actividades ilegales, spam, abuso de recursos o para atacar a terceros."
         )} {gettext(
           "Nos reservamos el derecho de suspender o dar de baja cuentas que incumplan estos términos."
         )}
@@ -75,7 +75,7 @@
       </h2>
 
       <p>
-        {gettext("El tratamiento de tus datos personales se describe en nuestra")} <a
+        {gettext("El tratamiento de los datos personales se describe en la")} <a
           href="/privacy"
           class="text-indigo-600 hover:underline"
         ><%= gettext("Política de privacidad") %></a>.
@@ -99,7 +99,7 @@
 
       <p>
         {gettext(
-          "Podemos modificar estos Términos. Los cambios se publicarán en esta página con una nueva fecha de «Última actualización»."
+          "Estos Términos pueden modificarse. Los cambios se publicarán en esta página con una nueva fecha de «Última actualización»."
         )} {gettext(
           "El uso continuado del Servicio tras los cambios implica la aceptación de los nuevos términos."
         )}
@@ -112,7 +112,7 @@
       <p>
         {gettext("Para dudas sobre estos Términos, contacta al titular del Servicio:")} <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>.
         <%= if Map.get(@legal, :contact_url) || Map.get(@legal, :profile_url) do %>
-          {gettext("Puedes contactarme por")}
+          {gettext("Puede contactarse por")}
           <%= if url = Map.get(@legal, :contact_url) do %>
             <a
               href={url}
@@ -129,7 +129,7 @@
               target="_blank"
               rel="noopener noreferrer"
               class="text-indigo-600 hover:underline"
-            ><%= gettext("mi perfil") %></a>.
+            ><%= gettext("el perfil") %></a>.
           <% end %>
         <% end %>
       </p>
