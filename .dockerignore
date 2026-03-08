@@ -9,4 +9,9 @@ node_modules
 .env.*
 k6
 docs
+sdks
+scripts
 *.md
+LICENSE
+CLAUDE.md
+AGENTS.md
