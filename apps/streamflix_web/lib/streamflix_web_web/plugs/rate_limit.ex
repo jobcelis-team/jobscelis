@@ -113,7 +113,7 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
     end
   end
 
-  # Limpia entradas expiradas (~1% de las peticiones) para que la tabla no crezca sin límite
+  # Probabilistic cleanup (~1% of requests) to prevent unbounded ETS growth
   defp maybe_cleanup_expired(table, window_sec) do
     if :rand.uniform(100) == 1 do
       now = System.system_time(:second)

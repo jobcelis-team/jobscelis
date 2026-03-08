@@ -12,7 +12,7 @@ defmodule StreamflixWebWeb.Endpoint do
     same_site: "Lax",
     http_only: true,
     secure: true,
-    # 30 días en segundos (para remember me)
+    # 30 days in seconds (for remember me)
     max_age: 2_592_000
   ]
 

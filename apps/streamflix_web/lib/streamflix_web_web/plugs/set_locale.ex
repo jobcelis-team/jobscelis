@@ -16,7 +16,7 @@ defmodule StreamflixWebWeb.Plugs.SetLocale do
     |> assign(:locale, locale)
   end
 
-  # Cookie primero (rápido, sin esperar sesión); luego sesión
+  # Cookie first (fast, no session dependency); then session
   defp get_locale(conn) do
     get_cookie(conn, "locale") ||
       get_session(conn, "locale") ||

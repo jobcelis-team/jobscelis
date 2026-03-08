@@ -80,7 +80,6 @@ defmodule StreamflixWebWeb.MfaController do
         case user && StreamflixAccounts.verify_mfa_backup_code(user, String.trim(code)) do
           {:ok, _updated_user} ->
             remember = get_session(conn, :mfa_remember) || false
-            # Re-fetch user after backup code consumption
             user = StreamflixAccounts.get_user(user_id)
             StreamflixWebWeb.AuthController.complete_login(conn, user, remember)
 

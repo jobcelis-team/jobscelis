@@ -38,8 +38,8 @@ defmodule StreamflixCore.Platform.ObanUptimeWorker do
       Notifications.create(%{
         user_id: user_id,
         type: "system_health",
-        title: "Estado del sistema: #{check.status}",
-        message: "El sistema está #{check.status}. Checks: #{inspect(check.checks)}",
+        title: "System status: #{check.status}",
+        message: "System is #{check.status}. Checks: #{inspect(check.checks)}",
         metadata: %{"status" => check.status, "checks" => check.checks}
       })
     end)
