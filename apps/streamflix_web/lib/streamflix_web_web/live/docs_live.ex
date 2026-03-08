@@ -163,7 +163,7 @@ defmodule StreamflixWebWeb.DocsLive do
     assigns = assign(assigns, :nav_groups, nav_groups())
 
     ~H"""
-    <div class="min-h-screen bg-slate-50 relative flex flex-col">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 relative flex flex-col">
       <a href="#main-content" class="skip-link">{gettext("Saltar al contenido")}</a>
       <StreamflixWebWeb.Layouts.site_navbar
         current_user={@current_user}
@@ -228,7 +228,7 @@ defmodule StreamflixWebWeb.DocsLive do
                 </h2>
                 <button
                   phx-click={JS.hide(to: "#mobile-nav-overlay")}
-                  class="p-1 rounded-lg hover:bg-slate-100 text-slate-500"
+                  class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
                   aria-label={gettext("Cerrar navegación")}
                 >
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -307,8 +307,8 @@ defmodule StreamflixWebWeb.DocsLive do
   defp docs_section(assigns) do
     ~H"""
     <section id={@id} class="mb-14 scroll-mt-24">
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="px-8 py-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
           <h2 class="text-2xl font-bold text-slate-900">{@title}</h2>
           <p :if={assigns[:subtitle]} class="text-slate-600 mt-1 text-sm">{@subtitle}</p>
         </div>
@@ -328,7 +328,10 @@ defmodule StreamflixWebWeb.DocsLive do
 
   defp api_endpoint(assigns) do
     ~H"""
-    <div id={@id} class="rounded-xl border border-slate-200 bg-slate-50/50 p-6 scroll-mt-24">
+    <div
+      id={@id}
+      class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 p-6 scroll-mt-24"
+    >
       <div class="flex flex-wrap items-center gap-2 mb-3">
         <span class={[
           "inline-flex px-2.5 py-1 rounded-lg text-xs font-bold text-white",
@@ -357,6 +360,79 @@ defmodule StreamflixWebWeb.DocsLive do
         {@title}
       </p>
       <div class="relative">
+        <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto font-mono"><code>{@code}</code></pre>
+        <button
+          phx-hook="CopyCode"
+          id={@copy_id}
+          data-code={@code}
+          class="absolute top-2 right-2 p-1.5 rounded-md bg-slate-700/50 hover:bg-slate-600 text-slate-300 hover:text-white opacity-0 group-hover:opacity-100 transition"
+          aria-label={gettext("Copiar código")}
+        >
+          <svg data-copy-icon class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+            />
+          </svg>
+          <svg
+            data-check-icon
+            class="w-4 h-4 hidden text-emerald-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+    """
+  end
+
+  attr :code, :string, required: true
+  attr :copy_id, :string, required: true
+  attr :status, :string, required: true
+  attr :note, :string, default: nil
+
+  defp response_block(assigns) do
+    status_num = assigns.status |> String.split(" ") |> List.first() |> String.to_integer()
+
+    color =
+      cond do
+        status_num < 300 ->
+          "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+
+        status_num < 400 ->
+          "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300"
+
+        status_num < 500 ->
+          "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+
+        true ->
+          "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+      end
+
+    assigns = assign(assigns, :color, color)
+
+    ~H"""
+    <div class="mt-5">
+      <div class="flex items-center gap-2.5 mb-2">
+        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+          {gettext("Respuesta")}
+        </span>
+        <span class={"inline-flex px-2 py-0.5 rounded-md text-xs font-bold font-mono #{@color}"}>
+          {@status}
+        </span>
+      </div>
+      <p :if={@note} class="text-slate-500 dark:text-slate-400 text-xs italic mb-2">{@note}</p>
+      <div class="relative group">
         <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto font-mono"><code>{@code}</code></pre>
         <button
           phx-hook="CopyCode"
@@ -438,7 +514,7 @@ defmodule StreamflixWebWeb.DocsLive do
     ~H"""
     <div class="rounded-xl border border-slate-200 overflow-hidden">
       <%!-- Language tabs --%>
-      <div class="flex overflow-x-auto bg-slate-100 border-b border-slate-200 px-2 py-1 gap-1">
+      <div class="flex overflow-x-auto bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-2 py-1 gap-1">
         <button
           :for={lang <- @sdk_languages}
           data-sdk-lang={lang}
@@ -493,7 +569,7 @@ defmodule StreamflixWebWeb.DocsLive do
       href={@url}
       target="_blank"
       rel="noopener"
-      class="group flex items-center gap-2 px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 transition"
+      class="group flex items-center gap-2 px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-600 transition"
     >
       <span class="font-semibold text-indigo-600 group-hover:text-indigo-700">{@label}</span>
       <span class="text-xs text-slate-400 group-hover:text-indigo-400">{@registry}</span>
@@ -783,13 +859,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
         </a>
         <a
           href="#events"
-          class="inline-flex items-center px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+          class="inline-flex items-center px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition"
         >
           {gettext("Eventos")}
         </a>
         <a
           href="#sdks"
-          class="inline-flex items-center px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+          class="inline-flex items-center px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition"
         >
           SDKs
         </a>
@@ -818,7 +894,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
         )}
       </p>
       <div class="grid sm:grid-cols-2 gap-4">
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
           <h3 class="font-semibold text-slate-900 mb-2 text-sm">
             {gettext("Capacidades principales")}
           </h3>
@@ -846,7 +922,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             <li><strong>Topics:</strong> {gettext("etiquetas para filtrar y organizar eventos.")}</li>
           </ul>
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
           <h3 class="font-semibold text-slate-900 mb-2 text-sm">{gettext("Grupos de rutas")}</h3>
           <ul class="text-slate-600 text-sm space-y-1.5">
             <li>
@@ -874,7 +950,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       subtitle={gettext("Conceptos fundamentales de la plataforma.")}
     >
       <div class="space-y-6">
-        <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 border-l-4 border-l-indigo-500 bg-slate-50/50 dark:bg-slate-800/50 p-6">
           <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Qué es un evento?")}</h3>
           <p class="text-slate-700 leading-relaxed mb-4">
             {gettext(
@@ -888,7 +964,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           />
         </div>
 
-        <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 border-l-4 border-l-indigo-500 bg-slate-50/50 dark:bg-slate-800/50 p-6">
           <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Qué es un webhook?")}</h3>
           <p class="text-slate-700 leading-relaxed">
             {gettext(
@@ -897,7 +973,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           </p>
         </div>
 
-        <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 border-l-4 border-l-indigo-500 bg-slate-50/50 dark:bg-slate-800/50 p-6">
           <h3 class="text-lg font-semibold text-slate-900 mb-3">
             {gettext("Qué es una entrega (delivery)?")}
           </h3>
@@ -908,7 +984,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           </p>
         </div>
 
-        <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 border-l-4 border-l-indigo-500 bg-slate-50/50 dark:bg-slate-800/50 p-6">
           <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Qué es un job?")}</h3>
           <p class="text-slate-700 leading-relaxed">
             {gettext(
@@ -917,7 +993,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           </p>
         </div>
 
-        <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 border-l-4 border-l-indigo-500 bg-slate-50/50 dark:bg-slate-800/50 p-6">
           <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Qué es un topic?")}</h3>
           <p class="text-slate-700 leading-relaxed">
             {gettext(
@@ -1003,7 +1079,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       |> assign_new(:last, fn -> false end)
 
     ~H"""
-    <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
+    <div class="flex gap-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-5 hover:border-indigo-200 dark:hover:border-indigo-600 transition">
       <span class={[
         "flex-shrink-0 w-10 h-10 rounded-full font-bold flex items-center justify-center text-lg",
         if(@last, do: "bg-slate-100 text-slate-600", else: "bg-indigo-100 text-indigo-700")
@@ -1053,19 +1129,19 @@ function verifySignature(string $secret, string $body, string $signature): bool 
         <ol class="list-decimal list-inside text-slate-700 space-y-2 mb-3">
           <li>
             {gettext("Header")}
-            <code class="bg-slate-100 px-2 py-1 rounded font-mono text-sm">
+            <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded font-mono text-sm dark:text-slate-200">
               Authorization: Bearer &lt;token&gt;
             </code>
           </li>
           <li>
             {gettext("Header")}
-            <code class="bg-slate-100 px-2 py-1 rounded font-mono text-sm">
+            <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded font-mono text-sm dark:text-slate-200">
               X-Api-Key: &lt;token&gt;
             </code>
           </li>
           <li>
             {gettext("Query param")}
-            <code class="bg-slate-100 px-2 py-1 rounded font-mono text-sm">
+            <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded font-mono text-sm dark:text-slate-200">
               ?api_key=&lt;token&gt;
             </code>
           </li>
@@ -1096,22 +1172,22 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           "La API tiene CORS habilitado para cualquier origen (Access-Control-Allow-Origin: *). Cualquier frontend puede consumir la API sin bloqueos del navegador."
         )}
       </p>
-      <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
         <p class="font-medium text-slate-800 mb-2 text-sm">{gettext("Headers permitidos:")}</p>
         <ul class="text-slate-600 text-sm space-y-1">
           <li>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono dark:text-slate-200">
               Authorization
             </code>
           </li>
           <li>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono dark:text-slate-200">
               X-Api-Key
             </code>
           </li>
           <li>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono">Content-Type</code>,
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono dark:text-slate-200">Content-Type</code>,
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono dark:text-slate-200">
               Accept
             </code>
           </li>
@@ -1149,12 +1225,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/auth/register\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Test\",\"email\":\"test@example.com\",\"password\":\"SecurePass123!\"}'"}
             copy_id="copy-auth-register"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "user": {\n    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "email": "test@example.com",\n    "name": "Test"\n  },\n  "token": "eyJhbGciOiJIUzI1NiIs...",\n  "api_key": "jc_live_a1b2c3d4e5f6..."\n}|
+              ~s|{\n  "user": {\n    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "email": "test@example.com",\n    "name": "Test"\n  },\n  "token": "eyJhbGciOiJIUzI1NiIs...",\n  "api_key": "jc_live_a1b2c3d4e5f6..."\n}|
             }
             copy_id="copy-auth-register-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
 
@@ -1168,12 +1244,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/auth/login\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"email\":\"test@example.com\",\"password\":\"SecurePass123!\"}'"}
             copy_id="copy-auth-login"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "user": {\n    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "email": "test@example.com",\n    "name": "Test"\n  },\n  "token": "eyJhbGciOiJIUzI1NiIs..."\n}\n\n// If MFA is enabled:\n{\n  "mfa_required": true,\n  "mfa_token": "eyJhbGciOiJIUzI1NiIs..."\n}|
+              ~s|{\n  "user": {\n    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "email": "test@example.com",\n    "name": "Test"\n  },\n  "token": "eyJhbGciOiJIUzI1NiIs..."\n}\n\n{\n  "mfa_required": true,\n  "mfa_token": "eyJhbGciOiJIUzI1NiIs..."\n}|
             }
             copy_id="copy-auth-login-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
+            note={gettext("Si MFA está habilitado, se retorna mfa_required en vez del token.")}
           />
         </.api_endpoint>
 
@@ -1187,10 +1264,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/auth/refresh\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"token\":\"YOUR_JWT\"}'"}
             copy_id="copy-auth-refresh"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "token": "eyJhbGciOiJIUzI1NiIs..."\n}|}
+          <.response_block
+            code={~s|{\n  "token": "eyJhbGciOiJIUzI1NiIs..."\n}|}
             copy_id="copy-auth-refresh-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1204,12 +1281,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/auth/mfa/verify\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"mfa_token\":\"TEMP_TOKEN\",\"code\":\"123456\"}'"}
             copy_id="copy-auth-mfa"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "user": {\n    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "email": "test@example.com",\n    "name": "Test"\n  },\n  "token": "eyJhbGciOiJIUzI1NiIs..."\n}|
+              ~s|{\n  "user": {\n    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "email": "test@example.com",\n    "name": "Test"\n  },\n  "token": "eyJhbGciOiJIUzI1NiIs..."\n}|
             }
             copy_id="copy-auth-mfa-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -1232,12 +1309,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/events\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"order_id\":\"12345\",\"amount\":99.99}'"}
             copy_id="copy-events-create"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (202 Accepted)\n{\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "sha256:a3f2b8c1d4e5..."\n}|
+              ~s|{\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "sha256:a3f2b8c1d4e5..."\n}|
             }
             copy_id="copy-events-create-response"
-            title={gettext("Respuesta")}
+            status="202 Accepted"
           />
         </.api_endpoint>
 
@@ -1251,12 +1328,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/events?limit=10\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-events-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "events": [\n    {\n      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "topic": "order.created",\n      "payload": {"order_id": "12345", "amount": 99.99},\n      "status": "active",\n      "occurred_at": "2026-01-15T10:30:00Z",\n      "deliver_at": null,\n      "payload_hash": "sha256:a3f2b8c1d4e5...",\n      "idempotency_key": null,\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ],\n  "has_next": true,\n  "next_cursor": "c3d4e5f6-a7b8-9012-cdef-123456789012"\n}|
+              ~s|{\n  "events": [\n    {\n      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "topic": "order.created",\n      "payload": {"order_id": "12345", "amount": 99.99},\n      "status": "active",\n      "occurred_at": "2026-01-15T10:30:00Z",\n      "deliver_at": null,\n      "payload_hash": "sha256:a3f2b8c1d4e5...",\n      "idempotency_key": null,\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ],\n  "has_next": true,\n  "next_cursor": "c3d4e5f6-a7b8-9012-cdef-123456789012"\n}|
             }
             copy_id="copy-events-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1270,12 +1347,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/events/EVENT_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-events-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "topic": "order.created",\n  "payload": {"order_id": "12345", "amount": 99.99},\n  "status": "active",\n  "occurred_at": "2026-01-15T10:30:00Z",\n  "deliver_at": null,\n  "payload_hash": "sha256:a3f2b8c1d4e5...",\n  "idempotency_key": null,\n  "inserted_at": "2026-01-15T10:30:00Z",\n  "deliveries": [\n    {"id": "d4e5f6a7-b8c9-0123-defg-234567890123", "status": "success", "attempt_number": 1}\n  ]\n}|
+              ~s|{\n  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "topic": "order.created",\n  "payload": {"order_id": "12345", "amount": 99.99},\n  "status": "active",\n  "occurred_at": "2026-01-15T10:30:00Z",\n  "deliver_at": null,\n  "payload_hash": "sha256:a3f2b8c1d4e5...",\n  "idempotency_key": null,\n  "inserted_at": "2026-01-15T10:30:00Z",\n  "deliveries": [\n    {"id": "d4e5f6a7-b8c9-0123-defg-234567890123", "status": "success", "attempt_number": 1}\n  ]\n}|
             }
             copy_id="copy-events-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1289,10 +1366,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X DELETE \"#{@base_url}/api/v1/events/EVENT_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-events-delete"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "status": "inactive"\n}|}
+          <.response_block
+            code={~s|{\n  "status": "inactive"\n}|}
             copy_id="copy-events-delete-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -1315,12 +1392,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/webhooks\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-webhooks-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "webhooks": [\n    {\n      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n      "url": "https://example.com/hook",\n      "status": "active",\n      "topics": ["order.*"],\n      "filters": [],\n      "body_config": {},\n      "headers": {},\n      "retry_config": {},\n      "inserted_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "webhooks": [\n    {\n      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n      "url": "https://example.com/hook",\n      "status": "active",\n      "topics": ["order.*"],\n      "filters": [],\n      "body_config": {},\n      "headers": {},\n      "retry_config": {},\n      "inserted_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-webhooks-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1334,12 +1411,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/webhooks\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"url\":\"https://example.com/hook\",\"topics\":[\"order.*\"]}'"}
             copy_id="copy-webhooks-create"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n  "url": "https://example.com/hook",\n  "status": "active",\n  "topics": ["order.*"],\n  "filters": [],\n  "body_config": {},\n  "headers": {},\n  "retry_config": {},\n  "inserted_at": "2026-01-10T08:00:00Z"\n}|
+              ~s|{\n  "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n  "url": "https://example.com/hook",\n  "status": "active",\n  "topics": ["order.*"],\n  "filters": [],\n  "body_config": {},\n  "headers": {},\n  "retry_config": {},\n  "inserted_at": "2026-01-10T08:00:00Z"\n}|
             }
             copy_id="copy-webhooks-create-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
 
@@ -1353,12 +1430,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/webhooks/WEBHOOK_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-webhooks-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n  "url": "https://example.com/hook",\n  "status": "active",\n  "topics": ["order.*"],\n  "filters": [],\n  "body_config": {},\n  "headers": {},\n  "retry_config": {},\n  "inserted_at": "2026-01-10T08:00:00Z"\n}|
+              ~s|{\n  "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n  "url": "https://example.com/hook",\n  "status": "active",\n  "topics": ["order.*"],\n  "filters": [],\n  "body_config": {},\n  "headers": {},\n  "retry_config": {},\n  "inserted_at": "2026-01-10T08:00:00Z"\n}|
             }
             copy_id="copy-webhooks-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1372,12 +1449,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X PATCH \"#{@base_url}/api/v1/webhooks/WEBHOOK_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"active\":false}'"}
             copy_id="copy-webhooks-update"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n  "url": "https://example.com/hook",\n  "status": "active",\n  "topics": ["order.*"],\n  "filters": [],\n  "body_config": {},\n  "headers": {},\n  "retry_config": {},\n  "inserted_at": "2026-01-10T08:00:00Z"\n}|
+              ~s|{\n  "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n  "url": "https://example.com/hook",\n  "status": "active",\n  "topics": ["order.*"],\n  "filters": [],\n  "body_config": {},\n  "headers": {},\n  "retry_config": {},\n  "inserted_at": "2026-01-10T08:00:00Z"\n}|
             }
             copy_id="copy-webhooks-update-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1391,10 +1468,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X DELETE \"#{@base_url}/api/v1/webhooks/WEBHOOK_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-webhooks-delete"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "status": "inactive"\n}|}
+          <.response_block
+            code={~s|{\n  "status": "inactive"\n}|}
             copy_id="copy-webhooks-delete-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -1417,12 +1494,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/deliveries?status=failed&limit=10\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-deliveries-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "deliveries": [\n    {\n      "id": "d4e5f6a7-b8c9-0123-defg-234567890123",\n      "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "webhook_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n      "status": "failed",\n      "attempt_number": 3,\n      "response_status": 500,\n      "next_retry_at": "2026-01-15T11:00:00Z",\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ],\n  "has_next": false,\n  "next_cursor": null\n}|
+              ~s|{\n  "deliveries": [\n    {\n      "id": "d4e5f6a7-b8c9-0123-defg-234567890123",\n      "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "webhook_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n      "status": "failed",\n      "attempt_number": 3,\n      "response_status": 500,\n      "next_retry_at": "2026-01-15T11:00:00Z",\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ],\n  "has_next": false,\n  "next_cursor": null\n}|
             }
             copy_id="copy-deliveries-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1436,10 +1513,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/deliveries/DELIVERY_ID/retry\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-deliveries-retry"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "status": "retry_queued"\n}|}
+          <.response_block
+            code={~s|{\n  "status": "retry_queued"\n}|}
             copy_id="copy-deliveries-retry-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -1462,12 +1539,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/jobs\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-jobs-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "jobs": [\n    {\n      "id": "e5f6a7b8-c9d0-1234-efgh-345678901234",\n      "name": "Daily Report",\n      "schedule_type": "daily",\n      "schedule_config": {},\n      "action_type": "emit_event",\n      "action_config": {"topic": "report.daily", "payload": {}},\n      "status": "active",\n      "inserted_at": "2026-01-05T12:00:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "jobs": [\n    {\n      "id": "e5f6a7b8-c9d0-1234-efgh-345678901234",\n      "name": "Daily Report",\n      "schedule_type": "daily",\n      "schedule_config": {},\n      "action_type": "emit_event",\n      "action_config": {"topic": "report.daily", "payload": {}},\n      "status": "active",\n      "inserted_at": "2026-01-05T12:00:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-jobs-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1481,12 +1558,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/jobs\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Daily Report\",\"schedule_type\":\"daily\",\"schedule_hour\":0,\"action_type\":\"emit_event\",\"action_config\":{\"topic\":\"report.daily\",\"payload\":{}}}'"}
             copy_id="copy-jobs-create"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "id": "e5f6a7b8-c9d0-1234-efgh-345678901234",\n  "name": "Daily Report",\n  "schedule_type": "daily",\n  "schedule_config": {},\n  "action_type": "emit_event",\n  "action_config": {"topic": "report.daily", "payload": {}},\n  "status": "active",\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
+              ~s|{\n  "id": "e5f6a7b8-c9d0-1234-efgh-345678901234",\n  "name": "Daily Report",\n  "schedule_type": "daily",\n  "schedule_config": {},\n  "action_type": "emit_event",\n  "action_config": {"topic": "report.daily", "payload": {}},\n  "status": "active",\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
             }
             copy_id="copy-jobs-create-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
 
@@ -1500,12 +1577,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/jobs/JOB_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-jobs-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "e5f6a7b8-c9d0-1234-efgh-345678901234",\n  "name": "Daily Report",\n  "schedule_type": "daily",\n  "schedule_config": {},\n  "action_type": "emit_event",\n  "action_config": {"topic": "report.daily", "payload": {}},\n  "status": "active",\n  "inserted_at": "2026-01-05T12:00:00Z",\n  "recent_runs": [\n    {"id": "f6a7b8c9-d0e1-2345-fghi-456789012345", "executed_at": "2026-01-15T00:00:00Z", "status": "success", "result": null}\n  ]\n}|
+              ~s|{\n  "id": "e5f6a7b8-c9d0-1234-efgh-345678901234",\n  "name": "Daily Report",\n  "schedule_type": "daily",\n  "schedule_config": {},\n  "action_type": "emit_event",\n  "action_config": {"topic": "report.daily", "payload": {}},\n  "status": "active",\n  "inserted_at": "2026-01-05T12:00:00Z",\n  "recent_runs": [\n    {"id": "f6a7b8c9-d0e1-2345-fghi-456789012345", "executed_at": "2026-01-15T00:00:00Z", "status": "success", "result": null}\n  ]\n}|
             }
             copy_id="copy-jobs-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1518,12 +1595,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X PATCH \"#{@base_url}/api/v1/jobs/JOB_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Updated Report\",\"schedule_hour\":6}'"}
             copy_id="copy-jobs-update"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "e5f6a7b8-c9d0-1234-efgh-345678901234",\n  "name": "Updated Report",\n  "schedule_type": "daily",\n  "schedule_config": {},\n  "action_type": "emit_event",\n  "action_config": {"topic": "report.daily", "payload": {}},\n  "status": "active",\n  "inserted_at": "2026-01-05T12:00:00Z"\n}|
+              ~s|{\n  "id": "e5f6a7b8-c9d0-1234-efgh-345678901234",\n  "name": "Updated Report",\n  "schedule_type": "daily",\n  "schedule_config": {},\n  "action_type": "emit_event",\n  "action_config": {"topic": "report.daily", "payload": {}},\n  "status": "active",\n  "inserted_at": "2026-01-05T12:00:00Z"\n}|
             }
             copy_id="copy-jobs-update-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1536,10 +1613,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X DELETE \"#{@base_url}/api/v1/jobs/JOB_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-jobs-delete"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "status": "inactive"\n}|}
+          <.response_block
+            code={~s|{\n  "status": "inactive"\n}|}
             copy_id="copy-jobs-delete-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1553,12 +1630,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/jobs/JOB_ID/runs\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-jobs-runs"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "runs": [\n    {\n      "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n      "executed_at": "2026-01-15T00:00:00Z",\n      "status": "success",\n      "result": null\n    }\n  ]\n}|
+              ~s|{\n  "runs": [\n    {\n      "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n      "executed_at": "2026-01-15T00:00:00Z",\n      "status": "success",\n      "result": null\n    }\n  ]\n}|
             }
             copy_id="copy-jobs-runs-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
 
@@ -1572,12 +1649,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/jobs/cron-preview?expression=*/15+*+*+*+*\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-jobs-cron-preview"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "expression": "*/15 * * * *",\n  "next_executions": [\n    "2026-01-15T10:45:00Z",\n    "2026-01-15T11:00:00Z",\n    "2026-01-15T11:15:00Z",\n    "2026-01-15T11:30:00Z",\n    "2026-01-15T11:45:00Z"\n  ]\n}|
+              ~s|{\n  "expression": "*/15 * * * *",\n  "next_executions": [\n    "2026-01-15T10:45:00Z",\n    "2026-01-15T11:00:00Z",\n    "2026-01-15T11:15:00Z",\n    "2026-01-15T11:30:00Z",\n    "2026-01-15T11:45:00Z"\n  ]\n}|
             }
             copy_id="copy-jobs-cron-preview-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -1600,12 +1677,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/project\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-project-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n  "name": "My Project",\n  "status": "active",\n  "settings": {}\n}|
+              ~s|{\n  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n  "name": "My Project",\n  "status": "active",\n  "settings": {}\n}|
             }
             copy_id="copy-project-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1618,12 +1695,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X PATCH \"#{@base_url}/api/v1/project\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"My Project\"}'"}
             copy_id="copy-project-update"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n  "name": "My Project",\n  "status": "active"\n}|
+              ~s|{\n  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n  "name": "My Project",\n  "status": "active"\n}|
             }
             copy_id="copy-project-update-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1636,12 +1713,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/topics\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-project-topics"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "topics": ["order.created", "order.updated", "payment.completed", "user.registered"]\n}|
+              ~s|{\n  "topics": ["order.created", "order.updated", "payment.completed", "user.registered"]\n}|
             }
             copy_id="copy-project-topics-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1654,12 +1731,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/token\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-project-token-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "prefix": "jc_live_a1b2",\n  "message": "Use Authorization: Bearer <your_key>. Regenerate from dashboard to get a new key."\n}|
+              ~s|{\n  "prefix": "jc_live_a1b2",\n  "message": "Use Authorization: Bearer <your_key>. Regenerate from dashboard to get a new key."\n}|
             }
             copy_id="copy-project-token-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1674,12 +1751,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/token/regenerate\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-project-token-regen"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "token": "jc_live_new_token_value_here...",\n  "message": "The previous token no longer works. Only this token is valid. Save it; it is only shown once."\n}|
+              ~s|{\n  "token": "jc_live_new_token_value_here...",\n  "message": "The previous token no longer works. Only this token is valid. Save it; it is only shown once."\n}|
             }
             copy_id="copy-project-token-regen-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
           <.callout kind="warning">
             {gettext(
@@ -1709,12 +1786,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/pipelines\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-pipelines-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n      "name": "Order Pipeline",\n      "status": "active",\n      "description": "Process orders",\n      "topics": ["order.*"],\n      "steps": [{"type": "filter", "config": {"field": "amount", "operator": "gt", "value": 100}}],\n      "webhook_id": null,\n      "inserted_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "data": [\n    {\n      "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n      "name": "Order Pipeline",\n      "status": "active",\n      "description": "Process orders",\n      "topics": ["order.*"],\n      "steps": [{"type": "filter", "config": {"field": "amount", "operator": "gt", "value": 100}}],\n      "webhook_id": null,\n      "inserted_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-pipelines-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1727,12 +1804,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/pipelines\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Order Pipeline\",\"description\":\"Process orders\",\"steps\":[{\"type\":\"filter\",\"config\":{\"field\":\"amount\",\"operator\":\"gt\",\"value\":100}}]}'"}
             copy_id="copy-pipelines-create"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "data": {\n    "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n    "name": "Order Pipeline",\n    "status": "active",\n    "description": "Process orders",\n    "topics": null,\n    "steps": [{"type": "filter", "config": {"field": "amount", "operator": "gt", "value": 100}}],\n    "webhook_id": null,\n    "inserted_at": "2026-01-15T10:30:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n    "name": "Order Pipeline",\n    "status": "active",\n    "description": "Process orders",\n    "topics": null,\n    "steps": [{"type": "filter", "config": {"field": "amount", "operator": "gt", "value": 100}}],\n    "webhook_id": null,\n    "inserted_at": "2026-01-15T10:30:00Z"\n  }\n}|
             }
             copy_id="copy-pipelines-create-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1745,12 +1822,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/pipelines/PIPELINE_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-pipelines-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": {\n    "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n    "name": "Order Pipeline",\n    "status": "active",\n    "description": "Process orders",\n    "topics": ["order.*"],\n    "steps": [{"type": "filter", "config": {"field": "amount", "operator": "gt", "value": 100}}],\n    "webhook_id": null,\n    "inserted_at": "2026-01-10T08:00:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n    "name": "Order Pipeline",\n    "status": "active",\n    "description": "Process orders",\n    "topics": ["order.*"],\n    "steps": [{"type": "filter", "config": {"field": "amount", "operator": "gt", "value": 100}}],\n    "webhook_id": null,\n    "inserted_at": "2026-01-10T08:00:00Z"\n  }\n}|
             }
             copy_id="copy-pipelines-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1763,12 +1840,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X PATCH \"#{@base_url}/api/v1/pipelines/PIPELINE_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Updated Pipeline\",\"description\":\"New description\"}'"}
             copy_id="copy-pipelines-update"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": {\n    "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n    "name": "Updated Pipeline",\n    "status": "active",\n    "description": "New description",\n    "topics": ["order.*"],\n    "steps": [{"type": "filter", "config": {"field": "amount", "operator": "gt", "value": 100}}],\n    "webhook_id": null,\n    "inserted_at": "2026-01-10T08:00:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "f6a7b8c9-d0e1-2345-fghi-456789012345",\n    "name": "Updated Pipeline",\n    "status": "active",\n    "description": "New description",\n    "topics": ["order.*"],\n    "steps": [{"type": "filter", "config": {"field": "amount", "operator": "gt", "value": 100}}],\n    "webhook_id": null,\n    "inserted_at": "2026-01-10T08:00:00Z"\n  }\n}|
             }
             copy_id="copy-pipelines-update-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1781,10 +1858,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X DELETE \"#{@base_url}/api/v1/pipelines/PIPELINE_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-pipelines-delete"
           />
-          <.code_block
-            code={~s|// Response (204 No Content)|}
+          <.response_block
+            code={gettext("Sin contenido.")}
             copy_id="copy-pipelines-delete-response"
-            title={gettext("Respuesta")}
+            status="204 No Content"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1799,12 +1876,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/pipelines/PIPELINE_ID/test\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"payload\":{\"order_id\":\"123\",\"amount\":99.99}}'"}
             copy_id="copy-pipelines-test"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "input": {"order_id": "123", "amount": 99.99},\n  "output": {"order_id": "123", "amount": 99.99},\n  "steps_count": 1,\n  "status": "passed"\n}|
+              ~s|{\n  "input": {"order_id": "123", "amount": 99.99},\n  "output": {"order_id": "123", "amount": 99.99},\n  "steps_count": 1,\n  "status": "passed"\n}|
             }
             copy_id="copy-pipelines-test-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -1827,12 +1904,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/dead-letters\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-dead-letters-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "dead_letters": [\n    {\n      "id": "a7b8c9d0-e1f2-3456-ghij-567890123456",\n      "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "delivery_id": "d4e5f6a7-b8c9-0123-defg-234567890123",\n      "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "webhook_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n      "webhook_url": "https://example.com/hook",\n      "original_payload": {"order_id": "12345"},\n      "last_error": "Connection refused",\n      "last_response_status": null,\n      "attempts_exhausted": 5,\n      "resolved": false,\n      "resolved_at": null,\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "dead_letters": [\n    {\n      "id": "a7b8c9d0-e1f2-3456-ghij-567890123456",\n      "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "delivery_id": "d4e5f6a7-b8c9-0123-defg-234567890123",\n      "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "webhook_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n      "webhook_url": "https://example.com/hook",\n      "original_payload": {"order_id": "12345"},\n      "last_error": "Connection refused",\n      "last_response_status": null,\n      "attempts_exhausted": 5,\n      "resolved": false,\n      "resolved_at": null,\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-dead-letters-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1845,12 +1922,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/dead-letters/DEAD_LETTER_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-dead-letters-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "a7b8c9d0-e1f2-3456-ghij-567890123456",\n  "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n  "delivery_id": "d4e5f6a7-b8c9-0123-defg-234567890123",\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "webhook_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n  "webhook_url": "https://example.com/hook",\n  "original_payload": {"order_id": "12345"},\n  "last_error": "Connection refused",\n  "last_response_status": null,\n  "attempts_exhausted": 5,\n  "resolved": false,\n  "resolved_at": null,\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
+              ~s|{\n  "id": "a7b8c9d0-e1f2-3456-ghij-567890123456",\n  "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n  "delivery_id": "d4e5f6a7-b8c9-0123-defg-234567890123",\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "webhook_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",\n  "webhook_url": "https://example.com/hook",\n  "original_payload": {"order_id": "12345"},\n  "last_error": "Connection refused",\n  "last_response_status": null,\n  "attempts_exhausted": 5,\n  "resolved": false,\n  "resolved_at": null,\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
             }
             copy_id="copy-dead-letters-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1863,12 +1940,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/dead-letters/DEAD_LETTER_ID/retry\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-dead-letters-retry"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "status": "retrying",\n  "delivery_id": "d4e5f6a7-b8c9-0123-defg-234567890123"\n}|
+              ~s|{\n  "status": "retrying",\n  "delivery_id": "d4e5f6a7-b8c9-0123-defg-234567890123"\n}|
             }
             copy_id="copy-dead-letters-retry-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1881,10 +1958,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X PATCH \"#{@base_url}/api/v1/dead-letters/DEAD_LETTER_ID/resolve\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-dead-letters-resolve"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "status": "resolved"\n}|}
+          <.response_block
+            code={~s|{\n  "status": "resolved"\n}|}
             copy_id="copy-dead-letters-resolve-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -1909,12 +1986,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/replays\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"webhook_id\":\"WEBHOOK_ID\",\"from\":\"2026-01-01T00:00:00Z\",\"to\":\"2026-01-31T23:59:59Z\"}'"}
             copy_id="copy-replays-create"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "id": "b8c9d0e1-f2a3-4567-hijk-678901234567",\n  "status": "pending",\n  "filters": {"webhook_id": "WEBHOOK_ID", "from_date": "2026-01-01T00:00:00Z", "to_date": "2026-01-31T23:59:59Z"},\n  "total_events": 0,\n  "processed_events": 0,\n  "started_at": null,\n  "completed_at": null,\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
+              ~s|{\n  "id": "b8c9d0e1-f2a3-4567-hijk-678901234567",\n  "status": "pending",\n  "filters": {"webhook_id": "WEBHOOK_ID", "from_date": "2026-01-01T00:00:00Z", "to_date": "2026-01-31T23:59:59Z"},\n  "total_events": 0,\n  "processed_events": 0,\n  "started_at": null,\n  "completed_at": null,\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
             }
             copy_id="copy-replays-create-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1927,12 +2004,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/replays\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-replays-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "id": "b8c9d0e1-f2a3-4567-hijk-678901234567",\n      "status": "completed",\n      "filters": {"webhook_id": "WEBHOOK_ID", "from_date": "2026-01-01T00:00:00Z"},\n      "total_events": 42,\n      "processed_events": 42,\n      "started_at": "2026-01-15T10:31:00Z",\n      "completed_at": "2026-01-15T10:32:00Z",\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "data": [\n    {\n      "id": "b8c9d0e1-f2a3-4567-hijk-678901234567",\n      "status": "completed",\n      "filters": {"webhook_id": "WEBHOOK_ID", "from_date": "2026-01-01T00:00:00Z"},\n      "total_events": 42,\n      "processed_events": 42,\n      "started_at": "2026-01-15T10:31:00Z",\n      "completed_at": "2026-01-15T10:32:00Z",\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-replays-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1945,12 +2022,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/replays/REPLAY_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-replays-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "b8c9d0e1-f2a3-4567-hijk-678901234567",\n  "status": "running",\n  "filters": {"webhook_id": "WEBHOOK_ID"},\n  "total_events": 42,\n  "processed_events": 15,\n  "started_at": "2026-01-15T10:31:00Z",\n  "completed_at": null,\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
+              ~s|{\n  "id": "b8c9d0e1-f2a3-4567-hijk-678901234567",\n  "status": "running",\n  "filters": {"webhook_id": "WEBHOOK_ID"},\n  "total_events": 42,\n  "processed_events": 15,\n  "started_at": "2026-01-15T10:31:00Z",\n  "completed_at": null,\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
             }
             copy_id="copy-replays-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -1963,12 +2040,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X DELETE \"#{@base_url}/api/v1/replays/REPLAY_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-replays-cancel"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "id": "b8c9d0e1-f2a3-4567-hijk-678901234567",\n  "status": "cancelled",\n  "filters": {"webhook_id": "WEBHOOK_ID"},\n  "total_events": 42,\n  "processed_events": 15,\n  "started_at": "2026-01-15T10:31:00Z",\n  "completed_at": "2026-01-15T10:35:00Z",\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
+              ~s|{\n  "id": "b8c9d0e1-f2a3-4567-hijk-678901234567",\n  "status": "cancelled",\n  "filters": {"webhook_id": "WEBHOOK_ID"},\n  "total_events": 42,\n  "processed_events": 15,\n  "started_at": "2026-01-15T10:31:00Z",\n  "completed_at": "2026-01-15T10:35:00Z",\n  "inserted_at": "2026-01-15T10:30:00Z"\n}|
             }
             copy_id="copy-replays-cancel-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -1991,12 +2068,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/event-schemas\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-schemas-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "id": "c9d0e1f2-a3b4-5678-ijkl-789012345678",\n      "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "topic": "order.created",\n      "schema": {"type": "object", "required": ["order_id"], "properties": {"order_id": {"type": "string"}}},\n      "version": 1,\n      "status": "active",\n      "inserted_at": "2026-01-10T08:00:00Z",\n      "updated_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "data": [\n    {\n      "id": "c9d0e1f2-a3b4-5678-ijkl-789012345678",\n      "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "topic": "order.created",\n      "schema": {"type": "object", "required": ["order_id"], "properties": {"order_id": {"type": "string"}}},\n      "version": 1,\n      "status": "active",\n      "inserted_at": "2026-01-10T08:00:00Z",\n      "updated_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-schemas-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2009,12 +2086,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/event-schemas\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"schema\":{\"type\":\"object\",\"required\":[\"order_id\"],\"properties\":{\"order_id\":{\"type\":\"string\"}}}}'"}
             copy_id="copy-schemas-create"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "data": {\n    "id": "c9d0e1f2-a3b4-5678-ijkl-789012345678",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "topic": "order.created",\n    "schema": {"type": "object", "required": ["order_id"], "properties": {"order_id": {"type": "string"}}},\n    "version": 1,\n    "status": "active",\n    "inserted_at": "2026-01-15T10:30:00Z",\n    "updated_at": "2026-01-15T10:30:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "c9d0e1f2-a3b4-5678-ijkl-789012345678",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "topic": "order.created",\n    "schema": {"type": "object", "required": ["order_id"], "properties": {"order_id": {"type": "string"}}},\n    "version": 1,\n    "status": "active",\n    "inserted_at": "2026-01-15T10:30:00Z",\n    "updated_at": "2026-01-15T10:30:00Z"\n  }\n}|
             }
             copy_id="copy-schemas-create-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2027,12 +2104,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/event-schemas/SCHEMA_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-schemas-show"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": {\n    "id": "c9d0e1f2-a3b4-5678-ijkl-789012345678",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "topic": "order.created",\n    "schema": {"type": "object", "required": ["order_id"], "properties": {"order_id": {"type": "string"}}},\n    "version": 1,\n    "status": "active",\n    "inserted_at": "2026-01-10T08:00:00Z",\n    "updated_at": "2026-01-10T08:00:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "c9d0e1f2-a3b4-5678-ijkl-789012345678",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "topic": "order.created",\n    "schema": {"type": "object", "required": ["order_id"], "properties": {"order_id": {"type": "string"}}},\n    "version": 1,\n    "status": "active",\n    "inserted_at": "2026-01-10T08:00:00Z",\n    "updated_at": "2026-01-10T08:00:00Z"\n  }\n}|
             }
             copy_id="copy-schemas-show-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2045,12 +2122,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X PATCH \"#{@base_url}/api/v1/event-schemas/SCHEMA_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"schema\":{\"type\":\"object\",\"required\":[\"order_id\",\"amount\"],\"properties\":{\"order_id\":{\"type\":\"string\"},\"amount\":{\"type\":\"number\"}}}}'"}
             copy_id="copy-schemas-update"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": {\n    "id": "c9d0e1f2-a3b4-5678-ijkl-789012345678",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "topic": "order.created",\n    "schema": {"type": "object", "required": ["order_id", "amount"], "properties": {"order_id": {"type": "string"}, "amount": {"type": "number"}}},\n    "version": 1,\n    "status": "active",\n    "inserted_at": "2026-01-10T08:00:00Z",\n    "updated_at": "2026-01-15T10:30:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "c9d0e1f2-a3b4-5678-ijkl-789012345678",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "topic": "order.created",\n    "schema": {"type": "object", "required": ["order_id", "amount"], "properties": {"order_id": {"type": "string"}, "amount": {"type": "number"}}},\n    "version": 1,\n    "status": "active",\n    "inserted_at": "2026-01-10T08:00:00Z",\n    "updated_at": "2026-01-15T10:30:00Z"\n  }\n}|
             }
             copy_id="copy-schemas-update-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2063,10 +2140,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X DELETE \"#{@base_url}/api/v1/event-schemas/SCHEMA_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-schemas-delete"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "ok": true\n}|}
+          <.response_block
+            code={~s|{\n  "ok": true\n}|}
             copy_id="copy-schemas-delete-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2079,12 +2156,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/event-schemas/validate\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"payload\":{\"order_id\":\"123\"}}'"}
             copy_id="copy-schemas-validate"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "valid": true,\n  "errors": []\n}\n\n// If validation fails:\n{\n  "valid": false,\n  "errors": [\n    {"message": "Required property order_id is missing", "path": "#/order_id"}\n  ]\n}|
+              ~s|{\n  "valid": true,\n  "errors": []\n}\n\n// If validation fails:\n{\n  "valid": false,\n  "errors": [\n    {"message": "Required property order_id is missing", "path": "#/order_id"}\n  ]\n}|
             }
             copy_id="copy-schemas-validate-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -2107,12 +2184,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/export/events?format=csv\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-export-events"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK) — CSV\nid,topic,status,occurred_at,payload,payload_hash\nb2c3d4e5-...,order.created,active,2026-01-15T10:30:00Z,"{""order_id"":""12345""}",sha256:a3f2...\n\n// With ?format=json:\n{"data": [...], "total": 1}|
+              ~s|id,topic,status,occurred_at,payload,payload_hash\nb2c3d4e5-...,order.created,active,2026-01-15T10:30:00Z,"{""order_id"":""12345""}",sha256:a3f2...|
             }
             copy_id="copy-export-events-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
+            note={gettext("Formato CSV por defecto. Usa ?format=json para obtener JSON.")}
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2125,12 +2203,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/export/deliveries?format=csv\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-export-deliveries"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK) — CSV\nid,event_id,webhook_id,status,attempt_number,response_status,inserted_at\nd4e5f6a7-...,b2c3d4e5-...,c3d4e5f6-...,success,1,200,2026-01-15T10:30:00Z\n\n// With ?format=json:\n{"data": [...], "total": 1}|
+              ~s|id,event_id,webhook_id,status,attempt_number,response_status,inserted_at\nd4e5f6a7-...,b2c3d4e5-...,c3d4e5f6-...,success,1,200,2026-01-15T10:30:00Z|
             }
             copy_id="copy-export-deliveries-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
+            note={gettext("Formato CSV por defecto. Usa ?format=json para obtener JSON.")}
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2143,12 +2222,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/export/jobs?format=csv\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-export-jobs"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK) — CSV\nid,name,status,schedule_type,action_type,inserted_at\ne5f6a7b8-...,Daily Report,active,daily,emit_event,2026-01-05T12:00:00Z\n\n// With ?format=json:\n{"data": [...], "total": 1}|
+              ~s|id,name,status,schedule_type,action_type,inserted_at\ne5f6a7b8-...,Daily Report,active,daily,emit_event,2026-01-05T12:00:00Z|
             }
             copy_id="copy-export-jobs-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
+            note={gettext("Formato CSV por defecto. Usa ?format=json para obtener JSON.")}
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2161,12 +2241,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/export/audit-log?format=csv\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-export-audit"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK) — CSV\nid,action,resource_type,resource_id,user_id,ip_address,inserted_at\nf6a7b8c9-...,event.created,event,b2c3d4e5-...,a1b2c3d4-...,192.168.1.1,2026-01-15T10:30:00Z\n\n// With ?format=json:\n{"data": [...], "total": 1}|
+              ~s|id,action,resource_type,resource_id,user_id,ip_address,inserted_at\nf6a7b8c9-...,event.created,event,b2c3d4e5-...,a1b2c3d4-...,192.168.1.1,2026-01-15T10:30:00Z|
             }
             copy_id="copy-export-audit-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
+            note={gettext("Formato CSV por defecto. Usa ?format=json para obtener JSON.")}
           />
         </.api_endpoint>
       </div>
@@ -2198,7 +2279,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
         )}
       </p>
       <div class="grid sm:grid-cols-2 gap-4">
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
           <h3 class="font-semibold text-slate-900 mb-2 text-sm">
             {gettext("Secciones principales")}
           </h3>
@@ -2209,7 +2290,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             <li>{gettext("Jobs: crear, editar, ver ejecuciones")}</li>
           </ul>
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
           <h3 class="font-semibold text-slate-900 mb-2 text-sm">{gettext("Herramientas")}</h3>
           <ul class="text-slate-600 text-sm space-y-1">
             <li>{gettext("Analíticas: gráficos y métricas")}</li>
@@ -2275,12 +2356,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/projects\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-projects-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "name": "Production",\n      "status": "active",\n      "is_default": true,\n      "settings": {},\n      "inserted_at": "2026-01-01T00:00:00Z",\n      "updated_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "data": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "name": "Production",\n      "status": "active",\n      "is_default": true,\n      "settings": {},\n      "inserted_at": "2026-01-01T00:00:00Z",\n      "updated_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-projects-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2295,12 +2376,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/projects\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"My New Project\"}'"}
             copy_id="copy-projects-create"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "data": {\n    "id": "d0e1f2a3-b4c5-6789-klmn-890123456789",\n    "name": "My New Project",\n    "status": "active",\n    "is_default": false,\n    "settings": {},\n    "inserted_at": "2026-01-15T10:30:00Z",\n    "updated_at": "2026-01-15T10:30:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "d0e1f2a3-b4c5-6789-klmn-890123456789",\n    "name": "My New Project",\n    "status": "active",\n    "is_default": false,\n    "settings": {},\n    "inserted_at": "2026-01-15T10:30:00Z",\n    "updated_at": "2026-01-15T10:30:00Z"\n  }\n}|
             }
             copy_id="copy-projects-create-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2313,12 +2394,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X PATCH \"#{@base_url}/api/v1/projects/PROJECT_ID/default\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-projects-default"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": {\n    "id": "d0e1f2a3-b4c5-6789-klmn-890123456789",\n    "name": "My New Project",\n    "status": "active",\n    "is_default": true,\n    "settings": {},\n    "inserted_at": "2026-01-15T10:30:00Z",\n    "updated_at": "2026-01-15T10:35:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "d0e1f2a3-b4c5-6789-klmn-890123456789",\n    "name": "My New Project",\n    "status": "active",\n    "is_default": true,\n    "settings": {},\n    "inserted_at": "2026-01-15T10:30:00Z",\n    "updated_at": "2026-01-15T10:35:00Z"\n  }\n}|
             }
             copy_id="copy-projects-default-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -2345,12 +2426,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/projects/PROJECT_ID/members\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-members-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "id": "e1f2a3b4-c5d6-7890-lmno-901234567890",\n      "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "user_id": "f2a3b4c5-d6e7-8901-mnop-012345678901",\n      "role": "member",\n      "status": "accepted",\n      "invited_by": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "inserted_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "data": [\n    {\n      "id": "e1f2a3b4-c5d6-7890-lmno-901234567890",\n      "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "user_id": "f2a3b4c5-d6e7-8901-mnop-012345678901",\n      "role": "member",\n      "status": "accepted",\n      "invited_by": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "inserted_at": "2026-01-10T08:00:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-members-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2363,12 +2444,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/projects/PROJECT_ID/members\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"email\":\"member@example.com\",\"role\":\"member\"}'"}
             copy_id="copy-members-add"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "data": {\n    "id": "e1f2a3b4-c5d6-7890-lmno-901234567890",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "user_id": "f2a3b4c5-d6e7-8901-mnop-012345678901",\n    "role": "member",\n    "status": "pending",\n    "invited_by": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "inserted_at": "2026-01-15T10:30:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "e1f2a3b4-c5d6-7890-lmno-901234567890",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "user_id": "f2a3b4c5-d6e7-8901-mnop-012345678901",\n    "role": "member",\n    "status": "pending",\n    "invited_by": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "inserted_at": "2026-01-15T10:30:00Z"\n  }\n}|
             }
             copy_id="copy-members-add-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2381,12 +2462,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X PATCH \"#{@base_url}/api/v1/projects/PROJECT_ID/members/MEMBER_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"role\":\"admin\"}'"}
             copy_id="copy-members-update"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": {\n    "id": "e1f2a3b4-c5d6-7890-lmno-901234567890",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "user_id": "f2a3b4c5-d6e7-8901-mnop-012345678901",\n    "role": "admin",\n    "status": "accepted",\n    "invited_by": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "inserted_at": "2026-01-10T08:00:00Z"\n  }\n}|
+              ~s|{\n  "data": {\n    "id": "e1f2a3b4-c5d6-7890-lmno-901234567890",\n    "project_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "user_id": "f2a3b4c5-d6e7-8901-mnop-012345678901",\n    "role": "admin",\n    "status": "accepted",\n    "invited_by": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n    "inserted_at": "2026-01-10T08:00:00Z"\n  }\n}|
             }
             copy_id="copy-members-update-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2401,10 +2482,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X DELETE \"#{@base_url}/api/v1/projects/PROJECT_ID/members/MEMBER_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-members-remove"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "ok": true\n}|}
+          <.response_block
+            code={~s|{\n  "ok": true\n}|}
             copy_id="copy-members-remove-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -2431,12 +2512,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/sandbox-endpoints\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-sandbox-list"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "slug": "test-endpoint-x7k9",\n      "name": "Test Endpoint",\n      "url": "/sandbox/test-endpoint-x7k9",\n      "expires_at": "2026-03-14T14:30:00Z",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "data": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "slug": "test-endpoint-x7k9",\n      "name": "Test Endpoint",\n      "url": "/sandbox/test-endpoint-x7k9",\n      "expires_at": "2026-03-14T14:30:00Z",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-sandbox-list-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2451,12 +2532,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/sandbox-endpoints\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Test Endpoint\"}'"}
             copy_id="copy-sandbox-create"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (201 Created)\n{\n  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n  "slug": "test-endpoint-x7k9",\n  "name": "Test Endpoint",\n  "url": "/sandbox/test-endpoint-x7k9",\n  "expires_at": "2026-03-14T14:30:00Z",\n  "inserted_at": "2026-03-07T14:30:00Z"\n}|
+              ~s|{\n  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n  "slug": "test-endpoint-x7k9",\n  "name": "Test Endpoint",\n  "url": "/sandbox/test-endpoint-x7k9",\n  "expires_at": "2026-03-14T14:30:00Z",\n  "inserted_at": "2026-03-07T14:30:00Z"\n}|
             }
             copy_id="copy-sandbox-create-response"
-            title={gettext("Respuesta")}
+            status="201 Created"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2471,12 +2552,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/sandbox-endpoints/ENDPOINT_ID/requests\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-sandbox-requests"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "method": "POST",\n      "path": "/sandbox/test-endpoint-x7k9",\n      "headers": {"content-type": "application/json"},\n      "body": {"order_id": "123", "amount": 99.99},\n      "query_params": {},\n      "ip": "203.0.113.42",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    }\n  ]\n}|
+              ~s|{\n  "data": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "method": "POST",\n      "path": "/sandbox/test-endpoint-x7k9",\n      "headers": {"content-type": "application/json"},\n      "body": {"order_id": "123", "amount": 99.99},\n      "query_params": {},\n      "ip": "203.0.113.42",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    }\n  ]\n}|
             }
             copy_id="copy-sandbox-requests-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2489,10 +2570,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X DELETE \"#{@base_url}/api/v1/sandbox-endpoints/ENDPOINT_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-sandbox-delete"
           />
-          <.code_block
-            code={~s|// Response (200 OK)\n{\n  "status": "deleted"\n}|}
+          <.response_block
+            code={~s|{\n  "status": "deleted"\n}|}
             copy_id="copy-sandbox-delete-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -2514,12 +2595,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/analytics/events-per-day\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-analytics-events"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {"date": "2026-03-05", "count": 245},\n    {"date": "2026-03-06", "count": 312},\n    {"date": "2026-03-07", "count": 178}\n  ]\n}|
+              ~s|{\n  "data": [\n    {"date": "2026-03-05", "count": 245},\n    {"date": "2026-03-06", "count": 312},\n    {"date": "2026-03-07", "count": 178}\n  ]\n}|
             }
             copy_id="copy-analytics-events-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2532,12 +2613,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/analytics/deliveries-per-day\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-analytics-deliveries"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {"date": "2026-03-05", "count": 320},\n    {"date": "2026-03-06", "count": 415},\n    {"date": "2026-03-07", "count": 198}\n  ]\n}|
+              ~s|{\n  "data": [\n    {"date": "2026-03-05", "count": 320},\n    {"date": "2026-03-06", "count": 415},\n    {"date": "2026-03-07", "count": 198}\n  ]\n}|
             }
             copy_id="copy-analytics-deliveries-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2550,12 +2631,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/analytics/top-topics\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-analytics-topics"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {"topic": "order.created", "count": 1250},\n    {"topic": "user.signup", "count": 890},\n    {"topic": "payment.completed", "count": 567}\n  ]\n}|
+              ~s|{\n  "data": [\n    {"topic": "order.created", "count": 1250},\n    {"topic": "user.signup", "count": 890},\n    {"topic": "payment.completed", "count": 567}\n  ]\n}|
             }
             copy_id="copy-analytics-topics-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -2568,12 +2649,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/analytics/webhook-stats\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-analytics-webhooks"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "webhook_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "url": "https://example.com/hook",\n      "total_deliveries": 150,\n      "successful": 142,\n      "failed": 8\n    }\n  ]\n}|
+              ~s|{\n  "data": [\n    {\n      "webhook_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "url": "https://example.com/hook",\n      "total_deliveries": 150,\n      "successful": 142,\n      "failed": 8\n    }\n  ]\n}|
             }
             copy_id="copy-analytics-webhooks-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -2594,12 +2675,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           code={"curl \"#{@base_url}/api/v1/audit-log?limit=20\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
           copy_id="copy-audit-index"
         />
-        <.code_block
+        <.response_block
           code={
-            ~s|// Response (200 OK)\n{\n  "data": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "action": "webhook.created",\n      "resource_type": "webhook",\n      "resource_id": "f1e2d3c4-b5a6-7890-fedc-ba0987654321",\n      "metadata": {"url": "https://example.com/hook"},\n      "user_id": "c3d4e5f6-a7b8-9012-cdef-234567890abc",\n      "ip_address": "203.0.113.42",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    }\n  ]\n}|
+            ~s|{\n  "data": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "action": "webhook.created",\n      "resource_type": "webhook",\n      "resource_id": "f1e2d3c4-b5a6-7890-fedc-ba0987654321",\n      "metadata": {"url": "https://example.com/hook"},\n      "user_id": "c3d4e5f6-a7b8-9012-cdef-234567890abc",\n      "ip_address": "203.0.113.42",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    }\n  ]\n}|
           }
           copy_id="copy-audit-index-response"
-          title={gettext("Respuesta")}
+          status="200 OK"
         />
         <p class="text-slate-600 text-sm">
           {gettext("Filtros opcionales: action, actor_email, from, to.")}
@@ -2624,12 +2705,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           code={"curl -N \"#{@base_url}/api/v1/stream\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
           copy_id="copy-sse-stream"
         />
-        <.code_block
+        <.response_block
           code={
-            ~s|// Response (200 OK) — Server-Sent Events stream\ndata: {"type":"connected","project_id":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}\n\ndata: {"type":"event.created","data":{"id":"b2c3d4e5-f6a7-8901-bcde-f12345678901","topic":"order.created","payload":{"order_id":"123"},"occurred_at":"2026-03-07T14:30:00Z"}}\n\ndata: {"type":"delivery.updated","data":{"id":"c3d4e5f6-a7b8-9012-cdef-234567890abc","status":"delivered","event_id":"b2c3d4e5-f6a7-8901-bcde-f12345678901"}}|
+            ~s|data: {"type":"connected","project_id":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}\n\ndata: {"type":"event.created","data":{"id":"b2c3d4e5-f6a7-8901-bcde-f12345678901","topic":"order.created","payload":{"order_id":"123"},"occurred_at":"2026-03-07T14:30:00Z"}}\n\ndata: {"type":"delivery.updated","data":{"id":"c3d4e5f6-a7b8-9012-cdef-234567890abc","status":"delivered","event_id":"b2c3d4e5-f6a7-8901-bcde-f12345678901"}}|
           }
           copy_id="copy-sse-stream-response"
-          title={gettext("Respuesta")}
+          status="200 OK"
+          note={gettext("Stream de Server-Sent Events.")}
         />
       </.api_endpoint>
       <p class="text-slate-600 text-sm">
@@ -2657,7 +2739,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           "Los topics de webhook soportan pattern matching con wildcards. El patrón order.* coincide con order.created, order.updated, order.deleted y topics similares bajo ese namespace."
         )}
       </p>
-      <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
         <table class="w-full text-sm">
           <thead>
             <tr class="text-left text-slate-500">
@@ -2714,12 +2796,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           code={"curl -X POST \"#{@base_url}/api/v1/events/batch\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"events\":[{\"topic\":\"a\",\"data\":1},{\"topic\":\"b\",\"data\":2}]}'"}
           copy_id="copy-batch-events"
         />
-        <.code_block
+        <.response_block
           code={
-            ~s|// Response (202 Accepted)\n{\n  "accepted": 2,\n  "rejected": 0,\n  "events": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "topic": "a",\n      "payload": 1,\n      "status": "pending",\n      "occurred_at": "2026-03-07T14:30:00Z",\n      "payload_hash": "e3b0c44298fc1c14...",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    },\n    {\n      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "topic": "b",\n      "payload": 2,\n      "status": "pending",\n      "occurred_at": "2026-03-07T14:30:00Z",\n      "payload_hash": "a1b2c3d4e5f67890...",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    }\n  ]\n}|
+            ~s|{\n  "accepted": 2,\n  "rejected": 0,\n  "events": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "topic": "a",\n      "payload": 1,\n      "status": "pending",\n      "occurred_at": "2026-03-07T14:30:00Z",\n      "payload_hash": "e3b0c44298fc1c14...",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    },\n    {\n      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "topic": "b",\n      "payload": 2,\n      "status": "pending",\n      "occurred_at": "2026-03-07T14:30:00Z",\n      "payload_hash": "a1b2c3d4e5f67890...",\n      "inserted_at": "2026-03-07T14:30:00Z"\n    }\n  ]\n}|
           }
           copy_id="copy-batch-events-response"
-          title={gettext("Respuesta")}
+          status="202 Accepted"
         />
       </.api_endpoint>
     </.docs_section>
@@ -2757,12 +2839,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           code={"curl \"#{@base_url}/api/v1/webhooks/templates\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
           copy_id="copy-webhook-templates"
         />
-        <.code_block
+        <.response_block
           code={
-            ~s|// Response (200 OK)\n{\n  "templates": [\n    {\n      "name": "Slack Notification",\n      "url": "https://hooks.slack.com/services/...",\n      "topics": ["order.created", "payment.completed"],\n      "headers": {"Content-Type": "application/json"}\n    },\n    {\n      "name": "Email Alert",\n      "url": "https://api.example.com/email-hook",\n      "topics": ["user.signup"],\n      "headers": {}\n    }\n  ]\n}|
+            ~s|{\n  "templates": [\n    {\n      "name": "Slack Notification",\n      "url": "https://hooks.slack.com/services/...",\n      "topics": ["order.created", "payment.completed"],\n      "headers": {"Content-Type": "application/json"}\n    },\n    {\n      "name": "Email Alert",\n      "url": "https://api.example.com/email-hook",\n      "topics": ["user.signup"],\n      "headers": {}\n    }\n  ]\n}|
           }
           copy_id="copy-webhook-templates-response"
-          title={gettext("Respuesta")}
+          status="200 OK"
         />
       </.api_endpoint>
     </.docs_section>
@@ -2796,12 +2878,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           code={"curl -X POST \"#{@base_url}/api/v1/simulate\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"payload\":{\"test\":true}}'"}
           copy_id="copy-simulate"
         />
-        <.code_block
+        <.response_block
           code={
-            ~s|// Response (200 OK)\n{\n  "simulation": true,\n  "matching_webhooks": 1,\n  "results": [\n    {\n      "id": "b3e7c8a1-4f2d-4e9a-8c1b-5d6f7a8b9c0d",\n      "url": "https://example.com/hook",\n      "topics": ["order.*"]\n    }\n  ]\n}|
+            ~s|{\n  "simulation": true,\n  "matching_webhooks": 1,\n  "results": [\n    {\n      "id": "b3e7c8a1-4f2d-4e9a-8c1b-5d6f7a8b9c0d",\n      "url": "https://example.com/hook",\n      "topics": ["order.*"]\n    }\n  ]\n}|
           }
           copy_id="copy-simulate-response"
-          title={gettext("Respuesta")}
+          status="200 OK"
         />
       </.api_endpoint>
       <.callout kind="info">
@@ -2851,7 +2933,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       </div>
 
       <%!-- SDK links --%>
-      <div class="rounded-xl border border-slate-200 bg-white p-5 mb-6">
+      <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-5 mb-6">
         <h3 class="text-sm font-semibold text-slate-900 mb-3">
           {gettext("Enlaces de instalación")}
         </h3>
@@ -3004,7 +3086,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       title={gettext("Política de contraseñas")}
       subtitle={gettext("Política de requisitos de contraseña.")}
     >
-      <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
         <ul class="text-slate-700 text-sm space-y-2">
           <li>{gettext("Longitud mínima requerida")}</li>
           <li>{gettext("Debe incluir mayúsculas, minúsculas y números")}</li>
@@ -3153,12 +3235,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl \"#{@base_url}/api/v1/me/consents\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-consent-status"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "consents": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "purpose": "essential",\n      "version": 1,\n      "granted_at": "2026-01-15T10:00:00Z"\n    },\n    {\n      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "purpose": "analytics",\n      "version": 2,\n      "granted_at": "2026-02-20T14:00:00Z"\n    }\n  ],\n  "outdated": ["analytics"],\n  "current_versions": {\n    "essential": 1,\n    "analytics": 3\n  }\n}|
+              ~s|{\n  "consents": [\n    {\n      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",\n      "purpose": "essential",\n      "version": 1,\n      "granted_at": "2026-01-15T10:00:00Z"\n    },\n    {\n      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "purpose": "analytics",\n      "version": 2,\n      "granted_at": "2026-02-20T14:00:00Z"\n    }\n  ],\n  "outdated": ["analytics"],\n  "current_versions": {\n    "essential": 1,\n    "analytics": 3\n  }\n}|
             }
             copy_id="copy-consent-status-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
         <.api_endpoint
@@ -3171,12 +3253,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             code={"curl -X POST \"#{@base_url}/api/v1/me/consents/analytics/accept\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
             copy_id="copy-consent-accept"
           />
-          <.code_block
+          <.response_block
             code={
-              ~s|// Response (200 OK)\n{\n  "consent": {\n    "id": "c3d4e5f6-a7b8-9012-cdef-234567890abc",\n    "purpose": "analytics",\n    "version": 3,\n    "granted_at": "2026-03-07T14:30:00Z"\n  }\n}|
+              ~s|{\n  "consent": {\n    "id": "c3d4e5f6-a7b8-9012-cdef-234567890abc",\n    "purpose": "analytics",\n    "version": 3,\n    "granted_at": "2026-03-07T14:30:00Z"\n  }\n}|
             }
             copy_id="copy-consent-accept-response"
-            title={gettext("Respuesta")}
+            status="200 OK"
           />
         </.api_endpoint>
       </div>
@@ -3197,7 +3279,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       title={gettext("Códigos de respuesta")}
       subtitle={gettext("Códigos HTTP estándar usados por la API.")}
     >
-      <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 overflow-x-auto">
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="text-left text-slate-500 border-b border-slate-200">
@@ -3286,7 +3368,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       title={gettext("Headers de respuesta")}
       subtitle={gettext("Headers incluidos en las respuestas de la API.")}
     >
-      <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 overflow-x-auto">
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="text-left text-slate-500 border-b border-slate-200">
@@ -3331,12 +3413,10 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           code={"curl \"#{@base_url}/health\""}
           copy_id="copy-health"
         />
-        <.code_block
-          code={
-            ~s|// Response (200 OK)\n{\n  "status": "healthy",\n  "timestamp": "2026-03-07T14:30:00Z"\n}|
-          }
+        <.response_block
+          code={~s|{\n  "status": "healthy",\n  "timestamp": "2026-03-07T14:30:00Z"\n}|}
           copy_id="copy-health-response"
-          title={gettext("Respuesta")}
+          status="200 OK"
         />
       </.api_endpoint>
     </.docs_section>
@@ -3351,46 +3431,46 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           "Configurar scopes para restringir los permisos de cada API key. Scopes disponibles:"
         )}
       </p>
-      <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
         <div class="grid sm:grid-cols-2 gap-2 text-sm text-slate-700">
           <div>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs dark:text-slate-200">
               events:read
             </code>
             — {gettext("Leer eventos")}
           </div>
           <div>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs dark:text-slate-200">
               events:write
             </code>
             — {gettext("Crear eventos")}
           </div>
           <div>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs dark:text-slate-200">
               webhooks:read
             </code>
             — {gettext("Leer webhooks")}
           </div>
           <div>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs dark:text-slate-200">
               webhooks:write
             </code>
             — {gettext("Crear/editar webhooks")}
           </div>
           <div>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs dark:text-slate-200">
               jobs:read
             </code>
             — {gettext("Leer jobs")}
           </div>
           <div>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs dark:text-slate-200">
               jobs:write
             </code>
             — {gettext("Crear/editar jobs")}
           </div>
           <div>
-            <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs">
+            <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs dark:text-slate-200">
               admin
             </code>
             — {gettext("Acceso total")}
