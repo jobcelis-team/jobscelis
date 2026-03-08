@@ -49,22 +49,31 @@ FROM base AS build
 
 ENV MIX_ENV=prod
 
+# 1. Copy only mix files — cached until mix.lock changes
 COPY mix.exs mix.lock ./
 COPY apps/streamflix_core/mix.exs apps/streamflix_core/
 COPY apps/streamflix_accounts/mix.exs apps/streamflix_accounts/
 COPY apps/streamflix_web/mix.exs apps/streamflix_web/
 
+# 2. Download and compile deps — cached layer
 RUN mix deps.get --only prod
+RUN mix deps.compile
 
+# 3. Copy config — changes less frequently than app code
 COPY config config
+
+# 4. Copy app code — changes most frequently
 COPY apps apps
 
+# 5. Compile only app code (deps already compiled above)
 RUN mix compile
 
+# 6. Build assets
 WORKDIR /app/apps/streamflix_web
 RUN mix assets.deploy
 WORKDIR /app
 
+# 7. Create release
 RUN mix release
 
 # ============================================
@@ -89,8 +98,8 @@ COPY --from=build /app/_build/prod/rel/streamflix ./
 ENV HOME=/app
 ENV MIX_ENV=prod
 
-RUN addgroup -S app && adduser -S app -G app
-RUN chown -R app:app /app
+RUN addgroup -S app && adduser -S app -G app && \
+    chown -R app:app /app
 USER app
 
 EXPOSE 4000

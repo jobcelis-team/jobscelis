@@ -1,5 +1,5 @@
 # ============================================
-# Deploy to Staging: build container image and restart staging service
+# Deploy to Staging: build with cache and push to container registry
 # Runs on: push to develop
 # ============================================
 
@@ -21,7 +21,8 @@ on:
 
 env:
   ACR_NAME: jobscelisacr
-  IMAGE_NAME: jobscelis:staging
+  IMAGE_NAME: jobscelis
+  IMAGE_TAG: staging
   WEBAPP_NAME: jobcelis-staging
   RESOURCE_GROUP: jobscelis-rg
 
@@ -41,14 +42,24 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build and push image to ACR
-        run: |
-          az acr build --registry ${{ env.ACR_NAME }} --image ${{ env.IMAGE_NAME }} .
-        id: acr-build
+      - name: Login to ACR
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: prod
+          push: true
+          tags: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Restart Staging Web App
-        run: |
-          az webapp restart --name ${{ env.WEBAPP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
+        run: az webapp restart --name ${{ env.WEBAPP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
 
       - name: Logout Azure
         if: always()
