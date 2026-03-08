@@ -94,10 +94,7 @@ defmodule StreamflixCore.Platform.Jobs do
       {:ok, cron} ->
         naive = NaiveDateTime.new!(Date.new!(2026, month, day_of_month), Time.new!(hour, min, 0))
 
-        case Crontab.DateChecker.matches_date?(cron, naive) do
-          result when is_boolean(result) -> result
-          _ -> false
-        end
+        Crontab.DateChecker.matches_date?(cron, naive)
 
       {:error, _} ->
         false

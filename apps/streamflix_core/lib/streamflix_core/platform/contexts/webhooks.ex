@@ -245,7 +245,6 @@ defmodule StreamflixCore.Platform.Webhooks do
       :lte -> a <= b
       :gt -> a > b
       :lt -> a < b
-      _ -> false
     end
   end
 

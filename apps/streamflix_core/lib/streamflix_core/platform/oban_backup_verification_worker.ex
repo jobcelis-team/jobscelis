@@ -34,18 +34,6 @@ defmodule StreamflixCore.Platform.ObanBackupVerificationWorker do
 
       {:ok, info} ->
         verify_backup_age(info)
-
-      {:error, reason} ->
-        Logger.error("Backup verification failed",
-          worker: "BackupVerificationWorker",
-          error: to_string(reason)
-        )
-
-        Audit.record("system.backup_verification_failed",
-          metadata: %{reason: to_string(reason)}
-        )
-
-        :ok
     end
   end
 

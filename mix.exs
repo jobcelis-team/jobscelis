@@ -10,7 +10,8 @@ defmodule Streamflix.MixProject do
       aliases: aliases(),
       releases: releases(),
       listeners: [Phoenix.CodeReloader],
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      dialyzer: [plt_add_apps: [:mix, :ex_unit]]
     ]
   end
 

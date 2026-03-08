@@ -78,7 +78,6 @@ defmodule StreamflixCore.Platform.Pipelines do
       case execute_step(step, current_payload) do
         {:ok, new_payload} -> {:cont, {:ok, new_payload}}
         {:filtered, reason} -> {:halt, {:filtered, reason}}
-        {:error, reason} -> {:halt, {:error, reason}}
       end
     end)
   end

@@ -1082,46 +1082,34 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_event("oban_retry_job", %{"id" => id}, socket) do
     job_id = String.to_integer(id)
 
-    case Platform.oban_retry_job(job_id) do
-      :ok ->
-        {:noreply,
-         socket
-         |> put_flash(:info, gettext("Job reencolado."))
-         |> refresh_oban_data()}
+    Platform.oban_retry_job(job_id)
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("No se pudo reintentar el job."))}
-    end
+    {:noreply,
+     socket
+     |> put_flash(:info, gettext("Job reencolado."))
+     |> refresh_oban_data()}
   end
 
   @impl true
   def handle_event("oban_cancel_job", %{"id" => id}, socket) do
     job_id = String.to_integer(id)
 
-    case Platform.oban_cancel_job(job_id) do
-      :ok ->
-        {:noreply,
-         socket
-         |> put_flash(:info, gettext("Job cancelado."))
-         |> refresh_oban_data()}
+    Platform.oban_cancel_job(job_id)
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("No se pudo cancelar el job."))}
-    end
+    {:noreply,
+     socket
+     |> put_flash(:info, gettext("Job cancelado."))
+     |> refresh_oban_data()}
   end
 
   @impl true
   def handle_event("oban_purge", _, socket) do
-    case Platform.oban_purge_jobs() do
-      {:ok, count} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, gettext("%{count} jobs eliminados.", count: count))
-         |> refresh_oban_data()}
+    {:ok, count} = Platform.oban_purge_jobs()
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al purgar jobs."))}
-    end
+    {:noreply,
+     socket
+     |> put_flash(:info, gettext("%{count} jobs eliminados.", count: count))
+     |> refresh_oban_data()}
   end
 
   # ---------- Event Detail Modal (#21) ----------
