@@ -33,9 +33,9 @@ Este documento enumera **toda la documentación y elementos** que tiene el proye
 | **docs/LEGAL.md** | ✅ Hecho | docs/ | Notas internas sobre marca, dominio, términos. |
 | **docs/WEBHOOKS_EVENTS_SPEC.md** | ✅ Hecho | docs/ | Especificación del producto (eventos, webhooks, jobs). |
 | **docs/DEPLOY.md** | ✅ Hecho | docs/ | Cómo desplegar. |
-| **docs/AZURE-PASO-A-PASO.md** | ✅ Hecho | docs/ | Pasos detallados para Azure. |
+| **docs/AZURE-PASO-A-PASO.md** | ✅ Hecho | docs/ | Pasos detallados para el despliegue en la nube. |
 | **docs/MANUAL-USUARIO.md** | ✅ Añadido | docs/ | Manual para usuarios finales (registro, dashboard, token, webhooks, jobs). |
-| **.github/workflows/** | ✅ Hecho | .github/ | CI/CD (deploy a Azure). |
+| **.github/workflows/** | ✅ Hecho | .github/ | CI/CD (deploy a cloud hosting). |
 | **.github/SECRETS-GITHUB.md** | ✅ Hecho | .github/ | Cómo configurar secrets para el deploy. |
 | **.github/DEPLOY-AZURE-ACTIONS.md** | ✅ Hecho | .github/ | Documentación del workflow de deploy. |
 
@@ -77,7 +77,7 @@ Este documento enumera **toda la documentación y elementos** que tiene el proye
 | Dockerfile | ✅ | Raíz |
 | docker-compose.yml | ✅ | Raíz |
 | Variables de entorno documentadas | ✅ | .env.example, README |
-| Deploy a Azure (GitHub Actions) | ✅ | .github/workflows/deploy-azure.yml |
+| Deploy a cloud hosting (GitHub Actions) | ✅ | .github/workflows/deploy.yml |
 | Documentación de secrets | ✅ | .github/SECRETS-GITHUB.md |
 
 ---

@@ -1,9 +1,9 @@
 # ============================================
-# Deploy to Azure: build image in ACR and restart Web App
+# Deploy to Production: build container image and restart service
 # Runs on: push to main (e.g. when a PR is merged)
 # ============================================
 
-name: Deploy to Azure
+name: Deploy Production
 
 on:
   push:

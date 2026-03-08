@@ -87,7 +87,7 @@ The following are in scope for security reports:
 
 The following are out of scope:
 
-- Third-party services (Cloudflare, Supabase, Azure)
+- Third-party services (Cloudflare, Supabase, cloud hosting provider)
 - Social engineering attacks
 - Physical security
 - Denial-of-service attacks
