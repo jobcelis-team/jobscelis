@@ -8,7 +8,7 @@
   <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Preguntas frecuentes")}</h1>
 
   <p class="text-slate-600 mb-10">
-    {gettext("Respuestas rápidas a las dudas más habituales sobre Jobcelis.")}
+    {gettext("Preguntas frecuentes sobre la plataforma Jobcelis.")}
   </p>
 
   <div class="space-y-8">
@@ -17,7 +17,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Jobcelis es una plataforma de eventos y webhooks: envías datos (eventos) desde tu aplicación con un simple POST, y Jobcelis los entrega a las URLs que configures (webhooks), con filtros y reintentos automáticos. Además puedes programar tareas (jobs) que se ejecuten cada día, semana, mes o con expresión cron."
+          "Jobcelis es una plataforma de eventos y webhooks: se envían datos (eventos) desde la aplicación mediante POST, y Jobcelis los entrega a las URLs configuradas (webhooks), con filtros y reintentos automáticos. Además permite programar tareas (jobs) que se ejecuten cada día, semana, mes o con expresión cron."
         )}
       </p>
     </section>
@@ -29,7 +29,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Tras iniciar sesión, entra en el Dashboard. En la sección API Token verás el token (o su prefijo). Si acabas de registrarte, el token completo se mostró una vez al crear el proyecto; guárdalo. Puedes regenerar el token desde el Dashboard; el anterior dejará de funcionar."
+          "Tras la autenticación, acceder al Dashboard. En la sección API Token se muestra el token (o su prefijo). Si se acaba de registrar, el token completo se mostró una vez al crear el proyecto; debe guardarse. Es posible regenerar el token desde el Dashboard; el anterior dejará de funcionar."
         )}
       </p>
     </section>
@@ -41,7 +41,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Haz un POST a /api/v1/events (o /api/v1/send) con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN y Content-Type: application/json. El body puede ser cualquier JSON; opcionalmente incluye un campo \"topic\" para clasificar el evento. La documentación en /docs tiene ejemplos con curl."
+          "Enviar una solicitud POST a /api/v1/events (o /api/v1/send) con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN y Content-Type: application/json. El body puede ser cualquier JSON; opcionalmente incluir un campo \"topic\" para clasificar el evento. La documentación en /docs tiene ejemplos con curl."
         )}
       </p>
     </section>
@@ -53,7 +53,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Un webhook es una URL que tú configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos. Así tu servidor o otro sistema recibe la información en tiempo real sin tener que consultar la API. Puedes configurar varios webhooks y filtrar por topic o por campos del payload."
+          "Un webhook es un endpoint URL configurado. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos. De este modo el servidor o sistema receptor obtiene la información en tiempo real sin necesidad de consultar la API. Se pueden configurar varios webhooks y filtrar por topic o por campos del payload."
         )}
       </p>
     </section>
@@ -65,7 +65,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Jobcelis reintenta automáticamente con intervalos crecientes. Puedes ver el estado de cada entrega en el Dashboard y usar \"Reintentar\" manualmente para una entrega fallida. Las entregas que agotan todos los reintentos se mueven a la Dead Letter Queue, donde puedes revisarlas y reenviarlas."
+          "Jobcelis reintenta automáticamente con intervalos crecientes. El estado de cada entrega es visible en el Dashboard, donde es posible reintentar manualmente entregas fallidas desde el Dashboard. Las entregas que agotan todos los reintentos se mueven a la Dead Letter Queue, donde se pueden revisar y reenviar."
         )}
       </p>
     </section>
@@ -77,7 +77,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "En el Dashboard, Jobs → Crear. Elige tipo \"Diario\" y configura la hora y el minuto. Como acción puedes \"Emitir evento\" (con topic y payload) o \"POST a URL\". Para horarios más complejos (cada 15 min, solo lunes, etc.) elige tipo \"Cron\" y escribe una expresión; en la Documentación, sección \"Configurar jobs y cron\", tienes la tabla de campos y ejemplos."
+          "En el Dashboard, Jobs → Crear. Seleccionar tipo \"Diario\" y configurar la hora y el minuto. Como acción se puede \"Emitir evento\" (con topic y payload) o \"POST a URL\". Para horarios más complejos (cada 15 min, solo lunes, etc.) seleccionar tipo Cron y definir la expresión cron; en la Documentación, sección \"Configurar jobs y cron\", está la tabla de campos y ejemplos."
         )}
       </p>
     </section>
@@ -101,7 +101,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Puedes reenviar eventos pasados a tus webhooks usando la API de Replay. Filtra por rango de fechas, topic o webhook específico. Es útil para reprocesar datos tras corregir un bug o migrar a un nuevo sistema."
+          "Es posible reenviar eventos pasados a los webhooks usando la API de Replay. Filtrar por rango de fechas, topic o webhook específico. Permite reprocesar eventos históricos tras cambios en el código o migraciones del sistema."
         )}
       </p>
     </section>
@@ -113,7 +113,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Cada entrega incluye un header de firma que puedes verificar con tu API token. Esto te permite confirmar que el POST viene de Jobcelis y no fue manipulado. La documentación en /docs tiene ejemplos de verificación en todos los SDKs."
+          "Cada entrega incluye un header de firma que se puede verificar con el API token. Esto permite confirmar que el POST proviene de Jobcelis y no fue manipulado. La documentación en /docs tiene ejemplos de verificación en todos los SDKs."
         )}
       </p>
     </section>
@@ -137,7 +137,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "El sandbox te permite crear endpoints de prueba temporales para testear tus webhooks sin necesitar un servidor propio. Creas un endpoint sandbox, lo configuras como URL de tu webhook, y puedes ver todas las peticiones que recibe."
+          "El sandbox proporciona endpoints temporales de prueba para validar webhooks durante el desarrollo sin requerir un servidor público. Se crea un endpoint sandbox, se configura como URL del webhook, y se pueden ver todas las peticiones que recibe."
         )}
       </p>
     </section>
@@ -173,7 +173,7 @@
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Sí, las rutas de autenticación tienen rate limiting para prevenir abuso. Las rutas de la plataforma (eventos, webhooks, jobs) tienen límites generosos por proyecto. Si necesitas más capacidad, contáctanos."
+          "Sí, las rutas de autenticación tienen rate limiting para prevenir abuso. Las rutas de la plataforma (eventos, webhooks, jobs) tienen límites generosos por proyecto. Para límites personalizados, contactar con soporte."
         )}
       </p>
     </section>
