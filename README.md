@@ -54,7 +54,7 @@ Built with **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1**, and **PostgreSQL**
 | **Security** | Industry-standard encryption at rest, MFA/TOTP, session management, rate limiting, IP allowlist, circuit breaker, anomaly detection, security headers, cookie consent. |
 | **GDPR** | Right to erasure (Art. 17), restriction of processing (Art. 18), right to object (Art. 21), personal data export (Art. 15/20), consent management. |
 | **API** | 90+ REST endpoints with JWT and API Key authentication. OpenAPI 3.0 with interactive Swagger UI. SSE and WebSocket for streaming. |
-| **Backups** | Automated daily database backups with compression. Local or Azure Blob Storage. Configurable retention policy. |
+| **Backups** | Automated daily database backups with compression. Local or cloud object storage. Configurable retention policy. |
 | **Observability** | Periodic uptime monitoring, health checks (database, jobs, cache, backup), immutable audit log, structured JSON logs in production. |
 | **Admin Panel** | Superadmin panel: user management with search, project overview, system metrics, platform settings. |
 
@@ -84,7 +84,7 @@ jobcelis/
 ├── docker-compose.yml
 └── .github/workflows/
     ├── ci.yml                 # Tests, format, Credo, Sobelow, Dialyzer, Trivy
-    ├── deploy-azure.yml       # Production deploy
+    ├── deploy.yml             # Production deploy
     ├── deploy-staging.yml     # Staging deploy
     └── publish-sdks.yml       # SDK publishing
 ```
@@ -180,8 +180,8 @@ iex -S mix
 | `RESEND_API_KEY` | Optional | Resend API key for transactional emails |
 | `PHX_HOST` | Production | Production domain |
 | `CDN_HOST` | Optional | CDN domain for static assets |
-| `AZURE_STORAGE_ACCOUNT` / `AZURE_STORAGE_KEY` | Optional | Azure Blob Storage for backups |
-| `AZURE_CONTAINER_BACKUPS` | Optional | Azure container name |
+| `AZURE_STORAGE_ACCOUNT` / `AZURE_STORAGE_KEY` | Optional | Cloud storage credentials for backups |
+| `AZURE_CONTAINER_BACKUPS` | Optional | Cloud storage container name |
 | `BACKUP_ENABLED` / `BACKUP_PATH` / `BACKUP_RETENTION_DAYS` | Optional | Backup configuration |
 
 ---
@@ -609,7 +609,7 @@ Parameter `?format=csv|json&days=N` on all export endpoints.
 ## Backups
 
 - **Automated daily backups** with compression
-- **Dual storage**: local or Azure Blob Storage (auto-upload if configured)
+- **Dual storage**: local or cloud object storage (auto-upload if configured)
 - **Configurable retention** with automatic cleanup of old backups
 - Status visible in `/health` and uptime dashboard
 - Tracked in audit log
@@ -694,8 +694,8 @@ Runs on push to `main`/`develop` and PRs to `main`:
 
 | Environment | Branch | Trigger |
 |-------------|--------|---------|
-| **Staging** | `develop` | Auto push → Container Registry → Azure Web App |
-| **Production** | `main` | Auto push → Container Registry → Azure Web App |
+| **Staging** | `develop` | Auto push → Container Registry → Cloud platform |
+| **Production** | `main` | Auto push → Container Registry → Cloud platform |
 
 Recommended flow: `develop` (staging) → verify → `main` (production).
 
@@ -742,7 +742,7 @@ Multi-stage Dockerfile:
 | **OpenApiSpex** | OpenAPI 3.0 spec generation + Swagger UI |
 | **Tailwind CSS v4** | Styles (utility-first, responsive, dark mode) |
 | **Resend** | Transactional emails |
-| **Azure Blob Storage** | Backup storage (optional) |
+| **Cloud Object Storage** | Backup storage (optional) |
 
 ---
 

@@ -5,7 +5,7 @@
 | Environment | URL | Branch | Image | Auto-deploy |
 |-------------|-----|--------|-------|-------------|
 | **Local** | `http://localhost:4000` | — | — | — |
-| **Staging** | `https://jobcelis-staging.azurewebsites.net` | `develop` | `jobscelis:staging` | Push to `develop` |
+| **Staging** | Staging environment | `develop` | `jobscelis:staging` | Push to `develop` |
 | **Production** | `https://jobcelis.com` | `main` | `jobscelis:latest` | Push to `main` |
 
 ## Deploy Process
@@ -22,19 +22,19 @@ Staging (develop branch)
     ├── git merge main
     ├── git push origin develop
     │   └── GitHub Actions: deploy-staging.yml
-    │       ├── Build image → ACR (jobscelis:staging)
-    │       └── Restart jobcelis-staging Web App
+    │       ├── Build image → container registry (jobscelis:staging)
+    │       └── Restart staging cloud platform
     │
-    ├── Verify at https://jobcelis-staging.azurewebsites.net
+    ├── Verify at staging environment
     │
     ▼
 Production (main branch)
     │
     ├── git checkout main
     ├── git push origin main
-    │   └── GitHub Actions: deploy-azure.yml
-    │       ├── Build image → ACR (jobscelis:latest)
-    │       └── Restart jobcelis Web App
+    │   └── GitHub Actions: deploy.yml
+    │       ├── Build image → container registry (jobscelis:latest)
+    │       └── Restart production cloud platform
     │
     └── Live at https://jobcelis.com
 ```
@@ -54,7 +54,7 @@ git merge main
 git push origin develop
 
 # 3. Verify staging works
-# Visit https://jobcelis-staging.azurewebsites.net
+# Visit the staging environment URL
 
 # 4. Deploy to production
 git checkout main
@@ -103,15 +103,15 @@ On every push to `main` or `develop`, and on PRs to `main`:
 
 | Component | Service | Details |
 |-----------|---------|---------|
-| **Hosting** | Azure Web App (B1 Basic) | Canada Central |
-| **Container Registry** | Azure ACR (`jobscelisacr`) | Images: `latest`, `staging` |
+| **Hosting** | Cloud platform | Managed container hosting |
+| **Container Registry** | Container registry | Images: `latest`, `staging` |
 | **Production DB** | Supabase PostgreSQL | Pooler port 6543 |
 | **Staging DB** | Supabase PostgreSQL (us-west-2) | Separate instance |
 | **CDN** | Cloudflare → `cdn.jobcelis.com` | Production only |
 | **DNS** | Cloudflare | `jobcelis.com`, `cdn.jobcelis.com` |
-| **CI/CD** | GitHub Actions | 3 workflows: CI, deploy-azure, deploy-staging |
+| **CI/CD** | GitHub Actions | 3 workflows: CI, deploy, deploy-staging |
 | **Email** | Resend | `support@jobcelis.com` |
-| **Backups** | Azure Blob Storage | Daily at 2am, verified monthly |
+| **Backups** | Cloud object storage | Daily, verified monthly |
 
 ## Load Testing
 
@@ -119,11 +119,11 @@ Run against staging (never production) using k6:
 
 ```bash
 # Health endpoint
-k6 run --env BASE_URL=https://jobcelis-staging.azurewebsites.net k6/health_load.js
+k6 run --env BASE_URL=https://your-staging-url k6/health_load.js
 
 # Event creation
-k6 run --env API_KEY='your_staging_key' --env BASE_URL=https://jobcelis-staging.azurewebsites.net k6/events_load.js
+k6 run --env API_KEY='your_staging_key' --env BASE_URL=https://your-staging-url k6/events_load.js
 
 # Webhook listing
-k6 run --env API_KEY='your_staging_key' --env BASE_URL=https://jobcelis-staging.azurewebsites.net k6/webhooks_load.js
+k6 run --env API_KEY='your_staging_key' --env BASE_URL=https://your-staging-url k6/webhooks_load.js
 ```

@@ -61,7 +61,7 @@ Client                    Jobcelis                         Destination
 | **Platform** | `platform.ex` | Main context — events, webhooks, deliveries, jobs |
 | **Schemas** | `schemas/` | Ecto schemas (18+ tables, all binary UUID PKs) |
 | **Workers** | `platform/` | Oban background workers (delivery, backup, purge, etc.) |
-| **Services** | `services/` | Azure Storage, audit logging |
+| **Services** | `services/` | Cloud storage, audit logging |
 | **Repo** | `repo.ex` | Database access (PostgreSQL via Supabase) |
 | **Vault** | `vault.ex` | Cloak encryption vault (AES-256-GCM) |
 
@@ -105,7 +105,7 @@ Oban queues with dedicated workers:
 
 ```
 Request → Cloudflare (DDoS, CDN)
-        → Azure Web App (TLS termination)
+        → Cloud platform (TLS termination)
         → Phoenix Endpoint (CSP nonce, security headers)
         → Rate Limiter (IP-based + project-based)
         → Authentication (API key or JWT)
@@ -120,12 +120,12 @@ Request → Cloudflare (DDoS, CDN)
 - All primary/foreign keys: binary UUIDs
 - PII encrypted at rest (Cloak AES-256-GCM)
 - Email lookups via HMAC-SHA512 deterministic hash
-- Automated daily backups to Azure Blob Storage
+- Automated daily backups to cloud object storage
 
 ## Environments
 
 | Environment | URL | Deploy trigger |
 |-------------|-----|----------------|
 | Local | `localhost:4000` | `mix phx.server` |
-| Staging | `jobcelis-staging.azurewebsites.net` | Push to `develop` |
+| Staging | Staging environment | Push to `develop` |
 | Production | `jobcelis.com` | Push to `main` |

@@ -1,5 +1,5 @@
 # ============================================
-# Deploy to Staging: build image in ACR and restart staging Web App
+# Deploy to Staging: build container image and restart staging service
 # Runs on: push to develop
 # ============================================
 

@@ -28,7 +28,7 @@ Así el copyright y los Términos/Privacidad muestran tu nombre y enlaces a GitH
 
 ### Opción 2: En producción con variables de entorno
 
-Sin tocar código, en Azure (o donde despliegues) añade en **Configuration → Application settings**:
+Sin tocar código, en tu plataforma de hosting (o donde despliegues) añade las siguientes variables de entorno:
 
 - `LEGAL_OWNER` = `Tu Nombre o Empresa S.L.`
 - `LEGAL_PRODUCT_NAME` = `Jobcelis` (o el nombre que uses)
@@ -57,10 +57,10 @@ El servicio está en **https://jobcelis.com**. Para que siga siendo **claramente
 
 - **Registra un dominio** (ej. `jobcelis.com`, `jobcelis.io` o uno que combine tu nombre + servicio).
 - Registradores habituales: [Cloudflare](https://www.cloudflare.com/products/registrar/), [Namecheap](https://www.namecheap.com), [Google Domains](https://domains.google), etc.
-- En Azure: **App Service** → tu app → **Custom domains** → añades el dominio y sigues las instrucciones (DNS).
+- En tu plataforma de hosting: configura un dominio personalizado siguiendo las instrucciones de tu proveedor (DNS).
 - En los Términos y en la documentación puedes indicar que el servicio “oficial” es `https://tudominio.com`.
 
-Así evitas depender solo de un subdominio de Azure y refuerzas que el servicio es tuyo.
+Así evitas depender solo de un subdominio del proveedor y refuerzas que el servicio es tuyo.
 
 ### 2. Comprobar que el nombre no choca con otros
 
@@ -84,7 +84,7 @@ Eso no evita al 100 % una reclamación, pero **demuestra buena fe** y deja claro
 
 | Paso | Acción |
 |------|--------|
-| Dominio | Registrar un dominio (ej. jobcelis.com) y usarlo en Azure como dominio personalizado. |
+| Dominio | Registrar un dominio (ej. jobcelis.com) y usarlo como dominio personalizado en tu hosting. |
 | Nombre | Buscar “Jobcelis” (y similares) en Google y en la oficina de marcas de tu país. |
 | Términos | Ya indican que es servicio original y no afiliado; enlace a GitHub/perfil para contacto. |
 | Dudas | Si el proyecto crece o quieres monetizar, consultar a un abogado (propiedad intelectual / marcas). |

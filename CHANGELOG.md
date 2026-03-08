@@ -41,5 +41,5 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - Panel de administración (superadmin): usuarios, proyectos, métricas.
 - Términos de uso y política de privacidad.
 - Documentación API en `/docs`.
-- Despliegue con GitHub Actions a Azure (ACR + Web App).
+- Despliegue con GitHub Actions a cloud hosting (container registry + cloud platform).
 - Soporte multidioma (ES/EN) en la interfaz.
