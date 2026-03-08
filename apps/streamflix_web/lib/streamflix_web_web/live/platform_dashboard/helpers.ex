@@ -258,6 +258,15 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
     end
   end
 
+  def with_superadmin(socket, fun) do
+    if StreamflixAccounts.Schemas.User.superadmin?(socket.assigns.current_user) do
+      fun.()
+    else
+      {:noreply,
+       Phoenix.LiveView.put_flash(socket, :error, gettext("No tienes permisos para esta acción."))}
+    end
+  end
+
   def compute_user_role(nil, _user), do: nil
 
   def compute_user_role(project, user) do

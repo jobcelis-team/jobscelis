@@ -941,6 +941,15 @@ textarea:focus-visible {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Docs: code blocks in dark mode — bg-slate-800 (#1e293b) becomes lighter
+   than surrounding cards (bg-slate-50/50 → oklch 20%), creating a visible
+   "highlighted" effect. Override to be darker than the card + subtle border. */
+[data-theme=dark] .docs-main pre[class*="bg-slate-800"],
+[data-theme=dark] .docs-main div[class*="bg-slate-800"] {
+  background-color: oklch(16% 0.012 254) !important;
+  border: 1px solid oklch(25% 0.02 257);
+}
+
 /* Docs sidebar: thin scrollbar */
 #docs-sidebar::-webkit-scrollbar {
   width: 4px;

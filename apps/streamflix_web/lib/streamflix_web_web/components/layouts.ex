@@ -74,13 +74,13 @@ defmodule StreamflixWebWeb.Layouts do
         <%!-- Logo --%>
         <a
           href="/"
-          class="flex items-center gap-2 text-xl font-bold text-slate-900 tracking-tight rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          class="flex items-center gap-2 text-xl font-bold text-slate-900 tracking-tight rounded shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           aria-label={gettext("Jobcelis - Ir al inicio")}
         >
           <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" /> Jobcelis
         </a>
         <%!-- Desktop links --%>
-        <div class="hidden md:flex items-center gap-5">
+        <div class="hidden lg:flex items-center gap-3 xl:gap-5 whitespace-nowrap">
           <a
             href="/docs"
             class={[
@@ -164,7 +164,7 @@ defmodule StreamflixWebWeb.Layouts do
         <%!-- Mobile hamburger --%>
         <button
           type="button"
-          class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           aria-label={gettext("Abrir menú")}
           phx-click={
             JS.toggle(to: "#mobile-menu-panel")
@@ -180,7 +180,7 @@ defmodule StreamflixWebWeb.Layouts do
       </nav>
       <%!-- Mobile menu panel --%>
       <div
-        class="md:hidden hidden border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+        class="lg:hidden hidden border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
         id="mobile-menu-panel"
       >
         <div class="px-4 py-4 space-y-1">
