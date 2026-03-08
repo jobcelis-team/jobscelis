@@ -61,8 +61,10 @@ defmodule StreamflixCore.Platform.Backup do
     File.mkdir_p!(backup_path)
 
     timestamp = DateTime.utc_now() |> Calendar.strftime("%Y%m%d_%H%M%S")
-    filename = "streamflix_#{timestamp}.sql.gz"
-    filepath = Path.join(backup_path, filename)
+    env_prefix = backup_env_prefix()
+    filename = "#{env_prefix}/streamflix_#{timestamp}.sql.gz"
+    local_filename = "streamflix_#{env_prefix}_#{timestamp}.sql.gz"
+    filepath = Path.join(backup_path, local_filename)
 
     case build_pg_dump_env() do
       {:ok, env} ->
@@ -118,8 +120,9 @@ defmodule StreamflixCore.Platform.Backup do
   defp last_backup_info_azure do
     azure_config = Application.get_env(:streamflix_core, :azure_storage, [])
     container = Keyword.get(azure_config, :container_backups, "backups")
+    prefix = "#{backup_env_prefix()}/streamflix_"
 
-    case AzureStorage.list_blobs(container, prefix: "streamflix_") do
+    case AzureStorage.list_blobs(container, prefix: prefix) do
       {:ok, blobs} ->
         case Enum.sort_by(blobs, & &1.name, :desc) do
           [latest | _] ->
@@ -153,8 +156,9 @@ defmodule StreamflixCore.Platform.Backup do
   defp cleanup_azure_backups(retention_days) do
     azure_config = Application.get_env(:streamflix_core, :azure_storage, [])
     container = Keyword.get(azure_config, :container_backups, "backups")
+    prefix = "#{backup_env_prefix()}/streamflix_"
 
-    case AzureStorage.list_blobs(container, prefix: "streamflix_") do
+    case AzureStorage.list_blobs(container, prefix: prefix) do
       {:ok, blobs} ->
         deleted =
           blobs
@@ -372,6 +376,14 @@ defmodule StreamflixCore.Platform.Backup do
 
       _ ->
         []
+    end
+  end
+
+  defp backup_env_prefix do
+    case System.get_env("PHX_HOST") do
+      "jobcelis.com" -> "production"
+      nil -> "local"
+      _other -> "staging"
     end
   end
 
