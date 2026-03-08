@@ -2,7 +2,7 @@ defmodule StreamflixCore.Repo.Migrations.CreatePipelines do
   use Ecto.Migration
 
   def up do
-    # Disable Supabase RLS event trigger if it exists (prevents CREATE TABLE failure)
+    # Disable RLS event trigger if it exists (prevents CREATE TABLE failure)
     execute("""
     DO $$ BEGIN
       IF EXISTS (SELECT 1 FROM pg_event_trigger WHERE evtname = 'ensure_rls_on_new_tables') THEN

@@ -2,12 +2,11 @@ import Config
 
 # ============================================
 # DEVELOPMENT CONFIGURATION
-# Using Supabase PostgreSQL (same DB as agent_flow)
 # ============================================
 
 # ============================================
-# DATABASE CONFIG (Supabase o local)
-# Si DATABASE_URL está definida (ej. Supabase), se usa; si no, DB_* (local o compose con servicio db)
+# DATABASE CONFIG
+# Use DATABASE_URL if set, otherwise fall back to DB_* vars
 # ============================================
 
 database_config =
@@ -24,7 +23,7 @@ database_config =
       database: System.get_env("DB_DATABASE") || "postgres"
     ]
 
-    # Only use SSL for remote databases (Supabase, etc.), not localhost
+    # Only use SSL for remote databases, not localhost
     if hostname in ["localhost", "127.0.0.1"] do
       base
     else

@@ -273,7 +273,6 @@ defmodule StreamflixWebWeb.CoreComponents do
     """
   end
 
-  # Password inputs with visibility toggle (eye icon)
   def input(%{type: "password"} = assigns) do
     ~H"""
     <div class="fieldset mb-2">
@@ -344,7 +343,6 @@ defmodule StreamflixWebWeb.CoreComponents do
     """
   end
 
-  # All other inputs text, datetime-local, url, etc. are handled here...
   def input(assigns) do
     ~H"""
     <div class="fieldset mb-2">
@@ -368,7 +366,6 @@ defmodule StreamflixWebWeb.CoreComponents do
     """
   end
 
-  # Helper used by inputs to generate form errors
   defp error(assigns) do
     ~H"""
     <p class="mt-1.5 flex gap-2 items-center text-sm text-red-600">
@@ -544,16 +541,6 @@ defmodule StreamflixWebWeb.CoreComponents do
   Translates an error message using gettext.
   """
   def translate_error({msg, opts}) do
-    # When using gettext, we typically pass the strings we want
-    # to translate as a static argument:
-    #
-    #     # Translate the number of files with plural rules
-    #     dngettext("errors", "1 file", "%{count} files", count)
-    #
-    # However the error messages in our forms and APIs are generated
-    # dynamically, so we need to translate them by calling Gettext
-    # with our gettext backend as first argument. Translations are
-    # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
       Gettext.dngettext(StreamflixWebWeb.Gettext, "errors", msg, msg, count, opts)
     else

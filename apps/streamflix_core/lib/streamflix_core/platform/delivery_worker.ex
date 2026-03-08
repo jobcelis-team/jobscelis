@@ -1,7 +1,7 @@
 defmodule StreamflixCore.Platform.DeliveryWorker do
   @moduledoc """
-  Ejecuta la entrega de un webhook: POST a la URL con el payload.
-  Usa Req con timeouts explícitos para evitar bloqueos.
+  Executes webhook deliveries by POSTing payloads to configured URLs.
+  Uses Req with explicit timeouts to prevent blocking.
   """
   require Logger
 
@@ -13,8 +13,8 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
   @receive_timeout 15_000
 
   @doc """
-  Ejecuta la entrega: POST al webhook, actualiza status success/failed.
-  Retorna {:ok, delivery} o {:error, reason}.
+  Executes the delivery: POSTs to the webhook URL, updates status to success/failed.
+  Returns `{:ok, delivery}` or `{:error, reason}`.
   """
   def run(nil), do: {:error, :not_found}
   def run(delivery_id) when not is_binary(delivery_id), do: {:error, :invalid_id}
@@ -158,7 +158,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       {"content-type", "application/json"}
     ]
 
-    # X-Signature HMAC-SHA256 si hay secret
+    # Add HMAC-SHA256 signature header when webhook has a secret configured
     with secret when is_binary(secret) and secret != "" <- webhook.secret_encrypted,
          sig <- compute_signature(secret, body_json) do
       [{"x-signature", "sha256=" <> sig} | base]

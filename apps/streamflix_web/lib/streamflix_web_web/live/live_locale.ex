@@ -1,6 +1,6 @@
 defmodule StreamflixWebWeb.LiveLocale do
   @moduledoc """
-  Asigna el idioma desde la sesión al socket y pone Gettext para las vistas Live.
+  Assigns the locale from session to socket and sets Gettext for LiveViews.
   """
   import Phoenix.Component
 

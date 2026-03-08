@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  push:
+  pull_request:
     branches: [main, develop]
     paths-ignore:
       - "*.md"
@@ -10,13 +10,6 @@ on:
       - "LICENSE"
       - ".github/workflows/publish-sdks.yml"
       - ".github/workflows/release.yml"
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - "*.md"
-      - "docs/**"
-      - "sdks/**"
-      - "LICENSE"
 
 env:
   MIX_ENV: test
