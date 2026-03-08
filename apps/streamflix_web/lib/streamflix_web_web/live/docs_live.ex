@@ -129,7 +129,7 @@ defmodule StreamflixWebWeb.DocsLive do
         title: gettext("Seguridad y cumplimiento"),
         items: [
           %{id: "account-lockout", label: gettext("Bloqueo de cuenta")},
-          %{id: "session-management", label: gettext("Gestión de sesiónes")},
+          %{id: "session-management", label: gettext("Gestión de sesiones")},
           %{id: "mfa-totp", label: "MFA / TOTP"},
           %{id: "password-policy", label: gettext("Política de contraseñas")},
           %{id: "data-encryption", label: gettext("Cifrado de datos")},
@@ -810,11 +810,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="intro"
       title={gettext("Introducción")}
-      subtitle={gettext("Qué es Jobcelis y que puedes hacer con la API.")}
+      subtitle={gettext("Qué es Jobcelis y capacidades de la API.")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "Jobcelis es una plataforma de eventos y webhooks 100%% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tu defines topics, payloads y reglas."
+          "Jobcelis es una plataforma de eventos y webhooks completamente configurable. Permite enviar cualquier JSON mediante HTTP POST; la plataforma enruta, filtra, transforma y entrega a las URLs de destino configuradas. Sin esquemas fijos: los topics, payloads y reglas se definen libremente."
         )}
       </p>
       <div class="grid sm:grid-cols-2 gap-4">
@@ -825,7 +825,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           <ul class="text-slate-600 text-sm space-y-1.5">
             <li>
               <strong>{gettext("Eventos:")}</strong> {gettext(
-                "envía JSON con topic opcional via POST. Sin esquemas fijos."
+                "envío de JSON con topic opcional via POST. Sin restricción de esquema."
               )}
             </li>
             <li>
@@ -840,7 +840,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
             </li>
             <li>
               <strong>Jobs:</strong> {gettext(
-                "daily, weekly, monthly o cron. Emitir evento o POST a URL."
+                "programación daily, weekly, monthly o expresión cron. Emite eventos o ejecuta POST a URLs de destino."
               )}
             </li>
             <li><strong>Topics:</strong> {gettext("etiquetas para filtrar y organizar eventos.")}</li>
@@ -871,14 +871,14 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="concepts"
       title={gettext("Conceptos básicos")}
-      subtitle={gettext("Estos son los conceptos que necesitas para usar Jobcelis.")}
+      subtitle={gettext("Conceptos fundamentales de la plataforma.")}
     >
       <div class="space-y-6">
         <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
           <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Qué es un evento?")}</h3>
           <p class="text-slate-700 leading-relaxed mb-4">
             {gettext(
-              "Un evento es un mensaje JSON que envías a Jobcelis desde tu aplicación (con un POST). Puede ser cualquier JSON: un pedido, un pago, un registro, etc. Opcionalmente le pones un topic para clasificarlo. Jobcelis guarda el evento y segun los webhooks que tengas configurados, envía esa información a las URLs que tu indiques."
+              "Un evento es un mensaje JSON enviado a Jobcelis mediante HTTP POST. Acepta cualquier estructura JSON: pedidos, pagos, registros, etc. Opcionalmente incluye un topic para clasificación. Jobcelis persiste el evento y, según los webhooks configurados, entrega la información a las URLs de destino especificadas."
             )}
           </p>
           <.code_block
@@ -892,7 +892,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Qué es un webhook?")}</h3>
           <p class="text-slate-700 leading-relaxed">
             {gettext(
-              "Un webhook es una URL de destino que tu configuras. Cuando llega un evento que cumple las condiciones (topic, filtros), Jobcelis hace un POST a esa URL con los datos que tu eliges."
+              "Un webhook es una URL de destino configurada en el proyecto. Cuando un evento cumple las condiciones especificadas (topic, filtros), Jobcelis realiza un POST a esa URL con el payload configurado."
             )}
           </p>
         </div>
@@ -903,7 +903,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           </h3>
           <p class="text-slate-700 leading-relaxed">
             {gettext(
-              "Cada vez que Jobcelis intenta enviar un evento a una URL de webhook, se crea una entrega. Esa entrega tiene un estado: pendiente, éxito o fallo. Si falla, Jobcelis reintenta automáticamente con backoff exponencial."
+              "Cada intento de envío de un evento a una URL de webhook genera un registro de entrega (delivery). El registro tiene estados: pending, success o failed. En caso de fallo, Jobcelis reintenta automáticamente con backoff exponencial."
             )}
           </p>
         </div>
@@ -912,7 +912,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Qué es un job?")}</h3>
           <p class="text-slate-700 leading-relaxed">
             {gettext(
-              "Un job es una tarea programada: daily, weekly, monthly o cron. Cuando se ejecuta, puede emitir un evento interno o hacer un POST a una URL externa."
+              "Un job es una tarea programada con schedule daily, weekly, monthly o expresión cron. Al ejecutarse, emite un evento interno o realiza un POST a una URL externa."
             )}
           </p>
         </div>
@@ -921,7 +921,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Qué es un topic?")}</h3>
           <p class="text-slate-700 leading-relaxed">
             {gettext(
-              "El topic es una etiqueta opcional para clasificar eventos (ej. order.created, payment.completed). Sirve para filtrar en webhooks. Tu inventas los nombres."
+              "El topic es una etiqueta opcional para clasificar eventos (ej. order.created, payment.completed). Se utiliza como criterio de filtrado en webhooks. La nomenclatura es libre y definida por el usuario."
             )}
           </p>
         </div>
@@ -932,28 +932,28 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="quick-start"
       title={gettext("Inicio rápido")}
-      subtitle={gettext("Sigue estos pasos para tener todo funcionando en pocos minutos.")}
+      subtitle={gettext("Pasos de configuración inicial para integrar la API.")}
     >
       <div class="space-y-6">
         <.quick_start_step
           number={1}
           title={gettext("Regístrate e inicia sesión")}
           description={
-            gettext("En la web, regístrate con tu email y contraseña. Entra al Dashboard.")
+            gettext("Crear una cuenta en la plataforma con email y contraseña. Acceder al Dashboard.")
           }
         />
         <.quick_start_step
           number={2}
-          title={gettext("Copia tu API Token")}
+          title={gettext("Obtener el API Token")}
           description={
             gettext(
-              "En el Dashboard, sección API Token, verás el token. Guárdalo; lo usarás en todas las peticiones con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN."
+              "El token API se encuentra en la sección API Token del Dashboard. Almacenar el token completo de forma segura; se requiere en todas las solicitudes con header Authorization: Bearer TU_TOKEN o X-Api-Key: TU_TOKEN."
             )
           }
         />
-        <.quick_start_step number={3} title={gettext("Envía tu primer evento")}>
+        <.quick_start_step number={3} title={gettext("Enviar el primer evento")}>
           <p class="text-slate-600 text-sm leading-relaxed mb-3">
-            {gettext("Desde tu código o con curl: POST /api/v1/events con body JSON.")}
+            {gettext("Enviar una solicitud POST a /api/v1/events con body JSON.")}
           </p>
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/events\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"test\",\"message\":\"Hello\"}'"}
@@ -962,19 +962,19 @@ function verifySignature(string $secret, string $body, string $signature): bool 
         </.quick_start_step>
         <.quick_start_step
           number={4}
-          title={gettext("Crea un webhook")}
+          title={gettext("Configurar un webhook")}
           description={
             gettext(
-              "En el Dashboard, Webhooks > Crear. Pon una URL que pueda recibir POST. Opcional: elige un topic para filtrar."
+              "En el Dashboard, Webhooks > Crear. Configurar una URL accesible que acepte solicitudes POST. Opcionalmente, especificar un topic para filtrar eventos."
             )
           }
         />
         <.quick_start_step
           number={5}
-          title={gettext("Crea un job (opcional)")}
+          title={gettext("Configurar un job (opcional)")}
           description={
             gettext(
-              "En el Dashboard, Jobs > Crear. Elige programacion y accion (emitir evento o POST a URL)."
+              "En el Dashboard, Jobs > Crear. Seleccionar schedule (daily, weekly, monthly o cron) y acción (emitir evento o POST a URL)."
             )
           }
           last={true}
@@ -982,7 +982,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
 
         <.callout kind="warning">
           {gettext(
-            "Si algo falla, revisa que el token este bien en el header y que la URL del webhook sea accesible. Las entregas fallidas se pueden reintentar desde el Dashboard."
+            "En caso de error, verificar que el token API esté incluido correctamente en el header Authorization y que la URL del webhook sea accesible públicamente. Las entregas fallidas pueden reintentarse desde el Dashboard."
           )}
         </.callout>
       </div>
@@ -1035,7 +1035,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       <.code_block code={@base_url} copy_id="copy-base-url" />
       <p class="text-slate-600 text-sm mt-2">
         {gettext(
-          "En producción la base URL será tu dominio. Los ejemplos curl ya incluyen esta base."
+          "En producción, la URL base corresponde al dominio configurado. Los ejemplos curl incluyen esta base."
         )}
       </p>
     </.docs_section>
@@ -1043,11 +1043,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="auth"
       title={gettext("Autenticación")}
-      subtitle={gettext("Como enviar el API Key o usar JWT en las peticiones.")}
+      subtitle={gettext("Métodos de autenticación: API Key y JWT.")}
     >
       <div>
         <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Rutas con API Key")}</h3>
-        <p class="text-slate-600 mb-3">{gettext("Puedes enviar el token de tres maneras:")}</p>
+        <p class="text-slate-600 mb-3">
+          {gettext("La autenticación por token soporta tres métodos:")}
+        </p>
         <ol class="list-decimal list-inside text-slate-700 space-y-2 mb-3">
           <li>
             {gettext("Header")}
@@ -1070,14 +1072,16 @@ function verifySignature(string $secret, string $body, string $signature): bool 
         </ol>
         <p class="text-slate-600 text-sm">
           {gettext(
-            "El token se obtiene en el Dashboard (sección API Token). El valor completo solo se muestra una vez; guárdalo."
+            "El token API se genera en la sección API Token del Dashboard. El valor completo se muestra únicamente en el momento de creación. Debe almacenarse de forma segura."
           )}
         </p>
       </div>
       <div class="border-t border-slate-200 pt-6">
         <h3 class="text-lg font-semibold text-slate-900 mb-3">{gettext("Rutas publicas (Auth)")}</h3>
         <p class="text-slate-600 text-sm">
-          {gettext("No envies API Key. Registro y login devuelven un JWT para usar en tu app.")}
+          {gettext(
+            "Los endpoints de autenticación no requieren API Key. Los endpoints de registro y login devuelven un JWT para autenticación en la aplicación."
+          )}
         </p>
       </div>
     </.docs_section>
@@ -1085,7 +1089,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="cors"
       title="CORS"
-      subtitle={gettext("Uso de la API desde el navegador u otros origenes.")}
+      subtitle={gettext("Configuración de Cross-Origin Resource Sharing (CORS).")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
@@ -1215,7 +1219,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="events"
       title={gettext("Eventos")}
-      subtitle={gettext("Enviar, listar y gestiónar eventos.")}
+      subtitle={gettext("Gestión de eventos: creación, listado y consulta.")}
     >
       <div class="space-y-6">
         <.api_endpoint
@@ -1298,7 +1302,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="webhooks"
       title="Webhooks"
-      subtitle={gettext("Crear, listar y gestiónar webhooks.")}
+      subtitle={gettext("Crear, listar y gestionar webhooks.")}
     >
       <div class="space-y-6">
         <.api_endpoint
@@ -1562,7 +1566,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="jobs-cron-preview"
           method="GET"
           path="/api/v1/jobs/cron-preview"
-          description={gettext("Previsualiza proximas ejecuciones de una expresion cron.")}
+          description={gettext("Previsualiza próximas ejecuciones de una expresión cron.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/jobs/cron-preview?expression=*/15+*+*+*+*\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1583,7 +1587,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="project-token"
       title={gettext("Proyecto y token")}
-      subtitle={gettext("Consultar y actualizar tu proyecto, gestiónar API tokens.")}
+      subtitle={gettext("Consultar y actualizar el proyecto, gestionar API tokens.")}
     >
       <div class="space-y-6">
         <.api_endpoint
@@ -1644,7 +1648,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="project-token-show"
           method="GET"
           path="/api/v1/token"
-          description={gettext("Muestra info del token actual (prefix).")}
+          description={gettext("Muestra información del token API actual (prefix).")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/token\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1662,7 +1666,9 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="project-token-regen"
           method="POST"
           path="/api/v1/token/regenerate"
-          description={gettext("Regenera el API token. El anterior deja de funcionar.")}
+          description={
+            gettext("Regenera el API token. El token anterior se invalida inmediatamente.")
+          }
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/token/regenerate\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1688,14 +1694,16 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="pipelines"
       title="Pipelines"
-      subtitle={gettext("Pipelines de procesamiento de eventos con pasos encadenados.")}
+      subtitle={
+        gettext("Pipelines de procesamiento de eventos con pasos secuenciales de transformación.")
+      }
     >
       <div class="space-y-6">
         <.api_endpoint
           id="pipelines-list"
           method="GET"
           path="/api/v1/pipelines"
-          description={gettext("Lista pipelines del proyecto.")}
+          description={gettext("Lista los pipelines del proyecto.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/pipelines\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1713,7 +1721,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="pipelines-create"
           method="POST"
           path="/api/v1/pipelines"
-          description={gettext("Crea un pipeline nuevo.")}
+          description={gettext("Crea un nuevo pipeline de procesamiento.")}
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/pipelines\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Order Pipeline\",\"description\":\"Process orders\",\"steps\":[{\"type\":\"filter\",\"config\":{\"field\":\"amount\",\"operator\":\"gt\",\"value\":100}}]}'"}
@@ -1731,7 +1739,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="pipelines-show"
           method="GET"
           path="/api/v1/pipelines/:id"
-          description={gettext("Detalle de un pipeline.")}
+          description={gettext("Obtiene la configuración detallada de un pipeline.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/pipelines/PIPELINE_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1749,7 +1757,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="pipelines-update"
           method="PATCH"
           path="/api/v1/pipelines/:id"
-          description={gettext("Actualiza un pipeline.")}
+          description={gettext("Actualiza la configuración de un pipeline.")}
         >
           <.code_block
             code={"curl -X PATCH \"#{@base_url}/api/v1/pipelines/PIPELINE_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Updated Pipeline\",\"description\":\"New description\"}'"}
@@ -1767,7 +1775,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="pipelines-delete"
           method="DELETE"
           path="/api/v1/pipelines/:id"
-          description={gettext("Elimina un pipeline.")}
+          description={gettext("Elimina un pipeline y sus configuraciones asociadas.")}
         >
           <.code_block
             code={"curl -X DELETE \"#{@base_url}/api/v1/pipelines/PIPELINE_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1783,7 +1791,9 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="pipelines-test"
           method="POST"
           path="/api/v1/pipelines/:id/test"
-          description={gettext("Prueba un pipeline con un payload de ejemplo.")}
+          description={
+            gettext("Ejecuta un pipeline con un payload de prueba sin persistir resultados.")
+          }
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/pipelines/PIPELINE_ID/test\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"payload\":{\"order_id\":\"123\",\"amount\":99.99}}'"}
@@ -1804,14 +1814,14 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="dead-letters"
       title="Dead Letters"
-      subtitle={gettext("Eventos que agotaron los reintentos.")}
+      subtitle={gettext("Eventos que agotaron todos los intentos de entrega configurados.")}
     >
       <div class="space-y-6">
         <.api_endpoint
           id="dead-letters-list"
           method="GET"
           path="/api/v1/dead-letters"
-          description={gettext("Lista dead letters.")}
+          description={gettext("Lista los eventos no entregados (dead letters) del proyecto.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/dead-letters\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1829,7 +1839,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="dead-letters-show"
           method="GET"
           path="/api/v1/dead-letters/:id"
-          description={gettext("Detalle de un dead letter.")}
+          description={gettext("Obtiene los detalles completos de un dead letter.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/dead-letters/DEAD_LETTER_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1847,7 +1857,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="dead-letters-retry"
           method="POST"
           path="/api/v1/dead-letters/:id/retry"
-          description={gettext("Reintenta un dead letter.")}
+          description={gettext("Reintenta la entrega de un dead letter al endpoint de webhook.")}
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/dead-letters/DEAD_LETTER_ID/retry\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1865,7 +1875,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="dead-letters-resolve"
           method="PATCH"
           path="/api/v1/dead-letters/:id/resolve"
-          description={gettext("Marca un dead letter como resuelto.")}
+          description={gettext("Marca un dead letter como resuelto, removiéndolo de la cola.")}
         >
           <.code_block
             code={"curl -X PATCH \"#{@base_url}/api/v1/dead-letters/DEAD_LETTER_ID/resolve\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1884,14 +1894,16 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="replays"
       title={gettext("Event Replay")}
-      subtitle={gettext("Re-envía eventos históricos a tus webhooks.")}
+      subtitle={gettext("Re-entrega eventos históricos a los endpoints de webhook.")}
     >
       <div class="space-y-6">
         <.api_endpoint
           id="replays-create"
           method="POST"
           path="/api/v1/replays"
-          description={gettext("Crea un replay de eventos.")}
+          description={
+            gettext("Crea un job de replay para re-entregar eventos en un rango de tiempo.")
+          }
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/replays\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"webhook_id\":\"WEBHOOK_ID\",\"from\":\"2026-01-01T00:00:00Z\",\"to\":\"2026-01-31T23:59:59Z\"}'"}
@@ -1909,7 +1921,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="replays-list"
           method="GET"
           path="/api/v1/replays"
-          description={gettext("Lista replays.")}
+          description={gettext("Lista los jobs de replay con su estado y progreso.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/replays\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1927,7 +1939,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="replays-show"
           method="GET"
           path="/api/v1/replays/:id"
-          description={gettext("Detalle de un replay.")}
+          description={gettext("Obtiene el estado y configuración de un replay específico.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/replays/REPLAY_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1945,7 +1957,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="replays-cancel"
           method="DELETE"
           path="/api/v1/replays/:id"
-          description={gettext("Cancela un replay en curso.")}
+          description={gettext("Cancela un replay en ejecución, deteniendo entregas pendientes.")}
         >
           <.code_block
             code={"curl -X DELETE \"#{@base_url}/api/v1/replays/REPLAY_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1966,14 +1978,14 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="event-schemas"
       title={gettext("Event Schemas")}
-      subtitle={gettext("Define y valida la estructura de tus eventos con JSON Schema.")}
+      subtitle={gettext("Definición y validación de estructura de eventos mediante JSON Schema.")}
     >
       <div class="space-y-6">
         <.api_endpoint
           id="schemas-list"
           method="GET"
           path="/api/v1/event-schemas"
-          description={gettext("Lista schemas del proyecto.")}
+          description={gettext("Lista los JSON schemas registrados para validación de eventos.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/event-schemas\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -1991,7 +2003,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="schemas-create"
           method="POST"
           path="/api/v1/event-schemas"
-          description={gettext("Crea un schema de validacion.")}
+          description={gettext("Crea un nuevo JSON Schema para validación de payloads.")}
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/event-schemas\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"schema\":{\"type\":\"object\",\"required\":[\"order_id\"],\"properties\":{\"order_id\":{\"type\":\"string\"}}}}'"}
@@ -2009,7 +2021,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="schemas-show"
           method="GET"
           path="/api/v1/event-schemas/:id"
-          description={gettext("Detalle de un schema.")}
+          description={gettext("Obtiene la definición completa de un JSON Schema.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/event-schemas/SCHEMA_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2027,7 +2039,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="schemas-update"
           method="PATCH"
           path="/api/v1/event-schemas/:id"
-          description={gettext("Actualiza un schema.")}
+          description={gettext("Actualiza un JSON Schema e incrementa el número de versión.")}
         >
           <.code_block
             code={"curl -X PATCH \"#{@base_url}/api/v1/event-schemas/SCHEMA_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"schema\":{\"type\":\"object\",\"required\":[\"order_id\",\"amount\"],\"properties\":{\"order_id\":{\"type\":\"string\"},\"amount\":{\"type\":\"number\"}}}}'"}
@@ -2045,7 +2057,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="schemas-delete"
           method="DELETE"
           path="/api/v1/event-schemas/:id"
-          description={gettext("Elimina un schema.")}
+          description={gettext("Elimina un JSON Schema del proyecto.")}
         >
           <.code_block
             code={"curl -X DELETE \"#{@base_url}/api/v1/event-schemas/SCHEMA_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2061,7 +2073,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="schemas-validate"
           method="POST"
           path="/api/v1/event-schemas/validate"
-          description={gettext("Valida un payload contra un schema sin guardarlo.")}
+          description={gettext("Valida un payload contra un JSON Schema sin persistir el evento.")}
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/event-schemas/validate\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"payload\":{\"order_id\":\"123\"}}'"}
@@ -2082,14 +2094,14 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="export"
       title={gettext("Exportar datos")}
-      subtitle={gettext("Descarga datos en CSV o JSON.")}
+      subtitle={gettext("Exportación de datos del proyecto en formato CSV o JSON.")}
     >
       <div class="space-y-6">
         <.api_endpoint
           id="export-events"
           method="GET"
           path="/api/v1/export/events"
-          description={gettext("Exporta eventos.")}
+          description={gettext("Exporta eventos con metadatos y payload completo.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/export/events?format=csv\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2107,7 +2119,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="export-deliveries"
           method="GET"
           path="/api/v1/export/deliveries"
-          description={gettext("Exporta entregas.")}
+          description={gettext("Exporta registros de entregas con historial de intentos.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/export/deliveries?format=csv\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2125,7 +2137,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="export-jobs"
           method="GET"
           path="/api/v1/export/jobs"
-          description={gettext("Exporta jobs.")}
+          description={gettext("Exporta jobs programados con estado y configuración.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/export/jobs?format=csv\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2143,7 +2155,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="export-audit"
           method="GET"
           path="/api/v1/export/audit-log"
-          description={gettext("Exporta audit log.")}
+          description={gettext("Exporta el audit log completo con metadatos de acciones.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/export/audit-log?format=csv\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2160,7 +2172,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       </div>
       <.callout kind="tip">
         {gettext(
-          "Usa el query param ?format=csv para CSV o ?format=json para JSON. Por defecto es CSV."
+          "Utilizar el query parameter ?format=csv para CSV o ?format=json para JSON. El formato por defecto es CSV."
         )}
       </.callout>
     </.docs_section>
@@ -2178,11 +2190,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="dashboard-overview"
       title="Dashboard"
-      subtitle={gettext("Panel principal para gestiónar tu plataforma.")}
+      subtitle={gettext("Panel principal para gestión de recursos del proyecto.")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "El Dashboard es tu centro de control. Desde ahi puedes ver eventos, webhooks, entregas, jobs, analíticas, audit log y gestiónar tu API token. Accede desde la web después de iniciar sesión."
+          "El Dashboard es la interfaz principal de gestión. Permite consultar eventos, webhooks, entregas, jobs, analíticas, audit log y gestionar los tokens API. Se accede mediante la aplicación web tras autenticación."
         )}
       </p>
       <div class="grid sm:grid-cols-2 gap-4">
@@ -2212,11 +2224,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="account-management"
       title={gettext("Gestión de cuenta")}
-      subtitle={gettext("Perfil, email, contraseña y MFA.")}
+      subtitle={gettext("Gestión de perfil, credenciales y autenticación multifactor.")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "Desde la página de cuenta puedes actualizar tu nombre, email y contraseña. También puedes activar la autenticación de dos factores (MFA) para mayor seguridad."
+          "Desde la página de cuenta se pueden actualizar nombre, email y contraseña. También es posible activar la autenticación de dos factores (MFA) para seguridad adicional."
         )}
       </p>
     </.docs_section>
@@ -2224,17 +2236,17 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="password-recovery"
       title={gettext("Recuperar contraseña")}
-      subtitle={gettext("Flujo de recuperación de contraseña.")}
+      subtitle={gettext("Proceso de recuperación de credenciales.")}
     >
       <div class="space-y-4">
         <p class="text-slate-700 leading-relaxed">
           {gettext(
-            "Si olvidaste tu contraseña, solicita un enlace de recuperación desde la página de login. Recibirás un email con un enlace temporal para establecer una nueva contraseña."
+            "Si se pierde la contraseña, solicitar un enlace de recuperación desde la página de login. Se recibirá un email con un enlace temporal para establecer una nueva contraseña."
           )}
         </p>
         <.callout kind="info">
           {gettext(
-            "El enlace de recuperación expira en un periodo corto de tiempo por seguridad. Si expira, solicita uno nuevo."
+            "El enlace de recuperación tiene vigencia limitada por seguridad. Si expira, solicitar uno nuevo."
           )}
         </.callout>
       </div>
@@ -2243,11 +2255,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="multi-project"
       title={gettext("Multi-proyecto")}
-      subtitle={gettext("Gestióna múltiples proyectos desde una sola cuenta.")}
+      subtitle={gettext("Gestión de múltiples proyectos desde una sola cuenta.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Puedes crear múltiples proyectos, cada uno con su propio API token, webhooks, eventos y configuración. Útil para separar entornos (dev, staging, prod) o distintas aplicaciónes."
+          "Se pueden crear múltiples proyectos aislados, cada uno con su propio API token, webhooks, eventos y configuración. Permite separar entornos (dev, staging, prod) o distintas aplicaciones."
         )}
       </p>
       <div class="space-y-4">
@@ -2255,7 +2267,9 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="projects-list"
           method="GET"
           path="/api/v1/projects"
-          description={gettext("Lista tus proyectos (requiere JWT).")}
+          description={
+            gettext("Lista los proyectos asociados a la cuenta autenticada (requiere JWT).")
+          }
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/projects\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2273,7 +2287,9 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="projects-create"
           method="POST"
           path="/api/v1/projects"
-          description={gettext("Crea un proyecto nuevo.")}
+          description={
+            gettext("Crea un nuevo proyecto con configuración por defecto y genera un API token.")
+          }
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/projects\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"My New Project\"}'"}
@@ -2291,7 +2307,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="projects-default"
           method="PATCH"
           path="/api/v1/projects/:id/default"
-          description={gettext("Marca un proyecto como predeterminado.")}
+          description={gettext("Establece un proyecto como predeterminado para solicitudes API.")}
         >
           <.code_block
             code={"curl -X PATCH \"#{@base_url}/api/v1/projects/PROJECT_ID/default\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2311,11 +2327,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="teams"
       title={gettext("Equipos")}
-      subtitle={gettext("Colabora con tu equipo en proyectos compartidos.")}
+      subtitle={gettext("Gestión de equipos y permisos en proyectos compartidos.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Invita miembros a tus proyectos con roles diferenciados (admin, member, viewer). Los miembros invitados reciben un email y pueden aceptar o rechazar la invitación."
+          "Permite invitar miembros a proyectos con roles diferenciados (admin, member, viewer). Los miembros invitados reciben un email de notificación y deben aceptar la invitación para obtener acceso."
         )}
       </p>
       <div class="space-y-4">
@@ -2323,7 +2339,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="members-list"
           method="GET"
           path="/api/v1/projects/:id/members"
-          description={gettext("Lista miembros del proyecto.")}
+          description={gettext("Lista los miembros del proyecto con sus roles asignados.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/projects/PROJECT_ID/members\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2341,7 +2357,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="members-add"
           method="POST"
           path="/api/v1/projects/:id/members"
-          description={gettext("Invita un miembro.")}
+          description={gettext("Envía una invitación para agregar un miembro al proyecto.")}
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/projects/PROJECT_ID/members\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"email\":\"member@example.com\",\"role\":\"member\"}'"}
@@ -2359,7 +2375,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="members-update"
           method="PATCH"
           path="/api/v1/projects/:id/members/:mid"
-          description={gettext("Cambia rol de un miembro.")}
+          description={gettext("Modifica el rol asignado a un miembro del proyecto.")}
         >
           <.code_block
             code={"curl -X PATCH \"#{@base_url}/api/v1/projects/PROJECT_ID/members/MEMBER_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"role\":\"admin\"}'"}
@@ -2377,7 +2393,9 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="members-remove"
           method="DELETE"
           path="/api/v1/projects/:id/members/:mid"
-          description={gettext("Elimina un miembro.")}
+          description={
+            gettext("Remueve un miembro del proyecto, revocando todos sus permisos de acceso.")
+          }
         >
           <.code_block
             code={"curl -X DELETE \"#{@base_url}/api/v1/projects/PROJECT_ID/members/MEMBER_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2395,11 +2413,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="sandbox"
       title="Sandbox"
-      subtitle={gettext("Endpoints de prueba para recibir webhooks.")}
+      subtitle={gettext("Endpoints de prueba para verificación e integración de webhooks.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Crea endpoints sandbox para probar tus webhooks sin necesitar un servidor externo. Cada endpoint tiene una URL única que captura todas las peticiones recibidas."
+          "Permite crear endpoints sandbox aislados para probar integraciones de webhook sin requerir infraestructura externa. Cada endpoint proporciona una URL única que captura y registra todas las solicitudes HTTP recibidas."
         )}
       </p>
       <div class="space-y-4">
@@ -2407,7 +2425,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="sandbox-list"
           method="GET"
           path="/api/v1/sandbox-endpoints"
-          description={gettext("Lista endpoints sandbox.")}
+          description={gettext("Lista los endpoints sandbox creados para pruebas de webhook.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/sandbox-endpoints\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2425,7 +2443,9 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="sandbox-create"
           method="POST"
           path="/api/v1/sandbox-endpoints"
-          description={gettext("Crea un endpoint sandbox.")}
+          description={
+            gettext("Crea un nuevo endpoint sandbox para pruebas e inspección de solicitudes.")
+          }
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/sandbox-endpoints\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Test Endpoint\"}'"}
@@ -2443,7 +2463,9 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="sandbox-requests"
           method="GET"
           path="/api/v1/sandbox-endpoints/:id/requests"
-          description={gettext("Ve las peticiones recibidas.")}
+          description={
+            gettext("Obtiene todas las solicitudes HTTP recibidas por un endpoint sandbox.")
+          }
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/sandbox-endpoints/ENDPOINT_ID/requests\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2461,7 +2483,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="sandbox-delete"
           method="DELETE"
           path="/api/v1/sandbox-endpoints/:id"
-          description={gettext("Elimina un endpoint sandbox.")}
+          description={gettext("Elimina un endpoint sandbox y descarta todos los datos capturados.")}
         >
           <.code_block
             code={"curl -X DELETE \"#{@base_url}/api/v1/sandbox-endpoints/ENDPOINT_ID\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2479,14 +2501,14 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="analytics"
       title={gettext("Analíticas")}
-      subtitle={gettext("Metricas y gráficos de tu plataforma.")}
+      subtitle={gettext("Métricas y visualizaciones de rendimiento del proyecto.")}
     >
       <div class="space-y-4">
         <.api_endpoint
           id="analytics-events"
           method="GET"
           path="/api/v1/analytics/events-per-day"
-          description={gettext("Eventos por dia.")}
+          description={gettext("Volumen de eventos por día.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/analytics/events-per-day\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2504,7 +2526,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="analytics-deliveries"
           method="GET"
           path="/api/v1/analytics/deliveries-per-day"
-          description={gettext("Entregas por dia.")}
+          description={gettext("Volumen de entregas por día.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/analytics/deliveries-per-day\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2522,7 +2544,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="analytics-topics"
           method="GET"
           path="/api/v1/analytics/top-topics"
-          description={gettext("Topics mas usados.")}
+          description={gettext("Topics con mayor volumen de eventos.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/analytics/top-topics\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2540,7 +2562,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="analytics-webhooks"
           method="GET"
           path="/api/v1/analytics/webhook-stats"
-          description={gettext("Estadisticas de webhooks.")}
+          description={gettext("Estadísticas de rendimiento de webhooks.")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/analytics/webhook-stats\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2560,13 +2582,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="audit-log"
       title="Audit Log"
-      subtitle={gettext("Registro inmutable de acciones en tu proyecto.")}
+      subtitle={gettext("Registro inmutable de acciones en el proyecto.")}
     >
       <.api_endpoint
         id="audit-index"
         method="GET"
         path="/api/v1/audit-log"
-        description={gettext("Lista entradas del audit log con paginación.")}
+        description={gettext("Obtiene las entradas del audit log con soporte de paginación.")}
       >
         <.code_block
           code={"curl \"#{@base_url}/api/v1/audit-log?limit=20\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2588,13 +2610,15 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="realtime-stream"
       title="SSE Streaming"
-      subtitle={gettext("Recibe eventos en tiempo real via Server-Sent Events.")}
+      subtitle={gettext("Recepción de eventos en tiempo real mediante Server-Sent Events (SSE).")}
     >
       <.api_endpoint
         id="sse-stream"
         method="GET"
         path="/api/v1/stream"
-        description={gettext("Abre una conexión SSE para recibir eventos en tiempo real.")}
+        description={
+          gettext("Establece una conexión SSE para recibir notificaciones de eventos en tiempo real.")
+        }
       >
         <.code_block
           code={"curl -N \"#{@base_url}/api/v1/stream\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2610,7 +2634,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       </.api_endpoint>
       <p class="text-slate-600 text-sm">
         {gettext(
-          "La conexión permanece abierta y envía eventos a medida que ocurren. Usa EventSource en JavaScript o curl -N para probar."
+          "La conexión permanece abierta y transmite eventos a medida que ocurren. Utilizar la API EventSource en JavaScript o curl -N para verificar la conexión."
         )}
       </p>
     </.docs_section>
@@ -2626,11 +2650,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="topic-wildcards"
       title="Topic Wildcards"
-      subtitle={gettext("Usa patrones con * para filtrar múltiples topics en webhooks.")}
+      subtitle={gettext("Patrones wildcard con * para filtrar múltiples topics en webhooks.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Puedes usar * como comodin en los topics de un webhook. Por ejemplo, order.* coincide con order.created, order.updated, order.deleted, etc."
+          "Los topics de webhook soportan pattern matching con wildcards. El patrón order.* coincide con order.created, order.updated, order.deleted y topics similares bajo ese namespace."
         )}
       </p>
       <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
@@ -2662,11 +2686,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="delayed-events"
       title={gettext("Eventos diferidos")}
-      subtitle={gettext("Programa un evento para que se procese en el futuro.")}
+      subtitle={gettext("Programación de eventos para entrega diferida.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Incluye el campo deliver_at con una fecha ISO 8601 en el futuro. El evento se almacena inmediatamente pero no se entrega hasta la fecha indicada."
+          "Incluir el campo deliver_at con un timestamp ISO 8601 en el futuro. El evento se persiste inmediatamente pero la entrega se difiere hasta el timestamp especificado."
         )}
       </p>
       <.code_block
@@ -2678,13 +2702,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="batch-events"
       title="Batch Events"
-      subtitle={gettext("Envía múltiples eventos en una sola petición.")}
+      subtitle={gettext("Envío de múltiples eventos en una sola solicitud API.")}
     >
       <.api_endpoint
         id="batch-create"
         method="POST"
         path="/api/v1/events/batch"
-        description={gettext("Envía un array de eventos.")}
+        description={gettext("Envía un array de objetos de evento en una sola solicitud.")}
       >
         <.code_block
           code={"curl -X POST \"#{@base_url}/api/v1/events/batch\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"events\":[{\"topic\":\"a\",\"data\":1},{\"topic\":\"b\",\"data\":2}]}'"}
@@ -2703,11 +2727,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="cursor-págination"
       title={gettext("Paginación cursor")}
-      subtitle={gettext("Paginación eficiente basada en cursor para listas grandes.")}
+      subtitle={
+        gettext("Paginación eficiente basada en cursor para conjuntos de resultados extensos.")
+      }
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Las listas soportan paginación basada en cursor. Usa el campo next_cursor de la respuesta como parámetro cursor en la siguiente petición."
+          "Los endpoints paginados utilizan paginación basada en cursor. Utilizar el valor de next_cursor de la respuesta como parámetro cursor en solicitudes subsiguientes."
         )}
       </p>
       <.code_block
@@ -2719,13 +2745,13 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="webhook-templates"
       title={gettext("Plantillas webhook")}
-      subtitle={gettext("Configuraciónes predefinidas para webhooks.")}
+      subtitle={gettext("Configuraciones predefinidas para webhooks.")}
     >
       <.api_endpoint
         id="templates-list"
         method="GET"
         path="/api/v1/webhooks/templates"
-        description={gettext("Lista plantillas disponibles.")}
+        description={gettext("Lista las plantillas de webhook disponibles.")}
       >
         <.code_block
           code={"curl \"#{@base_url}/api/v1/webhooks/templates\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -2744,11 +2770,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="ip-allowlist"
       title="IP Allowlist"
-      subtitle={gettext("Restringe el acceso a la API a IPs específicas.")}
+      subtitle={gettext("Restricción de acceso a la API mediante IP allowlisting.")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "Puedes configurar una lista de IPs permitidas para tu API key. Solo las peticiones desde esas IPs serán aceptadas. Configurable al actualizar tu proyecto."
+          "Permite configurar IP allowlisting para la API key del proyecto. Solo se aceptan solicitudes originadas desde las IPs autorizadas. Se configura al actualizar el proyecto."
         )}
       </p>
     </.docs_section>
@@ -2756,13 +2782,15 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="simulate"
       title={gettext("Simulador")}
-      subtitle={gettext("Prueba webhooks sin enviar eventos reales.")}
+      subtitle={gettext("Validación de webhooks sin envío de eventos reales.")}
     >
       <.api_endpoint
         id="simulate-endpoint"
         method="POST"
         path="/api/v1/simulate"
-        description={gettext("Simula el envío de un evento para probar tus webhooks.")}
+        description={
+          gettext("Simula la entrega de un evento para validar la configuración de webhooks.")
+        }
       >
         <.code_block
           code={"curl -X POST \"#{@base_url}/api/v1/simulate\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"payload\":{\"test\":true}}'"}
@@ -2778,7 +2806,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       </.api_endpoint>
       <.callout kind="info">
         {gettext(
-          "El simulador no guarda el evento ni crea entregas reales. Solo muestra que webhooks recibirian el evento y como se veria el payload."
+          "El simulador no persiste eventos ni genera entregas reales. Muestra qué webhooks recibirían el evento y el payload transformado resultante."
         )}
       </.callout>
     </.docs_section>
@@ -2796,10 +2824,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="sdks"
       title={gettext("SDKs (12 lenguajes)")}
-      subtitle={gettext("Librerías oficiales para todos los lenguajes populares.")}
+      subtitle={gettext("SDKs oficiales para los principales lenguajes de programación.")}
     >
       <p class="text-slate-700 leading-relaxed mb-6">
-        {gettext("Todas las SDKs cubren el 100%% de las rutas de la API. Elige tu lenguaje favorito:")}
+        {gettext(
+          "Todas las SDKs proporcionan cobertura completa de la API. Seleccionar el lenguaje de preferencia:"
+        )}
       </p>
 
       <%!-- SDK grid --%>
@@ -2823,7 +2853,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       <%!-- SDK links --%>
       <div class="rounded-xl border border-slate-200 bg-white p-5 mb-6">
         <h3 class="text-sm font-semibold text-slate-900 mb-3">
-          {gettext("Links de instalación")}
+          {gettext("Enlaces de instalación")}
         </h3>
         <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
           <.sdk_link label="Node.js" registry="npm" url="https://www.npmjs.com/package/@jobcelis/sdk" />
@@ -2872,7 +2902,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="cli"
       title="CLI"
-      subtitle={gettext("Interfaz de línea de comandos para gestiónar eventos, webhooks y mas.")}
+      subtitle={
+        gettext(
+          "Interfaz de línea de comandos para gestionar eventos, webhooks, jobs y recursos de la plataforma."
+        )
+      }
     >
       <p class="text-slate-600 text-sm mb-4">
         <a
@@ -2894,11 +2928,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="webhook-verification"
       title={gettext("Verificación de webhooks")}
-      subtitle={gettext("Verifica la firma de cada entrega para asegurar que proviene de Jobcelis.")}
+      subtitle={gettext("Verificación de la firma HMAC de cada entrega para confirmar autenticidad.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Cada entrega incluye una firma HMAC en el header X-Signature. Siempre verifica las firmas para asegurar que la petición proviene de Jobcelis."
+          "Cada entrega incluye una firma HMAC en el header X-Signature. Verificar siempre las firmas para confirmar que la solicitud se originó en Jobcelis."
         )}
       </p>
 
@@ -2909,7 +2943,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
 
       <.callout kind="warning">
         {gettext(
-          "Siempre usa comparación de tiempo constante. Nunca uses == o === para verificar firmas. Verifica el body crudo, no una versión re-serializada."
+          "Utilizar siempre comparación de tiempo constante (constant-time comparison). No utilizar operadores == o === para verificar firmas. Verificar el body crudo (raw), no una versión re-serializada."
         )}
       </.callout>
     </.docs_section>
@@ -2927,23 +2961,23 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="account-lockout"
       title={gettext("Bloqueo de cuenta")}
-      subtitle={gettext("Proteccion contra ataques de fuerza bruta.")}
+      subtitle={gettext("Protección contra ataques de fuerza bruta.")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "Después de múltiples intentos de login fallidos en un periodo corto, la cuenta se bloquea temporalmente. Esto protege contra ataques de fuerza bruta y credenciales robadas."
+          "Después de múltiples intentos de autenticación fallidos en un período corto, la cuenta se bloquea temporalmente. Proporciona protección contra ataques de fuerza bruta y credenciales comprometidas."
         )}
       </p>
     </.docs_section>
 
     <.docs_section
       id="session-management"
-      title={gettext("Gestión de sesiónes")}
-      subtitle={gettext("Control de sesiónes activas.")}
+      title={gettext("Gestión de sesiones")}
+      subtitle={gettext("Control de sesiones activas.")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "Las sesiónes web utilizan cookies cifradas con timeout de inactividad. Si no hay actividad durante un periodo, la sesión se cierra automáticamente."
+          "Las sesiones web utilizan cookies cifradas con timeout de inactividad. La sesión se cierra automáticamente tras un período de inactividad."
         )}
       </p>
     </.docs_section>
@@ -2955,12 +2989,12 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Activa la autenticación de dos factores desde la página de cuenta. Usa una app de autenticación (Google Authenticator, Authy, etc.) para escanear el código QR. Cada vez que inicies sesión, ademas de tu contraseña necesitarás el código temporal de la app."
+          "Activar la autenticación de dos factores desde la página de cuenta. Utilizar una aplicación de autenticación compatible (Google Authenticator, Authy, etc.) para escanear el código QR. Cada inicio de sesión requiere la contraseña y el código TOTP de la aplicación."
         )}
       </p>
       <.callout kind="tip">
         {gettext(
-          "Al activar MFA se generan códigos de respaldo de un solo uso. Guárdalos en un lugar seguro para poder acceder si pierdes tu dispositivo."
+          "Al activar MFA se generan códigos de respaldo de un solo uso. Deben almacenarse de forma segura para permitir acceso en caso de pérdida del dispositivo."
         )}
       </.callout>
     </.docs_section>
@@ -2968,14 +3002,16 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="password-policy"
       title={gettext("Política de contraseñas")}
-      subtitle={gettext("Requisitos para contraseñas seguras.")}
+      subtitle={gettext("Política de requisitos de contraseña.")}
     >
       <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
         <ul class="text-slate-700 text-sm space-y-2">
           <li>{gettext("Longitud mínima requerida")}</li>
           <li>{gettext("Debe incluir mayúsculas, minúsculas y números")}</li>
-          <li>{gettext("Se recomienda usar caracteres especiales")}</li>
-          <li>{gettext("Las contraseñas se almacenan con hashing seguro basado en memoria")}</li>
+          <li>{gettext("Se recomienda incluir caracteres especiales")}</li>
+          <li>
+            {gettext("Las contraseñas se almacenan con hashing seguro de alto consumo de memoria")}
+          </li>
         </ul>
       </div>
     </.docs_section>
@@ -2983,16 +3019,16 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="data-encryption"
       title={gettext("Cifrado de datos")}
-      subtitle={gettext("Proteccion de datos personales.")}
+      subtitle={gettext("Protección de datos personales.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Los datos personales (email, nombre) se cifran en reposo con cifrado de nivel industrial. Las busquedas por email usan un hash determinista para que no sea necesario descifrar para buscar."
+          "Los datos personales (email, nombre) se cifran en reposo con cifrado de nivel industrial. Las búsquedas por email utilizan un hash determinista, evitando la necesidad de descifrar durante las consultas."
         )}
       </p>
       <.callout kind="info">
         {gettext(
-          "El cifrado en reposo protege tus datos incluso si alguien accede a la base de datos directamente. Solo la aplicación puede descifrar los datos."
+          "El cifrado en reposo protege los datos incluso en caso de acceso directo a la base de datos. Solo la aplicación puede descifrar los datos."
         )}
       </.callout>
     </.docs_section>
@@ -3000,11 +3036,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="circuit-breaker"
       title="Circuit Breaker"
-      subtitle={gettext("Proteccion automatica para webhooks inestables.")}
+      subtitle={gettext("Protección automática para webhooks inestables.")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "Si un webhook falla repetidamente, el circuit breaker lo desactiva temporalmente para evitar sobrecarga. Cuando el endpoint se recupera, el webhook se reactiva automáticamente."
+          "Si un webhook falla repetidamente, el circuit breaker lo desactiva temporalmente para prevenir cascadas de fallos. Cuando el endpoint se recupera, el webhook se reactiva automáticamente."
         )}
       </p>
     </.docs_section>
@@ -3016,7 +3052,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "El sistema monitorea continuamente patrones anómalos como múltiples intentos fallidos, accesos desde ubicaciones inusuales y otros indicadores de posibles brechas de seguridad."
+          "El sistema monitorea continuamente patrones anómalos: múltiples intentos de autenticación fallidos, accesos desde ubicaciones inusuales y otros indicadores de posibles incidentes de seguridad."
         )}
       </p>
     </.docs_section>
@@ -3024,16 +3060,16 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="event-integrity"
       title={gettext("Integridad de eventos")}
-      subtitle={gettext("Garantiza que los eventos no se modifiquen.")}
+      subtitle={gettext("Garantía de integridad e inmutabilidad de eventos.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Cada evento recibe un hash criptográfico único al crearse. Esto permite verificar que el contenido no ha sido alterado. Los eventos se almacenan de forma inmutable."
+          "Cada evento recibe un hash criptográfico único al momento de creación. Permite verificar que el contenido no ha sido alterado. Los eventos se almacenan de forma inmutable."
         )}
       </p>
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "Ademas, cada evento tiene un idempotency_key opcional para evitar duplicados. Si envías dos eventos con el mismo idempotency_key, solo el primero se procesa."
+          "Adicionalmente, cada evento soporta un idempotency_key opcional para prevención de duplicados. Si se envían múltiples eventos con el mismo idempotency_key, solo el primero se procesa."
         )}
       </p>
     </.docs_section>
@@ -3041,11 +3077,11 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="uptime-monitoring"
       title={gettext("Monitoreo")}
-      subtitle={gettext("Supervisión automatica de la plataforma.")}
+      subtitle={gettext("Supervisión automática de la plataforma.")}
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "La plataforma se monitorea de forma continua. Puedes ver el estado actual en la página de estado (/status). Los componentes monitoreados incluyen la base de datos, el sistema de procesamiento y la cache."
+          "La plataforma se monitorea de forma continua. El estado actual está disponible en la página de estado (/status). Los componentes monitoreados incluyen la base de datos, el sistema de procesamiento y la capa de caché."
         )}
       </p>
     </.docs_section>
@@ -3057,7 +3093,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     >
       <p class="text-slate-700 leading-relaxed">
         {gettext(
-          "Se realizan copias de seguridad automáticas de forma periódica. Los backups se almacenan de forma segura y cifrada. En caso de incidente, los datos se pueden restaurar rápidamente."
+          "Se realizan copias de seguridad automáticas periódicamente. Los backups se almacenan de forma segura y cifrada. En caso de incidente, los datos pueden restaurarse de forma expedita."
         )}
       </p>
     </.docs_section>
@@ -3068,7 +3104,9 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       subtitle={gettext("Derechos de protección de datos.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
-        {gettext("Jobcelis cumple con el RGPD/GDPR. Como usuario tienes derecho a:")}
+        {gettext(
+          "Jobcelis cumple con el RGPD/GDPR. Los usuarios tienen los siguientes derechos de protección de datos:"
+        )}
       </p>
       <ul class="text-slate-700 text-sm space-y-2 mb-4">
         <li>
@@ -3100,14 +3138,16 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     <.docs_section
       id="consent-versióning"
       title={gettext("Consentimientos")}
-      subtitle={gettext("Gestión versiónada de consentimientos GDPR.")}
+      subtitle={gettext("Gestión versionada de consentimientos GDPR.")}
     >
       <div class="space-y-4">
         <.api_endpoint
           id="consent-status"
           method="GET"
           path="/api/v1/me/consents"
-          description={gettext("Estado de tus consentimientos.")}
+          description={
+            gettext("Obtiene el estado actual de los consentimientos de procesamiento de datos.")
+          }
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/me/consents\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -3125,7 +3165,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           id="consent-accept"
           method="POST"
           path="/api/v1/me/consents/:purpose/accept"
-          description={gettext("Acepta un consentimiento.")}
+          description={gettext("Acepta un consentimiento específico por identificador de propósito.")}
         >
           <.code_block
             code={"curl -X POST \"#{@base_url}/api/v1/me/consents/analytics/accept\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -3222,7 +3262,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Cuando una petición falla, la API devuelve un JSON con el campo \"error\" describiendo el problema."
+          "Las solicitudes fallidas devuelven una respuesta JSON con un campo \"error\" que describe el problema."
         )}
       </p>
 
@@ -3236,7 +3276,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
 
       <.callout kind="tip">
         {gettext(
-          "El campo \"error\" siempre es un string legible. Algunos endpoints pueden incluir campos adicionales como \"details\" con información más específica."
+          "El campo \"error\" siempre contiene un string legible. Algunos endpoints pueden incluir campos adicionales como \"details\" con información de error específica."
         )}
       </.callout>
     </.docs_section>
@@ -3285,7 +3325,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
         id="health-endpoint"
         method="GET"
         path="/health"
-        description={gettext("Devuelve 200 si la plataforma esta operativa.")}
+        description={gettext("Devuelve HTTP 200 si la plataforma está operativa.")}
       >
         <.code_block
           code={"curl \"#{@base_url}/health\""}
@@ -3308,7 +3348,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Puedes configurar scopes para limitar lo que puede hacer cada API key. Los scopes disponibles incluyen:"
+          "Configurar scopes para restringir los permisos de cada API key. Scopes disponibles:"
         )}
       </p>
       <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">

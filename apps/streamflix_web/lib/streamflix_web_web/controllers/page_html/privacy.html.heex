@@ -30,8 +30,8 @@
 
       <p>
         {gettext(
-          "Recogemos los datos que nos facilitas al registrarte (correo electrónico, nombre si lo indicas y contraseña cifrada), así como los datos de uso del Servicio (eventos, webhooks, jobs que configuras) necesarios para prestar el servicio."
-        )} {gettext("No vendemos ni compartimos tus datos con terceros con fines comerciales.")}
+          "Recogemos los datos proporcionados durante el registro (correo electrónico, nombre si se indica y contraseña cifrada), así como los datos de uso del Servicio (eventos, webhooks, jobs configurados) necesarios para prestar el servicio."
+        )} {gettext("No vendemos ni compartimos los datos con terceros con fines comerciales.")}
       </p>
     </section>
 
@@ -42,7 +42,7 @@
 
       <p>
         {gettext(
-          "Usamos tus datos para gestionar tu cuenta, prestar el Servicio (API, webhooks, entregas) y, en su caso, enviarte comunicaciones sobre el Servicio. La base legal es la ejecución del contrato (uso del Servicio) y tu consentimiento al registrarte."
+          "Los datos se utilizan para gestionar la cuenta, prestar el Servicio (API, webhooks, entregas) y, en su caso, enviar comunicaciones sobre el Servicio. La base legal es la ejecución del contrato (uso del Servicio) y el consentimiento otorgado al registrarse."
         )}
       </p>
     </section>
@@ -54,17 +54,19 @@
 
       <p>
         {gettext(
-          "Conservamos los datos mientras mantengas la cuenta activa. Puedes solicitar la baja y el borrado de tus datos."
-        )} {gettext("Aplicamos medidas técnicas y organizativas para proteger tu información.")}
+          "Los datos se conservan mientras la cuenta permanezca activa. Se puede solicitar la baja y el borrado de los datos."
+        )} {gettext("Aplicamos medidas técnicas y organizativas para proteger la información.")}
       </p>
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">5. {gettext("Tus derechos")}</h2>
+      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+        5. {gettext("Derechos del usuario")}
+      </h2>
 
       <p>
         {gettext(
-          "Puedes acceder, rectificar, suprimir tus datos, oponerte a determinados tratamientos o solicitar la portabilidad, según la normativa aplicable (p. ej. RGPD en la UE). Para ejercerlos, contacta a"
+          "Los usuarios pueden acceder, rectificar y suprimir sus datos, oponerse a determinados tratamientos o solicitar la portabilidad, según la normativa aplicable (p. ej. RGPD en la UE). Para ejercerlos, contacta a"
         )} <strong>{Map.get(@legal, :owner, "Jobcelis")}</strong>
         <%= if Map.get(@legal, :contact_url) || Map.get(@legal, :profile_url) do %>
           :
@@ -96,7 +98,7 @@
       </h3>
       <p>
         {gettext(
-          "Puedes eliminar tu cuenta desde la sección «Cuenta». Al hacerlo, se borran permanentemente todos tus proyectos, webhooks, eventos, entregas, jobs, notificaciones y tokens. Los registros de auditoría se pseudonimizan (se elimina tu identificador y dirección IP). Esta acción es irreversible."
+          "La cuenta puede eliminarse desde la sección «Cuenta». La eliminación resulta en el borrado permanente de todos los proyectos, webhooks, eventos, entregas, jobs, notificaciones y tokens. Los registros de auditoría se pseudonimizan (se elimina el identificador y la dirección IP). Esta acción es irreversible."
         )}
       </p>
 
@@ -105,7 +107,7 @@
       </h3>
       <p>
         {gettext(
-          "Puedes descargar una copia de todos tus datos personales en formato JSON desde la sección «Cuenta» o mediante la API (GET /api/v1/me/data). Esto incluye tu perfil, proyectos, webhooks, conteos de eventos y entregas, jobs, notificaciones, registros de auditoría y consentimientos."
+          "Se puede descargar una copia de todos los datos personales en formato JSON desde la sección «Cuenta» o mediante la API (GET /api/v1/me/data). Esto incluye el perfil, proyectos, webhooks, conteos de eventos y entregas, jobs, notificaciones, registros de auditoría y consentimientos."
         )}
       </p>
 
@@ -114,7 +116,7 @@
       </h3>
       <p>
         {gettext(
-          "Puedes consultar y revocar tus consentimientos en cualquier momento desde la sección «Cuenta». Registramos la fecha, versión y dirección IP de cada consentimiento otorgado o revocado."
+          "Los consentimientos pueden consultarse y revocarse en cualquier momento desde la sección «Cuenta». Se registra la fecha, versión y dirección IP de cada consentimiento otorgado o revocado."
         )}
       </p>
     </section>
@@ -136,7 +138,7 @@
 
       <p>
         {gettext(
-          "Podemos actualizar esta Política de privacidad. Los cambios se publicarán en esta página con la nueva fecha de «Última actualización». Te recomendamos revisarla de vez en cuando."
+          "Esta Política de privacidad puede actualizarse. Los cambios se publicarán en esta página con la nueva fecha de «Última actualización». Se recomienda revisar esta política de vez en cuando."
         )}
       </p>
     </section>

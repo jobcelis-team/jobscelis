@@ -19,7 +19,7 @@
 
       <p>
         {gettext(
-          "Las cookies son pequeños archivos de texto que el sitio web guarda en tu dispositivo (ordenador, tablet o móvil) cuando lo visitas. Se usan para recordar preferencias o mantener tu sesión."
+          "Las cookies son pequeños archivos de texto que el sitio web guarda en el dispositivo del usuario (ordenador, tablet o móvil) cuando lo visita. Se usan para recordar preferencias o mantener la sesión."
         )}
       </p>
     </section>
@@ -57,7 +57,7 @@
 
               <td class="px-4 py-3">
                 {gettext(
-                  "Sesión de usuario: mantiene que hayas iniciado sesión. Contenido firmado y necesario para el Servicio."
+                  "Sesión de usuario: mantiene la sesión iniciada. Contenido firmado y necesario para el Servicio."
                 )}
               </td>
 
@@ -68,7 +68,7 @@
               <td class="px-4 py-3 text-xs">{gettext("Cookie de idioma")}</td>
 
               <td class="px-4 py-3">
-                {gettext("Idioma elegido (es/en) para mostrar la web en español o inglés.")}
+                {gettext("Preferencia de idioma (es/en) para mostrar la web en español o inglés.")}
               </td>
 
               <td class="px-4 py-3">{gettext("1 año")}</td>
@@ -85,7 +85,7 @@
 
       <p>
         {gettext(
-          "Puedes configurar tu navegador para bloquear o eliminar cookies. Ten en cuenta que si bloqueas las cookies técnicas, es posible que no puedas iniciar sesión o que se pierda tu preferencia de idioma. La opción de cookies suele estar en Ajustes o Preferencias del navegador, en la sección de privacidad o seguridad."
+          "El navegador puede configurarse para bloquear o eliminar cookies. Si se bloquean las cookies técnicas, es posible que no sea posible iniciar sesión o que se pierda la preferencia de idioma. La opción de cookies suele estar en Ajustes o Preferencias del navegador, en la sección de privacidad o seguridad."
         )}
       </p>
     </section>
@@ -96,10 +96,10 @@
       </h2>
 
       <p>
-        {gettext("El tratamiento de tus datos personales se describe en nuestra")} <a
+        {gettext("El tratamiento de los datos personales se describe en la")} <a
           href="/privacy"
           class="text-indigo-600 hover:underline"
-        ><%= gettext("Política de privacidad") %></a>. {gettext("Si tienes dudas, contacta a")}
+        ><%= gettext("Política de privacidad") %></a>. {gettext("Para consultas, contactar a")}
         <strong>{Map.get(@legal, :owner, "Jobcelis")}</strong> {gettext("en la página de")} <a
           href="/contact"
           class="text-indigo-600 hover:underline"
