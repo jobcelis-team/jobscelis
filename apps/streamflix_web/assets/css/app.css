@@ -613,8 +613,8 @@ select option {
 }
 
 /* --- Code/pre blocks in dark mode --- */
-/* Only override inline code; pre blocks with bg-slate-800 keep their own styles */
-[data-theme=dark] code:not([class*="bg-"]) {
+/* Only override inline code; code inside <pre> keeps the pre's own background */
+[data-theme=dark] :not(pre) > code:not([class*="bg-"]) {
   background-color: oklch(25% 0.014 253);
   color: oklch(85% 0.02 256);
 }
