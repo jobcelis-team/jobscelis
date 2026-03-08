@@ -896,8 +896,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   # ---------- Tab navigation ----------
 
   @impl true
+  def handle_event("switch_tab", %{"tab" => "queue"}, socket) do
+    if StreamflixAccounts.Schemas.User.superadmin?(socket.assigns.current_user) do
+      {:noreply, assign(socket, :active_tab, "queue")}
+    else
+      {:noreply, put_flash(socket, :error, gettext("No tienes permisos para esta sección."))}
+    end
+  end
+
   def handle_event("switch_tab", %{"tab" => tab}, socket)
-      when tab in ~w(overview events webhooks jobs pipelines queue settings) do
+      when tab in ~w(overview events webhooks jobs pipelines settings) do
     {:noreply, assign(socket, :active_tab, tab)}
   end
 
@@ -1023,93 +1031,105 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("oban_filter_state", %{"state" => state}, socket) do
-    current = socket.assigns.oban_filter_state
-    new_state = if current == state, do: nil, else: state
+    with_superadmin(socket, fn ->
+      current = socket.assigns.oban_filter_state
+      new_state = if current == state, do: nil, else: state
 
-    jobs =
-      Platform.oban_list_jobs(
-        state: new_state,
-        queue: socket.assigns.oban_filter_queue,
-        limit: 50
-      )
+      jobs =
+        Platform.oban_list_jobs(
+          state: new_state,
+          queue: socket.assigns.oban_filter_queue,
+          limit: 50
+        )
 
-    {:noreply, socket |> assign(:oban_filter_state, new_state) |> assign(:oban_jobs, jobs)}
+      {:noreply, socket |> assign(:oban_filter_state, new_state) |> assign(:oban_jobs, jobs)}
+    end)
   end
 
   @impl true
   def handle_event("oban_filter_queue", %{"queue" => queue}, socket) do
-    current = socket.assigns.oban_filter_queue
-    new_queue = if current == queue, do: nil, else: queue
+    with_superadmin(socket, fn ->
+      current = socket.assigns.oban_filter_queue
+      new_queue = if current == queue, do: nil, else: queue
 
-    jobs =
-      Platform.oban_list_jobs(
-        state: socket.assigns.oban_filter_state,
-        queue: new_queue,
-        limit: 50
-      )
+      jobs =
+        Platform.oban_list_jobs(
+          state: socket.assigns.oban_filter_state,
+          queue: new_queue,
+          limit: 50
+        )
 
-    {:noreply, socket |> assign(:oban_filter_queue, new_queue) |> assign(:oban_jobs, jobs)}
+      {:noreply, socket |> assign(:oban_filter_queue, new_queue) |> assign(:oban_jobs, jobs)}
+    end)
   end
 
   @impl true
   def handle_event("oban_clear_filters", _, socket) do
-    jobs = Platform.oban_list_jobs(limit: 50)
+    with_superadmin(socket, fn ->
+      jobs = Platform.oban_list_jobs(limit: 50)
 
-    {:noreply,
-     socket
-     |> assign(:oban_filter_state, nil)
-     |> assign(:oban_filter_queue, nil)
-     |> assign(:oban_jobs, jobs)}
+      {:noreply,
+       socket
+       |> assign(:oban_filter_state, nil)
+       |> assign(:oban_filter_queue, nil)
+       |> assign(:oban_jobs, jobs)}
+    end)
   end
 
   @impl true
   def handle_event("oban_refresh", _, socket) do
-    jobs =
-      Platform.oban_list_jobs(
-        state: socket.assigns.oban_filter_state,
-        queue: socket.assigns.oban_filter_queue,
-        limit: 50
-      )
+    with_superadmin(socket, fn ->
+      jobs =
+        Platform.oban_list_jobs(
+          state: socket.assigns.oban_filter_state,
+          queue: socket.assigns.oban_filter_queue,
+          limit: 50
+        )
 
-    {:noreply,
-     socket
-     |> assign(:oban_queue_stats, Platform.oban_queue_stats())
-     |> assign(:oban_state_counts, Platform.oban_state_counts())
-     |> assign(:oban_jobs, jobs)}
+      {:noreply,
+       socket
+       |> assign(:oban_queue_stats, Platform.oban_queue_stats())
+       |> assign(:oban_state_counts, Platform.oban_state_counts())
+       |> assign(:oban_jobs, jobs)}
+    end)
   end
 
   @impl true
   def handle_event("oban_retry_job", %{"id" => id}, socket) do
-    job_id = String.to_integer(id)
+    with_superadmin(socket, fn ->
+      job_id = String.to_integer(id)
+      Platform.oban_retry_job(job_id)
 
-    Platform.oban_retry_job(job_id)
-
-    {:noreply,
-     socket
-     |> put_flash(:info, gettext("Job reencolado."))
-     |> refresh_oban_data()}
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Job reencolado."))
+       |> refresh_oban_data()}
+    end)
   end
 
   @impl true
   def handle_event("oban_cancel_job", %{"id" => id}, socket) do
-    job_id = String.to_integer(id)
+    with_superadmin(socket, fn ->
+      job_id = String.to_integer(id)
+      Platform.oban_cancel_job(job_id)
 
-    Platform.oban_cancel_job(job_id)
-
-    {:noreply,
-     socket
-     |> put_flash(:info, gettext("Job cancelado."))
-     |> refresh_oban_data()}
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Job cancelado."))
+       |> refresh_oban_data()}
+    end)
   end
 
   @impl true
   def handle_event("oban_purge", _, socket) do
-    {:ok, count} = Platform.oban_purge_jobs()
+    with_superadmin(socket, fn ->
+      {:ok, count} = Platform.oban_purge_jobs()
 
-    {:noreply,
-     socket
-     |> put_flash(:info, gettext("%{count} jobs eliminados.", count: count))
-     |> refresh_oban_data()}
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("%{count} jobs eliminados.", count: count))
+       |> refresh_oban_data()}
+    end)
   end
 
   # ---------- Event Detail Modal (#21) ----------
@@ -1647,11 +1667,21 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           Task.async(fn -> {:analytics, load_analytics(project.id)} end),
           Task.async(fn -> {:uptime_status, load_uptime_status()} end),
           Task.async(fn -> {:uptime_stats, load_uptime_stats()} end),
-          Task.async(fn -> {:pending_invitations, Teams.list_pending_invitations(user.id)} end),
-          Task.async(fn -> {:oban_queue_stats, Platform.oban_queue_stats()} end),
-          Task.async(fn -> {:oban_state_counts, Platform.oban_state_counts()} end),
-          Task.async(fn -> {:oban_jobs, Platform.oban_list_jobs(limit: 50)} end)
+          Task.async(fn -> {:pending_invitations, Teams.list_pending_invitations(user.id)} end)
         ]
+
+        # Only load queue data for superadmins
+        tasks =
+          if StreamflixAccounts.Schemas.User.superadmin?(user) do
+            tasks ++
+              [
+                Task.async(fn -> {:oban_queue_stats, Platform.oban_queue_stats()} end),
+                Task.async(fn -> {:oban_state_counts, Platform.oban_state_counts()} end),
+                Task.async(fn -> {:oban_jobs, Platform.oban_list_jobs(limit: 50)} end)
+              ]
+          else
+            tasks
+          end
 
         Task.await_many(tasks, 10_000) |> Map.new()
       else
@@ -2125,14 +2155,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               >
                 {gettext("Pipelines")}
               </button>
-              <button
-                type="button"
-                phx-click="switch_tab"
-                phx-value-tab="queue"
-                class={"whitespace-nowrap border-b-2 pb-2.5 sm:pb-4 px-1.5 sm:px-1 text-xs sm:text-sm lg:text-base transition #{tab_classes(@active_tab, "queue")}"}
-              >
-                {gettext("Colas")}
-              </button>
+              <%= if StreamflixAccounts.Schemas.User.superadmin?(@current_user) do %>
+                <button
+                  type="button"
+                  phx-click="switch_tab"
+                  phx-value-tab="queue"
+                  class={"whitespace-nowrap border-b-2 pb-2.5 sm:pb-4 px-1.5 sm:px-1 text-xs sm:text-sm lg:text-base transition #{tab_classes(@active_tab, "queue")}"}
+                >
+                  {gettext("Colas")}
+                </button>
+              <% end %>
               <button
                 type="button"
                 phx-click="switch_tab"
