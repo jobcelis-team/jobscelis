@@ -278,12 +278,12 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     end
   end
 
+  @dialyzer {:nowarn_function, flatten_headers: 1}
+  defp flatten_headers(%{} = headers), do: headers
+
   defp flatten_headers(headers) when is_list(headers) do
     Map.new(headers, fn {k, v} -> {to_string(k), to_string(v)} end)
   end
-
-  defp flatten_headers(headers) when is_map(headers), do: headers
-  defp flatten_headers(_), do: nil
 
   defp broadcast_delivery(delivery) do
     event = delivery.event || Repo.get(StreamflixCore.Schemas.WebhookEvent, delivery.event_id)

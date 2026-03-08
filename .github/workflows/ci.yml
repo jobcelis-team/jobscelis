@@ -3,8 +3,20 @@ name: CI
 on:
   push:
     branches: [main, develop]
+    paths-ignore:
+      - "*.md"
+      - "docs/**"
+      - "sdks/**"
+      - "LICENSE"
+      - ".github/workflows/publish-sdks.yml"
+      - ".github/workflows/release.yml"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "docs/**"
+      - "sdks/**"
+      - "LICENSE"
 
 env:
   MIX_ENV: test
@@ -12,27 +24,9 @@ env:
   OTP_VERSION: "27.2"
 
 jobs:
-  quality:
-    name: Quality Checks
+  compile:
+    name: Compile & Format
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        ports: ["5432:5432"]
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: streamflix_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      DATABASE_URL: ecto://postgres:postgres@localhost:5432/streamflix_test
-
     steps:
       - uses: actions/checkout@v4
 
@@ -60,6 +54,31 @@ jobs:
       - name: Check formatting
         run: mix format --check-formatted
 
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    needs: compile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get
+
       - name: Run Credo
         run: mix credo --min-priority=high
 
@@ -72,21 +91,92 @@ jobs:
       - name: Check retired packages
         run: mix hex.audit
 
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: compile
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports: ["5432:5432"]
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: streamflix_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: ecto://postgres:postgres@localhost:5432/streamflix_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get
+
       - name: Setup database
         run: mix ecto.create && mix ecto.migrate
 
       - name: Run tests
         run: mix test
 
+  dialyzer:
+    name: Dialyzer
+    runs-on: ubuntu-latest
+    needs: compile
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        id: beam
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Cache Dialyzer PLT
+        uses: actions/cache@v4
+        with:
+          path: _build/**/*.plt
+          key: ${{ runner.os }}-plt-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-plt-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-
+
+      - name: Install dependencies
+        run: mix deps.get
+
       - name: Run Dialyzer
         run: mix dialyzer
-        continue-on-error: true
 
   container-security:
     name: Container Security Scan
     runs-on: ubuntu-latest
-    needs: quality
-
     steps:
       - uses: actions/checkout@v4
 
