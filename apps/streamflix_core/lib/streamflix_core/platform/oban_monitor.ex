@@ -70,18 +70,12 @@ defmodule StreamflixCore.Platform.ObanMonitor do
 
   @doc "Cancels a job by ID (sets state to cancelled)."
   def cancel_job(job_id) do
-    case Oban.cancel_job(job_id) do
-      :ok -> :ok
-      {:error, reason} -> {:error, reason}
-    end
+    Oban.cancel_job(job_id)
   end
 
   @doc "Retries a job by ID (resets to available state)."
   def retry_job(job_id) do
-    case Oban.retry_job(job_id) do
-      :ok -> :ok
-      {:error, reason} -> {:error, reason}
-    end
+    Oban.retry_job(job_id)
   end
 
   @doc "Deletes completed/discarded/cancelled jobs older than given days."

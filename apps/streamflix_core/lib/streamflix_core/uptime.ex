@@ -113,7 +113,6 @@ defmodule StreamflixCore.Uptime do
     case StreamflixCore.Platform.Backup.last_backup_info() do
       {:ok, nil} -> "no_backups"
       {:ok, _info} -> "ok"
-      _ -> "error"
     end
   end
 
