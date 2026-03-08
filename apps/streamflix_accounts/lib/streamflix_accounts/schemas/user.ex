@@ -87,8 +87,9 @@ defmodule StreamflixAccounts.Schemas.User do
   end
 
   @doc """
-  Changeset solo para cambiar el email. No toca contraseña ni rol.
-  La unicidad se valida en la BD; en el contexto se comprueba antes que no sea el mismo correo ni esté en uso por otro usuario.
+  Changeset for email-only updates. Does not touch password or role.
+  Uniqueness is enforced at the DB level; the context checks beforehand
+  that the email is not the same or already taken by another user.
   """
   def email_changeset(user, attrs) do
     user
@@ -175,7 +176,6 @@ defmodule StreamflixAccounts.Schemas.User do
         changeset
 
       password ->
-        # Argon2id — OWASP #1 recommendation, memory-hard (RFC 9106)
         put_change(changeset, :password_hash, Argon2.hash_pwd_salt(password))
     end
   end

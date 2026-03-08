@@ -1,7 +1,7 @@
 defmodule StreamflixWebWeb.Plugs.RedirectIfAuthenticated do
   @moduledoc """
-  Plug que redirige a /platform (o /admin) si el usuario ya está autenticado.
-  Útil para páginas públicas como home, login, signup.
+  Redirects to /platform (or /admin) if the user is already authenticated.
+  Used on public pages like home, login, signup.
   """
 
   import Plug.Conn
@@ -30,7 +30,7 @@ defmodule StreamflixWebWeb.Plugs.RedirectIfAuthenticated do
             |> halt()
 
           {:error, _reason} ->
-            # Token inválido, limpiar sesión
+            # Invalid token, clear session
             conn
             |> delete_session(:user_id)
             |> delete_session(:user_token)
