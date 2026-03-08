@@ -371,14 +371,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// Docs scroll spy: watches section[id] elements, highlights active nav item directly
+// Docs scroll spy: watches section[id] elements, highlights active nav item directly.
+// Uses IntersectionObserver for scroll detection + click handler fallback + bottom-of-page detection.
 Hooks.DocsScrollSpy = {
   mounted() {
     this._activeId = null;
     this._sections = [];
+    this._skipObserverUntil = 0;
     this._collectSections();
+
+    // IntersectionObserver: detect which section is in the top 60% of viewport
     this._observer = new IntersectionObserver(
       (entries) => {
+        // Skip observer updates briefly after a click (let click handler take priority)
+        if (Date.now() < this._skipObserverUntil) return;
+
         for (const entry of entries) {
           if (entry.isIntersecting) {
             this._setActive(entry.target.id);
@@ -386,9 +393,40 @@ Hooks.DocsScrollSpy = {
           }
         }
       },
-      { rootMargin: "-80px 0px -70% 0px", threshold: 0 },
+      { rootMargin: "-80px 0px -40% 0px", threshold: 0 },
     );
     for (const s of this._sections) this._observer.observe(s);
+
+    // Click handler: fallback for sidebar links — immediately sets active state
+    this._clickHandler = (e) => {
+      const link = e.target.closest("a[id^='nav-']");
+      if (!link) return;
+      const targetId = link.id.replace("nav-", "");
+      // Skip observer updates for 800ms to prevent race condition with scroll
+      this._skipObserverUntil = Date.now() + 800;
+      this._setActive(targetId);
+    };
+    this.el.addEventListener("click", this._clickHandler);
+
+    // Scroll handler: detect bottom-of-page to activate last visible section
+    this._scrollHandler = () => {
+      if (Date.now() < this._skipObserverUntil) return;
+      const scrollBottom = window.innerHeight + window.scrollY;
+      const docHeight = document.documentElement.scrollHeight;
+      if (docHeight - scrollBottom < 100) {
+        // At bottom of page: find the last section that starts above viewport bottom
+        for (let i = this._sections.length - 1; i >= 0; i--) {
+          var rect = this._sections[i].getBoundingClientRect();
+          if (rect.top < window.innerHeight) {
+            this._setActive(this._sections[i].id);
+            break;
+          }
+        }
+      }
+    };
+    window.addEventListener("scroll", this._scrollHandler, { passive: true });
+
+    // Initial state
     this._setActive("intro");
   },
   updated() {
@@ -398,6 +436,10 @@ Hooks.DocsScrollSpy = {
   },
   destroyed() {
     if (this._observer) this._observer.disconnect();
+    if (this._scrollHandler)
+      window.removeEventListener("scroll", this._scrollHandler);
+    if (this._clickHandler)
+      this.el.removeEventListener("click", this._clickHandler);
   },
   _collectSections() {
     this._sections = Array.from(document.querySelectorAll("section[id]"));
@@ -406,15 +448,17 @@ Hooks.DocsScrollSpy = {
     if (this._activeId === id) return;
     const activeClasses = [
       "text-indigo-700",
+      "dark:text-indigo-400",
       "bg-indigo-50",
+      "dark:bg-indigo-950/40",
       "border-l-2",
       "border-indigo-500",
       "font-medium",
     ];
-    const inactiveClasses = ["text-slate-600"];
+    const inactiveClasses = ["text-slate-600", "dark:text-slate-400"];
     // Deactivate previous
     if (this._activeId) {
-      const old = document.getElementById("nav-" + this._activeId);
+      var old = document.getElementById("nav-" + this._activeId);
       if (old) {
         old.classList.remove(...activeClasses);
         old.classList.add(...inactiveClasses);
@@ -422,7 +466,7 @@ Hooks.DocsScrollSpy = {
     }
     this._activeId = id;
     // Activate new
-    const nav = document.getElementById("nav-" + id);
+    var nav = document.getElementById("nav-" + id);
     if (nav) {
       nav.classList.remove(...inactiveClasses);
       nav.classList.add(...activeClasses);
