@@ -8,6 +8,16 @@ name: Deploy to Staging
 on:
   push:
     branches: [develop]
+    paths-ignore:
+      - "*.md"
+      - "docs/**"
+      - "sdks/**"
+      - "scripts/**"
+      - "k6/**"
+      - "LICENSE"
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/publish-sdks.yml"
+      - ".github/workflows/release.yml"
 
 env:
   ACR_NAME: jobscelisacr
@@ -33,7 +43,7 @@ jobs:
 
       - name: Build and push image to ACR
         run: |
-          az acr build --registry ${{ env.ACR_NAME }} --image ${{ env.IMAGE_NAME }} .
+          az acr build --registry ${{ env.ACR_NAME }} --image ${{ env.IMAGE_NAME }} --cache-from ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }} .
         id: acr-build
 
       - name: Restart Staging Web App
