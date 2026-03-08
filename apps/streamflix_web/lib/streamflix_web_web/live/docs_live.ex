@@ -180,12 +180,12 @@ defmodule StreamflixWebWeb.DocsLive do
           >
             <nav
               id="docs-sidebar"
-              class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto space-y-1 text-sm bg-white/80 backdrop-blur rounded-2xl border border-slate-200 shadow-sm p-4"
+              class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto space-y-1 text-sm bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4"
               phx-hook="DocsScrollSpy"
             >
               <div :for={group <- @nav_groups} class="mb-2">
                 <details open>
-                  <summary class="flex items-center justify-between cursor-pointer font-bold text-slate-700 uppercase tracking-wider text-xs px-2 py-2 hover:text-indigo-600 transition select-none list-none">
+                  <summary class="flex items-center justify-between cursor-pointer font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-xs px-2 py-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition select-none list-none">
                     <span>{group.title}</span>
                     <svg
                       class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 details-chevron"
@@ -202,7 +202,7 @@ defmodule StreamflixWebWeb.DocsLive do
                       :for={item <- group.items}
                       href={"##{item.id}"}
                       id={"nav-#{item.id}"}
-                      class="docs-nav-item block py-1.5 px-3 rounded-lg transition text-sm text-slate-600 hover:text-indigo-600 hover:bg-indigo-50"
+                      class="docs-nav-item block py-1.5 px-3 rounded-lg transition text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
                     >
                       {item.label}
                     </a>
@@ -221,9 +221,11 @@ defmodule StreamflixWebWeb.DocsLive do
               class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
               phx-click={JS.hide(to: "#mobile-nav-overlay")}
             />
-            <nav class="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-2xl overflow-y-auto p-5 space-y-2">
+            <nav class="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 shadow-2xl overflow-y-auto p-5 space-y-2">
               <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold text-slate-900">{gettext("Navegación")}</h2>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                  {gettext("Navegación")}
+                </h2>
                 <button
                   phx-click={JS.hide(to: "#mobile-nav-overlay")}
                   class="p-1 rounded-lg hover:bg-slate-100 text-slate-500"
@@ -240,7 +242,7 @@ defmodule StreamflixWebWeb.DocsLive do
                 </button>
               </div>
               <div :for={group <- @nav_groups} class="mb-3">
-                <p class="font-bold text-slate-700 uppercase tracking-wider text-xs px-2 py-1">
+                <p class="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-xs px-2 py-1">
                   {group.title}
                 </p>
                 <div class="space-y-0.5 mt-1">
@@ -248,7 +250,7 @@ defmodule StreamflixWebWeb.DocsLive do
                     :for={item <- group.items}
                     href={"##{item.id}"}
                     phx-click={JS.hide(to: "#mobile-nav-overlay")}
-                    class="docs-nav-item block py-2 px-3 rounded-lg transition text-sm text-slate-600 hover:text-indigo-600 hover:bg-indigo-50"
+                    class="docs-nav-item block py-2 px-3 rounded-lg transition text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
                   >
                     {item.label}
                   </a>
