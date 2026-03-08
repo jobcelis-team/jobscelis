@@ -287,7 +287,7 @@ defmodule StreamflixWebWeb.Layouts do
 
   @doc """
   Unified footer used across ALL pages (public + authenticated).
-  3-column grid: Brand, Product links, Info links.
+  Compact 2-row layout: links row + copyright/legal row.
   """
   attr :locale, :string, default: "en"
   attr :legal, :map, default: %{}
@@ -298,92 +298,72 @@ defmodule StreamflixWebWeb.Layouts do
       class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 mt-auto"
       role="contentinfo"
     >
-      <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-10">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
-          <%!-- Brand column --%>
-          <div>
-            <a href="/" class="flex items-center gap-2 text-lg font-bold text-slate-900 mb-2">
-              <img src={~p"/images/logo.png"} alt="" class="h-6 w-auto" width="24" height="24" />
-              Jobcelis
+      <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-6">
+        <%!-- Row 1: Brand + links --%>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <a
+            href="/"
+            class="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white"
+          >
+            <img src={~p"/images/logo.png"} alt="" class="h-5 w-auto" width="20" height="20" />
+            Jobcelis
+          </a>
+
+          <nav class="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+            <a
+              href="/changelog"
+              class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition"
+            >
+              Changelog
             </a>
-            <p class="text-slate-500 text-sm mb-3">{gettext("Eventos, webhooks y jobs")}</p>
-
-            <p class="text-slate-400 text-xs">
-              &copy; {Date.utc_today().year} {Map.get(@legal, :owner, "Jobcelis")}. {gettext(
-                "Todos los derechos reservados."
-              )}
-            </p>
-          </div>
-          <%!-- Product column --%>
-          <div>
-            <h3 class="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-3">
-              {gettext("Producto")}
-            </h3>
-
-            <ul class="space-y-2 text-sm">
-              <li>
-                <a href="/docs" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("Documentación")}
-                </a>
-              </li>
-
-              <li>
-                <a href="/faq" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("FAQ")}
-                </a>
-              </li>
-
-              <li>
-                <a href="/changelog" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("Changelog")}
-                </a>
-              </li>
-
-              <li>
-                <a href="/pricing" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("Planes")}
-                </a>
-              </li>
-            </ul>
-          </div>
-          <%!-- Info column --%>
-          <div>
-            <h3 class="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-3">
-              {gettext("Información")}
-            </h3>
-
-            <ul class="space-y-2 text-sm">
-              <li>
-                <a href="/about" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("Sobre nosotros")}
-                </a>
-              </li>
-
-              <li>
-                <a href="/contact" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("Contacto")}
-                </a>
-              </li>
-
-              <li>
-                <a href="/terms" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("Términos")}
-                </a>
-              </li>
-
-              <li>
-                <a href="/privacy" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("Privacidad")}
-                </a>
-              </li>
-
-              <li>
-                <a href="/cookies" class="text-slate-500 hover:text-slate-700 transition">
-                  {gettext("Cookies")}
-                </a>
-              </li>
-            </ul>
-          </div>
+            <a
+              href="/about"
+              class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition"
+            >
+              {gettext("Sobre nosotros")}
+            </a>
+            <a
+              href="/contact"
+              class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition"
+            >
+              {gettext("Contacto")}
+            </a>
+            <a
+              href="/status"
+              class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition"
+            >
+              Status
+            </a>
+            <a
+              href="https://github.com/jobcelis-team/jobscelis"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition"
+            >
+              GitHub
+            </a>
+          </nav>
+        </div>
+        <%!-- Row 2: Copyright + legal links --%>
+        <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-400 dark:text-slate-500">
+          <p>
+            &copy; {Date.utc_today().year} {Map.get(@legal, :owner, "Jobcelis")}. {gettext(
+              "Todos los derechos reservados."
+            )}
+          </p>
+          <nav class="flex items-center gap-3">
+            <a href="/terms" class="hover:text-slate-600 dark:hover:text-slate-300 transition">
+              {gettext("Términos")}
+            </a>
+            <span class="text-slate-300 dark:text-slate-600">&middot;</span>
+            <a href="/privacy" class="hover:text-slate-600 dark:hover:text-slate-300 transition">
+              {gettext("Privacidad")}
+            </a>
+            <span class="text-slate-300 dark:text-slate-600">&middot;</span>
+            <a href="/cookies" class="hover:text-slate-600 dark:hover:text-slate-300 transition">
+              Cookies
+            </a>
+          </nav>
         </div>
       </div>
     </footer>
