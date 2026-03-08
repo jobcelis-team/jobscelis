@@ -2,11 +2,11 @@ defmodule StreamflixCore.Repo.Migrations.EnableRlsMissingTables do
   use Ecto.Migration
 
   @doc """
-  Enable RLS on 4 tables created after the initial Supabase hardening (2026-03-02).
+  Enable RLS on 4 tables created after the initial hardening.
   Also revoke anon/authenticated permissions on them and create an auto-RLS trigger
   for any future tables created in the public schema.
 
-  Safe for both Supabase (has anon/authenticated roles) and plain PostgreSQL (CI/Docker).
+  Safe for both managed PostgreSQL (with anon/authenticated roles) and plain PostgreSQL (CI/Docker).
   """
 
   def up do
@@ -15,8 +15,8 @@ defmodule StreamflixCore.Repo.Migrations.EnableRlsMissingTables do
       execute("ALTER TABLE #{table} ENABLE ROW LEVEL SECURITY")
     end
 
-    # ── 2. Revoke anon/authenticated access (Supabase only) ──────────
-    # These roles only exist in Supabase. In CI/Docker (plain PostgreSQL)
+    # ── 2. Revoke anon/authenticated access (managed DB only) ────────
+    # These roles only exist in managed PostgreSQL. In CI/Docker (plain PostgreSQL)
     # they don't exist, so we check before revoking.
     execute("""
     DO $$

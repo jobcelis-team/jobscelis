@@ -89,8 +89,8 @@ defmodule StreamflixCore.Notifications do
       user_id: user_id,
       project_id: project_id,
       type: "webhook_failing",
-      title: "Webhook fallando",
-      message: "#{webhook_url} tiene múltiples fallos consecutivos",
+      title: "Webhook failing",
+      message: "#{webhook_url} has multiple consecutive failures",
       metadata: %{"webhook_url" => webhook_url}
     })
   end
@@ -100,8 +100,8 @@ defmodule StreamflixCore.Notifications do
       user_id: user_id,
       project_id: project_id,
       type: "job_failed",
-      title: "Job fallido",
-      message: "El job programado \"#{job_name}\" falló al ejecutarse",
+      title: "Job failed",
+      message: "Scheduled job \"#{job_name}\" failed to execute",
       metadata: %{"job_name" => job_name}
     })
   end
@@ -111,8 +111,8 @@ defmodule StreamflixCore.Notifications do
       user_id: user_id,
       project_id: project_id,
       type: "dlq_entry",
-      title: "Entrega movida a DLQ",
-      message: "Una entrega a #{webhook_url} agotó todos los reintentos",
+      title: "Delivery moved to DLQ",
+      message: "A delivery to #{webhook_url} exhausted all retries",
       metadata: %{"webhook_url" => webhook_url}
     })
   end
@@ -122,8 +122,8 @@ defmodule StreamflixCore.Notifications do
       user_id: user_id,
       project_id: project_id,
       type: "replay_completed",
-      title: "Replay completado",
-      message: "Se re-enviaron #{event_count} eventos exitosamente",
+      title: "Replay completed",
+      message: "#{event_count} events were successfully re-delivered",
       metadata: %{"event_count" => event_count}
     })
   end
@@ -133,8 +133,8 @@ defmodule StreamflixCore.Notifications do
       user_id: user_id,
       project_id: project_id,
       type: "team_invite",
-      title: "Invitación a proyecto",
-      message: "Has sido invitado a un proyecto como #{role}.",
+      title: "Project invitation",
+      message: "You have been invited to a project as #{role}.",
       metadata: %{"project_id" => project_id, "member_id" => member_id}
     })
   end

@@ -16,22 +16,18 @@ defmodule StreamflixAccounts.Services.Authentication do
 
     case user do
       nil ->
-        # Prevent timing attacks
         Argon2.no_user_verify()
         {:error, :invalid_credentials}
 
       user ->
-        # Check if user is active
         if user.status != "active" do
           Argon2.no_user_verify()
           {:error, :account_inactive}
         else
-          # Check if account is locked
           if User.locked?(user) do
             audit_login(user, "user.login_failed", opts, %{reason: "account_locked"})
             {:error, :account_locked}
           else
-            # Auto-unlock if lockout expired
             user = maybe_auto_unlock(user)
 
             if verify_password(password, user.password_hash) do
@@ -168,8 +164,7 @@ defmodule StreamflixAccounts.Services.Authentication do
     end
   end
 
-  # Cache user struct for 60s to avoid DB hit on every request.
-  # Invalidated naturally by TTL expiry — acceptable for auth context.
+  # Avoids a DB hit on every authenticated request; TTL handles staleness.
   defp cached_get_user(user_id) do
     case Cachex.fetch(:platform_cache, {:auth_user, user_id}, fn _ ->
            case StreamflixCore.Repo.get(StreamflixAccounts.Schemas.User, user_id) do

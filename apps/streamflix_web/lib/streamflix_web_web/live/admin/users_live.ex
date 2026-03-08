@@ -84,7 +84,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
   def handle_event("save_user", params, socket) do
     user_id = params["_id"] || params["id"]
     requested_role = params["role"] || "user"
-    # Solo un superadmin puede asignar el rol superadmin
+    # Only a superadmin can assign the superadmin role
     role =
       if requested_role == "superadmin" and socket.assigns.current_user_role != "superadmin" do
         "admin"

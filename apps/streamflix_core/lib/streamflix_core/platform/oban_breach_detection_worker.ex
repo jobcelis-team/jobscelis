@@ -137,9 +137,9 @@ defmodule StreamflixCore.Platform.ObanBreachDetectionWorker do
       Notifications.create(%{
         user_id: user_id,
         type: "security_anomaly",
-        title: "Anomalía de seguridad detectada",
+        title: "Security anomaly detected",
         message:
-          "Se detectaron #{length(anomalies)} anomalías en los últimos #{@window_minutes} min: #{summary}",
+          "#{length(anomalies)} anomalies detected in the last #{@window_minutes} min: #{summary}",
         metadata: %{"anomalies" => anomalies}
       })
     end)

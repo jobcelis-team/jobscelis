@@ -106,8 +106,8 @@ defmodule StreamflixCore.CircuitBreaker do
     notify_project_owner(
       webhook,
       "circuit_open",
-      "Circuit breaker abierto",
-      "El webhook #{webhook.url} ha sido pausado tras #{@failure_threshold} fallos consecutivos. Se reintentará en #{div(@base_reset_seconds, 60)} minutos."
+      "Circuit breaker opened",
+      "Webhook #{webhook.url} has been paused after #{@failure_threshold} consecutive failures. Will retry in #{div(@base_reset_seconds, 60)} minutes."
     )
   end
 
@@ -115,8 +115,8 @@ defmodule StreamflixCore.CircuitBreaker do
     notify_project_owner(
       webhook,
       "circuit_closed",
-      "Circuit breaker cerrado",
-      "El webhook #{webhook.url} se ha recuperado y está recibiendo entregas nuevamente."
+      "Circuit breaker closed",
+      "Webhook #{webhook.url} has recovered and is receiving deliveries again."
     )
   end
 

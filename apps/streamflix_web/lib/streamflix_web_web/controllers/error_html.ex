@@ -23,7 +23,6 @@ defmodule StreamflixWebWeb.ErrorHTML do
 
   def locale(_), do: "en"
 
-  # Fallback for any status code without a custom template
   def render(template, _assigns) do
     Phoenix.Controller.status_message_from_template(template)
   end

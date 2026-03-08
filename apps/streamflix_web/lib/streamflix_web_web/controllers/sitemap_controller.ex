@@ -8,7 +8,7 @@ defmodule StreamflixWebWeb.SitemapController do
   def index(conn, _params) do
     base_url = build_base_url(conn)
 
-    # Páginas públicas que quieres que Google indexe (sin login/signup)
+    # Public pages to index (excludes login/signup)
     paths = [
       "/",
       "/docs",
