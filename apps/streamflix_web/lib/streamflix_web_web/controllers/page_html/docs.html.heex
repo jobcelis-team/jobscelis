@@ -526,7 +526,7 @@
 
       <section id="intro" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Introducción")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -534,7 +534,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Jobcelis es una plataforma de eventos y webhooks 100% configurable. Envía cualquier JSON desde tu código; nosotros enrutamos, filtramos, transformamos y entregamos a tus URLs. Sin esquemas fijos: tú defines topics, payloads y reglas."
@@ -610,7 +610,7 @@
 
       <section id="concepts" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Conceptos básicos")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -620,7 +620,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 border-l-4 border-l-indigo-500 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
                 {gettext("¿Qué es un evento?")}
@@ -720,7 +720,7 @@
 
       <section id="getting-started" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Primeros pasos")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -728,7 +728,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-6">
+          <div class="p-4 sm:p-8 space-y-6">
             <div class="flex gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-200 transition">
               <span class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg">
                 1
@@ -774,9 +774,13 @@
                   )}
                 </p>
 
-                <div class="min-w-0 overflow-x-auto rounded-lg">
-                  <pre class="bg-slate-800 text-slate-100 p-3 rounded-lg text-xs font-mono whitespace-pre">curl -X POST "BASE_URL/api/v1/events" -H "Authorization: Bearer TU_TOKEN" -H "Content-Type: application/json" -d '<%= "{\"topic\":\"test\",\"message\":\"" %><%= gettext("Hola") %><%= "\"}" %>'</pre>
-                </div>
+                <pre
+                  class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                  phx-no-curly-interpolation
+                >curl -X POST "<%= @base_url %>/api/v1/events" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"topic":"test","message":"<%= gettext("Hola") %>"}'</pre>
               </div>
             </div>
 
@@ -823,7 +827,7 @@
 
       <section id="base-url" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Base URL")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -833,7 +837,7 @@
             </p>
           </div>
 
-          <div class="p-8">
+          <div class="p-4 sm:p-8">
             <code class="block bg-slate-800 text-slate-100 px-5 py-4 rounded-xl font-mono text-sm break-all border border-slate-700">
               {@base_url}
             </code>
@@ -848,7 +852,7 @@
 
       <section id="auth" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Autenticación")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -856,7 +860,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div>
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
                 {gettext("Rutas con API Key (Jobcelis)")}
@@ -913,7 +917,7 @@
 
       <section id="cors" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("CORS")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -921,7 +925,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-4">
+          <div class="p-4 sm:p-8 space-y-4">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "La API tiene CORS habilitado para cualquier origen (Access-Control-Allow-Origin: *). Así, cualquier frontend (tu SPA, otra web, móvil con WebView, etc.) puede consumir la API desde su propia URL sin bloqueos del navegador."
@@ -967,7 +971,7 @@
 
       <section id="public-routes" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Rutas públicas (sin API Key)")}
             </h2>
@@ -977,7 +981,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div
               id="auth-register"
               class="rounded-xl border border-slate-200 bg-slate-50/50 p-6 scroll-mt-24"
@@ -986,7 +990,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                   POST
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/auth/register</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/auth/register
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-2">
@@ -1018,7 +1024,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                   POST
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/auth/login</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/auth/login
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-2">
@@ -1048,7 +1056,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                   POST
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/auth/refresh</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/auth/refresh
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-2">
@@ -1072,7 +1082,7 @@
 
       <section id="events" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Eventos")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -1082,14 +1092,14 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <div class="flex flex-wrap items-center gap-2 mb-3">
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                   POST
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/send</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/api/v1/send</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1116,7 +1126,7 @@
                   POST
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/events</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/api/v1/events</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1143,7 +1153,7 @@
                   GET
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/events</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/api/v1/events</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1171,7 +1181,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/events/:id</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/events/:id
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1195,7 +1207,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                   DELETE
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/events/:id</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/events/:id
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1219,7 +1233,7 @@
 
       <section id="webhooks" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Webhooks")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -1229,7 +1243,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-6">
+          <div class="p-4 sm:p-8 space-y-6">
             <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm">
               <p class="font-medium text-slate-800 mb-1">{gettext("Filtros:")}</p>
 
@@ -1259,7 +1273,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/webhooks
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1283,7 +1299,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/webhooks
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1311,7 +1329,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/webhooks/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1329,7 +1349,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
                     PATCH
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/webhooks/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1351,7 +1373,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                     DELETE
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/webhooks/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1370,7 +1394,7 @@
 
       <section id="topic-wildcards" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Topic Wildcards")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -1379,7 +1403,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-indigo-500 bg-indigo-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -1435,7 +1459,7 @@
 
       <section id="deliveries" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Entregas")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -1445,13 +1469,15 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <div class="flex flex-wrap items-center gap-2 mb-3">
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/deliveries</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/deliveries
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1475,7 +1501,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                   POST
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/deliveries/:id/retry
                 </code>
               </div>
@@ -1495,7 +1521,7 @@
 
       <section id="jobs" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Jobs (tareas programadas)")}
             </h2>
@@ -1507,7 +1533,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-6">
+          <div class="p-4 sm:p-8 space-y-6">
             <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm">
               <p class="font-medium text-slate-800 mb-2">
                 {gettext("schedule_type + schedule_config")}
@@ -1550,7 +1576,7 @@
                     GET
                   </span>
 
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/jobs</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">/api/v1/jobs</code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1575,7 +1601,7 @@
                     POST
                   </span>
 
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/jobs</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">/api/v1/jobs</code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1609,7 +1635,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/jobs/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/jobs/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1627,7 +1655,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
                     PATCH
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/jobs/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/jobs/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1649,7 +1679,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                     DELETE
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/jobs/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/jobs/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1667,7 +1699,9 @@
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/jobs/:id/runs</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/jobs/:id/runs
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -1692,7 +1726,7 @@
 
       <section id="jobs-cron" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Configurar jobs y cron")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -1702,7 +1736,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-6">
+          <div class="p-4 sm:p-8 space-y-6">
             <h3 class="text-lg font-semibold text-slate-800">
               {gettext("Tipos de programación (schedule_type)")}
             </h3>
@@ -1856,7 +1890,7 @@
 
       <section id="project-token" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Proyecto, topics y token")}
             </h2>
@@ -1868,14 +1902,16 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <div class="flex flex-wrap items-center gap-2 mb-3">
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/project</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/project
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1894,7 +1930,9 @@
                   PATCH
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/project</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/project
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1914,7 +1952,7 @@
                   GET
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/topics</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/api/v1/topics</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1935,7 +1973,7 @@
                   GET
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/token</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/api/v1/token</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1955,7 +1993,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                   POST
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/token/regenerate</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/token/regenerate
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -1978,7 +2018,7 @@
       <%!-- ========== FUNCIONES AVANZADAS ========== --%>
       <section id="simulate" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Simulador de webhooks")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -1988,7 +2028,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-indigo-500 bg-indigo-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -2003,7 +2043,9 @@
                   POST
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/simulate</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/simulate
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2037,7 +2079,7 @@
 
       <section id="webhook-health" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Webhook Health")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2047,13 +2089,13 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <div class="flex flex-wrap items-center gap-2 mb-3">
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/webhooks/:id/health
                 </code>
               </div>
@@ -2089,7 +2131,7 @@
 
       <section id="dead-letters" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Dead Letter Queue")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2099,11 +2141,11 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
-                  "Las entregas van al DLQ cuando fallan todos los reintentos automáticos (1 min → 5 min → 15 min → 1 h). Desde aquí puedes reintentar manualmente o marcar como resueltas."
+                  "Las entregas van al DLQ cuando fallan todos los reintentos automáticos (con backoff exponencial). Desde aquí puedes reintentar manualmente o marcar como resueltas."
                 )}
               </p>
             </div>
@@ -2113,7 +2155,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/dead-letters</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/dead-letters
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2137,7 +2181,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/dead-letters/:id</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/dead-letters/:id
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2157,7 +2203,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                   POST
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/dead-letters/:id/retry
                 </code>
               </div>
@@ -2185,7 +2231,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
                   PATCH
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/dead-letters/:id/resolve
                 </code>
               </div>
@@ -2207,7 +2253,7 @@
 
       <section id="replays" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Event Replay")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2217,7 +2263,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-indigo-500 bg-indigo-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -2232,7 +2278,9 @@
                   GET
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/replays</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/replays
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2251,7 +2299,9 @@
                   POST
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/replays</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/replays
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2279,7 +2329,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/replays/:id</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/replays/:id
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2299,7 +2351,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                   DELETE
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/replays/:id</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/replays/:id
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2319,7 +2373,7 @@
       <%!-- ========== HERRAMIENTAS ========== --%>
       <section id="sandbox" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Sandbox (RequestBin)")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2329,7 +2383,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -2343,7 +2397,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/sandbox-endpoints
                 </code>
               </div>
@@ -2363,7 +2417,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                   POST
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/sandbox-endpoints
                 </code>
               </div>
@@ -2398,7 +2452,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                   DELETE
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/sandbox-endpoints/:id
                 </code>
               </div>
@@ -2418,7 +2472,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/sandbox-endpoints/:id/requests
                 </code>
               </div>
@@ -2441,7 +2495,7 @@
                   ANY
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/sandbox/:slug</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/sandbox/:slug</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2462,7 +2516,7 @@
 
       <section id="analytics" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Analíticas")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2472,13 +2526,13 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <div class="flex flex-wrap items-center gap-2 mb-3">
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/analytics/events-per-day
                 </code>
               </div>
@@ -2500,7 +2554,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/analytics/deliveries-per-day
                 </code>
               </div>
@@ -2522,7 +2576,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/analytics/top-topics
                 </code>
               </div>
@@ -2544,7 +2598,7 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/analytics/webhook-stats
                 </code>
               </div>
@@ -2575,7 +2629,7 @@
 
       <section id="audit-log" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Audit Log")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2585,7 +2639,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-slate-500 bg-slate-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -2599,7 +2653,9 @@
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/audit-log</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/audit-log
+                </code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2627,7 +2683,7 @@
 
       <section id="health" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Health Check")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2637,14 +2693,14 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <div class="flex flex-wrap items-center gap-2 mb-3">
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/health</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/health</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2676,7 +2732,7 @@
 
       <section id="status-page" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Página de estado")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -2685,7 +2741,7 @@
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -2717,14 +2773,14 @@
 
       <section id="response-headers" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Headers de respuesta")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext("Headers útiles incluidos automáticamente en las respuestas de la API.")}
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">X-Request-Id</h3>
               <p class="text-slate-700 text-sm mb-3">
@@ -2798,7 +2854,7 @@ X-RateLimit-Reset: 1709750400</pre>
 
       <section id="openapi" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("OpenAPI / Swagger")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2808,7 +2864,7 @@ X-RateLimit-Reset: 1709750400</pre>
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-indigo-500 bg-indigo-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -2823,7 +2879,7 @@ X-RateLimit-Reset: 1709750400</pre>
                   GET
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/swaggerui</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/api/swaggerui</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2847,7 +2903,7 @@ X-RateLimit-Reset: 1709750400</pre>
                   GET
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/openapi</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/api/openapi</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -2866,13 +2922,13 @@ X-RateLimit-Reset: 1709750400</pre>
 
       <section id="usage" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Formas de usar la aplicación")}
             </h2>
           </div>
 
-          <div class="p-8">
+          <div class="p-4 sm:p-8">
             <ul class="text-slate-700 space-y-4">
               <li class="flex gap-3">
                 <span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">
@@ -2913,7 +2969,7 @@ X-RateLimit-Reset: 1709750400</pre>
 
       <section id="status-codes" class="mb-8 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Códigos de respuesta")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2921,7 +2977,7 @@ X-RateLimit-Reset: 1709750400</pre>
             </p>
           </div>
 
-          <div class="p-8">
+          <div class="p-4 sm:p-8">
             <ul class="text-slate-700 space-y-2">
               <li><strong>200</strong> {gettext("OK (éxito)")}</li>
 
@@ -2949,7 +3005,7 @@ X-RateLimit-Reset: 1709750400</pre>
       <%!-- ========== Phase 5: Expansion ========== --%>
       <section id="multi-project" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Multi-proyecto")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -2959,7 +3015,7 @@ X-RateLimit-Reset: 1709750400</pre>
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Autenticación: JWT (Bearer token). Las rutas de proyecto usan el pipeline de auth JWT, no API Key."
@@ -2972,7 +3028,9 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/projects</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/projects
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -2991,7 +3049,9 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/projects</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/projects
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -3017,7 +3077,9 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/projects/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/projects/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -3034,7 +3096,9 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
                     PATCH
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/projects/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/projects/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -3056,7 +3120,9 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                     DELETE
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/projects/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/projects/:id
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -3073,7 +3139,7 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
                     PATCH
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/projects/:id/default
                   </code>
                 </div>
@@ -3091,7 +3157,7 @@ X-RateLimit-Reset: 1709750400</pre>
 
       <section id="api-key-scopes" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Scopes de API Key")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3099,7 +3165,7 @@ X-RateLimit-Reset: 1709750400</pre>
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Por defecto, las API Keys tienen scope '*' (acceso total). Puedes restringirlas a operaciones específicas."
@@ -3186,7 +3252,7 @@ X-RateLimit-Reset: 1709750400</pre>
 
       <section id="event-schemas" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Event Schemas")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3194,7 +3260,7 @@ X-RateLimit-Reset: 1709750400</pre>
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "La validación es opt-in: si no hay schema para un topic, el evento pasa sin validar. Si hay schema y el payload no cumple, se rechaza con 422."
@@ -3207,7 +3273,9 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/event-schemas</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/event-schemas
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -3222,7 +3290,9 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/event-schemas</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/event-schemas
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -3246,7 +3316,7 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/event-schemas/:id
                   </code>
                 </div>
@@ -3263,7 +3333,7 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                     DELETE
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/event-schemas/:id
                   </code>
                 </div>
@@ -3280,7 +3350,7 @@ X-RateLimit-Reset: 1709750400</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/event-schemas/validate
                   </code>
                 </div>
@@ -3309,7 +3379,7 @@ X-RateLimit-Reset: 1709750400</pre>
 
       <section id="delayed-events" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Eventos diferidos")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3317,7 +3387,7 @@ X-RateLimit-Reset: 1709750400</pre>
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Incluye el campo 'deliver_at' (ISO 8601) al enviar un evento. La entrega se ejecutará cuando llegue la hora."
@@ -3330,7 +3400,7 @@ X-RateLimit-Reset: 1709750400</pre>
                   POST
                 </span>
 
-                <code class="font-mono text-slate-800 font-medium">/api/v1/events</code>
+                <code class="font-mono text-slate-800 font-medium break-all">/api/v1/events</code>
               </div>
 
               <p class="text-slate-700 text-sm mb-3">
@@ -3356,7 +3426,7 @@ X-RateLimit-Reset: 1709750400</pre>
 
       <section id="realtime-stream" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Streaming en tiempo real")}
             </h2>
@@ -3366,7 +3436,7 @@ X-RateLimit-Reset: 1709750400</pre>
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="space-y-8">
               <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
                 <div class="flex flex-wrap items-center gap-2 mb-3">
@@ -3374,7 +3444,9 @@ X-RateLimit-Reset: 1709750400</pre>
                     GET
                   </span>
 
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/stream</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/stream
+                  </code>
                   <span class="text-xs text-slate-500">
                     ({gettext("Server-Sent Events (SSE)")})
                   </span>
@@ -3423,7 +3495,7 @@ X-RateLimit-Reset: 1709750400</pre>
                     WS
                   </span>
 
-                  <code class="font-mono text-slate-800 font-medium">/ws</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">/ws</code>
                   <span class="text-xs text-slate-500">({gettext("WebSocket")})</span>
                 </div>
 
@@ -3458,7 +3530,7 @@ channel.on("delivery:updated", payload => console.log(payload))</pre>
 
       <section id="teams" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Equipos / Colaboradores")}
             </h2>
@@ -3468,7 +3540,7 @@ channel.on("delivery:updated", payload => console.log(payload))</pre>
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Autenticación: JWT. Roles disponibles: owner (dueño, acceso total), editor (lectura/escritura), viewer (solo lectura)."
@@ -3481,7 +3553,7 @@ channel.on("delivery:updated", payload => console.log(payload))</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/projects/:project_id/members
                   </code>
                 </div>
@@ -3500,7 +3572,7 @@ channel.on("delivery:updated", payload => console.log(payload))</pre>
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/projects/:project_id/members
                   </code>
                 </div>
@@ -3534,7 +3606,7 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
                     PATCH
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/projects/:project_id/members/:id
                   </code>
                 </div>
@@ -3556,7 +3628,7 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                     DELETE
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/projects/:project_id/members/:id
                   </code>
                 </div>
@@ -3579,7 +3651,7 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
                   <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-700">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/invitations/pending
                   </code>
                 </div>
@@ -3598,7 +3670,7 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
                   <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/invitations/:id/accept
                   </code>
                 </div>
@@ -3617,7 +3689,7 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
                   <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/invitations/:id/reject
                   </code>
                 </div>
@@ -3643,7 +3715,7 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
       <%!-- ========== CURSOR PAGINATION ========== --%>
       <section id="cursor-pagination" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Paginación cursor")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3653,7 +3725,7 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "En lugar de offset/page, usa cursores para recorrer resultados de forma estable y performante. Los endpoints GET /events y GET /deliveries soportan paginación cursor."
@@ -3666,7 +3738,7 @@ curl -X POST "<%= @base_url %>/api/v1/projects/PROJECT_ID/members" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/events?limit=20&cursor=CURSOR
                   </code>
                 </div>
@@ -3696,7 +3768,7 @@ curl "<%= @base_url %>/api/v1/events?limit=10&cursor=NEXT_CURSOR_VALUE" \
       <%!-- ========== BATCH EVENTS ========== --%>
       <section id="batch-events" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Batch Events")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3704,7 +3776,7 @@ curl "<%= @base_url %>/api/v1/events?limit=10&cursor=NEXT_CURSOR_VALUE" \
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Configura batch_config en tu webhook para acumular eventos y enviarlos juntos. El sistema agrupa automáticamente los eventos y los entrega cuando se cumple la ventana de tiempo o el tamaño máximo."
@@ -3717,7 +3789,9 @@ curl "<%= @base_url %>/api/v1/events?limit=10&cursor=NEXT_CURSOR_VALUE" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/webhooks</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/webhooks
+                  </code>
                 </div>
 
                 <p class="text-slate-700 text-sm mb-3">
@@ -3747,7 +3821,7 @@ curl "<%= @base_url %>/api/v1/events?limit=10&cursor=NEXT_CURSOR_VALUE" \
       <%!-- ========== EXPORT CSV/JSON ========== --%>
       <section id="export" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Exportar datos")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3755,7 +3829,7 @@ curl "<%= @base_url %>/api/v1/events?limit=10&cursor=NEXT_CURSOR_VALUE" \
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Descarga tus datos para análisis externo. Todos los endpoints de exportación soportan el parámetro format=csv o format=json (default)."
@@ -3768,7 +3842,7 @@ curl "<%= @base_url %>/api/v1/events?limit=10&cursor=NEXT_CURSOR_VALUE" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/export/events?format=csv
                   </code>
                 </div>
@@ -3787,7 +3861,7 @@ curl "<%= @base_url %>/api/v1/events?limit=10&cursor=NEXT_CURSOR_VALUE" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/export/deliveries | jobs | audit-log
                   </code>
                 </div>
@@ -3808,7 +3882,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /export/events | deliveries | jobs | audit-log
                   </code>
                 </div>
@@ -3831,7 +3905,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
       <%!-- ========== WEBHOOK TEMPLATES ========== --%>
       <section id="webhook-templates" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Plantillas webhook")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3839,7 +3913,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Usa plantillas para crear webhooks preconfigurados para Slack, Discord, Telegram y más. Cada plantilla incluye headers, body_config y transformaciones listas para usar."
@@ -3852,7 +3926,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/webhooks/templates
                   </code>
                 </div>
@@ -3878,7 +3952,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
       <%!-- ========== CRON PREVIEW ========== --%>
       <section id="cron-preview" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Cron preview")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3886,7 +3960,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Valida y previsualiza cuándo se ejecutará tu job cron antes de crearlo. Útil para verificar expresiones complejas."
@@ -3899,7 +3973,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/jobs/cron-preview?expression=*/5+*+*+*+*&count=5
                   </code>
                 </div>
@@ -3919,7 +3993,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
       <%!-- ========== IP ALLOWLIST ========== --%>
       <section id="ip-allowlist" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("IP Allowlist")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -3927,7 +4001,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Añade una capa extra de seguridad permitiendo que tu API key solo funcione desde IPs específicas. Si la lista está vacía, cualquier IP puede usar la key."
@@ -3965,7 +4039,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
 
       <section id="account-management" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Gestión de cuenta")}
             </h2>
@@ -3975,7 +4049,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Desde la página de cuenta (/account) puedes gestionar todos los aspectos de tu perfil y seguridad. Todas las acciones sensibles requieren confirmar tu contraseña actual."
@@ -3989,7 +4063,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     {gettext("Verificación")}
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     {gettext("Verificar email")}
                   </code>
                 </div>
@@ -4013,7 +4087,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
                     {gettext("Modificar")}
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     {gettext("Cambiar email")}
                   </code>
                 </div>
@@ -4031,7 +4105,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">
                     {gettext("Modificar")}
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     {gettext("Cambiar contraseña")}
                   </code>
                 </div>
@@ -4049,7 +4123,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                     {gettext("Peligro")}
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     {gettext("Eliminar cuenta")}
                   </code>
                 </div>
@@ -4073,7 +4147,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
 
       <section id="password-recovery" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Recuperar contraseña")}
             </h2>
@@ -4083,7 +4157,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Si olvidaste tu contraseña puedes restablecerla desde la página de login. El proceso es seguro y protegido con rate limiting."
@@ -4172,7 +4246,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
 
       <section id="dashboard-overview" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Dashboard")}
             </h2>
@@ -4182,7 +4256,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "El dashboard (/platform) es la interfaz principal donde gestionas todo sin necesidad de usar la API. Todas las funcionalidades de la API están disponibles visualmente."
@@ -4350,7 +4424,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
 
       <section id="pipelines" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Event Pipelines")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -4360,7 +4434,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Pipelines allow you to process events before delivery. Each pipeline has a series of steps that execute in order. If a filter step doesn't match, the event is skipped for that pipeline."
@@ -4374,7 +4448,9 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/pipelines
+                  </code>
                 </div>
                 <p class="text-slate-700 text-sm">
                   {gettext("List all pipelines for the current project.")}
@@ -4387,12 +4463,14 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/pipelines
+                  </code>
                 </div>
                 <p class="text-slate-700 text-sm mb-3">
                   {gettext("Create a new pipeline with filter, transform, and delay steps.")}
                 </p>
-                <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~s|{
+                <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~s|{
   "name": "High-value orders",
   "topics": ["order.created"],
   "webhook_id": "uuid-of-target-webhook",
@@ -4401,7 +4479,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
     {"type": "transform", "operation": "pick", "fields": ["order_id", "amount"]},
     {"type": "delay", "seconds": 300}
   ]
-}| %></code></pre>
+}| %></pre>
               </div>
 
               <%!-- Get pipeline --%>
@@ -4410,7 +4488,9 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                     GET
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/pipelines/:id
+                  </code>
                 </div>
                 <p class="text-slate-700 text-sm">
                   {gettext("Get details of a specific pipeline.")}
@@ -4423,7 +4503,9 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-yellow-600 text-white">
                     PATCH
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/pipelines/:id
+                  </code>
                 </div>
                 <p class="text-slate-700 text-sm">
                   {gettext("Update an existing pipeline (name, steps, topics, status).")}
@@ -4436,7 +4518,9 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                     DELETE
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">/api/v1/pipelines/:id</code>
+                  <code class="font-mono text-slate-800 font-medium break-all">
+                    /api/v1/pipelines/:id
+                  </code>
                 </div>
                 <p class="text-slate-700 text-sm">
                   {gettext("Deactivate a pipeline (soft delete).")}
@@ -4449,7 +4533,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                   <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white">
                     POST
                   </span>
-                  <code class="font-mono text-slate-800 font-medium">
+                  <code class="font-mono text-slate-800 font-medium break-all">
                     /api/v1/pipelines/:id/test
                   </code>
                 </div>
@@ -4458,7 +4542,7 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
                     "Test a pipeline with a sample payload without actually delivering. Returns the transformed output or filter result."
                   )}
                 </p>
-                <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~s|{"payload": {"order_id": "123", "amount": 150, "currency": "USD"}}| %></code></pre>
+                <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~s|{"payload": {"order_id": "123", "amount": 150, "currency": "USD"}}| %></pre>
               </div>
             </div>
 
@@ -4610,50 +4694,209 @@ curl "<%= @base_url %>/api/v1/export/audit-log?format=csv" \
 
       <section id="sdks" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("SDKs")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
-              {gettext("Official client libraries for Node.js, Python, and Go.")}
+              {gettext(
+                "Official client libraries for Node.js, Python, Go, PHP, Ruby, Elixir, C#, Rust, Swift, Java, Dart, and Kotlin."
+              )}
             </p>
           </div>
 
-          <div class="p-8 space-y-6">
+          <div class="p-4 sm:p-8 space-y-6">
             <%!-- Node.js --%>
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-800 mb-3">Node.js / TypeScript</h3>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto mb-3"><code>npm install @jobcelis/sdk</code></pre>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|const { JobcelisClient } = require('@jobcelis/sdk');
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install
+npm install @jobcelis/sdk
+
+# Usage
+const { JobcelisClient } = require('@jobcelis/sdk');
 
 const client = new JobcelisClient({ apiKey: 'YOUR_API_KEY' });
 
 await client.sendEvent({
   topic: 'order.created',
   payload: { order_id: '12345', amount: 99.99 },
-});| %></code></pre>
+});| %></pre>
             </div>
 
             <%!-- Python --%>
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-800 mb-3">Python</h3>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto mb-3"><code>pip install jobcelis</code></pre>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|from jobcelis import JobcelisClient
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install
+pip install jobcelis
+
+# Usage
+from jobcelis import JobcelisClient
 
 client = JobcelisClient(api_key="YOUR_API_KEY")
 
-client.send_event("order.created", {"order_id": "12345", "amount": 99.99})| %></code></pre>
+client.send_event("order.created", {"order_id": "12345", "amount": 99.99})| %></pre>
             </div>
 
             <%!-- Go --%>
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-800 mb-3">Go</h3>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto mb-3"><code>go get github.com/vladimirCeli/go-jobcelis</code></pre>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|client := jobcelis.NewClient("YOUR_API_KEY")
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install
+go get github.com/vladimirCeli/go-jobcelis
+
+# Usage
+client := jobcelis.NewClient("YOUR_API_KEY")
 
 resp, err := client.SendEvent(ctx, jobcelis.EventRequest{
     Topic:   "order.created",
     Payload: map[string]interface{}{"order_id": "12345", "amount": 99.99},
-})| %></code></pre>
+})| %></pre>
+            </div>
+
+            <%!-- PHP --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">PHP</h3>
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install
+composer require jobcelis/sdk
+
+# Usage
+use Jobcelis\JobcelisClient;
+
+$client = new JobcelisClient('YOUR_API_KEY');
+
+$client->sendEvent([
+    'topic' => 'order.created',
+    'payload' => ['order_id' => '12345', 'amount' => 99.99],
+]);| %></pre>
+            </div>
+
+            <%!-- Ruby --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Ruby</h3>
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install
+gem install jobcelis
+
+# Usage
+require 'jobcelis'
+
+client = Jobcelis::Client.new(api_key: 'YOUR_API_KEY')
+
+client.send_event(
+  topic: 'order.created',
+  payload: { order_id: '12345', amount: 99.99 }
+)| %></pre>
+            </div>
+
+            <%!-- Elixir --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Elixir</h3>
+              <pre
+                class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              ># Install (mix.exs)
+{:jobcelis, "~> 1.0"}
+
+# Usage
+client = Jobcelis.client(api_key: "YOUR_API_KEY")
+
+{:ok, event} = Jobcelis.send_event(client, %{
+  topic: "order.created",
+  payload: %{order_id: "12345", amount: 99.99}
+})</pre>
+            </div>
+
+            <%!-- C# / .NET --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">C# / .NET</h3>
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install
+dotnet add package Jobcelis
+
+# Usage
+using var client = new JobcelisClient("YOUR_API_KEY");
+
+await client.SendEventAsync(new {
+    Topic = "order.created",
+    Payload = new { order_id = "12345", amount = 99.99 }
+});| %></pre>
+            </div>
+
+            <%!-- Rust --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Rust</h3>
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install
+cargo add jobcelis
+
+# Usage
+let client = Jobcelis::new("YOUR_API_KEY");
+
+let event = client.send_event(json!({
+    "topic": "order.created",
+    "payload": {"order_id": "12345", "amount": 99.99}
+})).await?;| %></pre>
+            </div>
+
+            <%!-- Swift --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Swift</h3>
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install (Package.swift)
+.package(url: "https://github.com/vladimirCeli/jobcelis-swift", from: "1.0.0")
+
+# Usage
+let client = JobcelisClient(apiKey: "YOUR_API_KEY")
+
+let event = try await client.sendEvent(
+    topic: "order.created",
+    payload: ["order_id": "12345", "amount": 99.99]
+)| %></pre>
+            </div>
+
+            <%!-- Java --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Java</h3>
+              <pre
+                class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >&lt;!-- Install (pom.xml) --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;com.jobcelis&lt;/groupId&gt;
+  &lt;artifactId&gt;jobcelis&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+// Usage
+JobcelisClient client = new JobcelisClient("YOUR_API_KEY");
+
+JsonObject event = client.sendEvent(Map.of(
+    "topic", "order.created",
+    "payload", Map.of("order_id", "12345", "amount", 99.99)
+));</pre>
+            </div>
+
+            <%!-- Dart / Flutter --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Dart / Flutter</h3>
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install
+dart pub add jobcelis
+
+# Usage
+final client = JobcelisClient(apiKey: 'YOUR_API_KEY');
+
+final event = await client.sendEvent({
+  'topic': 'order.created',
+  'payload': {'order_id': '12345', 'amount': 99.99},
+});| %></pre>
+            </div>
+
+            <%!-- Kotlin --%>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
+              <h3 class="text-lg font-semibold text-slate-800 mb-3">Kotlin</h3>
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|# Install (build.gradle.kts)
+implementation("com.jobcelis:jobcelis:1.0.0")
+
+# Usage
+val client = JobcelisClient("YOUR_API_KEY")
+
+val event = client.sendEvent(mapOf(
+    "topic" to "order.created",
+    "payload" to mapOf("order_id" to "12345", "amount" to 99.99)
+))| %></pre>
             </div>
           </div>
         </div>
@@ -4661,7 +4904,7 @@ resp, err := client.SendEvent(ctx, jobcelis.EventRequest{
 
       <section id="cli" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("CLI")}</h2>
 
             <p class="text-slate-600 mt-1 text-sm">
@@ -4669,8 +4912,8 @@ resp, err := client.SendEvent(ctx, jobcelis.EventRequest{
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
-            <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|npm install -g @jobcelis/cli
+          <div class="p-4 sm:p-8 space-y-5">
+            <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|npm install -g @jobcelis/cli
 export JOBCELIS_API_KEY="YOUR_API_KEY"
 
 # Send an event
@@ -4686,14 +4929,14 @@ jobcelis webhooks list
 jobcelis webhooks create --url https://example.com/hook --topics "order.*"
 
 # Check platform status
-jobcelis status| %></code></pre>
+jobcelis status| %></pre>
           </div>
         </div>
       </section>
 
       <section id="webhook-verification" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Webhook signature verification")}
             </h2>
@@ -4705,7 +4948,7 @@ jobcelis status| %></code></pre>
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "Jobcelis computes an HMAC signature of the raw body using your webhook secret, Base64 encodes it (no padding), and sends it in the X-Signature header as sha256=<base64>."
@@ -4714,7 +4957,7 @@ jobcelis status| %></code></pre>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-sm font-semibold text-slate-800 mb-3">Node.js</h3>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code><%= ~S|const crypto = require('crypto');
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono"><%= ~S|const crypto = require('crypto');
 
 function verifySignature(secret, body, signature) {
   if (!signature.startsWith('sha256=')) return false;
@@ -4728,12 +4971,12 @@ function verifySignature(secret, body, signature) {
   const b = Buffer.from(expected, 'base64');
   if (a.length !== b.length) return false;
   return crypto.timingSafeEqual(a, b);
-}| %></code></pre>
+}| %></pre>
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-sm font-semibold text-slate-800 mb-3">Python</h3>
-              <pre class="bg-slate-900 text-slate-100 rounded-lg p-4 text-xs overflow-x-auto"><code>import base64, hashlib, hmac
+              <pre class="bg-slate-800 text-slate-100 rounded-lg p-4 text-sm overflow-x-auto font-mono">import base64, hashlib, hmac
 
 def verify_signature(secret, body, signature):
     if not signature.startswith('sha256='):
@@ -4742,7 +4985,7 @@ def verify_signature(secret, body, signature):
     expected = base64.b64encode(
         hmac.new(secret.encode(), body.encode(), hashlib.sha256).digest()
     ).rstrip(b'=').decode()
-    return hmac.compare_digest(received, expected)</code></pre>
+    return hmac.compare_digest(received, expected)</pre>
             </div>
 
             <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
@@ -4756,7 +4999,7 @@ def verify_signature(secret, body, signature):
 
       <section id="consent-versioning" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Consent versioning")}
             </h2>
@@ -4766,7 +5009,7 @@ def verify_signature(secret, body, signature):
             </p>
           </div>
 
-          <div class="p-8 space-y-5">
+          <div class="p-4 sm:p-8 space-y-5">
             <p class="text-slate-700 leading-relaxed">
               {gettext(
                 "When privacy policies are updated, users must re-accept the new version. The platform tracks which version each user accepted and when."
@@ -4779,7 +5022,9 @@ def verify_signature(secret, body, signature):
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
                   GET
                 </span>
-                <code class="font-mono text-slate-800 font-medium">/api/v1/me/consents</code>
+                <code class="font-mono text-slate-800 font-medium break-all">
+                  /api/v1/me/consents
+                </code>
               </div>
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -4794,7 +5039,7 @@ def verify_signature(secret, body, signature):
                 <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white">
                   POST
                 </span>
-                <code class="font-mono text-slate-800 font-medium">
+                <code class="font-mono text-slate-800 font-medium break-all">
                   /api/v1/me/consents/:purpose/accept
                 </code>
               </div>
@@ -4810,7 +5055,7 @@ def verify_signature(secret, body, signature):
 
       <section id="account-lockout" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Bloqueo de cuenta")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -4819,7 +5064,7 @@ def verify_signature(secret, body, signature):
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -4873,7 +5118,7 @@ def verify_signature(secret, body, signature):
 
       <section id="session-timeout" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Timeout de sesión")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -4882,7 +5127,7 @@ def verify_signature(secret, body, signature):
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -4916,7 +5161,7 @@ def verify_signature(secret, body, signature):
 
       <section id="mfa-totp" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("MFA / TOTP")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -4925,7 +5170,7 @@ def verify_signature(secret, body, signature):
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <%!-- Overview --%>
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
@@ -4979,13 +5224,13 @@ def verify_signature(secret, body, signature):
                   </span>
                   <h4 class="font-medium text-slate-800 text-sm">POST /api/v1/auth/login</h4>
                 </div>
-                <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
-                  <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code>curl -X POST <%= gettext("https://tu-dominio.com") %>/api/v1/auth/login \
+                <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
+                  <pre class="text-sm text-slate-100 font-mono whitespace-pre">curl -X POST <%= gettext("https://tu-dominio.com") %>/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '<%= ~s({"email": "user@example.com", "password": "secreto123"}) %>'
 
 # <%= gettext("Respuesta si MFA está activo") %>:
-<%= ~s({"mfa_required": true, "mfa_token": "eyJ..."}) %></code></pre>
+<%= ~s({"mfa_required": true, "mfa_token": "eyJ..."}) %></pre>
                 </div>
               </div>
 
@@ -4997,13 +5242,13 @@ def verify_signature(secret, body, signature):
                   </span>
                   <h4 class="font-medium text-slate-800 text-sm">POST /api/v1/auth/mfa/verify</h4>
                 </div>
-                <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
-                  <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code>curl -X POST <%= gettext("https://tu-dominio.com") %>/api/v1/auth/mfa/verify \
+                <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
+                  <pre class="text-sm text-slate-100 font-mono whitespace-pre">curl -X POST <%= gettext("https://tu-dominio.com") %>/api/v1/auth/mfa/verify \
   -H "Content-Type: application/json" \
   -d '<%= ~s({"mfa_token": "eyJ...", "code": "123456"}) %>'
 
 # <%= gettext("Respuesta exitosa") %>:
-<%= ~s({"user": {"id": "...", "email": "..."}, "token": "eyJ..."}) %></code></pre>
+<%= ~s({"user": {"id": "...", "email": "..."}, "token": "eyJ..."}) %></pre>
                 </div>
               </div>
             </div>
@@ -5038,7 +5283,7 @@ def verify_signature(secret, body, signature):
 
       <section id="backups" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Backups automáticos")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -5047,7 +5292,7 @@ def verify_signature(secret, body, signature):
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -5104,11 +5349,11 @@ def verify_signature(secret, body, signature):
               <p class="text-slate-600 text-sm mb-3">
                 {gettext("El endpoint /health incluye el estado del último backup.")}
               </p>
-              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
-                <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code>curl <%= gettext("https://tu-dominio.com") %>/health
+              <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
+                <pre class="text-sm text-slate-100 font-mono whitespace-pre">curl <%= gettext("https://tu-dominio.com") %>/health
 
 # <%= gettext("Respuesta incluye") %>:
-<%= ~s["backup": "ok (streamflix_20260303_020000.sql.gz)"] %></code></pre>
+<%= ~s["backup": "ok (streamflix_20260303_020000.sql.gz)"] %></pre>
               </div>
             </div>
 
@@ -5126,7 +5371,7 @@ def verify_signature(secret, body, signature):
       <%!-- ========== PROTECCIÓN DE DATOS (GDPR) ========== --%>
       <section id="data-protection" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Protección de datos")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -5135,7 +5380,7 @@ def verify_signature(secret, body, signature):
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -5160,10 +5405,10 @@ def verify_signature(secret, body, signature):
                 {gettext("Sección «Cuenta» → «Protección de datos» → «Exportar datos»")}
               </p>
               <p class="text-slate-700 text-sm font-medium mb-2">{gettext("Vía API")}:</p>
-              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
-                <pre class="text-sm text-slate-100 font-mono whitespace-pre"><code># GET /api/v1/me/data
+              <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
+                <pre class="text-sm text-slate-100 font-mono whitespace-pre"># GET /api/v1/me/data
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  <%= gettext("https://tu-dominio.com") %>/api/v1/me/data</code></pre>
+  <%= gettext("https://tu-dominio.com") %>/api/v1/me/data</pre>
               </div>
             </div>
 
@@ -5201,7 +5446,7 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
                 {gettext("Sección «Cuenta» → «Protección de datos» → «Restringir procesamiento»")}
               </p>
               <p class="text-slate-700 text-sm font-medium mb-2">{gettext("Vía API")}:</p>
-              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+              <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
                 <pre
                   class="text-sm text-slate-100 font-mono whitespace-pre"
                   phx-no-curly-interpolation
@@ -5233,7 +5478,7 @@ curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" \
                 {gettext("Sección «Cuenta» → «Protección de datos» → «Objetar procesamiento»")}
               </p>
               <p class="text-slate-700 text-sm font-medium mb-2">{gettext("Vía API")}:</p>
-              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+              <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
                 <pre
                   class="text-sm text-slate-100 font-mono whitespace-pre"
                   phx-no-curly-interpolation
@@ -5280,7 +5525,7 @@ curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" \
       <%!-- ══════════════════════════════════════════════════════════════ --%>
       <section id="ropa" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Registro de actividades (Art. 30)")}
             </h2>
@@ -5291,7 +5536,7 @@ curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" \
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
@@ -5450,34 +5695,34 @@ curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 
       <section id="event-integrity" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Integridad de eventos")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
-                "Checksums SHA-256 para verificar integridad del payload y claves de idempotencia para deduplicación."
+                "Checksums criptográficos para verificar integridad del payload y claves de idempotencia para deduplicación."
               )}
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border-l-4 border-l-blue-500 bg-blue-50/50 border border-slate-200 p-5">
               <p class="text-slate-700 text-sm">
                 {gettext(
-                  "Cada evento incluye un hash SHA-256 del payload canónico. Opcionalmente puedes enviar una clave de idempotencia para evitar eventos duplicados."
+                  "Cada evento incluye un hash criptográfico del payload canónico. Opcionalmente puedes enviar una clave de idempotencia para evitar eventos duplicados."
                 )}
               </p>
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
-                {gettext("SHA-256 Payload Hash")}
+                {gettext("Payload Hash")}
               </h3>
               <p class="text-slate-600 text-sm mb-3">
                 {gettext(
-                  "El campo payload_hash se genera automáticamente al crear un evento. Es el hash SHA-256 hexadecimal (lowercase) del JSON canónico del payload."
+                  "El campo payload_hash se genera automáticamente al crear un evento. Es el hash criptográfico hexadecimal (lowercase) del JSON canónico del payload."
                 )}
               </p>
-              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+              <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
                 <pre
                   class="text-sm text-slate-100 font-mono whitespace-pre"
                   phx-no-curly-interpolation
@@ -5501,7 +5746,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                   "Envía idempotency_key en el body para deduplicar eventos. Si ya existe un evento con la misma clave en el proyecto, se retorna el evento existente sin crear uno nuevo."
                 )}
               </p>
-              <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+              <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
                 <pre
                   class="text-sm text-slate-100 font-mono whitespace-pre"
                   phx-no-curly-interpolation
@@ -5525,28 +5770,28 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
 
       <section id="password-policy" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Política de contraseñas")}
             </h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
-                "Reglas de seguridad para contraseñas: requisitos mínimos, blacklist de contraseñas comunes e historial de contraseñas."
+                "Reglas de seguridad para contraseñas: requisitos mínimos, validación contra contraseñas comunes e historial de contraseñas."
               )}
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
                 {gettext("Requisitos de contraseña")}
               </h3>
               <ul class="list-disc list-inside text-slate-700 text-sm space-y-2">
-                <li>{gettext("Mínimo 8 caracteres, máximo 72.")}</li>
+                <li>{gettext("Requisitos estrictos de longitud mínima y máxima.")}</li>
                 <li>{gettext("Al menos una letra minúscula, una mayúscula y un dígito.")}</li>
                 <li>
                   {gettext(
-                    "No puede ser una contraseña común (blacklist de +150 contraseñas populares)."
+                    "No puede ser una contraseña común (se valida contra una lista de contraseñas populares)."
                   )}
                 </li>
                 <li>
@@ -5591,7 +5836,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
 
       <section id="uptime-monitoring" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">
               {gettext("Monitoreo de disponibilidad")}
             </h2>
@@ -5602,7 +5847,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
                 {gettext("Verificaciones realizadas")}
@@ -5656,7 +5901,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
 
       <section id="circuit-breaker" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Circuit breaker")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -5665,7 +5910,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
                 {gettext("Funcionamiento")}
@@ -5737,7 +5982,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
 
       <section id="breach-detection" class="mb-14 scroll-mt-24">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-200 bg-slate-50/80">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 bg-slate-50/80">
             <h2 class="text-2xl font-bold text-slate-900">{gettext("Detección de brechas")}</h2>
             <p class="text-slate-600 mt-1 text-sm">
               {gettext(
@@ -5746,7 +5991,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
             </p>
           </div>
 
-          <div class="p-8 space-y-8">
+          <div class="p-4 sm:p-8 space-y-8">
             <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <h3 class="text-lg font-semibold text-slate-900 mb-3">
                 {gettext("Reglas de detección")}
@@ -6007,7 +6252,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               <h3 class="text-lg font-semibold text-slate-800 mb-3">{gettext("Descripción")}</h3>
               <p class="text-slate-600 text-sm leading-relaxed">
                 {gettext(
-                  "Todos los campos de información personal identificable (PII) se cifran en reposo usando algoritmos estándar de la industria. Los emails se indexan con hash determinístico para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con algoritmos memory-hard recomendados por OWASP."
+                  "Todos los campos de información personal identificable (PII) se cifran en reposo usando algoritmos estándar de la industria. Los emails se indexan con hash determinístico para permitir búsquedas sin exponer el texto plano. Las contraseñas se hashean con algoritmos estándar de la industria recomendados por OWASP."
                 )}
               </p>
             </div>
@@ -6067,7 +6312,7 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                       <td class="py-2 px-3 text-slate-700">{gettext("Contraseñas")}</td>
                       <td class="py-2 px-3">
                         <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-                          {gettext("Hash unidireccional (memory-hard)")}
+                          {gettext("Hash unidireccional (industry-standard)")}
                         </code>
                       </td>
                     </tr>

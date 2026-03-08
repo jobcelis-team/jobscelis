@@ -221,7 +221,7 @@ defmodule StreamflixWebWeb.DocsLive do
               class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
               phx-click={JS.hide(to: "#mobile-nav-overlay")}
             />
-            <nav class="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 shadow-2xl overflow-y-auto p-5 space-y-2">
+            <nav class="absolute left-0 top-0 bottom-0 w-[80vw] max-w-72 bg-white dark:bg-slate-900 shadow-2xl overflow-y-auto p-5 space-y-2">
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white">
                   {gettext("Navegación")}
@@ -262,7 +262,7 @@ defmodule StreamflixWebWeb.DocsLive do
           <%!-- Main content --%>
           <main
             id="main-content"
-            class="docs-main min-w-0 flex-1 max-w-4xl overflow-hidden"
+            class="docs-main min-w-0 flex-1 max-w-6xl overflow-x-auto"
             role="main"
             tabindex="-1"
             phx-hook="SdkSwitcher"
@@ -283,7 +283,7 @@ defmodule StreamflixWebWeb.DocsLive do
       <%!-- Mobile FAB --%>
       <button
         phx-click={JS.toggle(to: "#mobile-nav-overlay")}
-        class="fixed bottom-6 right-6 z-40 lg:hidden w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition flex items-center justify-center"
+        class="fixed bottom-6 right-6 z-40 lg:hidden w-14 h-14 rounded-full bg-slate-800 dark:bg-slate-700 text-white shadow-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition flex items-center justify-center"
         aria-label={gettext("Abrir navegación")}
       >
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -535,12 +535,11 @@ defmodule StreamflixWebWeb.DocsLive do
         data-sdk-panel={lang}
         class={if(lang != "nodejs", do: "hidden")}
       >
-        <div class="p-4 bg-slate-900">
-          <p class="text-slate-400 text-xs mb-2 font-mono">{gettext("Instalar:")}</p>
-          <pre class="text-slate-100 text-xs overflow-x-auto font-mono mb-4"><code>{sdk_install(lang)}</code></pre>
-          <p class="text-slate-400 text-xs mb-2 font-mono">{gettext("Uso:")}</p>
-          <pre class="text-slate-100 text-xs overflow-x-auto font-mono"><code>{sdk_usage(lang, @example)}</code></pre>
-        </div>
+        <pre class="p-4 bg-slate-800 dark:bg-slate-900 text-slate-100 text-xs overflow-x-auto font-mono"><span class="text-slate-400"># {gettext("Instalar")}</span>
+    {sdk_install(lang)}
+
+    <span class="text-slate-400"># {gettext("Uso")}</span>
+    {sdk_usage(lang, @example)}</pre>
       </div>
     </div>
     """
@@ -2739,7 +2738,7 @@ function verifySignature(string $secret, string $body, string $signature): bool 
           "Los topics de webhook soportan pattern matching con wildcards. El patrón order.* coincide con order.created, order.updated, order.deleted y topics similares bajo ese namespace."
         )}
       </p>
-      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="text-left text-slate-500">
