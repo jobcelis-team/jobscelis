@@ -20,7 +20,7 @@
         <span class="text-sm text-slate-500">— 2026-03-07</span>
 
         <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium">
-          {gettext("Último")}
+          {gettext("Última versión")}
         </span>
       </div>
 
@@ -57,7 +57,7 @@
       <ul class="list-disc list-inside space-y-1 text-sm">
         <li>
           {gettext(
-            "Home page mejorada con sección 'Cómo funciona', ejemplo de código y estadísticas."
+            "Página principal rediseñada con sección de flujo operativo, ejemplo de código y estadísticas."
           )}
         </li>
 
@@ -69,9 +69,11 @@
           )}
         </li>
 
-        <li>{gettext("About con historia del proyecto, stack tecnológico y estadísticas.")}</li>
+        <li>
+          {gettext("Página About con descripción del proyecto, stack tecnológico y estadísticas.")}
+        </li>
 
-        <li>{gettext("Contact con guía de cuándo contactar y más opciones.")}</li>
+        <li>{gettext("Página de contacto con categorización de consultas.")}</li>
 
         <li>
           {gettext("Traducciones contextuales mejoradas (Getting Started, Core Concepts, etc.).")}
@@ -84,16 +86,20 @@
 
       <ul class="list-disc list-inside space-y-1 text-sm">
         <li>
-          {gettext("Bug de rol en redirect: superadmins ahora redirigen correctamente a /admin.")}
+          {gettext("Corrección de redirección de roles superadmin a /admin.")}
         </li>
 
-        <li>{gettext("TODO obsoleto eliminado en live_auth.ex.")}</li>
+        <li>{gettext("Código obsoleto removido de live_auth.ex.")}</li>
 
         <li>
           {gettext("Violación de seguridad en FAQ: intervalos exactos de reintento eliminados.")}
         </li>
 
-        <li>{gettext("Link de SDK de Kotlin corregido (apuntaba al mismo que Java).")}</li>
+        <li>
+          {gettext(
+            "Enlace del SDK de Kotlin corregido (anteriormente apuntaba al repositorio de Java)."
+          )}
+        </li>
       </ul>
     </section>
     <%!-- v0.2.0 --%>

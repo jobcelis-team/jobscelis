@@ -23,12 +23,12 @@
       <div class="flex items-baseline gap-2 mb-4 mt-2">
         <span class="text-4xl font-bold text-slate-900">$0</span>
 
-        <span class="text-slate-500 text-sm">{gettext("para siempre")}</span>
+        <span class="text-slate-500 text-sm">{gettext("sin límite de tiempo")}</span>
       </div>
 
       <p class="text-slate-600 mb-6 text-sm">
         {gettext(
-          "Todo incluido. Sin límites artificiales, sin tarjeta de crédito, sin periodo de prueba."
+          "Incluye todas las características. No requiere tarjeta de crédito ni período de prueba."
         )}
       </p>
 
@@ -259,11 +259,11 @@
     </section>
 
     <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("¿Por qué es gratis?")}</h2>
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Modelo de precios")}</h2>
 
       <p class="text-slate-600 text-sm leading-relaxed">
         {gettext(
-          "Jobcelis es un proyecto personal. No tengo inversores, no vendo datos, no hay publicidad. El objetivo es construir la mejor infraestructura de eventos posible y ofrecerla a la comunidad de developers. Si el proyecto crece y los costos de infraestructura lo requieren, podría añadir un plan de pago en el futuro, pero el plan gratuito siempre existirá."
+          "Jobcelis es un proyecto personal. No tengo inversores, no vendo datos, no hay publicidad. El objetivo es construir la mejor infraestructura de eventos posible y ofrecerla a la comunidad de developers. Si el proyecto crece y los costos de infraestructura lo requieren, Planes de pago podrían introducirse en el futuro para cubrir costos de infraestructura, pero el plan gratuito se mantendrá disponible."
         )}
       </p>
     </section>
@@ -273,7 +273,7 @@
 
       <p class="text-slate-600 mb-4">
         {gettext(
-          "Si %{product} te resulta útil y quieres apoyar su desarrollo, puedes hacer una donación voluntaria a través de los siguientes enlaces. No es obligatorio ni afecta al uso del servicio.",
+          "Si %{product} resulta de valor y desea apoyar su desarrollo, puede hacer una donación voluntaria a través de los siguientes enlaces. No es obligatorio ni afecta al uso del servicio.",
           product: Map.get(@legal, :product_name, "Jobcelis")
         )}
       </p>
@@ -316,7 +316,7 @@
       <%= if (Map.get(@legal, :donation_paypal_url) || "") == "" and (Map.get(@legal, :donation_payoneer_url) || "") == "" and (Map.get(@legal, :donation_payphone_url) || "") == "" do %>
         <p class="text-slate-500 text-sm mt-4">
           {gettext(
-            "Los enlaces de donación estarán disponibles próximamente. Si deseas donar ya, escríbeme a"
+            "Los enlaces de donación estarán disponibles próximamente. Si desea donar, contacte a"
           )}
           <%= if (email = Map.get(@legal, :contact_email)) && email != "" do %>
             <a href={"mailto:#{email}"} class="text-indigo-600 hover:underline">{email}</a>
