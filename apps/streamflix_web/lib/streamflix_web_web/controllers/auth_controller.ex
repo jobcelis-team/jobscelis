@@ -74,7 +74,6 @@ defmodule StreamflixWebWeb.AuthController do
     case StreamflixAccounts.authenticate(email, password, opts) do
       {:ok, user} ->
         if user.mfa_enabled do
-          # MFA required — store user ID in session for verification step
           conn
           |> put_session(:mfa_user_id, user.id)
           |> put_session(:mfa_remember, remember)
@@ -111,7 +110,6 @@ defmodule StreamflixWebWeb.AuthController do
     {:ok, token, claims} = StreamflixAccounts.generate_token(user)
     jti = claims["jti"]
 
-    # Create session record (must be sync — needed for session validity)
     audit_opts = conn_audit_opts(conn, "web")
 
     StreamflixAccounts.create_session(user.id, jti,
@@ -119,7 +117,6 @@ defmodule StreamflixWebWeb.AuthController do
       user_agent: audit_opts[:user_agent]
     )
 
-    # Pre-warm caches so GET /platform has instant cache hits
     Cachex.put(:platform_cache, {:auth_user, user.id}, user, ttl: :timer.seconds(60))
     Cachex.put(:platform_cache, {:session_revoked, jti}, false, ttl: :timer.seconds(120))
 
@@ -321,7 +318,6 @@ defmodule StreamflixWebWeb.AuthController do
     {:ok, token, claims} = StreamflixAccounts.generate_token(user)
     jti = claims["jti"]
 
-    # Create session record
     audit_opts = conn_audit_opts(conn, "web")
 
     StreamflixAccounts.create_session(user.id, jti,
@@ -329,7 +325,6 @@ defmodule StreamflixWebWeb.AuthController do
       user_agent: audit_opts[:user_agent]
     )
 
-    # Send email verification asynchronously via Oban
     case StreamflixAccounts.generate_email_confirmation_token(user) do
       {:ok, confirm_token} ->
         url = build_url(conn, "/confirm-email/#{confirm_token}")
@@ -366,7 +361,7 @@ defmodule StreamflixWebWeb.AuthController do
     redirect(conn, to: ~p"/platform")
   end
 
-  # Email 3-254 chars, password 8-72 chars, name opcional max 255. Sanitiza trim y downcase email.
+  # Email 3-254 chars, password 8-72 chars, name optional max 255. Trims and downcases email.
   defp validate_auth_params(params) when is_map(params) do
     email = params["email"] && to_string(params["email"]) |> String.trim() |> String.downcase()
     password = params["password"] && to_string(params["password"])

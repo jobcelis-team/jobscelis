@@ -39,9 +39,8 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-  # prepare: :unnamed necesario con Supabase pooler (PgBouncer); si no, "prepared statement does not exist"
-  # ssl: Supabase pooler usa un certificado que no es verificable con verify_peer en Alpine.
-  # La conexión sigue encriptada con TLS; verify_none solo omite la validación de la cadena CA.
+  # prepare: :unnamed required for connection pooler (PgBouncer)
+  # SSL: verify_none for pooler compatibility on Alpine
   config :streamflix_core, StreamflixCore.Repo,
     url: database_url,
     pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "20"),
@@ -70,7 +69,7 @@ if config_env() == :prod do
     [
       url: [host: host, port: 443, scheme: "https"],
       http: [
-        # IPv4 0.0.0.0 para que Azure y el health check puedan conectar (evitar solo IPv6)
+        # Bind 0.0.0.0 for health check access (avoid IPv6-only)
         ip: {0, 0, 0, 0},
         port: port
       ],
@@ -137,7 +136,7 @@ if config_env() == :prod do
     Node.set_cookie(String.to_atom(cookie))
   end
 
-  # Marca y titular legal (por defecto los de config.exs; en producción puedes sobrescribir con env)
+  # Legal branding overrides (defaults from config.exs)
   env_legal =
     Enum.filter(
       [

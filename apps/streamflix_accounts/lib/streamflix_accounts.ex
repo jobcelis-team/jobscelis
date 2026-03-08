@@ -47,7 +47,6 @@ defmodule StreamflixAccounts do
 
         StreamflixCore.GDPR.register_signup_consents(user.id)
 
-        # Save initial password hash to history
         save_password_to_history(user.id, user.password_hash)
 
         if api_key_raw do
@@ -62,8 +61,8 @@ defmodule StreamflixAccounts do
   end
 
   @doc """
-  Actualiza el email del usuario. Requiere la contraseña actual para autorizar.
-  El nuevo email debe ser único en el sistema y distinto al actual.
+  Updates the user's email. Requires the current password for authorization.
+  The new email must be unique and different from the current one.
   """
   def update_email(%User{} = user, new_email, current_password)
       when is_binary(new_email) and is_binary(current_password) do
@@ -96,13 +95,12 @@ defmodule StreamflixAccounts do
   def update_email(_, _, _), do: {:error, :invalid}
 
   @doc """
-  Cambia la contraseña del usuario. Requiere la contraseña actual para autorizar.
+  Changes the user's password. Requires the current password for authorization.
   """
   def update_password(%User{} = user, current_password, new_password)
       when is_binary(current_password) and is_binary(new_password) do
     case Authentication.authenticate(user.email, current_password) do
       {:ok, _} ->
-        # Check against last 5 passwords in history
         history_hashes = get_password_history_hashes(user.id, 5)
 
         if PasswordPolicy.password_in_history?(new_password, history_hashes) do
@@ -277,7 +275,6 @@ defmodule StreamflixAccounts do
   def reset_user_password(token, new_password) do
     case verify_reset_password_token(token) do
       {:ok, user} ->
-        # Check against last 5 passwords in history
         history_hashes = get_password_history_hashes(user.id, 5)
 
         if PasswordPolicy.password_in_history?(new_password, history_hashes) do

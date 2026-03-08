@@ -1,14 +1,14 @@
 defmodule StreamflixCore.Services.AzureStorage do
   @moduledoc """
-  Cliente de Azure Blob Storage con autenticación SharedKey (HMAC-SHA256).
-  Usa Req con el pool Finch existente. No requiere dependencias nuevas.
+  Azure Blob Storage client with SharedKey authentication (HMAC-SHA256).
+  Uses Req with the existing Finch pool. No additional dependencies required.
   """
   require Logger
 
   @api_version "2021-08-06"
 
   @doc """
-  Retorna true si las credenciales de Azure están configuradas.
+  Returns true if cloud storage credentials are configured.
   """
   def configured? do
     config = Application.get_env(:streamflix_core, :azure_storage, [])
@@ -18,8 +18,8 @@ defmodule StreamflixCore.Services.AzureStorage do
   end
 
   @doc """
-  Sube un blob al contenedor especificado.
-  Retorna {:ok, %{status: 201}} o {:error, reason}.
+  Uploads a blob to the specified container.
+  Returns {:ok, %{status: 201}} or {:error, reason}.
   """
   def upload_blob(container, blob_name, body, content_type \\ "application/octet-stream") do
     {account, key} = credentials!()
@@ -61,22 +61,22 @@ defmodule StreamflixCore.Services.AzureStorage do
            receive_timeout: 120_000
          ) do
       {:ok, %{status: 201} = resp} ->
-        Logger.info("[AzureStorage] Blob subido: #{container}/#{blob_name}")
+        Logger.info("[Storage] Blob uploaded: #{container}/#{blob_name}")
         {:ok, resp}
 
       {:ok, %{status: status, body: resp_body}} ->
-        Logger.error("[AzureStorage] Error al subir blob: HTTP #{status} — #{inspect(resp_body)}")
+        Logger.error("[Storage] Upload failed: HTTP #{status} — #{inspect(resp_body)}")
         {:error, "HTTP #{status}"}
 
       {:error, reason} ->
-        Logger.error("[AzureStorage] Error de conexión: #{inspect(reason)}")
+        Logger.error("[Storage] Connection error on upload: #{inspect(reason)}")
         {:error, reason}
     end
   end
 
   @doc """
-  Lista blobs en un contenedor con prefijo opcional.
-  Retorna {:ok, [%{name: ..., size: ..., last_modified: ...}]} o {:error, reason}.
+  Lists blobs in a container with optional prefix filter.
+  Returns {:ok, [%{name: ..., size: ..., last_modified: ...}]} or {:error, reason}.
   """
   def list_blobs(container, opts \\ []) do
     {account, key} = credentials!()
@@ -117,18 +117,18 @@ defmodule StreamflixCore.Services.AzureStorage do
         {:ok, parse_blob_list(body)}
 
       {:ok, %{status: status, body: body}} ->
-        Logger.error("[AzureStorage] Error al listar blobs: HTTP #{status} — #{inspect(body)}")
+        Logger.error("[Storage] List blobs failed: HTTP #{status} — #{inspect(body)}")
         {:error, "HTTP #{status}"}
 
       {:error, reason} ->
-        Logger.error("[AzureStorage] Error de conexión al listar: #{inspect(reason)}")
+        Logger.error("[Storage] Connection error on list: #{inspect(reason)}")
         {:error, reason}
     end
   end
 
   @doc """
-  Elimina un blob del contenedor.
-  Retorna :ok o {:error, reason}.
+  Deletes a blob from the container.
+  Returns :ok or {:error, reason}.
   """
   def delete_blob(container, blob_name) do
     {account, key} = credentials!()
@@ -157,15 +157,15 @@ defmodule StreamflixCore.Services.AzureStorage do
            receive_timeout: 30_000
          ) do
       {:ok, %{status: 202}} ->
-        Logger.info("[AzureStorage] Blob eliminado: #{container}/#{blob_name}")
+        Logger.info("[Storage] Blob deleted: #{container}/#{blob_name}")
         :ok
 
       {:ok, %{status: status, body: body}} ->
-        Logger.error("[AzureStorage] Error al eliminar blob: HTTP #{status} — #{inspect(body)}")
+        Logger.error("[Storage] Delete failed: HTTP #{status} — #{inspect(body)}")
         {:error, "HTTP #{status}"}
 
       {:error, reason} ->
-        Logger.error("[AzureStorage] Error de conexión al eliminar: #{inspect(reason)}")
+        Logger.error("[Storage] Connection error on delete: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -243,7 +243,7 @@ defmodule StreamflixCore.Services.AzureStorage do
   end
 
   defp parse_blob_list(xml) when is_binary(xml) do
-    # Extraer cada <Blob>...</Blob> y parsear sus campos
+    # Parse each <Blob>...</Blob> element from the XML response
     ~r/<Blob>(.+?)<\/Blob>/s
     |> Regex.scan(xml)
     |> Enum.map(fn [_full, blob_xml] ->

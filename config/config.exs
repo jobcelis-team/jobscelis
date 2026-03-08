@@ -28,14 +28,14 @@ config :streamflix_web, StreamflixWebWeb.Gettext, default_locale: "en"
 # Session timeout: 30 minutes of inactivity
 config :streamflix_web, :session_timeout_seconds, 1800
 
-# Marca y titular legal (copyright, términos, contacto, donaciones). Servicio de Vladimir Celi.
+# Legal entity and branding
 config :streamflix_web, :legal,
   product_name: "Jobcelis",
   owner: "Vladimir Celi",
   contact_url: "https://github.com/vladimirCeli",
   profile_url: "https://vladimirceli.github.io/perfil/",
   contact_email: "vladimir.celi@proton.me",
-  # Opcional: enlaces para donaciones. Dejar "" si no usas; en producción puedes usar env DONATION_*_URL
+  # Optional donation links (override via env DONATION_*_URL in production)
   donation_paypal_url: "",
   donation_payoneer_url: "",
   donation_payphone_url: "https://ppls.me/A72iyEwG1gOY5d4TKYfEg"

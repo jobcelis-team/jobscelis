@@ -23,7 +23,6 @@ defmodule StreamflixWebWeb do
     quote do
       use Phoenix.Router, helpers: false
 
-      # Import common connection and controller functions to use in pipelines
       import Plug.Conn
       import Phoenix.Controller
       import Phoenix.LiveView.Router
@@ -68,7 +67,6 @@ defmodule StreamflixWebWeb do
     quote do
       use Phoenix.Component
 
-      # Import convenience functions from controllers
       import Phoenix.Controller,
         only: [get_csrf_token: 0, view_module: 1, view_template: 1]
 
@@ -87,7 +85,6 @@ defmodule StreamflixWebWeb do
       # Core UI components
       import StreamflixWebWeb.CoreComponents
 
-      # Common modules used in templates
       alias Phoenix.LiveView.JS
       alias StreamflixWebWeb.Layouts
 
