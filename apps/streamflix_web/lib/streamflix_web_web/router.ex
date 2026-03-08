@@ -78,14 +78,14 @@ defmodule StreamflixWebWeb.Router do
     get "/signup", PageController, :signup
   end
 
-  # Cambio de idioma (guarda en sesión y redirige)
+  # Locale switcher
   scope "/", StreamflixWebWeb do
     pipe_through :browser
 
     get "/locale/:locale", PageController, :set_locale
   end
 
-  # Health check para load balancers y monitoring
+  # Health check
   scope "/", StreamflixWebWeb do
     pipe_through :api
 
@@ -129,14 +129,14 @@ defmodule StreamflixWebWeb.Router do
     match :*, "/:slug/*path", SandboxController, :receive
   end
 
-  # Sitemap para SEO (Google Search Console)
+  # Sitemap
   scope "/", StreamflixWebWeb do
     pipe_through :browser
 
     get "/sitemap.xml", SitemapController, :index
   end
 
-  # Auth routes + public docs + términos/privacidad (accesibles siempre, con o sin login)
+  # Public pages (accessible with or without auth)
   scope "/", StreamflixWebWeb do
     pipe_through [:browser, :browser_auth_rate_limit]
 
@@ -307,7 +307,7 @@ defmodule StreamflixWebWeb.Router do
   end
 
   # ============================================
-  # LIVE VIEWS - AUTHENTICATED (solo plataforma Webhooks + Events)
+  # LIVE VIEWS - AUTHENTICATED (Webhooks + Events platform)
   # ============================================
 
   scope "/", StreamflixWebWeb do

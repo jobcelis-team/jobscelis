@@ -1,8 +1,8 @@
 defmodule StreamflixCore.Platform.ObanBackupWorker do
   @moduledoc """
-  Oban cron worker que ejecuta backup automatizado de la BD con pg_dump.
-  Programado diariamente a las 2am (config.exs).
-  Después del backup, limpia backups antiguos según retention_days.
+  Oban cron worker that runs automated database backups via pg_dump.
+  Scheduled daily at 2am (configured in config.exs).
+  Cleans up old backups according to retention_days after each run.
   """
   use Oban.Worker,
     queue: :default,

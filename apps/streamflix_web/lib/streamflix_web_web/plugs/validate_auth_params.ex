@@ -1,7 +1,7 @@
 defmodule StreamflixWebWeb.Plugs.ValidateAuthParams do
   @moduledoc """
-  Valida y sanitiza parámetros de login/registro: longitud, formato de email.
-  Evita payloads enormes y caracteres peligrosos antes de llegar al servicio.
+  Validates and sanitizes login/signup params: length, email format.
+  Rejects oversized payloads and dangerous characters before reaching the service.
   """
   import Plug.Conn
 

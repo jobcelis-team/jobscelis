@@ -1,9 +1,8 @@
 defmodule StreamflixCore.Platform.Backup do
   @moduledoc """
-  Servicio de backup automatizado de la base de datos usando pg_dump.
-  Comprime con gzip y aplica política de retención (elimina backups antiguos).
-  Si Azure Blob Storage está configurado, sube el backup al contenedor "backups"
-  y elimina el archivo local temporal. En caso contrario, mantiene el archivo local.
+  Automated database backup service using pg_dump.
+  Compresses with gzip and applies retention policy.
+  Uploads to cloud storage when configured, otherwise keeps local files.
   """
   require Logger
 
@@ -11,8 +10,8 @@ defmodule StreamflixCore.Platform.Backup do
   alias StreamflixCore.Services.AzureStorage
 
   @doc """
-  Ejecuta un backup completo de la base de datos.
-  Retorna {:ok, %{file: path, size: bytes, storage: "azure"|"local"}} o {:error, reason}.
+  Runs a full database backup.
+  Returns `{:ok, %{file: path, size: bytes, storage: "cloud"|"local"}}` or `{:error, reason}`.
   """
   def run do
     config = Application.get_env(:streamflix_core, :backup, [])
@@ -21,13 +20,13 @@ defmodule StreamflixCore.Platform.Backup do
     if enabled do
       perform_backup(config)
     else
-      Logger.info("[Backup] Backups deshabilitados por configuración")
+      Logger.info("[Backup] Backups disabled by configuration")
       {:ok, :disabled}
     end
   end
 
   @doc """
-  Elimina backups más antiguos que retention_days.
+  Deletes backups older than `retention_days`.
   """
   def cleanup do
     config = Application.get_env(:streamflix_core, :backup, [])
@@ -42,7 +41,7 @@ defmodule StreamflixCore.Platform.Backup do
   end
 
   @doc """
-  Retorna información sobre el último backup disponible.
+  Returns information about the latest available backup.
   """
   def last_backup_info do
     if AzureStorage.configured?() do
@@ -77,7 +76,7 @@ defmodule StreamflixCore.Platform.Backup do
         end
 
       {:error, reason} ->
-        Logger.error("[Backup] No se pudo obtener configuración de BD: #{reason}")
+        Logger.error("[Backup] Failed to get database configuration: #{reason}")
         {:error, reason}
     end
   end
@@ -87,28 +86,26 @@ defmodule StreamflixCore.Platform.Backup do
       azure_config = Application.get_env(:streamflix_core, :azure_storage, [])
       container = Keyword.get(azure_config, :container_backups, "backups")
 
-      Logger.info("[Backup] Subiendo #{filename} a Azure Blob Storage (#{container})...")
+      Logger.info("[Backup] Uploading #{filename} to cloud storage (#{container})")
 
       case File.read(filepath) do
         {:ok, body} ->
           case AzureStorage.upload_blob(container, filename, body) do
             {:ok, _resp} ->
               File.rm(filepath)
-              Logger.info("[Backup] Subido a Azure y archivo local eliminado")
+              Logger.info("[Backup] Uploaded to cloud storage, local file removed")
               {:ok, Map.put(result, :storage, "azure")}
 
             {:error, reason} ->
               Logger.warning(
-                "[Backup] Fallo al subir a Azure: #{inspect(reason)}. Se conserva archivo local."
+                "[Backup] Cloud upload failed: #{inspect(reason)}. Keeping local file."
               )
 
               {:ok, Map.put(result, :storage, "local")}
           end
 
         {:error, reason} ->
-          Logger.warning(
-            "[Backup] No se pudo leer archivo para subir a Azure: #{inspect(reason)}"
-          )
+          Logger.warning("[Backup] Could not read file for cloud upload: #{inspect(reason)}")
 
           {:ok, Map.put(result, :storage, "local")}
       end
@@ -178,19 +175,19 @@ defmodule StreamflixCore.Platform.Backup do
           end)
 
         if deleted != [] do
-          Logger.info("[Backup] Limpieza Azure: #{length(deleted)} backups antiguos eliminados")
+          Logger.info("[Backup] Cloud cleanup: #{length(deleted)} old backups deleted")
         end
 
         {:ok, length(deleted)}
 
       {:error, reason} ->
-        Logger.error("[Backup] Error al listar blobs de Azure para limpieza: #{inspect(reason)}")
+        Logger.error("[Backup] Failed to list cloud blobs for cleanup: #{inspect(reason)}")
         {:error, reason}
     end
   end
 
   defp parse_blob_timestamp(name) do
-    # Extraer timestamp de "streamflix_20260303_020000.sql.gz"
+    # Extract timestamp from filename pattern "streamflix_YYYYMMDD_HHMMSS.sql.gz"
     case Regex.run(~r/streamflix_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, name) do
       [_, y, mo, d, h, mi, s] ->
         case DateTime.new(
@@ -210,11 +207,9 @@ defmodule StreamflixCore.Platform.Backup do
     repo_config = Repo.config()
 
     cond do
-      # Si hay URL, parsearla
       url = repo_config[:url] ->
         parse_database_url(url)
 
-      # Si hay config individual
       repo_config[:hostname] ->
         {:ok,
          %{
@@ -231,7 +226,7 @@ defmodule StreamflixCore.Platform.Backup do
   end
 
   defp parse_database_url(url) do
-    # Convertir ecto:// a postgresql:// para parsing
+    # Normalize ecto:// scheme to postgresql:// for URI parsing
     url = String.replace(url, ~r/^ecto:\/\//, "postgresql://")
 
     uri = URI.parse(url)
@@ -258,7 +253,6 @@ defmodule StreamflixCore.Platform.Backup do
   end
 
   defp run_pg_dump(pg_dump_path, filepath, db_env) do
-    # pg_dump con gzip piped
     args = [
       "-h",
       db_env.host,
@@ -278,7 +272,7 @@ defmodule StreamflixCore.Platform.Backup do
 
     env = [{"PGPASSWORD", db_env.password}]
 
-    Logger.info("[Backup] Iniciando backup: #{Path.basename(filepath)}")
+    Logger.info("[Backup] Starting backup: #{Path.basename(filepath)}")
     started_at = System.monotonic_time(:millisecond)
 
     case System.cmd(pg_dump_path, args, env: env, stderr_to_stdout: true) do
@@ -287,25 +281,25 @@ defmodule StreamflixCore.Platform.Backup do
         %{size: size} = File.stat!(filepath)
 
         Logger.info(
-          "[Backup] Completado: #{Path.basename(filepath)} " <>
+          "[Backup] Completed: #{Path.basename(filepath)} " <>
             "(#{format_bytes(size)}, #{duration_ms}ms)"
         )
 
         {:ok, %{file: filepath, size: size, duration_ms: duration_ms}}
 
       {output, exit_code} ->
-        # Limpiar archivo parcial si existe
+        # Clean up partial file on failure
         File.rm(filepath)
 
         Logger.error(
-          "[Backup] pg_dump falló (exit #{exit_code}): #{String.slice(output, 0, 500)}"
+          "[Backup] pg_dump failed (exit #{exit_code}): #{String.slice(output, 0, 500)}"
         )
 
         {:error, "pg_dump exit code #{exit_code}: #{String.slice(output, 0, 200)}"}
     end
   rescue
     e in ErlangError ->
-      Logger.error("[Backup] pg_dump no encontrado o no ejecutable: #{inspect(e)}")
+      Logger.error("[Backup] pg_dump not found or not executable: #{inspect(e)}")
       {:error, "pg_dump not found or not executable"}
   end
 
@@ -336,7 +330,7 @@ defmodule StreamflixCore.Platform.Backup do
           end)
 
         if deleted != [] do
-          Logger.info("[Backup] Limpieza: #{length(deleted)} backups antiguos eliminados")
+          Logger.info("[Backup] Cleanup: #{length(deleted)} old backups deleted")
         end
 
         {:ok, length(deleted)}
@@ -345,7 +339,7 @@ defmodule StreamflixCore.Platform.Backup do
         {:ok, 0}
 
       {:error, reason} ->
-        Logger.error("[Backup] Error al listar directorio de backups: #{inspect(reason)}")
+        Logger.error("[Backup] Failed to list backup directory: #{inspect(reason)}")
         {:error, reason}
     end
   end

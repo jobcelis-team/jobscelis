@@ -93,7 +93,7 @@ defmodule StreamflixWebWeb.PageController do
     locale = if locale in ["es", "en"], do: locale, else: "en"
     referer = get_req_header(conn, "referer") |> List.first()
     path = path_from_referer(referer, conn)
-    # Cookie para que el siguiente request tenga el idioma sin depender de sesión (más rápido)
+    # Cookie ensures locale is available before session loads on next request
     conn
     |> put_resp_cookie("locale", locale, path: "/", max_age: 365 * 24 * 60 * 60)
     |> put_session("locale", locale)
