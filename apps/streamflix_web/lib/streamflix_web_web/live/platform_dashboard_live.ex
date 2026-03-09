@@ -1682,7 +1682,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         end)
       ]
 
-      data = Task.await_many(tasks, 10_000) |> Map.new()
+      data = safe_await_many(tasks) |> Enum.reject(&is_nil/1) |> Map.new()
       user_role = compute_user_role(project, socket.assigns.current_user)
 
       # Persist selection server-side (async, non-blocking)
@@ -1692,29 +1692,29 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
        socket
        |> assign(:switching_project, false)
        |> assign(:project, project)
-       |> assign(:api_key, data.api_key)
-       |> assign(:events, data.events)
-       |> assign(:webhooks, data.webhooks)
-       |> assign(:webhook_health, data.webhook_health)
-       |> assign(:jobs, data.jobs)
-       |> assign(:deliveries, data.deliveries)
-       |> assign(:dead_letters, data.dead_letters)
-       |> assign(:replays, data.replays)
-       |> assign(:audit_logs, data.audit_logs)
-       |> assign(:sandbox_endpoints, data.sandbox_endpoints)
+       |> assign(:api_key, Map.get(data, :api_key))
+       |> assign(:events, Map.get(data, :events, []))
+       |> assign(:webhooks, Map.get(data, :webhooks, []))
+       |> assign(:webhook_health, Map.get(data, :webhook_health, %{}))
+       |> assign(:jobs, Map.get(data, :jobs, []))
+       |> assign(:deliveries, Map.get(data, :deliveries, []))
+       |> assign(:dead_letters, Map.get(data, :dead_letters, []))
+       |> assign(:replays, Map.get(data, :replays, []))
+       |> assign(:audit_logs, Map.get(data, :audit_logs, []))
+       |> assign(:sandbox_endpoints, Map.get(data, :sandbox_endpoints, []))
        |> assign(:sandbox_active, nil)
        |> assign(:sandbox_requests, [])
-       |> assign(:event_schemas, data.event_schemas)
-       |> assign(:pipelines, data.pipelines)
-       |> assign(:team_members, data.team_members)
+       |> assign(:event_schemas, Map.get(data, :event_schemas, []))
+       |> assign(:pipelines, Map.get(data, :pipelines, []))
+       |> assign(:team_members, Map.get(data, :team_members, []))
        |> assign(:current_user_role, user_role)
-       |> assign(:analytics, data.analytics)
-       |> assign(:uptime_status, data.uptime_status)
-       |> assign(:uptime_stats, data.uptime_stats)
-       |> assign(:pending_invitations, data.pending_invitations)
+       |> assign(:analytics, Map.get(data, :analytics, %{}))
+       |> assign(:uptime_status, Map.get(data, :uptime_status, %{status: "unknown", checks: %{}}))
+       |> assign(:uptime_stats, Map.get(data, :uptime_stats, %{}))
+       |> assign(:pending_invitations, Map.get(data, :pending_invitations, []))
        |> assign(:active_tab, "overview")
-       |> assign(:kpi_events_today, compute_kpi_events_today(data.events))
-       |> assign(:kpi_success_rate, compute_kpi_success_rate(data.deliveries))
+       |> assign(:kpi_events_today, compute_kpi_events_today(Map.get(data, :events, [])))
+       |> assign(:kpi_success_rate, compute_kpi_success_rate(Map.get(data, :deliveries, [])))
        |> assign(:new_token, nil)
        |> assign(:token_source, nil)
        |> put_flash(:info, gettext("Proyecto cambiado a: %{name}", name: project.name))}
@@ -1765,7 +1765,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             tasks
           end
 
-        Task.await_many(tasks, 10_000) |> Map.new()
+        safe_await_many(tasks) |> Enum.reject(&is_nil/1) |> Map.new()
       else
         %{}
       end
