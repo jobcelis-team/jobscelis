@@ -54,7 +54,7 @@ defmodule StreamflixCore.Teams do
   def list_pending_invitations(user_id) do
     ProjectMember
     |> where([m], m.user_id == ^user_id and m.status == "pending")
-    |> join(:inner, [m], p in Project, on: p.id == m.project_id)
+    |> join(:inner, [m], p in Project, on: p.id == m.project_id and p.status == "active")
     |> select([m, p], %{id: m.id, role: m.role, project_id: p.id, project_name: p.name})
     |> order_by([m], desc: m.inserted_at)
     |> Repo.all()
