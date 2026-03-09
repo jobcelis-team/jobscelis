@@ -801,7 +801,7 @@ defmodule StreamflixWebWeb.AccountLive do
       assign(
         assigns,
         :input_class,
-        "mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/25"
+        "mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/25 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-500"
       )
 
     ~H"""
@@ -816,18 +816,20 @@ defmodule StreamflixWebWeb.AccountLive do
       <div class="w-full">
         <%!-- Page header --%>
         <div class="mb-8">
-          <h1 class="text-3xl font-semibold text-slate-900">{gettext("Cuenta")}</h1>
+          <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">
+            {gettext("Cuenta")}
+          </h1>
 
-          <p class="mt-2 text-base text-slate-500">
+          <p class="mt-2 text-base text-slate-500 dark:text-slate-400">
             {gettext("Gestiona tu perfil y preferencias de seguridad.")}
           </p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <%!-- Profile card --%>
-          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
-              <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+          <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-6 sm:px-8 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+              <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2.5">
                 <svg
                   class="w-5 h-5 text-indigo-500"
                   fill="none"
@@ -845,10 +847,10 @@ defmodule StreamflixWebWeb.AccountLive do
               </h2>
             </div>
 
-            <div class="p-6 sm:p-8 space-y-0 divide-y divide-slate-100">
+            <div class="p-6 sm:p-8 space-y-0 divide-y divide-slate-100 dark:divide-slate-700">
               <%!-- Email verification banner --%>
               <%= if is_nil(@user.email_verified_at) do %>
-                <div class="mb-4 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                <div class="mb-4 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-sm">
                   <svg
                     class="w-5 h-5 shrink-0 mt-0.5 text-amber-500"
                     fill="none"
@@ -867,7 +869,7 @@ defmodule StreamflixWebWeb.AccountLive do
                     <button
                       type="button"
                       phx-click="resend_verification"
-                      class="ml-2 text-amber-700 underline hover:text-amber-900 font-medium"
+                      class="ml-2 text-amber-700 dark:text-amber-400 underline hover:text-amber-900 dark:hover:text-amber-300 font-medium"
                     >
                       {gettext("Reenviar enlace")}
                     </button>
@@ -877,17 +879,17 @@ defmodule StreamflixWebWeb.AccountLive do
               <%!-- Name row --%>
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-6">
                 <div class="min-w-0">
-                  <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide">
+                  <dt class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                     {gettext("Nombre")}
                   </dt>
-                  <dd class="mt-1 text-lg text-slate-900 font-medium truncate">
+                  <dd class="mt-1 text-lg text-slate-900 dark:text-slate-100 font-medium truncate">
                     {@user.name || gettext("Sin nombre")}
                   </dd>
                 </div>
                 <button
                   type="button"
                   phx-click="open_name_modal"
-                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
+                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition dark:bg-indigo-900/30 dark:border-indigo-800/50 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -903,17 +905,19 @@ defmodule StreamflixWebWeb.AccountLive do
               <%!-- Email row --%>
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-6">
                 <div class="min-w-0">
-                  <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide">
+                  <dt class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                     {gettext("Email")}
                   </dt>
 
-                  <dd class="mt-1 text-lg text-slate-900 font-medium truncate">{@user.email}</dd>
+                  <dd class="mt-1 text-lg text-slate-900 dark:text-slate-100 font-medium truncate">
+                    {@user.email}
+                  </dd>
                 </div>
 
                 <button
                   type="button"
                   phx-click="open_email_modal"
-                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
+                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition dark:bg-indigo-900/30 dark:border-indigo-800/50 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -929,15 +933,17 @@ defmodule StreamflixWebWeb.AccountLive do
               <%!-- Role row (admin/superadmin only) --%>
               <%= if @user.role in ["admin", "superadmin"] do %>
                 <div class="py-6">
-                  <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide">
+                  <dt class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                     {gettext("Rol")}
                   </dt>
 
                   <dd class="mt-2">
                     <span class={[
                       "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
-                      @user.role == "superadmin" && "bg-amber-100 text-amber-800",
-                      @user.role == "admin" && "bg-slate-100 text-slate-700"
+                      @user.role == "superadmin" &&
+                        "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+                      @user.role == "admin" &&
+                        "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
                     ]}>
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -955,17 +961,19 @@ defmodule StreamflixWebWeb.AccountLive do
               <%!-- Password row --%>
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-6">
                 <div>
-                  <dt class="text-sm font-medium text-slate-500 uppercase tracking-wide">
+                  <dt class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                     {gettext("Contraseña")}
                   </dt>
 
-                  <dd class="mt-1 text-lg text-slate-400 tracking-wider">••••••••••••</dd>
+                  <dd class="mt-1 text-lg text-slate-400 dark:text-slate-500 tracking-wider">
+                    ••••••••••••
+                  </dd>
                 </div>
 
                 <button
                   type="button"
                   phx-click="open_password_modal"
-                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
+                  class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition dark:bg-indigo-900/30 dark:border-indigo-800/50 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -981,9 +989,9 @@ defmodule StreamflixWebWeb.AccountLive do
             </div>
           </div>
           <%!-- Quick actions card --%>
-          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
-              <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+          <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-6 sm:px-8 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+              <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2.5">
                 <svg
                   class="w-5 h-5 text-indigo-500"
                   fill="none"
@@ -1004,9 +1012,9 @@ defmodule StreamflixWebWeb.AccountLive do
             <div class="p-6 sm:p-8 space-y-3">
               <.link
                 navigate="/platform"
-                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 transition group"
+                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 transition group dark:bg-slate-700/50 dark:hover:bg-slate-700 dark:border-slate-600 dark:hover:border-slate-500 dark:text-slate-300"
               >
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900/50 transition">
                   <svg
                     class="w-5 h-5 text-indigo-600"
                     fill="none"
@@ -1023,13 +1031,17 @@ defmodule StreamflixWebWeb.AccountLive do
                 </div>
 
                 <div>
-                  <p class="text-base font-medium text-slate-800">{gettext("Ir al dashboard")}</p>
+                  <p class="text-base font-medium text-slate-800 dark:text-slate-200">
+                    {gettext("Ir al dashboard")}
+                  </p>
 
-                  <p class="text-sm text-slate-500">{gettext("Volver al panel principal")}</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">
+                    {gettext("Volver al panel principal")}
+                  </p>
                 </div>
 
                 <svg
-                  class="w-5 h-5 text-slate-400 ml-auto"
+                  class="w-5 h-5 text-slate-400 dark:text-slate-500 ml-auto"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -1045,11 +1057,11 @@ defmodule StreamflixWebWeb.AccountLive do
               <button
                 type="button"
                 phx-click="open_delete_modal"
-                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-700 transition group text-left"
+                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-700 transition group text-left dark:bg-slate-700/50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-red-900/20 dark:hover:border-red-800/50 dark:hover:text-red-400"
               >
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-red-100 transition">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition">
                   <svg
-                    class="w-5 h-5 text-slate-500 group-hover:text-red-600 transition"
+                    class="w-5 h-5 text-slate-500 dark:text-slate-400 group-hover:text-red-600 transition"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1064,12 +1076,12 @@ defmodule StreamflixWebWeb.AccountLive do
                 </div>
                 <div>
                   <p class="text-base font-medium">{gettext("Eliminar cuenta")}</p>
-                  <p class="text-sm text-slate-500 group-hover:text-red-500 transition">
+                  <p class="text-sm text-slate-500 dark:text-slate-400 group-hover:text-red-500 transition">
                     {gettext("Eliminar permanentemente tu cuenta y datos")}
                   </p>
                 </div>
                 <svg
-                  class="w-5 h-5 text-slate-400 ml-auto"
+                  class="w-5 h-5 text-slate-400 dark:text-slate-500 ml-auto"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -1084,11 +1096,11 @@ defmodule StreamflixWebWeb.AccountLive do
               </button>
               <a
                 href="/logout"
-                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-700 transition group"
+                class="flex items-center gap-4 w-full px-5 py-4 rounded-xl bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-700 hover:text-red-700 transition group dark:bg-slate-700/50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-red-900/20 dark:hover:border-red-800/50 dark:hover:text-red-400"
               >
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-red-100 transition">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition">
                   <svg
-                    class="w-5 h-5 text-slate-500 group-hover:text-red-600 transition"
+                    class="w-5 h-5 text-slate-500 dark:text-slate-400 group-hover:text-red-600 transition"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1105,13 +1117,13 @@ defmodule StreamflixWebWeb.AccountLive do
                 <div>
                   <p class="text-base font-medium">{gettext("Cerrar sesión")}</p>
 
-                  <p class="text-sm text-slate-500 group-hover:text-red-500 transition">
+                  <p class="text-sm text-slate-500 dark:text-slate-400 group-hover:text-red-500 transition">
                     {gettext("Salir de tu cuenta")}
                   </p>
                 </div>
 
                 <svg
-                  class="w-5 h-5 text-slate-400 ml-auto"
+                  class="w-5 h-5 text-slate-400 dark:text-slate-500 ml-auto"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -1131,9 +1143,9 @@ defmodule StreamflixWebWeb.AccountLive do
         <%!-- ══════════════════════════════════════════════════════════ --%>
         <%!-- MFA / Two-Factor Authentication                          --%>
         <%!-- ══════════════════════════════════════════════════════════ --%>
-        <div class="mt-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
-            <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+        <div class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="px-6 sm:px-8 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+            <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2.5">
               <svg
                 class="w-5 h-5 text-indigo-500"
                 fill="none"
@@ -1156,7 +1168,7 @@ defmodule StreamflixWebWeb.AccountLive do
               <%!-- MFA is ON --%>
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="flex items-center gap-3">
-                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                     <svg
                       class="w-5 h-5 text-emerald-600"
                       fill="none"
@@ -1172,8 +1184,10 @@ defmodule StreamflixWebWeb.AccountLive do
                     </svg>
                   </div>
                   <div>
-                    <p class="text-base font-medium text-slate-800">{gettext("MFA activado")}</p>
-                    <p class="text-sm text-slate-500">
+                    <p class="text-base font-medium text-slate-800 dark:text-slate-200">
+                      {gettext("MFA activado")}
+                    </p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
                       {gettext("Tu cuenta está protegida con autenticación de dos factores.")}
                     </p>
                   </div>
@@ -1182,7 +1196,7 @@ defmodule StreamflixWebWeb.AccountLive do
                   <button
                     type="button"
                     phx-click="regenerate_mfa_backup_codes"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -1197,7 +1211,7 @@ defmodule StreamflixWebWeb.AccountLive do
                   <button
                     type="button"
                     phx-click="open_mfa_disable_modal"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-200 bg-white text-red-700 text-sm font-medium hover:bg-red-50 transition"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-200 bg-white text-red-700 text-sm font-medium hover:bg-red-50 transition dark:bg-slate-700 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-900/20"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -1214,7 +1228,7 @@ defmodule StreamflixWebWeb.AccountLive do
 
               <%!-- Show backup codes after regeneration --%>
               <%= if @mfa_step == :backup_codes and @mfa_backup_codes do %>
-                <div class="mt-6 p-5 bg-amber-50 border border-amber-200 rounded-xl">
+                <div class="mt-6 p-5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl">
                   <div class="flex items-start gap-3 mb-4">
                     <svg
                       class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"
@@ -1230,8 +1244,10 @@ defmodule StreamflixWebWeb.AccountLive do
                       />
                     </svg>
                     <div>
-                      <p class="font-medium text-amber-900">{gettext("Códigos de recuperación")}</p>
-                      <p class="text-sm text-amber-700 mt-1">
+                      <p class="font-medium text-amber-900 dark:text-amber-300">
+                        {gettext("Códigos de recuperación")}
+                      </p>
+                      <p class="text-sm text-amber-700 dark:text-amber-400 mt-1">
                         {gettext(
                           "Guarda estos códigos en un lugar seguro. Cada código solo se puede usar una vez."
                         )}
@@ -1240,7 +1256,7 @@ defmodule StreamflixWebWeb.AccountLive do
                   </div>
                   <div class="grid grid-cols-2 gap-2">
                     <%= for code <- @mfa_backup_codes do %>
-                      <code class="bg-white px-3 py-2 rounded-lg border border-amber-200 text-sm font-mono text-slate-800 text-center">
+                      <code class="bg-white dark:bg-slate-800 px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800/50 text-sm font-mono text-slate-800 dark:text-slate-200 text-center">
                         {code}
                       </code>
                     <% end %>
@@ -1261,9 +1277,9 @@ defmodule StreamflixWebWeb.AccountLive do
               <%= if @mfa_step == nil do %>
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div class="flex items-center gap-3">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
                       <svg
-                        class="w-5 h-5 text-slate-500"
+                        class="w-5 h-5 text-slate-500 dark:text-slate-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1277,8 +1293,10 @@ defmodule StreamflixWebWeb.AccountLive do
                       </svg>
                     </div>
                     <div>
-                      <p class="text-base font-medium text-slate-800">{gettext("MFA desactivado")}</p>
-                      <p class="text-sm text-slate-500">
+                      <p class="text-base font-medium text-slate-800 dark:text-slate-200">
+                        {gettext("MFA desactivado")}
+                      </p>
+                      <p class="text-sm text-slate-500 dark:text-slate-400">
                         {gettext("Agrega una capa extra de seguridad a tu cuenta.")}
                       </p>
                     </div>
@@ -1305,22 +1323,22 @@ defmodule StreamflixWebWeb.AccountLive do
               <%= if @mfa_step == :setup do %>
                 <div class="space-y-6">
                   <div class="text-center">
-                    <p class="text-sm text-slate-600 mb-4">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
                       {gettext(
                         "Escanea este código QR con tu aplicación de autenticación (Google Authenticator, Authy, etc.)"
                       )}
                     </p>
-                    <div class="inline-block p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
+                    <div class="inline-block p-4 bg-white dark:bg-white border border-slate-200 dark:border-slate-300 rounded-xl shadow-sm">
                       {raw(@mfa_qr_svg)}
                     </div>
                   </div>
 
                   <%!-- Manual secret --%>
-                  <div class="bg-slate-50 rounded-lg border border-slate-200 px-4 py-3">
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+                  <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 px-4 py-3">
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                       {gettext("Clave manual")}
                     </p>
-                    <code class="text-sm font-mono text-slate-800 break-all select-all">
+                    <code class="text-sm font-mono text-slate-800 dark:text-slate-200 break-all select-all">
                       {Base.encode32(@mfa_secret, padding: false)}
                     </code>
                   </div>
@@ -1330,7 +1348,7 @@ defmodule StreamflixWebWeb.AccountLive do
                     <div>
                       <label
                         for="mfa_setup_code"
-                        class="block text-sm font-medium text-slate-700 mb-1.5"
+                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
                       >
                         {gettext("Ingresa el código de 6 dígitos para confirmar")}
                       </label>
@@ -1345,13 +1363,13 @@ defmodule StreamflixWebWeb.AccountLive do
                         autofocus
                         required
                         placeholder="000000"
-                        class="w-full px-3.5 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+                        class="w-full px-3.5 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-500"
                       />
                     </div>
 
                     <%= if @mfa_setup_errors != [] do %>
                       <div
-                        class="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                        class="flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 px-4 py-3"
                         role="alert"
                       >
                         <svg
@@ -1367,7 +1385,7 @@ defmodule StreamflixWebWeb.AccountLive do
                             d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
                           />
                         </svg>
-                        <div class="text-sm text-red-700">
+                        <div class="text-sm text-red-700 dark:text-red-400">
                           <%= for error <- @mfa_setup_errors do %>
                             <p>{error}</p>
                           <% end %>
@@ -1379,7 +1397,7 @@ defmodule StreamflixWebWeb.AccountLive do
                       <button
                         type="button"
                         phx-click="cancel_mfa_setup"
-                        class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                        class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
                       >
                         {gettext("Cancelar")}
                       </button>
@@ -1397,7 +1415,7 @@ defmodule StreamflixWebWeb.AccountLive do
 
               <%!-- Show backup codes after enabling --%>
               <%= if @mfa_step == :backup_codes and @mfa_backup_codes do %>
-                <div class="p-5 bg-amber-50 border border-amber-200 rounded-xl">
+                <div class="p-5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl">
                   <div class="flex items-start gap-3 mb-4">
                     <svg
                       class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"
@@ -1413,8 +1431,10 @@ defmodule StreamflixWebWeb.AccountLive do
                       />
                     </svg>
                     <div>
-                      <p class="font-medium text-amber-900">{gettext("Códigos de recuperación")}</p>
-                      <p class="text-sm text-amber-700 mt-1">
+                      <p class="font-medium text-amber-900 dark:text-amber-300">
+                        {gettext("Códigos de recuperación")}
+                      </p>
+                      <p class="text-sm text-amber-700 dark:text-amber-400 mt-1">
                         {gettext(
                           "Guarda estos códigos en un lugar seguro. Cada código solo se puede usar una vez. No podrás verlos de nuevo."
                         )}
@@ -1423,7 +1443,7 @@ defmodule StreamflixWebWeb.AccountLive do
                   </div>
                   <div class="grid grid-cols-2 gap-2">
                     <%= for code <- @mfa_backup_codes do %>
-                      <code class="bg-white px-3 py-2 rounded-lg border border-amber-200 text-sm font-mono text-slate-800 text-center">
+                      <code class="bg-white dark:bg-slate-800 px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800/50 text-sm font-mono text-slate-800 dark:text-slate-200 text-center">
                         {code}
                       </code>
                     <% end %>
@@ -1447,10 +1467,10 @@ defmodule StreamflixWebWeb.AccountLive do
       <%!-- ══════════════════════════════════════════════════════════════ --%>
       <%!-- Active Sessions                                              --%>
       <%!-- ══════════════════════════════════════════════════════════════ --%>
-      <div class="mt-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+      <div class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="px-6 sm:px-8 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+            <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2.5">
               <svg
                 class="w-5 h-5 text-indigo-500"
                 fill="none"
@@ -1469,9 +1489,8 @@ defmodule StreamflixWebWeb.AccountLive do
             <%= if length(@sessions) > 1 do %>
               <button
                 type="button"
-                phx-click="revoke_all_sessions"
-                data-confirm={gettext("¿Cerrar todas las demás sesiones?")}
-                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs sm:text-sm font-medium hover:bg-red-100 hover:border-red-300 transition"
+                phx-click={show_confirm("confirm-revoke-all-sessions")}
+                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs sm:text-sm font-medium hover:bg-red-100 hover:border-red-300 transition dark:bg-red-900/20 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-900/30"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -1483,6 +1502,14 @@ defmodule StreamflixWebWeb.AccountLive do
                 </svg>
                 {gettext("Cerrar todas las demás sesiones")}
               </button>
+              <.confirm_modal
+                id="confirm-revoke-all-sessions"
+                title={gettext("Confirmar cierre de sesiones")}
+                message={gettext("¿Cerrar todas las demás sesiones?")}
+                confirm_text={gettext("Cerrar todas")}
+                confirm_event="revoke_all_sessions"
+                variant="danger"
+              />
             <% end %>
           </div>
         </div>
@@ -1490,33 +1517,33 @@ defmodule StreamflixWebWeb.AccountLive do
           <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
               <thead>
-                <tr class="border-b border-slate-200">
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                <tr class="border-b border-slate-200 dark:border-slate-700">
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
                     {gettext("Dispositivo")}
                   </th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">
                     {gettext("IP")}
                   </th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">
                     {gettext("Última actividad")}
                   </th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
                     {gettext("Fecha")}
                   </th>
-                  <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                  <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
                     {gettext("Acción")}
                   </th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                 <%= for session <- @sessions do %>
-                  <tr class="hover:bg-slate-50">
-                    <td class="py-2.5 px-3 text-slate-700 font-medium">
+                  <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+                    <td class="py-2.5 px-3 text-slate-700 dark:text-slate-300 font-medium">
                       <div class="flex items-center gap-2">
                         <%= case session.device_info do %>
                           <% "Mobile" -> %>
                             <svg
-                              class="w-4 h-4 text-slate-400 flex-shrink-0"
+                              class="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -1530,7 +1557,7 @@ defmodule StreamflixWebWeb.AccountLive do
                             </svg>
                           <% "Tablet" -> %>
                             <svg
-                              class="w-4 h-4 text-slate-400 flex-shrink-0"
+                              class="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -1544,7 +1571,7 @@ defmodule StreamflixWebWeb.AccountLive do
                             </svg>
                           <% _ -> %>
                             <svg
-                              class="w-4 h-4 text-slate-400 flex-shrink-0"
+                              class="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -1560,48 +1587,58 @@ defmodule StreamflixWebWeb.AccountLive do
                         <span>
                           {session.device_info || gettext("Escritorio")}
                           <%= if @current_jti && session.token_jti == @current_jti do %>
-                            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">
+                            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                               {gettext("Esta sesión")}
                             </span>
                           <% end %>
                         </span>
                       </div>
                     </td>
-                    <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
+                    <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">
                       <span class="truncate max-w-[8rem] inline-block">
                         {session.ip_address || "—"}
                       </span>
                     </td>
-                    <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
+                    <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">
                       <%= if session.last_activity_at do %>
                         {Calendar.strftime(session.last_activity_at, "%d/%m/%Y %H:%M")}
                       <% else %>
                         —
                       <% end %>
                     </td>
-                    <td class="py-2.5 px-3 text-slate-500">
+                    <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400">
                       {Calendar.strftime(session.inserted_at, "%d/%m/%Y %H:%M")}
                     </td>
                     <td class="py-2.5 px-3 text-right">
                       <%= if @current_jti && session.token_jti == @current_jti do %>
-                        <span class="text-xs text-slate-400">—</span>
+                        <span class="text-xs text-slate-400 dark:text-slate-500">—</span>
                       <% else %>
                         <button
                           type="button"
-                          phx-click="revoke_session"
-                          phx-value-id={session.id}
-                          data-confirm={gettext("¿Cerrar esta sesión?")}
-                          class="text-xs text-red-600 hover:text-red-800 font-medium"
+                          phx-click={show_confirm("confirm-revoke-session-#{session.id}")}
+                          class="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium"
                         >
                           {gettext("Revocar")}
                         </button>
+                        <.confirm_modal
+                          id={"confirm-revoke-session-#{session.id}"}
+                          title={gettext("Confirmar cierre de sesión")}
+                          message={gettext("¿Cerrar esta sesión?")}
+                          confirm_text={gettext("Revocar")}
+                          confirm_event="revoke_session"
+                          confirm_value={%{id: session.id}}
+                          variant="danger"
+                        />
                       <% end %>
                     </td>
                   </tr>
                 <% end %>
                 <%= if @sessions == [] do %>
                   <tr>
-                    <td colspan="5" class="py-4 px-3 text-center text-slate-400 text-sm">
+                    <td
+                      colspan="5"
+                      class="py-4 px-3 text-center text-slate-400 dark:text-slate-500 text-sm"
+                    >
                       {gettext("Sin sesiones activas.")}
                     </td>
                   </tr>
@@ -1615,9 +1652,9 @@ defmodule StreamflixWebWeb.AccountLive do
       <%!-- ══════════════════════════════════════════════════════════════ --%>
       <%!-- Data Protection (GDPR)                                       --%>
       <%!-- ══════════════════════════════════════════════════════════════ --%>
-      <div class="mt-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50">
-          <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
+      <div class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="px-6 sm:px-8 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2.5">
             <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -1632,12 +1669,12 @@ defmodule StreamflixWebWeb.AccountLive do
         <div class="p-6 sm:p-8 space-y-6">
           <%!-- Restriction warning banner --%>
           <%= if @user.status == "restricted" do %>
-            <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="rounded-lg border border-amber-300 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/20 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
               <div class="flex-1">
-                <p class="text-sm font-semibold text-amber-800">
+                <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">
                   {gettext("Procesamiento restringido")}
                 </p>
-                <p class="text-xs text-amber-700 mt-0.5">
+                <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
                   {gettext(
                     "Tu cuenta tiene el procesamiento restringido (RGPD Art. 18). Los webhooks y eventos no se procesarán hasta que levantes la restricción."
                   )}
@@ -1645,26 +1682,35 @@ defmodule StreamflixWebWeb.AccountLive do
               </div>
               <button
                 type="button"
-                phx-click="lift_restriction"
-                data-confirm={gettext("¿Levantar la restricción de procesamiento?")}
+                phx-click={show_confirm("confirm-lift-restriction-banner")}
                 class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-600 text-white text-xs font-medium hover:bg-amber-700 transition"
               >
                 {gettext("Levantar restricción")}
               </button>
+              <.confirm_modal
+                id="confirm-lift-restriction-banner"
+                title={gettext("Confirmar acción")}
+                message={gettext("¿Levantar la restricción de procesamiento?")}
+                confirm_text={gettext("Levantar restricción")}
+                confirm_event="lift_restriction"
+                variant="warning"
+              />
             </div>
           <% end %>
 
           <%!-- Export data --%>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h3 class="text-sm font-semibold text-slate-800">{gettext("Exportar mis datos")}</h3>
-              <p class="text-sm text-slate-500 mt-0.5">
+              <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                {gettext("Exportar mis datos")}
+              </h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                 {gettext("Descarga una copia de todos tus datos personales (RGPD Art. 15).")}
               </p>
             </div>
             <a
               href="/export/my-data"
-              class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition"
+              class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium hover:bg-indigo-100 hover:border-indigo-300 transition dark:bg-indigo-900/30 dark:border-indigo-800/50 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -1681,10 +1727,10 @@ defmodule StreamflixWebWeb.AccountLive do
           <%!-- Art. 18: Restriction control --%>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h3 class="text-sm font-semibold text-slate-800">
+              <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
                 {gettext("Restringir procesamiento")}
               </h3>
-              <p class="text-sm text-slate-500 mt-0.5">
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                 {gettext("Congela el procesamiento de tus datos sin eliminarlos (RGPD Art. 18).")}
               </p>
             </div>
@@ -1692,7 +1738,7 @@ defmodule StreamflixWebWeb.AccountLive do
               <button
                 type="button"
                 phx-click="open_restrict_modal"
-                class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 text-sm font-medium hover:bg-amber-100 hover:border-amber-300 transition"
+                class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 text-sm font-medium hover:bg-amber-100 hover:border-amber-300 transition dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-300 dark:hover:bg-amber-900/30"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -1707,9 +1753,8 @@ defmodule StreamflixWebWeb.AccountLive do
             <% else %>
               <button
                 type="button"
-                phx-click="lift_restriction"
-                data-confirm={gettext("¿Levantar la restricción de procesamiento?")}
-                class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-sm font-medium hover:bg-emerald-100 hover:border-emerald-300 transition"
+                phx-click={show_confirm("confirm-lift-restriction-section")}
+                class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-sm font-medium hover:bg-emerald-100 hover:border-emerald-300 transition dark:bg-emerald-900/20 dark:border-emerald-800/50 dark:text-emerald-300 dark:hover:bg-emerald-900/30"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -1721,33 +1766,37 @@ defmodule StreamflixWebWeb.AccountLive do
                 </svg>
                 {gettext("Levantar restricción")}
               </button>
+              <.confirm_modal
+                id="confirm-lift-restriction-section"
+                title={gettext("Confirmar acción")}
+                message={gettext("¿Levantar la restricción de procesamiento?")}
+                confirm_text={gettext("Levantar restricción")}
+                confirm_event="lift_restriction"
+                variant="warning"
+              />
             <% end %>
           </div>
 
           <%!-- Art. 21: Objection toggle --%>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h3 class="text-sm font-semibold text-slate-800">
+              <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
                 {gettext("Consentimiento de procesamiento")}
               </h3>
-              <p class="text-sm text-slate-500 mt-0.5">
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                 {gettext("Ejerce tu derecho de oposición al procesamiento de datos (RGPD Art. 21).")}
               </p>
             </div>
             <button
               type="button"
-              phx-click="toggle_processing_consent"
-              data-confirm={
-                if @user.processing_consent,
-                  do: gettext("¿Objetar el procesamiento de tus datos?"),
-                  else: gettext("¿Restaurar el consentimiento de procesamiento?")
-              }
+              phx-click={show_confirm("confirm-toggle-consent")}
               class={[
                 "flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition",
                 if(@user.processing_consent,
                   do:
-                    "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:border-slate-300",
-                  else: "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 hover:border-red-300"
+                    "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:border-slate-300 dark:border-slate-600 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:bg-slate-700",
+                  else:
+                    "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 hover:border-red-300 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
                 )
               ]}
             >
@@ -1760,15 +1809,33 @@ defmodule StreamflixWebWeb.AccountLive do
                 </span>
               <% end %>
             </button>
+            <.confirm_modal
+              id="confirm-toggle-consent"
+              title={gettext("Confirmar acción")}
+              message={
+                if @user.processing_consent,
+                  do: gettext("¿Objetar el procesamiento de tus datos?"),
+                  else: gettext("¿Restaurar el consentimiento de procesamiento?")
+              }
+              confirm_text={
+                if @user.processing_consent,
+                  do: gettext("Objetar"),
+                  else: gettext("Restaurar")
+              }
+              confirm_event="toggle_processing_consent"
+              variant={if @user.processing_consent, do: "warning", else: "danger"}
+            />
           </div>
 
           <%!-- Consents table --%>
           <div>
-            <h3 class="text-sm font-semibold text-slate-800 mb-3">{gettext("Consentimientos")}</h3>
+            <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">
+              {gettext("Consentimientos")}
+            </h3>
 
             <%= if @outdated_consents != [] do %>
-              <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p class="text-sm text-amber-800 font-medium mb-2">
+              <div class="mb-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg">
+                <p class="text-sm text-amber-800 dark:text-amber-300 font-medium mb-2">
                   <.icon name="hero-exclamation-triangle" class="w-4 h-4 inline-block mr-1" />
                   {gettext("Algunas políticas han sido actualizadas y requieren tu re-aceptación.")}
                 </p>
@@ -1793,28 +1860,28 @@ defmodule StreamflixWebWeb.AccountLive do
             <div class="overflow-x-auto">
               <table class="min-w-full text-sm">
                 <thead>
-                  <tr class="border-b border-slate-200">
-                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                  <tr class="border-b border-slate-200 dark:border-slate-700">
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
                       {gettext("Propósito")}
                     </th>
-                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">
                       {gettext("Versión")}
                     </th>
-                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">
                       {gettext("Fecha")}
                     </th>
-                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                    <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
                       {gettext("Estado")}
                     </th>
-                    <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 uppercase">
+                    <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
                       {gettext("Acción")}
                     </th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                   <%= for consent <- @consents do %>
-                    <tr class="hover:bg-slate-50">
-                      <td class="py-2.5 px-3 text-slate-700 font-medium">
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+                      <td class="py-2.5 px-3 text-slate-700 dark:text-slate-300 font-medium">
                         <%= case consent.purpose do %>
                           <% "terms" -> %>
                             {gettext("Términos de uso")}
@@ -1828,21 +1895,21 @@ defmodule StreamflixWebWeb.AccountLive do
                             {consent.purpose}
                         <% end %>
                       </td>
-                      <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
+                      <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">
                         <span class="font-mono text-xs">
                           v{consent.version || "1.0"}
                         </span>
                       </td>
-                      <td class="py-2.5 px-3 text-slate-500 hidden sm:table-cell">
+                      <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">
                         {Calendar.strftime(consent.granted_at, "%d/%m/%Y %H:%M")}
                       </td>
                       <td class="py-2.5 px-3">
                         <%= if is_nil(consent.revoked_at) do %>
-                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                             {gettext("Activo")}
                           </span>
                         <% else %>
-                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                             {gettext("Revocado")}
                           </span>
                         <% end %>
@@ -1851,22 +1918,32 @@ defmodule StreamflixWebWeb.AccountLive do
                         <%= if is_nil(consent.revoked_at) do %>
                           <button
                             type="button"
-                            phx-click="revoke_consent"
-                            phx-value-id={consent.id}
-                            data-confirm={gettext("¿Revocar este consentimiento?")}
-                            class="text-xs text-red-600 hover:text-red-800 font-medium"
+                            phx-click={show_confirm("confirm-revoke-consent-#{consent.id}")}
+                            class="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium"
                           >
                             {gettext("Revocar")}
                           </button>
+                          <.confirm_modal
+                            id={"confirm-revoke-consent-#{consent.id}"}
+                            title={gettext("Confirmar revocación")}
+                            message={gettext("¿Revocar este consentimiento?")}
+                            confirm_text={gettext("Revocar")}
+                            confirm_event="revoke_consent"
+                            confirm_value={%{id: consent.id}}
+                            variant="danger"
+                          />
                         <% else %>
-                          <span class="text-xs text-slate-400">—</span>
+                          <span class="text-xs text-slate-400 dark:text-slate-500">—</span>
                         <% end %>
                       </td>
                     </tr>
                   <% end %>
                   <%= if @consents == [] do %>
                     <tr>
-                      <td colspan="5" class="py-4 px-3 text-center text-slate-400 text-sm">
+                      <td
+                        colspan="5"
+                        class="py-4 px-3 text-center text-slate-400 dark:text-slate-500 text-sm"
+                      >
                         {gettext("Sin consentimientos registrados.")}
                       </td>
                     </tr>
@@ -1887,16 +1964,16 @@ defmodule StreamflixWebWeb.AccountLive do
           id="restrict-modal-container"
         >
           <div
-            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            class="absolute inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm"
             phx-click="close_restrict_modal"
             aria-hidden="true"
           >
           </div>
-          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6 sm:p-8">
+          <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8 dark:border dark:border-slate-700">
             <button
               type="button"
               phx-click="close_restrict_modal"
-              class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+              class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -1907,31 +1984,31 @@ defmodule StreamflixWebWeb.AccountLive do
                 />
               </svg>
             </button>
-            <h3 class="text-lg font-semibold text-slate-900 mb-2">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
               {gettext("Restringir procesamiento")}
             </h3>
-            <p class="text-sm text-slate-500 mb-4">
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
               {gettext(
                 "Al restringir el procesamiento, los webhooks y eventos dejarán de procesarse. Puedes revertir esta acción en cualquier momento."
               )}
             </p>
 
             <%= for err <- @restrict_form_errors do %>
-              <div class="mb-3 rounded-lg bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-700">
+              <div class="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 px-4 py-2 text-sm text-red-700 dark:text-red-400">
                 {err}
               </div>
             <% end %>
 
             <.form for={%{}} as={:restrict} phx-submit="restrict_processing" class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   {gettext("Contraseña actual")}
                 </label>
                 <input
                   type="password"
                   name="restrict[password]"
                   required
-                  class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"
                   placeholder={gettext("Ingresa tu contraseña")}
                 />
               </div>
@@ -1939,7 +2016,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <button
                   type="button"
                   phx-click="close_restrict_modal"
-                  class="px-4 py-2 rounded-lg border border-slate-300 text-sm text-slate-700 hover:bg-slate-50 transition"
+                  class="px-4 py-2 rounded-lg border border-slate-300 text-sm text-slate-700 hover:bg-slate-50 transition dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                 >
                   {gettext("Cancelar")}
                 </button>
@@ -1970,7 +2047,7 @@ defmodule StreamflixWebWeb.AccountLive do
         >
           <%!-- Backdrop --%>
           <div
-            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            class="absolute inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm"
             phx-click="close_email_modal"
             id="email-modal-backdrop"
             aria-hidden="true"
@@ -1978,7 +2055,7 @@ defmodule StreamflixWebWeb.AccountLive do
           </div>
           <%!-- Modal panel --%>
           <div
-            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            class="relative z-10 bg-white dark:bg-slate-800 dark:border dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
             id="email-modal-content"
             role="dialog"
             aria-modal="true"
@@ -1988,7 +2065,7 @@ defmodule StreamflixWebWeb.AccountLive do
             <div class="px-6 pt-6 pb-4">
               <div class="flex items-start justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
                     <svg
                       class="w-5 h-5 text-indigo-600"
                       fill="none"
@@ -2005,11 +2082,14 @@ defmodule StreamflixWebWeb.AccountLive do
                   </div>
 
                   <div>
-                    <h2 id="email-modal-title" class="text-lg font-semibold text-slate-900">
+                    <h2
+                      id="email-modal-title"
+                      class="text-lg font-semibold text-slate-900 dark:text-slate-100"
+                    >
                       {gettext("Cambiar correo")}
                     </h2>
 
-                    <p class="text-sm text-slate-500 mt-0.5">
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                       {gettext(
                         "El correo debe ser único en el sistema. Necesitas tu contraseña actual."
                       )}
@@ -2020,7 +2100,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <button
                   type="button"
                   phx-click="close_email_modal"
-                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-700"
                   aria-label={gettext("Cerrar")}
                 >
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2035,12 +2115,14 @@ defmodule StreamflixWebWeb.AccountLive do
               </div>
             </div>
             <%!-- Current email indicator --%>
-            <div class="mx-6 mb-4 px-4 py-3 bg-slate-50 rounded-lg border border-slate-200">
-              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">
+            <div class="mx-6 mb-4 px-4 py-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+              <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                 {gettext("Email")} {gettext("actual")}
               </p>
 
-              <p class="mt-0.5 text-sm text-slate-800 font-medium">{@user.email}</p>
+              <p class="mt-0.5 text-sm text-slate-800 dark:text-slate-200 font-medium">
+                {@user.email}
+              </p>
             </div>
             <%!-- Form --%>
             <.form
@@ -2052,7 +2134,10 @@ defmodule StreamflixWebWeb.AccountLive do
             >
               <div class="space-y-4">
                 <div>
-                  <label for="email_change_new_email" class="block text-sm font-medium text-slate-700">
+                  <label
+                    for="email_change_new_email"
+                    class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                  >
                     {gettext("Nuevo correo")}
                   </label>
                   <.input
@@ -2066,7 +2151,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <div>
                   <label
                     for="email_change_current_password"
-                    class="block text-sm font-medium text-slate-700"
+                    class="block text-sm font-medium text-slate-700 dark:text-slate-300"
                   >
                     {gettext("Contraseña actual")}
                   </label>
@@ -2081,7 +2166,7 @@ defmodule StreamflixWebWeb.AccountLive do
               <%!-- Errors --%>
               <%= if @email_form_errors != [] do %>
                 <div
-                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 px-4 py-3"
                   role="alert"
                 >
                   <svg
@@ -2097,7 +2182,7 @@ defmodule StreamflixWebWeb.AccountLive do
                       d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
                     />
                   </svg>
-                  <div class="text-sm text-red-700">
+                  <div class="text-sm text-red-700 dark:text-red-400">
                     <%= for error <- @email_form_errors do %>
                       <p>{error}</p>
                     <% end %>
@@ -2109,7 +2194,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <button
                   type="button"
                   phx-click="close_email_modal"
-                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
                 >
                   {gettext("Cancelar")}
                 </button>
@@ -2141,7 +2226,7 @@ defmodule StreamflixWebWeb.AccountLive do
         >
           <%!-- Backdrop --%>
           <div
-            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            class="absolute inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm"
             phx-click="close_password_modal"
             id="password-modal-backdrop"
             aria-hidden="true"
@@ -2149,7 +2234,7 @@ defmodule StreamflixWebWeb.AccountLive do
           </div>
           <%!-- Modal panel --%>
           <div
-            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            class="relative z-10 bg-white dark:bg-slate-800 dark:border dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
             id="password-modal-content"
             role="dialog"
             aria-modal="true"
@@ -2159,7 +2244,7 @@ defmodule StreamflixWebWeb.AccountLive do
             <div class="px-6 pt-6 pb-4">
               <div class="flex items-start justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
                     <svg
                       class="w-5 h-5 text-indigo-600"
                       fill="none"
@@ -2176,11 +2261,14 @@ defmodule StreamflixWebWeb.AccountLive do
                   </div>
 
                   <div>
-                    <h2 id="password-modal-title" class="text-lg font-semibold text-slate-900">
+                    <h2
+                      id="password-modal-title"
+                      class="text-lg font-semibold text-slate-900 dark:text-slate-100"
+                    >
                       {gettext("Cambiar contraseña")}
                     </h2>
 
-                    <p class="text-sm text-slate-500 mt-0.5">
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                       {gettext("Mínimo 8 caracteres, con mayúsculas, minúsculas y números.")}
                     </p>
                   </div>
@@ -2189,7 +2277,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <button
                   type="button"
                   phx-click="close_password_modal"
-                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-700"
                   aria-label={gettext("Cerrar")}
                 >
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2215,7 +2303,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <div>
                   <label
                     for="password_change_current_password"
-                    class="block text-sm font-medium text-slate-700"
+                    class="block text-sm font-medium text-slate-700 dark:text-slate-300"
                   >
                     {gettext("Contraseña actual")}
                   </label>
@@ -2227,10 +2315,14 @@ defmodule StreamflixWebWeb.AccountLive do
                   />
                 </div>
 
-                <div class="pt-2 border-t border-slate-100">
+                <div
+                  class="pt-2 border-t border-slate-100 dark:border-slate-700"
+                  phx-hook="PasswordStrength"
+                  id="pw-strength-wrap"
+                >
                   <label
                     for="password_change_new_password"
-                    class="block text-sm font-medium text-slate-700"
+                    class="block text-sm font-medium text-slate-700 dark:text-slate-300"
                   >
                     {gettext("Nueva contraseña")}
                   </label>
@@ -2240,12 +2332,31 @@ defmodule StreamflixWebWeb.AccountLive do
                     placeholder="••••••••"
                     class={@input_class}
                   />
+                  <div
+                    data-strength-bar
+                    class="mt-2 transition-opacity duration-200"
+                    style="opacity: 0"
+                  >
+                    <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                      <div
+                        data-strength-fill
+                        class="h-full rounded-full transition-all duration-300"
+                        style="width: 0%"
+                      >
+                      </div>
+                    </div>
+                    <p
+                      data-strength-label
+                      class="text-xs mt-1 text-slate-500 dark:text-slate-400 h-4"
+                    >
+                    </p>
+                  </div>
                 </div>
 
                 <div>
                   <label
                     for="password_change_new_password_confirm"
-                    class="block text-sm font-medium text-slate-700"
+                    class="block text-sm font-medium text-slate-700 dark:text-slate-300"
                   >
                     {gettext("Confirmar nueva contraseña")}
                   </label>
@@ -2260,7 +2371,7 @@ defmodule StreamflixWebWeb.AccountLive do
               <%!-- Errors --%>
               <%= if @password_form_errors != [] do %>
                 <div
-                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 px-4 py-3"
                   role="alert"
                 >
                   <svg
@@ -2276,7 +2387,7 @@ defmodule StreamflixWebWeb.AccountLive do
                       d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
                     />
                   </svg>
-                  <div class="text-sm text-red-700">
+                  <div class="text-sm text-red-700 dark:text-red-400">
                     <%= for error <- @password_form_errors do %>
                       <p>{error}</p>
                     <% end %>
@@ -2288,7 +2399,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <button
                   type="button"
                   phx-click="close_password_modal"
-                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
                 >
                   {gettext("Cancelar")}
                 </button>
@@ -2311,23 +2422,25 @@ defmodule StreamflixWebWeb.AccountLive do
       <%= if @show_name_modal do %>
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="name-modal-container">
           <div
-            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            class="absolute inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm"
             phx-click="close_name_modal"
             aria-hidden="true"
           >
           </div>
           <div
-            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            class="relative z-10 bg-white dark:bg-slate-800 dark:border dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
             role="dialog"
             aria-modal="true"
           >
             <div class="px-6 pt-6 pb-4">
               <div class="flex items-start justify-between">
-                <h2 class="text-lg font-semibold text-slate-900">{gettext("Editar nombre")}</h2>
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  {gettext("Editar nombre")}
+                </h2>
                 <button
                   type="button"
                   phx-click="close_name_modal"
-                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                  class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-700"
                 >
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -2342,7 +2455,10 @@ defmodule StreamflixWebWeb.AccountLive do
             </div>
             <.form for={@name_form} id="name-modal-form" phx-submit="save_name" class="px-6 pb-6">
               <div>
-                <label for="name_change_name" class="block text-sm font-medium text-slate-700">
+                <label
+                  for="name_change_name"
+                  class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   {gettext("Nombre")}
                 </label>
                 <.input
@@ -2354,10 +2470,10 @@ defmodule StreamflixWebWeb.AccountLive do
               </div>
               <%= if @name_form_errors != [] do %>
                 <div
-                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 px-4 py-3"
                   role="alert"
                 >
-                  <div class="text-sm text-red-700">
+                  <div class="text-sm text-red-700 dark:text-red-400">
                     <%= for error <- @name_form_errors do %>
                       <p>{error}</p>
                     <% end %>
@@ -2368,7 +2484,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <button
                   type="button"
                   phx-click="close_name_modal"
-                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
                 >
                   {gettext("Cancelar")}
                 </button>
@@ -2394,19 +2510,19 @@ defmodule StreamflixWebWeb.AccountLive do
           id="delete-modal-container"
         >
           <div
-            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            class="absolute inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm"
             phx-click="close_delete_modal"
             aria-hidden="true"
           >
           </div>
           <div
-            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            class="relative z-10 bg-white dark:bg-slate-800 dark:border dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
             role="dialog"
             aria-modal="true"
           >
             <div class="px-6 pt-6 pb-4">
               <div class="flex items-start gap-3">
-                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
                   <svg
                     class="w-5 h-5 text-red-600"
                     fill="none"
@@ -2422,10 +2538,10 @@ defmodule StreamflixWebWeb.AccountLive do
                   </svg>
                 </div>
                 <div>
-                  <h2 class="text-lg font-semibold text-red-900">
+                  <h2 class="text-lg font-semibold text-red-900 dark:text-red-400">
                     {gettext("Eliminar cuenta")}
                   </h2>
-                  <p class="text-sm text-slate-500 mt-0.5">
+                  <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     {gettext(
                       "Esta acción es irreversible. Se eliminarán todos tus datos, proyectos y configuración."
                     )}
@@ -2435,7 +2551,10 @@ defmodule StreamflixWebWeb.AccountLive do
             </div>
             <form phx-submit="delete_account" class="px-6 pb-6">
               <div>
-                <label for="delete_password" class="block text-sm font-medium text-slate-700 mb-1.5">
+                <label
+                  for="delete_password"
+                  class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+                >
                   {gettext("Confirma tu contraseña para eliminar la cuenta")}
                 </label>
                 <input
@@ -2449,10 +2568,10 @@ defmodule StreamflixWebWeb.AccountLive do
               </div>
               <%= if @delete_form_errors != [] do %>
                 <div
-                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 px-4 py-3"
                   role="alert"
                 >
-                  <div class="text-sm text-red-700">
+                  <div class="text-sm text-red-700 dark:text-red-400">
                     <%= for error <- @delete_form_errors do %>
                       <p>{error}</p>
                     <% end %>
@@ -2463,7 +2582,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <button
                   type="button"
                   phx-click="close_delete_modal"
-                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
                 >
                   {gettext("Cancelar")}
                 </button>
@@ -2489,19 +2608,19 @@ defmodule StreamflixWebWeb.AccountLive do
           id="mfa-disable-modal-container"
         >
           <div
-            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            class="absolute inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm"
             phx-click="close_mfa_disable_modal"
             aria-hidden="true"
           >
           </div>
           <div
-            class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+            class="relative z-10 bg-white dark:bg-slate-800 dark:border dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
             role="dialog"
             aria-modal="true"
           >
             <div class="px-6 pt-6 pb-4">
               <div class="flex items-start gap-3">
-                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
                   <svg
                     class="w-5 h-5 text-red-600"
                     fill="none"
@@ -2517,10 +2636,10 @@ defmodule StreamflixWebWeb.AccountLive do
                   </svg>
                 </div>
                 <div>
-                  <h2 class="text-lg font-semibold text-red-900">
+                  <h2 class="text-lg font-semibold text-red-900 dark:text-red-400">
                     {gettext("Desactivar MFA")}
                   </h2>
-                  <p class="text-sm text-slate-500 mt-0.5">
+                  <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                     {gettext("Tu cuenta quedará menos segura. Ingresa tu contraseña para confirmar.")}
                   </p>
                 </div>
@@ -2530,7 +2649,7 @@ defmodule StreamflixWebWeb.AccountLive do
               <div>
                 <label
                   for="mfa_disable_password"
-                  class="block text-sm font-medium text-slate-700 mb-1.5"
+                  class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
                 >
                   {gettext("Contraseña actual")}
                 </label>
@@ -2545,10 +2664,10 @@ defmodule StreamflixWebWeb.AccountLive do
               </div>
               <%= if @mfa_disable_errors != [] do %>
                 <div
-                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3"
+                  class="mt-4 flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 px-4 py-3"
                   role="alert"
                 >
-                  <div class="text-sm text-red-700">
+                  <div class="text-sm text-red-700 dark:text-red-400">
                     <%= for error <- @mfa_disable_errors do %>
                       <p>{error}</p>
                     <% end %>
@@ -2559,7 +2678,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <button
                   type="button"
                   phx-click="close_mfa_disable_modal"
-                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
+                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
                 >
                   {gettext("Cancelar")}
                 </button>

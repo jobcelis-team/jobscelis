@@ -76,11 +76,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         job_modal: nil,
         job_runs_modal: nil,
         job_form: nil,
+        job_form_errors: [],
+        job_step: 1,
         cron_preview: [],
         page_title: gettext("Dashboard"),
         active_page: :dashboard,
         webhook_modal: nil,
+        webhook_step: 1,
         webhook_form: %{"url" => "", "topics" => "", "secret" => ""},
+        webhook_form_errors: [],
         confirm_regenerate_token: false,
         uptime_status: %{status: "unknown", checks: %{}},
         uptime_stats: %{
@@ -184,6 +188,18 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
          |> assign(:switching_project, true)
          |> assign(:show_project_selector, false)}
     end
+  end
+
+  @impl true
+  def handle_event("apply_test_template", %{"template" => template}, socket) do
+    {topic, payload} = test_event_template(template)
+    {:noreply, socket |> assign(:test_topic, topic) |> assign(:test_payload, payload)}
+  end
+
+  @impl true
+  def handle_event("apply_schema_template", %{"template" => template}, socket) do
+    {topic, schema} = schema_template(template)
+    {:noreply, socket |> assign(:schema_topic, topic) |> assign(:schema_body, schema)}
   end
 
   @impl true
@@ -340,7 +356,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         {:noreply,
          socket
          |> assign(:job_modal, :new)
-         |> assign(:job_form, form)}
+         |> assign(:job_form, form)
+         |> assign(:job_step, 1)}
       else
         {:noreply, socket}
       end
@@ -377,7 +394,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         {:noreply,
          socket
          |> assign(:job_modal, {:edit, job.id})
-         |> assign(:job_form, form)}
+         |> assign(:job_form, form)
+         |> assign(:job_step, 1)}
       else
         {:noreply, socket}
       end
@@ -389,7 +407,26 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     {:noreply,
      socket
      |> assign(:job_modal, nil)
-     |> assign(:job_form, nil)}
+     |> assign(:job_form, nil)
+     |> assign(:job_form_errors, [])
+     |> assign(:job_step, 1)}
+  end
+
+  @impl true
+  def handle_event("job_step", %{"step" => step}, socket) do
+    {:noreply, assign(socket, :job_step, String.to_integer(step))}
+  end
+
+  @impl true
+  def handle_event("job_form_change", params, socket) do
+    current = if socket.assigns.job_form, do: socket.assigns.job_form.params || %{}, else: %{}
+    merged = Map.merge(current, params)
+    errors = validate_job_form(merged)
+
+    {:noreply,
+     socket
+     |> assign(:job_form, to_form(merged))
+     |> assign(:job_form_errors, errors)}
   end
 
   @impl true
@@ -438,6 +475,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               |> assign(:jobs, jobs)
               |> assign(:job_modal, nil)
               |> assign(:job_form, nil)
+              |> assign(:job_step, 1)
 
             {:error, _} ->
               put_flash(socket, :error, gettext("Error al guardar el job."))
@@ -610,6 +648,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       {:noreply,
        socket
        |> assign(:webhook_modal, :new)
+       |> assign(:webhook_step, 1)
        |> assign(:webhook_form, %{"url" => "", "topics" => "", "secret" => ""})}
     end)
   end
@@ -624,6 +663,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           {:noreply,
            socket
            |> assign(:webhook_modal, {:edit, w})
+           |> assign(:webhook_step, 1)
            |> assign(:webhook_form, %{
              "url" => w.url,
              "topics" => Enum.join(w.topics || [], ", "),
@@ -634,7 +674,26 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   def handle_event("close_webhook_modal", _, socket) do
-    {:noreply, assign(socket, :webhook_modal, nil)}
+    {:noreply,
+     socket
+     |> assign(:webhook_modal, nil)
+     |> assign(:webhook_form_errors, [])
+     |> assign(:webhook_step, 1)}
+  end
+
+  def handle_event("webhook_step", %{"step" => step}, socket) do
+    {:noreply, assign(socket, :webhook_step, String.to_integer(step))}
+  end
+
+  def handle_event("webhook_form_change", %{"webhook" => params}, socket) do
+    current = socket.assigns.webhook_form
+    merged = Map.merge(current, params)
+    errors = validate_webhook_form(merged)
+
+    {:noreply,
+     socket
+     |> assign(:webhook_form, merged)
+     |> assign(:webhook_form_errors, errors)}
   end
 
   def handle_event("save_webhook", %{"webhook" => params}, socket) do
@@ -670,6 +729,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                |> assign(:webhooks, webhooks)
                |> assign(:webhook_health, webhook_health)
                |> assign(:webhook_modal, nil)
+               |> assign(:webhook_step, 1)
                |> put_flash(:info, gettext("Webhook creado."))}
 
             {:error, changeset} ->
@@ -688,6 +748,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                |> assign(:webhooks, webhooks)
                |> assign(:webhook_health, webhook_health)
                |> assign(:webhook_modal, nil)
+               |> assign(:webhook_step, 1)
                |> put_flash(:info, gettext("Webhook actualizado."))}
 
             {:error, changeset} ->
@@ -1025,6 +1086,27 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("close_pipeline_modal", _, socket) do
     {:noreply, assign(socket, :pipeline_modal, nil)}
+  end
+
+  @impl true
+  def handle_event("pipeline_step_preset", %{"preset" => preset}, socket) do
+    example =
+      case preset do
+        "filter" ->
+          ~s([{"type": "filter", "field": "status", "operator": "eq", "value": "paid"}])
+
+        "transform" ->
+          ~s([{"type": "transform", "mapping": {"new_field": "payload.original_field"}}])
+
+        "delay" ->
+          ~s([{"type": "delay", "seconds": 60}])
+
+        _ ->
+          "[]"
+      end
+
+    form = Map.put(socket.assigns.pipeline_form, "steps", example)
+    {:noreply, assign(socket, :pipeline_form, form)}
   end
 
   # ---------- Oban Monitor ----------
@@ -1769,11 +1851,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       <div>
         <%!-- ===== SWITCHING PROJECT OVERLAY ===== --%>
         <%= if @switching_project do %>
-          <div class="fixed inset-0 bg-white/60 backdrop-blur-sm z-40 flex items-center justify-center transition-opacity">
+          <div class="fixed inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm z-40 flex items-center justify-center transition-opacity">
             <div class="flex flex-col items-center gap-3">
               <div class="w-8 h-8 border-[3px] border-indigo-600 border-t-transparent rounded-full animate-spin">
               </div>
-              <p class="text-sm font-medium text-slate-600">
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
                 {gettext("Cambiando proyecto...")}
               </p>
             </div>
@@ -1782,14 +1864,14 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         <%!-- ===== HEADER ===== --%>
         <div class="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
           <div class="flex items-center gap-3 sm:gap-4">
-            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100">
               {gettext("Dashboard")}
             </h1>
             <div class="relative">
               <button
                 type="button"
                 phx-click="toggle_project_selector"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition border border-indigo-200"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium transition border border-indigo-200 dark:border-indigo-800/50"
               >
                 <.icon name="hero-rectangle-stack" class="w-4 h-4" />
                 <span class="hidden sm:inline truncate max-w-[10rem]">
@@ -1800,9 +1882,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <%= if @show_project_selector do %>
                 <div
                   phx-click-away="close_project_selector"
-                  class="fixed inset-x-3 top-20 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-1 sm:w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-80 overflow-y-auto"
+                  class="fixed inset-x-3 top-20 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-1 sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 max-h-80 overflow-y-auto"
                 >
-                  <div class="p-3 border-b border-slate-200">
+                  <div class="p-3 border-b border-slate-200 dark:border-slate-700">
                     <.form
                       for={%{}}
                       id="create-project-form"
@@ -1813,7 +1895,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         type="text"
                         name="name"
                         placeholder={gettext("Nuevo proyecto...")}
-                        class="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-1.5 text-sm"
+                        class="flex-1 min-w-0 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-1.5 text-sm"
                       />
                       <button
                         type="submit"
@@ -1826,12 +1908,14 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                   </div>
                   <%= for p <- @projects do %>
                     <div
-                      class={"flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition #{if @project && @project.id == p.id, do: "bg-indigo-50/50"}"}
+                      class={"flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition #{if @project && @project.id == p.id, do: "bg-indigo-50/50 dark:bg-indigo-900/20"}"}
                       phx-click="switch_project"
                       phx-value-id={p.id}
                     >
                       <div class="min-w-0">
-                        <p class="text-sm font-medium text-slate-800 truncate">{p.name}</p>
+                        <p class="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+                          {p.name}
+                        </p>
                         <p class="text-[10px] text-slate-400 font-mono">
                           {String.slice(p.id, 0, 8)}...
                         </p>
@@ -1859,7 +1943,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             <button
               type="button"
               phx-click="start_onboarding"
-              class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+              class="p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition"
               title={gettext("Guía de inicio")}
             >
               <.icon name="hero-question-mark-circle" class="w-5 h-5" />
@@ -1868,7 +1952,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               <button
                 type="button"
                 phx-click="toggle_notifications"
-                class="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                class="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"
               >
                 <.icon name="hero-bell" class="w-6 h-6" />
                 <%= if @unread_count > 0 do %>
@@ -1878,26 +1962,28 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                 <% end %>
               </button>
               <%= if @show_notifications do %>
-                <div class="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-2 sm:w-96 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-96 overflow-y-auto">
-                  <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                    <h3 class="font-semibold text-slate-900 text-sm">{gettext("Notificaciones")}</h3>
+                <div class="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-2 sm:w-96 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 max-h-96 overflow-y-auto">
+                  <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+                      {gettext("Notificaciones")}
+                    </h3>
                     <%= if @unread_count > 0 do %>
                       <button
                         phx-click="mark_all_read"
-                        class="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                        class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
                       >
                         {gettext("Marcar todo leído")}
                       </button>
                     <% end %>
                   </div>
                   <%= if @notifications == [] do %>
-                    <div class="px-4 py-8 text-center text-sm text-slate-400">
+                    <div class="px-4 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
                       {gettext("Sin notificaciones")}
                     </div>
                   <% else %>
                     <%= for notif <- @notifications do %>
                       <div
-                        class={"px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition cursor-pointer #{if !notif.read, do: "bg-indigo-50/50"}"}
+                        class={"px-4 py-3 border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition cursor-pointer #{if !notif.read, do: "bg-indigo-50/50 dark:bg-indigo-900/20"}"}
                         phx-click="mark_notification_read"
                         phx-value-id={notif.id}
                       >
@@ -1905,13 +1991,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                           <span class={"mt-1 w-2 h-2 rounded-full shrink-0 #{if !notif.read, do: "bg-indigo-500", else: "bg-transparent"}"}>
                           </span>
                           <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-slate-900 truncate">
+                            <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                               {notification_title(notif)}
                             </p>
-                            <p class="text-xs text-slate-500 truncate">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
                               {notification_message(notif)}
                             </p>
-                            <p class="text-[10px] text-slate-400 mt-1">
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
                               {format_dt(notif.inserted_at)}
                             </p>
                             <%= if notif.type == "team_invite" && is_map(notif.metadata) && Map.get(notif.metadata, "member_id") do %>
@@ -1927,13 +2013,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                                   <button
                                     phx-click="reject_invitation"
                                     phx-value-id={notif.metadata["member_id"]}
-                                    class="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-[11px] font-medium"
+                                    class="px-2 py-1 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 rounded text-[11px] font-medium"
                                   >
                                     {gettext("Rechazar")}
                                   </button>
                                 </div>
                               <% else %>
-                                <p class="text-[10px] text-emerald-600 mt-1 font-medium">
+                                <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
                                   {gettext("Respondida")}
                                 </p>
                               <% end %>
@@ -1951,31 +2037,31 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
         <%!-- ===== ONBOARDING WIZARD (#26) ===== --%>
         <%= if @onboarding_step do %>
-          <div class="mb-6 bg-indigo-50 border border-indigo-200 rounded-xl p-4 sm:p-6">
+          <div class="mb-6 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-4 sm:p-6">
             <div class="flex items-start justify-between mb-3">
               <div class="flex items-center gap-2">
-                <.icon name="hero-rocket-launch" class="w-5 h-5 text-indigo-600" />
-                <h3 class="font-semibold text-indigo-900">
+                <.icon name="hero-rocket-launch" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 class="font-semibold text-indigo-900 dark:text-indigo-100">
                   {gettext("Guía de inicio")}
-                  <span class="text-sm font-normal text-indigo-600 ml-2">
+                  <span class="text-sm font-normal text-indigo-600 dark:text-indigo-400 ml-2">
                     {gettext("Paso %{step} de 4", step: @onboarding_step)}
                   </span>
                 </h3>
               </div>
               <button
                 phx-click="skip_onboarding"
-                class="text-xs text-indigo-500 hover:text-indigo-700"
+                class="text-xs text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
                 {gettext("Cerrar")}
               </button>
             </div>
             <div class="flex gap-1.5 mb-4">
               <%= for i <- 1..4 do %>
-                <div class={"h-1.5 flex-1 rounded-full #{if i <= @onboarding_step, do: "bg-indigo-500", else: "bg-indigo-200"}"}>
+                <div class={"h-1.5 flex-1 rounded-full #{if i <= @onboarding_step, do: "bg-indigo-500", else: "bg-indigo-200 dark:bg-indigo-800"}"}>
                 </div>
               <% end %>
             </div>
-            <div class="text-sm text-indigo-800">
+            <div class="text-sm text-indigo-800 dark:text-indigo-200">
               <%= case @onboarding_step do %>
                 <% 1 -> %>
                   <p class="font-medium mb-1">{gettext("1. Copia tu API Token")}</p>
@@ -2010,7 +2096,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             <div class="flex justify-end mt-3">
               <button
                 phx-click="next_onboarding"
-                class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition"
+                class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition"
               >
                 {if @onboarding_step >= 4, do: gettext("Finalizar"), else: gettext("Siguiente")}
               </button>
@@ -2021,47 +2107,47 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         <%= if @project do %>
           <%!-- ===== KPI CARDS ===== --%>
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 sm:p-5 lg:p-6 border-l-4 border-l-indigo-500">
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-3 sm:p-5 lg:p-6 border-l-4 border-l-indigo-500">
               <div class="flex items-center gap-2 mb-2">
                 <.icon name="hero-bolt" class="w-5 h-5 text-indigo-500" />
-                <span class="text-xs sm:text-sm font-medium text-slate-500 uppercase tracking-wide">
+                <span class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   {gettext("Eventos hoy")}
                 </span>
               </div>
-              <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
+              <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-100">
                 {@kpi_events_today}
               </p>
             </div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 sm:p-5 lg:p-6 border-l-4 border-l-emerald-500">
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-3 sm:p-5 lg:p-6 border-l-4 border-l-emerald-500">
               <div class="flex items-center gap-2 mb-2">
                 <.icon name="hero-check-circle" class="w-5 h-5 text-emerald-500" />
-                <span class="text-xs sm:text-sm font-medium text-slate-500 uppercase tracking-wide">
+                <span class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   {gettext("Tasa de éxito")}
                 </span>
               </div>
-              <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
+              <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-100">
                 {@kpi_success_rate}%
               </p>
             </div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 sm:p-5 lg:p-6 border-l-4 border-l-blue-500">
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-3 sm:p-5 lg:p-6 border-l-4 border-l-blue-500">
               <div class="flex items-center gap-2 mb-2">
                 <.icon name="hero-globe-alt" class="w-5 h-5 text-blue-500" />
-                <span class="text-xs sm:text-sm font-medium text-slate-500 uppercase tracking-wide">
+                <span class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   {gettext("Webhooks activos")}
                 </span>
               </div>
-              <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
+              <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-100">
                 {Enum.count(@webhooks, &(&1.status == "active"))}
               </p>
             </div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 sm:p-5 lg:p-6 border-l-4 border-l-amber-500">
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-3 sm:p-5 lg:p-6 border-l-4 border-l-amber-500">
               <div class="flex items-center gap-2 mb-2">
                 <.icon name="hero-clock" class="w-5 h-5 text-amber-500" />
-                <span class="text-xs sm:text-sm font-medium text-slate-500 uppercase tracking-wide">
+                <span class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   {gettext("Jobs activos")}
                 </span>
               </div>
-              <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
+              <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-100">
                 {Enum.count(@jobs, &(&1.status == "active"))}
               </p>
             </div>
@@ -2069,20 +2155,20 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
           <%!-- ===== PENDING INVITATIONS BANNER ===== --%>
           <%= if @pending_invitations != [] do %>
-            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 sm:p-4 mb-6 sm:mb-8">
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-3 sm:p-4 mb-6 sm:mb-8">
               <div class="flex items-center gap-2 mb-3">
-                <.icon name="hero-envelope" class="w-5 h-5 text-indigo-600" />
-                <h3 class="text-sm sm:text-base font-semibold text-indigo-900">
+                <.icon name="hero-envelope" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 class="text-sm sm:text-base font-semibold text-indigo-900 dark:text-indigo-100">
                   {gettext("Invitaciones pendientes")}
                 </h3>
               </div>
               <div class="space-y-2">
                 <%= for inv <- @pending_invitations do %>
-                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white rounded-lg p-3 border border-indigo-100">
-                    <div class="text-sm text-slate-700">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white dark:bg-slate-800 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800">
+                    <div class="text-sm text-slate-700 dark:text-slate-300">
                       <span class="font-medium">{inv.project_name}</span>
-                      <span class="text-slate-400 mx-1">&middot;</span>
-                      <span class="text-slate-500">
+                      <span class="text-slate-400 dark:text-slate-500 mx-1">&middot;</span>
+                      <span class="text-slate-500 dark:text-slate-400">
                         {gettext("Rol: %{role}", role: inv.role)}
                       </span>
                     </div>
@@ -2095,13 +2181,20 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         {gettext("Aceptar")}
                       </button>
                       <button
-                        phx-click="reject_invitation"
-                        phx-value-id={inv.id}
-                        data-confirm={gettext("¿Rechazar esta invitación?")}
-                        class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs sm:text-sm font-medium"
+                        phx-click={show_confirm("confirm-reject-inv-#{inv.id}")}
+                        class="px-3 py-1.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 rounded-lg text-xs sm:text-sm font-medium"
                       >
                         {gettext("Rechazar")}
                       </button>
+                      <.confirm_modal
+                        id={"confirm-reject-inv-#{inv.id}"}
+                        title={gettext("Confirmar rechazo")}
+                        message={gettext("¿Rechazar esta invitación?")}
+                        confirm_text={gettext("Rechazar")}
+                        confirm_event="reject_invitation"
+                        confirm_value={%{id: inv.id}}
+                        variant="danger"
+                      />
                     </div>
                   </div>
                 <% end %>
@@ -2110,7 +2203,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           <% end %>
 
           <%!-- ===== TAB NAVIGATION ===== --%>
-          <div class="border-b border-slate-200 mb-6 sm:mb-8 overflow-x-auto">
+          <div class="border-b border-slate-200 dark:border-slate-700 mb-6 sm:mb-8 overflow-x-auto">
             <nav
               class="-mb-px flex gap-1 sm:gap-6 lg:gap-8 min-w-max"
               aria-label={gettext("Pestañas")}
@@ -2184,7 +2277,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           <%!-- ===== MODALS (always available) ===== --%>
           {StreamflixWebWeb.PlatformDashboard.ModalComponents.render_modals(assigns)}
         <% else %>
-          <p class="text-slate-600">{gettext("No hay proyecto para tu cuenta. Contacta soporte.")}</p>
+          <p class="text-slate-600 dark:text-slate-400">
+            {gettext("No hay proyecto para tu cuenta. Contacta soporte.")}
+          </p>
         <% end %>
       </div>
     </Layouts.app>
@@ -2213,6 +2308,155 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     do: TabComponents.render_settings_tab(assigns)
 
   defp render_tab(assigns), do: TabComponents.render_overview_tab(assigns)
+
+  defp validate_webhook_form(form) do
+    url = String.trim(form["url"] || "")
+
+    errors = []
+    errors = if url == "", do: [gettext("La URL es obligatoria") | errors], else: errors
+
+    errors =
+      if url != "" and not String.starts_with?(url, "https://"),
+        do: [gettext("La URL debe comenzar con https://") | errors],
+        else: errors
+
+    Enum.reverse(errors)
+  end
+
+  defp validate_job_form(params) do
+    name = String.trim(params["name"] || "")
+    schedule_type = params["schedule_type"] || "daily"
+    cron = String.trim(params["schedule_cron"] || "")
+
+    errors = []
+    errors = if name == "", do: [gettext("El nombre es obligatorio") | errors], else: errors
+
+    errors =
+      if schedule_type == "cron" and cron != "" do
+        parts = String.split(cron, ~r/\s+/)
+
+        if length(parts) != 5,
+          do: [gettext("La expresión cron debe tener 5 partes separadas por espacios") | errors],
+          else: errors
+      else
+        errors
+      end
+
+    Enum.reverse(errors)
+  end
+
+  defp test_event_template("user_signup") do
+    {"user.signup",
+     Jason.encode!(
+       %{
+         user_id:
+           "usr_#{:crypto.strong_rand_bytes(4) |> Base.hex_encode32(case: :lower) |> binary_part(0, 8)}",
+         email: "jane@example.com",
+         plan: "free",
+         source: "web"
+       },
+       pretty: true
+     )}
+  end
+
+  defp test_event_template("order_created") do
+    {"order.created",
+     Jason.encode!(
+       %{
+         order_id:
+           "ord_#{:crypto.strong_rand_bytes(4) |> Base.hex_encode32(case: :lower) |> binary_part(0, 8)}",
+         amount: 49.99,
+         currency: "USD",
+         items: 3
+       },
+       pretty: true
+     )}
+  end
+
+  defp test_event_template("payment_completed") do
+    {"payment.completed",
+     Jason.encode!(
+       %{
+         payment_id:
+           "pay_#{:crypto.strong_rand_bytes(4) |> Base.hex_encode32(case: :lower) |> binary_part(0, 8)}",
+         amount: 149.00,
+         currency: "USD",
+         method: "card",
+         status: "succeeded"
+       },
+       pretty: true
+     )}
+  end
+
+  defp test_event_template("invoice_paid") do
+    {"invoice.paid",
+     Jason.encode!(
+       %{
+         invoice_id:
+           "inv_#{:crypto.strong_rand_bytes(4) |> Base.hex_encode32(case: :lower) |> binary_part(0, 8)}",
+         total: 299.00,
+         currency: "USD",
+         customer: "cus_abc123"
+       },
+       pretty: true
+     )}
+  end
+
+  defp test_event_template(_), do: {"", "{}"}
+
+  defp schema_template("order") do
+    {"order.created",
+     Jason.encode!(
+       %{
+         type: "object",
+         required: ["order_id", "amount", "currency"],
+         properties: %{
+           order_id: %{type: "string"},
+           amount: %{type: "number", minimum: 0},
+           currency: %{type: "string", enum: ["USD", "EUR", "GBP"]},
+           items: %{type: "integer", minimum: 1}
+         }
+       },
+       pretty: true
+     )}
+  end
+
+  defp schema_template("user") do
+    {"user.signup",
+     Jason.encode!(
+       %{
+         type: "object",
+         required: ["user_id", "email"],
+         properties: %{
+           user_id: %{type: "string"},
+           email: %{type: "string", format: "email"},
+           plan: %{type: "string", enum: ["free", "pro", "enterprise"]},
+           source: %{type: "string"}
+         }
+       },
+       pretty: true
+     )}
+  end
+
+  defp schema_template("payment") do
+    {"payment.completed",
+     Jason.encode!(
+       %{
+         type: "object",
+         required: ["payment_id", "amount", "status"],
+         properties: %{
+           payment_id: %{type: "string"},
+           amount: %{type: "number", minimum: 0},
+           currency: %{type: "string"},
+           method: %{type: "string", enum: ["card", "bank_transfer", "paypal"]},
+           status: %{type: "string", enum: ["succeeded", "failed", "pending"]}
+         }
+       },
+       pretty: true
+     )}
+  end
+
+  defp schema_template(_), do: {"", "{}"}
 
   # Helpers imported from StreamflixWebWeb.PlatformDashboard.Helpers
 end

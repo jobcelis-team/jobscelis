@@ -5,15 +5,19 @@
   legal={@legal}
   active_page={@active_page}
 >
-  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Términos de uso")}</h1>
+  <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+    {gettext("Términos de uso")}
+  </h1>
 
-  <p class="text-slate-500 text-sm mb-8">
+  <p class="text-slate-500 dark:text-slate-400 text-sm mb-8">
     {gettext("Última actualización")}: {Date.utc_today() |> Calendar.strftime("%d/%m/%Y")}
   </p>
 
-  <div class="prose prose-slate max-w-none text-slate-700 space-y-6">
+  <div class="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-6">
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">1. {gettext("Aceptación")}</h2>
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
+        1. {gettext("Aceptación")}
+      </h2>
 
       <p>
         {gettext("Al utilizar el servicio")}
@@ -26,7 +30,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         2. {gettext("Propiedad intelectual y uso del Servicio")}
       </h2>
 
@@ -40,7 +44,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         2.1. {gettext("Originalidad y no afiliación")}
       </h2>
 
@@ -56,7 +60,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         3. {gettext("Uso aceptable")}
       </h2>
 
@@ -70,20 +74,22 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         4. {gettext("Datos y privacidad")}
       </h2>
 
       <p>
         {gettext("El tratamiento de los datos personales se describe en la")} <a
           href="/privacy"
-          class="text-indigo-600 hover:underline"
+          class="text-indigo-600 dark:text-indigo-400 hover:underline"
         ><%= gettext("Política de privacidad") %></a>.
       </p>
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">5. {gettext("Sin garantía")}</h2>
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
+        5. {gettext("Sin garantía")}
+      </h2>
 
       <p>
         {gettext(
@@ -95,7 +101,9 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">6. {gettext("Cambios")}</h2>
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
+        6. {gettext("Cambios")}
+      </h2>
 
       <p>
         {gettext(
@@ -107,7 +115,9 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">7. {gettext("Contacto")}</h2>
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
+        7. {gettext("Contacto")}
+      </h2>
 
       <p>
         {gettext("Para dudas sobre estos Términos, contacta al titular del Servicio:")} <strong><%= Map.get(@legal, :owner, "Jobcelis") %></strong>.
@@ -118,7 +128,7 @@
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-indigo-600 hover:underline"
+              class="text-indigo-600 dark:text-indigo-400 hover:underline"
             >GitHub</a>{if Map.get(@legal, :profile_url),
               do: " " <> gettext("o") <> " ",
               else: "."}
@@ -128,7 +138,7 @@
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-indigo-600 hover:underline"
+              class="text-indigo-600 dark:text-indigo-400 hover:underline"
             ><%= gettext("el perfil") %></a>.
           <% end %>
         <% end %>

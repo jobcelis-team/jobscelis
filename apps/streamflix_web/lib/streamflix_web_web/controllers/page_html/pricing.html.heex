@@ -5,9 +5,11 @@
   legal={@legal}
   active_page={@active_page}
 >
-  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Planes y precios")}</h1>
+  <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+    {gettext("Planes y precios")}
+  </h1>
 
-  <p class="text-slate-600 mb-10">
+  <p class="text-slate-600 dark:text-slate-400 mb-10">
     {gettext(
       "%{product} es un servicio gratuito. No hay planes de pago ni facturación.",
       product: Map.get(@legal, :product_name, "Jobcelis")
@@ -15,18 +17,20 @@
   </p>
 
   <div class="space-y-8">
-    <section class="bg-white rounded-xl border-2 border-indigo-200 p-6 relative">
+    <section class="bg-white dark:bg-slate-800 rounded-xl border-2 border-indigo-200 dark:border-indigo-700 p-6 relative">
       <span class="absolute -top-3 left-6 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
         {gettext("Único plan")}
       </span>
 
       <div class="flex items-baseline gap-2 mb-4 mt-2">
-        <span class="text-4xl font-bold text-slate-900">$0</span>
+        <span class="text-4xl font-bold text-slate-900 dark:text-slate-100">$0</span>
 
-        <span class="text-slate-500 text-sm">{gettext("sin límite de tiempo")}</span>
+        <span class="text-slate-500 dark:text-slate-400 text-sm">
+          {gettext("sin límite de tiempo")}
+        </span>
       </div>
 
-      <p class="text-slate-600 mb-6 text-sm">
+      <p class="text-slate-600 dark:text-slate-400 mb-6 text-sm">
         {gettext(
           "Incluye todas las características. No requiere tarjeta de crédito ni período de prueba."
         )}
@@ -48,7 +52,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("Eventos ilimitados")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("Eventos ilimitados")}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -66,7 +72,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("Webhooks ilimitados")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("Webhooks ilimitados")}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -84,7 +92,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("Jobs programados")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("Jobs programados")}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -102,7 +112,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("13 SDKs oficiales")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("13 SDKs oficiales")}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -120,7 +132,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("Replay de eventos")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("Replay de eventos")}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -138,7 +152,7 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">Dead Letter Queue</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">Dead Letter Queue</span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -156,7 +170,7 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">Pipelines</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">Pipelines</span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -174,7 +188,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("Sandbox de pruebas")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("Sandbox de pruebas")}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -192,7 +208,7 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">SSE Streaming</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">SSE Streaming</span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -210,7 +226,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("MFA y cifrado en reposo")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("MFA y cifrado en reposo")}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -228,7 +246,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("Exportación de datos")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("Exportación de datos")}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -246,7 +266,9 @@
             />
           </svg>
 
-          <span class="text-slate-700 text-sm">{gettext("Soporte por email")}</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm">
+            {gettext("Soporte por email")}
+          </span>
         </div>
       </div>
 
@@ -258,20 +280,24 @@
       </a>
     </section>
 
-    <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Modelo de precios")}</h2>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("Modelo de precios")}
+      </h2>
 
-      <p class="text-slate-600 text-sm leading-relaxed">
+      <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
         {gettext(
           "Jobcelis es un proyecto personal. No tengo inversores, no vendo datos, no hay publicidad. El objetivo es construir la mejor infraestructura de eventos posible y ofrecerla a la comunidad de developers. Si el proyecto crece y los costos de infraestructura lo requieren, Planes de pago podrían introducirse en el futuro para cubrir costos de infraestructura, pero el plan gratuito se mantendrá disponible."
         )}
       </p>
     </section>
 
-    <section class="bg-white rounded-xl border border-indigo-100 p-6 border-indigo-200">
-      <h2 class="text-xl font-semibold text-slate-900 mb-2">{gettext("Apoyar el proyecto")}</h2>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-indigo-100 dark:border-indigo-800 p-6 border-indigo-200 dark:border-indigo-700">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("Apoyar el proyecto")}
+      </h2>
 
-      <p class="text-slate-600 mb-4">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
         {gettext(
           "Si %{product} resulta de valor y desea apoyar su desarrollo, puede hacer una donación voluntaria a través de los siguientes enlaces. No es obligatorio ni afecta al uso del servicio.",
           product: Map.get(@legal, :product_name, "Jobcelis")
@@ -314,12 +340,17 @@
       </div>
 
       <%= if (Map.get(@legal, :donation_paypal_url) || "") == "" and (Map.get(@legal, :donation_payoneer_url) || "") == "" and (Map.get(@legal, :donation_payphone_url) || "") == "" do %>
-        <p class="text-slate-500 text-sm mt-4">
+        <p class="text-slate-500 dark:text-slate-400 text-sm mt-4">
           {gettext(
             "Los enlaces de donación estarán disponibles próximamente. Si desea donar, contacte a"
           )}
           <%= if (email = Map.get(@legal, :contact_email)) && email != "" do %>
-            <a href={"mailto:#{email}"} class="text-indigo-600 hover:underline">{email}</a>
+            <a
+              href={"mailto:#{email}"}
+              class="text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              {email}
+            </a>
           <% else %>
             {gettext("la dirección de contacto")}
           <% end %>.

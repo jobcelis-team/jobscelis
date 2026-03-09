@@ -5,9 +5,11 @@
   legal={@legal}
   active_page={@active_page}
 >
-  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Sobre nosotros")}</h1>
+  <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+    {gettext("Sobre nosotros")}
+  </h1>
 
-  <p class="text-slate-600 mb-10">
+  <p class="text-slate-600 dark:text-slate-400 mb-10">
     {gettext(
       "%{product} es un servicio gratuito de eventos y webhooks creado y mantenido por un desarrollador independiente. Sin empresa: proyecto personal.",
       product: Map.get(@legal, :product_name, "Jobcelis")
@@ -15,84 +17,94 @@
   </p>
 
   <div class="space-y-6">
-    <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Por qué Jobcelis")}</h2>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("Por qué Jobcelis")}
+      </h2>
 
-      <p class="text-slate-600 text-sm leading-relaxed">
+      <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
         {gettext(
           "Jobcelis se creó para resolver el problema recurrente de implementar infraestructura de webhooks en cada proyecto: reintentos, dead letters, logs, filtros. Cada vez, reimplementar lo mismo. Jobcelis centraliza toda esa infraestructura en una API simple para que los developers se enfoquen en su lógica de negocio."
         )}
       </p>
     </section>
 
-    <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Stack tecnológico")}</h2>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("Stack tecnológico")}
+      </h2>
 
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">
+      <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
         {gettext(
           "Construido con Elixir y Phoenix sobre la máquina virtual BEAM, diseñada para sistemas concurrentes y tolerantes a fallos. PostgreSQL como base de datos, con cifrado en reposo para datos sensibles."
         )}
       </p>
 
       <div class="flex flex-wrap gap-2">
-        <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-medium border border-purple-200">
+        <span class="px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium border border-purple-200 dark:border-purple-700">
           Elixir / OTP
         </span>
 
-        <span class="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-medium border border-orange-200">
+        <span class="px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-medium border border-orange-200 dark:border-orange-700">
           Phoenix
         </span>
 
-        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium border border-blue-200">
+        <span class="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium border border-blue-200 dark:border-blue-700">
           PostgreSQL
         </span>
 
-        <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
+        <span class="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium border border-emerald-200 dark:border-emerald-700">
           LiveView
         </span>
 
-        <span class="px-3 py-1 rounded-full bg-slate-50 text-slate-700 text-xs font-medium border border-slate-200">
+        <span class="px-3 py-1 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700">
           Tailwind CSS
         </span>
       </div>
     </section>
 
-    <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Números del proyecto")}</h2>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("Números del proyecto")}
+      </h2>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
         <div class="text-center">
-          <p class="text-2xl font-bold text-indigo-600">74+</p>
+          <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">74+</p>
 
-          <p class="text-slate-500 text-xs">{gettext("Endpoints API")}</p>
+          <p class="text-slate-500 dark:text-slate-400 text-xs">{gettext("Endpoints API")}</p>
         </div>
 
         <div class="text-center">
-          <p class="text-2xl font-bold text-indigo-600">13</p>
+          <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">13</p>
 
-          <p class="text-slate-500 text-xs">SDKs</p>
+          <p class="text-slate-500 dark:text-slate-400 text-xs">SDKs</p>
         </div>
 
         <div class="text-center">
-          <p class="text-2xl font-bold text-indigo-600">12</p>
+          <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">12</p>
 
-          <p class="text-slate-500 text-xs">{gettext("Lenguajes")}</p>
+          <p class="text-slate-500 dark:text-slate-400 text-xs">{gettext("Lenguajes")}</p>
         </div>
 
         <div class="text-center">
-          <p class="text-2xl font-bold text-indigo-600">ES/EN</p>
+          <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">ES/EN</p>
 
-          <p class="text-slate-500 text-xs">{gettext("Bilingüe")}</p>
+          <p class="text-slate-500 dark:text-slate-400 text-xs">{gettext("Bilingüe")}</p>
         </div>
       </div>
     </section>
 
-    <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Titular del servicio")}</h2>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("Titular del servicio")}
+      </h2>
 
-      <p class="text-slate-700 text-lg font-medium">{Map.get(@legal, :owner, "Jobcelis")}</p>
+      <p class="text-slate-700 dark:text-slate-300 text-lg font-medium">
+        {Map.get(@legal, :owner, "Jobcelis")}
+      </p>
 
-      <p class="text-slate-600 text-sm mt-1">
+      <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
         {gettext(
           "Desarrollador y responsable de %{product}. Puede contactar al desarrollador o conocer más en los enlaces siguientes.",
           product: Map.get(@legal, :product_name, "Jobcelis")
@@ -124,12 +136,16 @@
       <% end %>
     </section>
 
-    <section class="pt-4 border-t border-slate-200">
-      <p class="text-slate-600 text-sm">
+    <section class="pt-4 border-t border-slate-200 dark:border-slate-700">
+      <p class="text-slate-600 dark:text-slate-400 text-sm">
         {gettext("Para dudas legales, uso del servicio o privacidad, consulta los")}
-        <a href="/terms" class="text-indigo-600 hover:underline">{gettext("Términos de uso")}</a> {gettext(
-          "y la"
-        )} <a href="/privacy" class="text-indigo-600 hover:underline"><%= gettext("Política de privacidad") %></a>. {gettext(
+        <a href="/terms" class="text-indigo-600 dark:text-indigo-400 hover:underline">
+          {gettext("Términos de uso")}
+        </a>
+        {gettext("y la")} <a
+          href="/privacy"
+          class="text-indigo-600 dark:text-indigo-400 hover:underline"
+        ><%= gettext("Política de privacidad") %></a>. {gettext(
           "Ahí encontrarás también la forma de contactar al titular."
         )}
       </p>
