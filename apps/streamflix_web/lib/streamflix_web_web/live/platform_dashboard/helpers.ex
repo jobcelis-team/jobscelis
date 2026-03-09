@@ -228,7 +228,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
              Task.async(fn -> {:last_30d, Uptime.calculate_uptime(:last_30d)} end)
            ]
 
-           stats = Task.await_many(tasks, 10_000) |> Map.new()
+           stats = safe_await_many(tasks) |> Enum.reject(&is_nil/1) |> Map.new()
            {:commit, stats, ttl: :timer.minutes(5)}
          end) do
       {:ok, stats} -> stats
@@ -279,6 +279,32 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
 
   # ── Data Loading ───────────────────────────────────────────────────
 
+  @doc """
+  Awaits multiple tasks, returning a keyword list of `{key, result}` tuples.
+  If any task crashes (e.g. DB connection lost), its result is replaced with
+  a safe default so the dashboard renders with partial data instead of a 500.
+  """
+  def safe_await_many(tasks, timeout \\ 10_000) do
+    require Logger
+
+    tasks
+    |> Task.yield_many(timeout)
+    |> Enum.map(fn
+      {_task, {:ok, result}} ->
+        result
+
+      {task, {:exit, reason}} ->
+        Logger.error("Dashboard task failed: #{inspect(reason)}")
+        Task.shutdown(task, :brutal_kill)
+        nil
+
+      {task, nil} ->
+        Logger.error("Dashboard task timed out")
+        Task.shutdown(task, :brutal_kill)
+        nil
+    end)
+  end
+
   def load_analytics(project_id) do
     case Cachex.fetch(:platform_cache, {:analytics, project_id}, fn _ ->
            tasks = [
@@ -292,7 +318,11 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
              end)
            ]
 
-           data = Task.await_many(tasks, 10_000) |> Map.new()
+           data =
+             safe_await_many(tasks)
+             |> Enum.reject(&is_nil/1)
+             |> Map.new()
+
            {:commit, data, ttl: :timer.minutes(5)}
          end) do
       {:ok, data} -> data
@@ -312,7 +342,11 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
       Task.async(fn -> Platform.list_pipelines(project.id) end)
     ]
 
-    [api_key, events, webhooks, deliveries, pipelines] = Task.await_many(tasks, 10_000)
+    [api_key, events, webhooks, deliveries, pipelines] = safe_await_many(tasks)
+    events = events || []
+    webhooks = webhooks || []
+    deliveries = deliveries || []
+    pipelines = pipelines || []
 
     {new_token, token_source} =
       case socket.assigns[:fresh_api_key] do
