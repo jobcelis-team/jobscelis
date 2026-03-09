@@ -52,6 +52,11 @@ defmodule StreamflixCore.Platform.Deliveries do
       attempt_number: d.attempt_number + 1,
       response_status: nil,
       response_body: nil,
+      response_headers: nil,
+      response_latency_ms: nil,
+      request_headers: nil,
+      request_body: nil,
+      destination_ip: nil,
       next_retry_at: nil
     })
     |> Repo.update()

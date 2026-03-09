@@ -171,14 +171,20 @@ type BatchResult struct {
 
 // Delivery represents a delivery attempt.
 type Delivery struct {
-	ID             string `json:"id"`
-	EventID        string `json:"event_id"`
-	WebhookID      string `json:"webhook_id"`
-	Status         string `json:"status"`
-	Attempt        int    `json:"attempt"`
-	ResponseStatus *int   `json:"response_status,omitempty"`
-	LatencyMs      *int   `json:"latency_ms,omitempty"`
-	InsertedAt     string `json:"inserted_at"`
+	ID                string             `json:"id"`
+	EventID           string             `json:"event_id"`
+	WebhookID         string             `json:"webhook_id"`
+	Status            string             `json:"status"`
+	AttemptNumber     int                `json:"attempt_number"`
+	ResponseStatus    *int               `json:"response_status,omitempty"`
+	ResponseBody      *string            `json:"response_body,omitempty"`
+	ResponseHeaders   map[string]string  `json:"response_headers,omitempty"`
+	ResponseLatencyMs *int               `json:"response_latency_ms,omitempty"`
+	RequestHeaders    map[string]string  `json:"request_headers,omitempty"`
+	RequestBody       *string            `json:"request_body,omitempty"`
+	DestinationIP     *string            `json:"destination_ip,omitempty"`
+	NextRetryAt       *string            `json:"next_retry_at,omitempty"`
+	InsertedAt        string             `json:"inserted_at"`
 }
 
 // DeadLetter represents a dead-lettered event.
