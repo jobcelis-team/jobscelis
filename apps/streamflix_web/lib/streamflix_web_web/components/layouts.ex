@@ -26,20 +26,22 @@ defmodule StreamflixWebWeb.Layouts do
         onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';"
         class={[
           "font-medium transition rounded px-1",
-          (@locale == "es" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"
+          (@locale == "es" && "text-slate-900 dark:text-slate-100 underline") ||
+            "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
         ]}
         aria-current={@locale == "es" && "page"}
       >
         ES
       </a>
-      <span class="text-slate-300" aria-hidden="true">|</span>
+      <span class="text-slate-300 dark:text-slate-600" aria-hidden="true">|</span>
       <a
         href="/locale/en"
         data-locale="en"
         onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000';"
         class={[
           "font-medium transition rounded px-1",
-          (@locale == "en" && "text-slate-900 underline") || "text-slate-500 hover:text-slate-700"
+          (@locale == "en" && "text-slate-900 dark:text-slate-100 underline") ||
+            "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
         ]}
         aria-current={@locale == "en" && "page"}
       >
@@ -74,7 +76,7 @@ defmodule StreamflixWebWeb.Layouts do
         <%!-- Logo --%>
         <a
           href="/"
-          class="flex items-center gap-2 text-xl font-bold text-slate-900 tracking-tight rounded shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          class="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white tracking-tight rounded shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           aria-label={gettext("Jobcelis - Ir al inicio")}
         >
           <img src={~p"/images/logo.png"} alt="" class="h-8 w-auto" width="32" height="32" /> Jobcelis
@@ -85,7 +87,8 @@ defmodule StreamflixWebWeb.Layouts do
             href="/docs"
             class={[
               "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
-              (@active_page == :docs && "text-indigo-600") || "text-slate-600 hover:text-slate-900"
+              (@active_page == :docs && "text-indigo-600 dark:text-indigo-400") ||
+                "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             ]}
           >
             <.icon name="hero-book-open" class="w-4 h-4" /> {gettext("Documentación")}
@@ -94,7 +97,8 @@ defmodule StreamflixWebWeb.Layouts do
             href="/faq"
             class={[
               "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
-              (@active_page == :faq && "text-indigo-600") || "text-slate-600 hover:text-slate-900"
+              (@active_page == :faq && "text-indigo-600 dark:text-indigo-400") ||
+                "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             ]}
           >
             <.icon name="hero-question-mark-circle" class="w-4 h-4" /> {gettext("FAQ")}
@@ -103,7 +107,8 @@ defmodule StreamflixWebWeb.Layouts do
             href="/pricing"
             class={[
               "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
-              (@active_page == :pricing && "text-indigo-600") || "text-slate-600 hover:text-slate-900"
+              (@active_page == :pricing && "text-indigo-600 dark:text-indigo-400") ||
+                "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             ]}
           >
             <.icon name="hero-heart" class="w-4 h-4" /> {gettext("Apoyar el proyecto")}
@@ -115,8 +120,8 @@ defmodule StreamflixWebWeb.Layouts do
               navigate="/platform"
               class={[
                 "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
-                (@active_page == :dashboard && "text-indigo-600") ||
-                  "text-slate-600 hover:text-slate-900"
+                (@active_page == :dashboard && "text-indigo-600 dark:text-indigo-400") ||
+                  "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               ]}
             >
               <.icon name="hero-squares-2x2" class="w-4 h-4" /> {gettext("Dashboard")}
@@ -125,8 +130,8 @@ defmodule StreamflixWebWeb.Layouts do
               navigate="/account"
               class={[
                 "font-medium text-sm transition rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
-                (@active_page == :account && "text-indigo-600") ||
-                  "text-slate-600 hover:text-slate-900"
+                (@active_page == :account && "text-indigo-600 dark:text-indigo-400") ||
+                  "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               ]}
             >
               <.icon name="hero-user-circle" class="w-4 h-4" /> {gettext("Cuenta")}
@@ -134,7 +139,7 @@ defmodule StreamflixWebWeb.Layouts do
             <%= if @current_user.role in ["admin", "superadmin"] do %>
               <a
                 href="/admin"
-                class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium text-sm rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <.icon name="hero-shield-check" class="w-4 h-4" /> {gettext("Admin")}
               </a>
@@ -142,14 +147,14 @@ defmodule StreamflixWebWeb.Layouts do
 
             <a
               href="/logout"
-              class="text-slate-600 hover:text-slate-900 font-medium text-sm rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium text-sm rounded inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" /> {gettext("Cerrar sesión")}
             </a>
           <% else %>
             <a
               href="/login"
-              class="text-slate-600 hover:text-slate-900 font-medium text-sm transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium text-sm transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               {gettext("Iniciar sesión")}
             </a>
@@ -164,7 +169,7 @@ defmodule StreamflixWebWeb.Layouts do
         <%!-- Mobile hamburger --%>
         <button
           type="button"
-          class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          class="lg:hidden p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           aria-label={gettext("Abrir menú")}
           phx-click={
             JS.toggle(to: "#mobile-menu-panel")
@@ -188,8 +193,9 @@ defmodule StreamflixWebWeb.Layouts do
             href="/docs"
             class={[
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
-              (@active_page == :docs && "bg-indigo-50 text-indigo-600") ||
-                "text-slate-700 hover:bg-slate-50"
+              (@active_page == :docs &&
+                 "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400") ||
+                "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
             ]}
           >
             <.icon name="hero-book-open" class="w-5 h-5" /> {gettext("Documentación")}
@@ -198,8 +204,9 @@ defmodule StreamflixWebWeb.Layouts do
             href="/faq"
             class={[
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
-              (@active_page == :faq && "bg-indigo-50 text-indigo-600") ||
-                "text-slate-700 hover:bg-slate-50"
+              (@active_page == :faq &&
+                 "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400") ||
+                "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
             ]}
           >
             <.icon name="hero-question-mark-circle" class="w-5 h-5" /> {gettext("FAQ")}
@@ -208,28 +215,30 @@ defmodule StreamflixWebWeb.Layouts do
             href="/pricing"
             class={[
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
-              (@active_page == :pricing && "bg-indigo-50 text-indigo-600") ||
-                "text-slate-700 hover:bg-slate-50"
+              (@active_page == :pricing &&
+                 "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400") ||
+                "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
             ]}
           >
             <.icon name="hero-heart" class="w-5 h-5" /> {gettext("Apoyar el proyecto")}
           </a>
-          <div class="border-t border-slate-100 my-2"></div>
+          <div class="border-t border-slate-100 dark:border-slate-700 my-2"></div>
 
           <div class="flex items-center gap-3 px-3 py-2">
             <.theme_toggle />
             <.locale_toggle locale={@locale} />
           </div>
 
-          <div class="border-t border-slate-100 my-2"></div>
+          <div class="border-t border-slate-100 dark:border-slate-700 my-2"></div>
 
           <%= if @current_user do %>
             <.link
               navigate="/platform"
               class={[
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
-                (@active_page == :dashboard && "bg-indigo-50 text-indigo-600") ||
-                  "text-slate-700 hover:bg-slate-50"
+                (@active_page == :dashboard &&
+                   "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400") ||
+                  "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
               ]}
             >
               <.icon name="hero-squares-2x2" class="w-5 h-5" /> {gettext("Dashboard")}
@@ -238,8 +247,9 @@ defmodule StreamflixWebWeb.Layouts do
               navigate="/account"
               class={[
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition",
-                (@active_page == :account && "bg-indigo-50 text-indigo-600") ||
-                  "text-slate-700 hover:bg-slate-50"
+                (@active_page == :account &&
+                   "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400") ||
+                  "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
               ]}
             >
               <.icon name="hero-user-circle" class="w-5 h-5" /> {gettext("Cuenta")}
