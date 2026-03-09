@@ -214,7 +214,7 @@ ctx := context.Background()
 params := url.Values{"status": {"failed"}, "webhook_id": {"wh-id"}}
 deliveries, err := client.ListDeliveries(ctx, params)
 for _, d := range deliveries.Data {
-    fmt.Printf("Delivery %s: status=%s attempt=%d\n", d.ID, d.Status, d.Attempt)
+    fmt.Printf("Delivery %s: status=%s attempt=%d latency=%dms\n", d.ID, d.Status, d.AttemptNumber, *d.ResponseLatencyMs)
 }
 
 // List all deliveries (no filters)

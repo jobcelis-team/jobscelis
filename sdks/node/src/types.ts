@@ -60,10 +60,15 @@ export interface Delivery {
   event_id: string;
   webhook_id: string;
   status: string;
-  attempt: number;
+  attempt_number: number;
   response_status: number | null;
   response_body: string | null;
-  latency_ms: number | null;
+  response_headers: Record<string, string> | null;
+  response_latency_ms: number | null;
+  request_headers: Record<string, string> | null;
+  request_body: string | null;
+  destination_ip: string | null;
+  next_retry_at: string | null;
   inserted_at: string;
 }
 
