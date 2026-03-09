@@ -344,8 +344,6 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     end
   end
 
-  defp truncate_body(_, _), do: nil
-
   @dialyzer {:nowarn_function, flatten_headers: 1}
   defp flatten_headers(%{} = headers), do: headers
 
