@@ -44,155 +44,163 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
   def render(assigns) do
     ~H"""
     <.admin_layout active="dashboard" current_user_role={@current_user_role}>
-      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 mb-6 sm:mb-8">
         {gettext("Dashboard")}
       </h1>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Usuarios")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Usuarios")}</p>
 
-          <p class="text-2xl font-bold">{@stats.total_users}</p>
+          <p class="text-2xl font-bold dark:text-slate-100">{@stats.total_users}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Proyectos")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Proyectos")}</p>
 
-          <p class="text-2xl font-bold">{@stats.total_projects}</p>
+          <p class="text-2xl font-bold dark:text-slate-100">{@stats.total_projects}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Eventos (total)")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Eventos (total)")}</p>
 
-          <p class="text-2xl font-bold">{@stats.total_events}</p>
+          <p class="text-2xl font-bold dark:text-slate-100">{@stats.total_events}</p>
         </div>
       </div>
       <%!-- System Metrics --%>
-      <h2 class="text-lg font-semibold text-gray-700 mb-3">{gettext("Sistema")}</h2>
+      <h2 class="text-lg font-semibold text-gray-700 dark:text-slate-300 mb-3">
+        {gettext("Sistema")}
+      </h2>
 
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Memoria BEAM")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Memoria BEAM")}</p>
 
-          <p class="text-2xl font-bold">{@system_metrics.memory_mb} MB</p>
+          <p class="text-2xl font-bold dark:text-slate-100">{@system_metrics.memory_mb} MB</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Procesos")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Procesos")}</p>
 
-          <p class="text-2xl font-bold">{@system_metrics.process_count}</p>
+          <p class="text-2xl font-bold dark:text-slate-100">{@system_metrics.process_count}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Uptime")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Uptime")}</p>
 
-          <p class="text-2xl font-bold">{@system_metrics.uptime}</p>
+          <p class="text-2xl font-bold dark:text-slate-100">{@system_metrics.uptime}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Run Queue")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Run Queue")}</p>
 
-          <p class="text-2xl font-bold">{@system_metrics.run_queue}</p>
+          <p class="text-2xl font-bold dark:text-slate-100">{@system_metrics.run_queue}</p>
         </div>
       </div>
       <%!-- Delivery Stats --%>
-      <h2 class="text-lg font-semibold text-gray-700 mb-3">
+      <h2 class="text-lg font-semibold text-gray-700 dark:text-slate-300 mb-3">
         {gettext("Entregas (últimas 24h)")}
       </h2>
 
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Total")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Total")}</p>
 
-          <p class="text-2xl font-bold">{@delivery_stats.total}</p>
+          <p class="text-2xl font-bold dark:text-slate-100">{@delivery_stats.total}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Exitosas")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Exitosas")}</p>
 
-          <p class="text-2xl font-bold text-emerald-600">{@delivery_stats.success}</p>
+          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            {@delivery_stats.success}
+          </p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Fallidas")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Fallidas")}</p>
 
-          <p class="text-2xl font-bold text-red-600">{@delivery_stats.failed}</p>
+          <p class="text-2xl font-bold text-red-600 dark:text-red-400">{@delivery_stats.failed}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Tasa de éxito")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Tasa de éxito")}</p>
 
-          <p class={"text-2xl font-bold #{if @delivery_stats.success_rate >= 95, do: "text-emerald-600", else: "text-amber-600"}"}>
+          <p class={"text-2xl font-bold #{if @delivery_stats.success_rate >= 95, do: "text-emerald-600 dark:text-emerald-400", else: "text-amber-600 dark:text-amber-400"}"}>
             {@delivery_stats.success_rate}%
           </p>
         </div>
       </div>
       <%!-- Oban Jobs Stats --%>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Jobs completados")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Jobs completados")}</p>
 
-          <p class="text-2xl font-bold text-emerald-600">{@oban_stats.completed}</p>
+          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            {@oban_stats.completed}
+          </p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Jobs ejecutándose")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Jobs ejecutándose")}</p>
 
-          <p class="text-2xl font-bold text-blue-600">{@oban_stats.executing}</p>
+          <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{@oban_stats.executing}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Jobs en cola")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Jobs en cola")}</p>
 
-          <p class="text-2xl font-bold text-amber-600">{@oban_stats.available}</p>
+          <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{@oban_stats.available}</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-          <p class="text-sm text-gray-500">{gettext("Jobs fallidos")}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
+          <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Jobs fallidos")}</p>
 
-          <p class="text-2xl font-bold text-red-600">{@oban_stats.discarded}</p>
+          <p class="text-2xl font-bold text-red-600 dark:text-red-400">{@oban_stats.discarded}</p>
         </div>
       </div>
       <%!-- Oban Recent Jobs --%>
-      <div class="bg-white rounded-lg shadow overflow-hidden mb-6 sm:mb-8">
-        <div class="p-4 sm:p-6 border-b">
-          <h2 class="text-lg font-semibold">{gettext("Jobs recientes (Oban)")}</h2>
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden mb-6 sm:mb-8">
+        <div class="p-4 sm:p-6 border-b dark:border-slate-700">
+          <h2 class="text-lg font-semibold dark:text-slate-100">
+            {gettext("Jobs recientes (Oban)")}
+          </h2>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead class="bg-gray-50 dark:bg-slate-700/50">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                   {gettext("Worker")}
                 </th>
 
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                   {gettext("Cola")}
                 </th>
 
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                   {gettext("Estado")}
                 </th>
 
-                <th class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                   {gettext("Intentos")}
                 </th>
 
-                <th class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th class="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
                   {gettext("Fecha")}
                 </th>
               </tr>
             </thead>
 
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
               <%= for job <- @oban_recent do %>
-                <tr>
-                  <td class="px-4 py-3 text-sm font-mono truncate max-w-[10rem]">
+                <tr class="dark:hover:bg-slate-700/50">
+                  <td class="px-4 py-3 text-sm font-mono truncate max-w-[10rem] dark:text-slate-300">
                     {short_worker(job.worker)}
                   </td>
 
-                  <td class="px-4 py-3 text-sm">{job.queue}</td>
+                  <td class="px-4 py-3 text-sm dark:text-slate-300">{job.queue}</td>
 
                   <td class="px-4 py-3">
                     <span class={"px-2 py-0.5 rounded text-xs font-medium #{oban_state_class(job.state)}"}>
@@ -200,11 +208,11 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
                     </span>
                   </td>
 
-                  <td class="hidden sm:table-cell px-4 py-3 text-sm text-gray-500">
+                  <td class="hidden sm:table-cell px-4 py-3 text-sm text-gray-500 dark:text-slate-400">
                     {job.attempt}/{job.max_attempts}
                   </td>
 
-                  <td class="hidden sm:table-cell px-4 py-3 text-sm text-gray-500">
+                  <td class="hidden sm:table-cell px-4 py-3 text-sm text-gray-500 dark:text-slate-400">
                     {Calendar.strftime(job.inserted_at, "%d/%m %H:%M")}
                   </td>
                 </tr>
@@ -212,7 +220,10 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
 
               <%= if @oban_recent == [] do %>
                 <tr>
-                  <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-400">
+                  <td
+                    colspan="5"
+                    class="px-4 py-6 text-center text-sm text-gray-400 dark:text-slate-500"
+                  >
                     {gettext("Sin jobs recientes")}
                   </td>
                 </tr>
@@ -222,24 +233,29 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="p-4 sm:p-6 border-b flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-          <h2 class="text-lg font-semibold">{gettext("Usuarios recientes")}</h2>
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
+        <div class="p-4 sm:p-6 border-b dark:border-slate-700 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <h2 class="text-lg font-semibold dark:text-slate-100">{gettext("Usuarios recientes")}</h2>
 
-          <.link navigate="/admin/users" class="text-blue-600 hover:underline text-sm">
+          <.link
+            navigate="/admin/users"
+            class="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+          >
             {gettext("Ver todos")}
           </.link>
         </div>
 
-        <div class="divide-y">
+        <div class="divide-y dark:divide-slate-700">
           <%= for user <- @recent_users do %>
-            <div class="p-3 sm:p-4 flex items-center justify-between gap-3">
+            <div class="p-3 sm:p-4 flex items-center justify-between gap-3 dark:hover:bg-slate-700/50">
               <div class="min-w-0">
-                <p class="font-medium truncate">{user.name || user.email}</p>
+                <p class="font-medium truncate dark:text-slate-100">{user.name || user.email}</p>
 
-                <p class="text-sm text-gray-500 truncate">{user.email}</p>
+                <p class="text-sm text-gray-500 dark:text-slate-400 truncate">{user.email}</p>
               </div>
-              <span class="px-2 py-1 rounded text-xs bg-gray-100 shrink-0">{user.role}</span>
+              <span class="px-2 py-1 rounded text-xs bg-gray-100 dark:bg-slate-700 dark:text-slate-300 shrink-0">
+                {user.role}
+              </span>
             </div>
           <% end %>
         </div>
@@ -252,7 +268,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     assigns = assign_new(assigns, :inner_block, fn -> [] end)
 
     ~H"""
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-gray-100 dark:bg-slate-900">
       <%!-- Mobile backdrop --%>
       <div
         id="admin-backdrop"
@@ -385,9 +401,9 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
       <%!-- Content area --%>
       <div class="md:ml-64 min-h-screen flex flex-col">
         <%!-- Mobile header --%>
-        <div class="md:hidden sticky top-0 z-20 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+        <div class="md:hidden sticky top-0 z-20 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-4 py-3 flex items-center gap-3">
           <button
-            class="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+            class="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
             phx-click={
               JS.remove_class("-translate-x-full", to: "#admin-sidebar")
               |> JS.remove_class("hidden", to: "#admin-backdrop")
@@ -403,7 +419,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
               />
             </svg>
           </button>
-          <span class="font-semibold text-gray-900">{gettext("Admin")}</span>
+          <span class="font-semibold text-gray-900 dark:text-slate-100">{gettext("Admin")}</span>
         </div>
 
         <div class="p-4 sm:p-6 md:p-8 flex-1">{render_slot(@inner_block)}</div>
@@ -516,10 +532,21 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     |> List.last()
   end
 
-  defp oban_state_class("completed"), do: "bg-emerald-100 text-emerald-700"
-  defp oban_state_class("executing"), do: "bg-blue-100 text-blue-700"
-  defp oban_state_class("available"), do: "bg-amber-100 text-amber-700"
-  defp oban_state_class("retryable"), do: "bg-orange-100 text-orange-700"
-  defp oban_state_class("discarded"), do: "bg-red-100 text-red-700"
-  defp oban_state_class(_), do: "bg-gray-100 text-gray-700"
+  defp oban_state_class("completed"),
+    do: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+
+  defp oban_state_class("executing"),
+    do: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
+
+  defp oban_state_class("available"),
+    do: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300"
+
+  defp oban_state_class("retryable"),
+    do: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300"
+
+  defp oban_state_class("discarded"),
+    do: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300"
+
+  defp oban_state_class(_),
+    do: "bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300"
 end

@@ -231,14 +231,14 @@ defmodule StreamflixWebWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div class="fieldset mb-2">
-      <label class="block text-slate-700 text-sm font-medium mb-1">
+      <label class="block text-slate-700 dark:text-slate-300 text-sm font-medium mb-1">
         <span :if={@label}>{@label}</span>
         <select
           id={@id}
           name={@name}
           class={[
             @class ||
-              "w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+              "w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
             @errors != [] && (@error_class || "border-red-500")
           ]}
           multiple={@multiple}
@@ -256,13 +256,13 @@ defmodule StreamflixWebWeb.CoreComponents do
   def input(%{type: "textarea"} = assigns) do
     ~H"""
     <div class="fieldset mb-2">
-      <label class="block text-slate-700 text-sm font-medium mb-1">
+      <label class="block text-slate-700 dark:text-slate-300 text-sm font-medium mb-1">
         <span :if={@label}>{@label}</span> <textarea
           id={@id}
           name={@name}
           class={[
             @class ||
-              "w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+              "w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
             @errors != [] && (@error_class || "border-red-500")
           ]}
           {@rest}
@@ -276,7 +276,7 @@ defmodule StreamflixWebWeb.CoreComponents do
   def input(%{type: "password"} = assigns) do
     ~H"""
     <div class="fieldset mb-2">
-      <label :if={@label} class="block text-slate-700 text-sm font-medium mb-1">
+      <label :if={@label} class="block text-slate-700 dark:text-slate-300 text-sm font-medium mb-1">
         <span>{@label}</span>
       </label>
       <div class="relative" id={"#{@id}-pw-wrap"} phx-hook="PasswordToggle">
@@ -287,7 +287,7 @@ defmodule StreamflixWebWeb.CoreComponents do
           value={Phoenix.HTML.Form.normalize_value("password", @value)}
           class={[
             @class ||
-              "w-full pl-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+              "w-full pl-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
             "!pr-12",
             @errors != [] && (@error_class || "border-red-500")
           ]}
@@ -297,7 +297,7 @@ defmodule StreamflixWebWeb.CoreComponents do
           type="button"
           data-pw-toggle-btn
           tabindex="-1"
-          class="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+          class="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none transition-colors"
         >
           <svg
             data-pw-icon-show
@@ -346,7 +346,7 @@ defmodule StreamflixWebWeb.CoreComponents do
   def input(assigns) do
     ~H"""
     <div class="fieldset mb-2">
-      <label class="block text-slate-700 text-sm font-medium mb-1">
+      <label class="block text-slate-700 dark:text-slate-300 text-sm font-medium mb-1">
         <span :if={@label}>{@label}</span>
         <input
           type={@type}
@@ -355,7 +355,7 @@ defmodule StreamflixWebWeb.CoreComponents do
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
             @class ||
-              "w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+              "w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
             @errors != [] && (@error_class || "border-red-500")
           ]}
           {@rest}
@@ -368,7 +368,7 @@ defmodule StreamflixWebWeb.CoreComponents do
 
   defp error(assigns) do
     ~H"""
-    <p class="mt-1.5 flex gap-2 items-center text-sm text-red-600">
+    <p class="mt-1.5 flex gap-2 items-center text-sm text-red-600 dark:text-red-400">
       <.icon name="hero-exclamation-circle" class="size-5" /> {render_slot(@inner_block)}
     </p>
     """
@@ -514,6 +514,52 @@ defmodule StreamflixWebWeb.CoreComponents do
     """
   end
 
+  @doc """
+  Renders a tooltip that appears on hover.
+
+  ## Attributes
+
+    * `text` — tooltip text (required)
+    * `position` — `"top"` (default) or `"bottom"`
+
+  ## Examples
+
+      <.tooltip text="This is helpful info">
+        <.icon name="hero-question-mark-circle" class="w-4 h-4 text-slate-400" />
+      </.tooltip>
+
+      <.tooltip text="Below the element" position="bottom">
+        <span>Hover me</span>
+      </.tooltip>
+  """
+  attr :text, :string, required: true
+  attr :position, :string, default: "top", values: ~w(top bottom)
+  slot :inner_block, required: true
+
+  def tooltip(assigns) do
+    ~H"""
+    <span class="group/tip relative inline-flex items-center cursor-help">
+      {render_slot(@inner_block)}
+      <span class={[
+        "pointer-events-none invisible opacity-0 group-hover/tip:visible group-hover/tip:opacity-100",
+        "absolute left-1/2 -translate-x-1/2 px-3 py-2 text-xs leading-relaxed text-white",
+        "bg-slate-800 dark:bg-slate-700 rounded-lg whitespace-normal max-w-xs w-max text-center",
+        "shadow-lg z-[100] transition-opacity duration-150",
+        @position == "top" && "bottom-full mb-2",
+        @position == "bottom" && "top-full mt-2"
+      ]}>
+        {@text}
+        <span class={[
+          "absolute left-1/2 -translate-x-1/2 border-4 border-transparent",
+          @position == "top" && "top-full border-t-slate-800 dark:border-t-slate-700",
+          @position == "bottom" && "bottom-full border-b-slate-800 dark:border-b-slate-700"
+        ]}>
+        </span>
+      </span>
+    </span>
+    """
+  end
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do
@@ -535,6 +581,180 @@ defmodule StreamflixWebWeb.CoreComponents do
         {"transition-all ease-in duration-200", "opacity-100 translate-y-0 sm:scale-100",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
     )
+  end
+
+  @doc """
+  Renders a custom confirmation modal triggered by phx-click.
+
+  Replaces browser `data-confirm` with a styled modal.
+
+  ## Examples
+
+      <.confirm_modal
+        id="delete-schema-confirm"
+        title={gettext("Confirmar eliminación")}
+        message={gettext("¿Eliminar este schema?")}
+        confirm_text={gettext("Eliminar")}
+        confirm_event="delete_schema"
+        confirm_value={%{id: schema.id}}
+        variant="danger"
+      />
+  """
+  attr :id, :string, required: true
+  attr :title, :string, default: nil
+  attr :message, :string, required: true
+  attr :confirm_text, :string, default: nil
+  attr :cancel_text, :string, default: nil
+  attr :confirm_event, :string, required: true
+  attr :confirm_value, :map, default: %{}
+  attr :variant, :string, default: "danger", values: ~w(danger warning)
+
+  def confirm_modal(assigns) do
+    assigns =
+      assigns
+      |> assign(:title, assigns.title || gettext("Confirmar acción"))
+      |> assign(:confirm_text, assigns.confirm_text || gettext("Confirmar"))
+      |> assign(:cancel_text, assigns.cancel_text || gettext("Cancelar"))
+
+    ~H"""
+    <div
+      id={@id}
+      class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4"
+      phx-mounted={JS.add_class("hidden", to: "##{@id}")}
+    >
+      <div
+        class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        phx-click={hide_confirm(@id)}
+        aria-hidden="true"
+      >
+      </div>
+      <div
+        class="relative z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm mx-auto p-6 border border-slate-200/50 dark:border-slate-700"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby={"#{@id}-title"}
+        aria-describedby={"#{@id}-desc"}
+      >
+        <div class="flex items-start gap-4">
+          <div class={[
+            "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center",
+            @variant == "danger" && "bg-red-100 dark:bg-red-900/30",
+            @variant == "warning" && "bg-amber-100 dark:bg-amber-900/30"
+          ]}>
+            <.icon
+              name="hero-exclamation-triangle"
+              class={[
+                "w-5 h-5",
+                @variant == "danger" && "text-red-600 dark:text-red-400",
+                @variant == "warning" && "text-amber-600 dark:text-amber-400"
+              ]}
+            />
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3
+              id={"#{@id}-title"}
+              class="text-base font-semibold text-slate-900 dark:text-slate-100"
+            >
+              {@title}
+            </h3>
+            <p id={"#{@id}-desc"} class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {@message}
+            </p>
+          </div>
+        </div>
+        <div class="mt-5 flex justify-end gap-3">
+          <button
+            type="button"
+            phx-click={hide_confirm(@id)}
+            class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition"
+          >
+            {@cancel_text}
+          </button>
+          <button
+            type="button"
+            phx-click={JS.push(@confirm_event, value: @confirm_value) |> hide_confirm(@id)}
+            class={[
+              "px-4 py-2 text-sm font-medium text-white rounded-lg transition",
+              @variant == "danger" && "bg-red-600 hover:bg-red-700",
+              @variant == "warning" && "bg-amber-600 hover:bg-amber-700"
+            ]}
+          >
+            {@confirm_text}
+          </button>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Shows a confirmation modal by ID. Used with `phx-click` on trigger buttons.
+  """
+  def show_confirm(js \\ %JS{}, id) do
+    js
+    |> JS.remove_class("hidden", to: "##{id}")
+    |> JS.transition({"ease-out duration-200", "opacity-0", "opacity-100"}, to: "##{id}")
+  end
+
+  defp hide_confirm(js \\ %JS{}, id) do
+    js
+    |> JS.transition({"ease-in duration-150", "opacity-100", "opacity-0"}, to: "##{id}")
+    |> JS.add_class("hidden", to: "##{id}")
+  end
+
+  @doc """
+  Renders a skeleton loading placeholder.
+
+  ## Examples
+
+      <.skeleton type="card" />
+      <.skeleton type="table" rows={5} />
+      <.skeleton type="text" lines={3} />
+  """
+  attr :type, :string, default: "card", values: ~w(card table text stat)
+  attr :rows, :integer, default: 3
+  attr :lines, :integer, default: 3
+
+  def skeleton(assigns) do
+    ~H"""
+    <%= case @type do %>
+      <% "card" -> %>
+        <div class="animate-pulse rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-4"></div>
+          <div class="space-y-3">
+            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-4/6"></div>
+          </div>
+        </div>
+      <% "table" -> %>
+        <div class="animate-pulse">
+          <div class="h-10 bg-slate-100 dark:bg-slate-700/50 rounded-t-lg mb-1"></div>
+          <%= for _i <- 1..@rows do %>
+            <div class="flex gap-4 py-3 px-4 border-b border-slate-100 dark:border-slate-700">
+              <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/6"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/5"></div>
+            </div>
+          <% end %>
+        </div>
+      <% "text" -> %>
+        <div class="animate-pulse space-y-2">
+          <%= for _i <- 1..@lines do %>
+            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+          <% end %>
+        </div>
+      <% "stat" -> %>
+        <div class="animate-pulse flex items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+          <div class="flex-1">
+            <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-2"></div>
+            <div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+          </div>
+        </div>
+    <% end %>
+    """
   end
 
   @doc """
