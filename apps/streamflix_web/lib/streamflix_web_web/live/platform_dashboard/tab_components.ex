@@ -15,544 +15,811 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
 
   def render_overview_tab(assigns) do
     ~H"""
-    <%!-- Row 1: API Token + Test Event (2 cols) --%>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-1">{gettext("API Token")}</h2>
-        <p class="text-slate-500 text-xs mb-3 break-words">
-          {gettext("Header:")}
-          <code class="bg-slate-100 px-1 rounded text-xs break-all">
-            Authorization: Bearer &lt;token&gt;
-          </code>
-          {gettext("o")} <code class="bg-slate-100 px-1 rounded text-xs">X-Api-Key</code>
-        </p>
-        {render_token_section(assigns)}
-      </section>
+    <%= if is_nil(@project) do %>
+      <%!-- Skeleton loading state --%>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <.skeleton type="card" />
+        <.skeleton type="card" />
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <.skeleton type="stat" />
+        <.skeleton type="stat" />
+        <.skeleton type="stat" />
+        <.skeleton type="stat" />
+      </div>
+      <.skeleton type="table" rows={5} />
+      <.skeleton type="table" rows={3} />
+    <% else %>
+      <%!-- Row 1: API Token + Test Event (2 cols) --%>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+          <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1">
+            {gettext("API Token")}
+          </h2>
+          <p class="text-slate-500 dark:text-slate-400 text-xs mb-3 break-words">
+            {gettext("Header:")}
+            <code class="bg-slate-100 dark:bg-slate-700 dark:text-slate-300 px-1 rounded text-xs break-all">
+              Authorization: Bearer &lt;token&gt;
+            </code>
+            {gettext("o")}
+            <code class="bg-slate-100 dark:bg-slate-700 dark:text-slate-300 px-1 rounded text-xs">
+              X-Api-Key
+            </code>
+          </p>
+          {render_token_section(assigns)}
+        </section>
 
-      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-3">
-          {gettext("Enviar evento de prueba")}
-        </h2>
-        <%= if can_manage_team?(@current_user_role) do %>
-          <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3">
-            <.input
-              type="text"
-              name="topic"
-              id="test-topic"
-              value={@test_topic}
-              placeholder={gettext("Topic (opcional)")}
-              class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm"
-            />
-            <.input
-              type="textarea"
-              name="payload"
-              id="test-payload"
-              value={@test_payload}
-              class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 font-mono text-sm"
-            />
-            <div class="flex flex-col sm:flex-row gap-2">
-              <button
-                type="submit"
-                phx-disable-with={gettext("Enviando...")}
-                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {gettext("Enviar")}
-              </button>
-              <button
-                type="button"
-                phx-click="simulate_event"
-                phx-value-topic={@test_topic}
-                phx-value-payload={@test_payload}
-                phx-disable-with={gettext("Simulando...")}
-                class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {gettext("Simular")}
-              </button>
+        <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+              <.icon name="hero-paper-airplane" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             </div>
-          </.form>
-          <%= if @simulation_result do %>
-            <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="font-semibold text-amber-900">{gettext("Resultado de simulación")}</h3>
+            <div>
+              <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+                {gettext("Enviar evento de prueba")}
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                {gettext("Prueba tu integración enviando un evento a tus webhooks")}
+              </p>
+            </div>
+          </div>
+          <%= if can_manage_team?(@current_user_role) do %>
+            <%!-- Quick templates --%>
+            <div class="mb-4">
+              <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                {gettext("Plantillas rápidas")}
+              </p>
+              <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  phx-click="close_simulation"
-                  class="text-amber-600 hover:text-amber-800 text-sm"
+                  phx-click="apply_test_template"
+                  phx-value-template="user_signup"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:border-indigo-300 dark:hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-xs font-medium text-slate-600 dark:text-slate-300 transition"
                 >
-                  {gettext("Cerrar")}
+                  <.icon
+                    name="hero-user-plus"
+                    class="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 transition"
+                  /> user.signup
+                </button>
+                <button
+                  type="button"
+                  phx-click="apply_test_template"
+                  phx-value-template="order_created"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-xs font-medium text-slate-600 dark:text-slate-300 transition"
+                >
+                  <.icon
+                    name="hero-shopping-cart"
+                    class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500 transition"
+                  /> order.created
+                </button>
+                <button
+                  type="button"
+                  phx-click="apply_test_template"
+                  phx-value-template="payment_completed"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:border-amber-300 dark:hover:border-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-xs font-medium text-slate-600 dark:text-slate-300 transition"
+                >
+                  <.icon
+                    name="hero-credit-card"
+                    class="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition"
+                  /> payment.completed
+                </button>
+                <button
+                  type="button"
+                  phx-click="apply_test_template"
+                  phx-value-template="invoice_paid"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:border-violet-300 dark:hover:border-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 text-xs font-medium text-slate-600 dark:text-slate-300 transition"
+                >
+                  <.icon
+                    name="hero-document-text"
+                    class="w-3.5 h-3.5 text-slate-400 group-hover:text-violet-500 transition"
+                  /> invoice.paid
                 </button>
               </div>
-              <%= if @simulation_result == [] do %>
-                <p class="text-sm text-amber-800">
-                  {gettext("Ningún webhook matchearía con este evento.")}
-                </p>
-              <% else %>
-                <p class="text-sm text-amber-800 mb-2">
-                  {gettext("%{count} webhook(s) recibirían este evento:",
-                    count: length(@simulation_result)
+            </div>
+            <.form for={%{}} id="test-event-form" phx-submit="send_test" class="space-y-3">
+              <div>
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("Topic (opcional)")}
+                </label>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-1">
+                  {gettext(
+                    "Un topic categoriza el evento (ej: order.created). Si se omite, se envía sin filtro de topic."
                   )}
                 </p>
-                <%= for sim <- @simulation_result do %>
-                  <div class="mt-2 p-3 bg-white border border-amber-100 rounded text-sm">
-                    <p class="font-mono text-xs text-slate-600 truncate">{sim.webhook_url}</p>
-                    <p class="text-xs text-slate-500 mt-1">
-                      {gettext("Topics")}:
-                      <span class="font-medium">{if sim.matched_by_topics, do: "✓", else: "✗"}</span>
-                      · {gettext("Filtros")}:
-                      <span class="font-medium">{if sim.matched_by_filters, do: "✓", else: "✗"}</span>
-                      <%= if sim.would_send_headers["x-signature"] do %>
-                        · {gettext("HMAC")}:
-                        <span class="font-mono text-xs">
-                          {String.slice(sim.would_send_headers["x-signature"], 0, 20)}...
+                <.input
+                  type="text"
+                  name="topic"
+                  id="test-topic"
+                  value={@test_topic}
+                  placeholder="user.signup"
+                  class="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 font-mono text-sm"
+                />
+              </div>
+              <div phx-hook="AutoResize" id="test-payload-wrap">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Payload (JSON)
+                </label>
+                <textarea
+                  name="payload"
+                  id="test-payload"
+                  rows="3"
+                  data-max-height="320"
+                  class="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 font-mono text-sm resize-none transition-[height] duration-150"
+                >{@test_payload}</textarea>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <button
+                  type="submit"
+                  phx-disable-with={gettext("Enviando...")}
+                  class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
+                >
+                  <.icon name="hero-paper-airplane" class="w-4 h-4" />
+                  {gettext("Enviar")}
+                </button>
+                <button
+                  type="button"
+                  phx-click="simulate_event"
+                  phx-value-topic={@test_topic}
+                  phx-value-payload={@test_payload}
+                  phx-disable-with={gettext("Simulando...")}
+                  class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg font-medium text-sm transition disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  <.icon name="hero-beaker" class="w-4 h-4" />
+                  {gettext("Simular")}
+                </button>
+              </div>
+            </.form>
+            <%= if @simulation_result do %>
+              <div class="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-semibold text-amber-900 dark:text-amber-200 flex items-center gap-2">
+                    <.icon name="hero-beaker" class="w-4 h-4" />
+                    {gettext("Resultado de simulación")}
+                  </h3>
+                  <button
+                    type="button"
+                    phx-click="close_simulation"
+                    class="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 text-sm"
+                  >
+                    <.icon name="hero-x-mark" class="w-4 h-4" />
+                  </button>
+                </div>
+                <%= if @simulation_result == [] do %>
+                  <p class="text-sm text-amber-800 dark:text-amber-300">
+                    {gettext("Ningún webhook matchearía con este evento.")}
+                  </p>
+                <% else %>
+                  <p class="text-sm text-amber-800 dark:text-amber-300 mb-2">
+                    {gettext("%{count} webhook(s) recibirían este evento:",
+                      count: length(@simulation_result)
+                    )}
+                  </p>
+                  <%= for sim <- @simulation_result do %>
+                    <div class="mt-2 p-3 bg-white dark:bg-slate-800 border border-amber-100 dark:border-amber-800 rounded-lg text-sm">
+                      <p class="font-mono text-xs text-slate-600 dark:text-slate-400 truncate">
+                        {sim.webhook_url}
+                      </p>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        {gettext("Topics")}:
+                        <span class="font-medium">
+                          {if sim.matched_by_topics, do: "✓", else: "✗"}
                         </span>
-                      <% end %>
-                    </p>
-                  </div>
+                        · {gettext("Filtros")}:
+                        <span class="font-medium">
+                          {if sim.matched_by_filters, do: "✓", else: "✗"}
+                        </span>
+                        <%= if sim.would_send_headers["x-signature"] do %>
+                          · {gettext("HMAC")}:
+                          <span class="font-mono text-xs">
+                            {String.slice(sim.would_send_headers["x-signature"], 0, 20)}...
+                          </span>
+                        <% end %>
+                      </p>
+                    </div>
+                  <% end %>
                 <% end %>
-              <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="flex items-center gap-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600">
+              <.icon name="hero-lock-closed" class="w-5 h-5 text-slate-400" />
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                {gettext("Solo lectura. No tienes permisos para enviar eventos.")}
+              </p>
             </div>
           <% end %>
-        <% else %>
-          <p class="text-sm text-slate-500 italic">
-            {gettext("Solo lectura. No tienes permisos para enviar eventos.")}
-          </p>
-        <% end %>
+        </section>
+      </div>
+
+      <%!-- System Health Status --%>
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class={[
+              "inline-block w-3 h-3 rounded-full",
+              uptime_dot_color(@uptime_status)
+            ]}>
+            </span>
+            <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Estado del sistema")}
+            </h2>
+            <span class={[
+              "px-2 py-0.5 rounded-full text-xs font-medium",
+              uptime_badge_color(@uptime_status)
+            ]}>
+              {uptime_label(@uptime_status)}
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 rounded-full text-xs font-medium text-slate-700">
+              {gettext("24h")}: {@uptime_stats.last_24h.uptime_percent}%
+            </span>
+            <span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 rounded-full text-xs font-medium text-slate-700">
+              {gettext("7d")}: {@uptime_stats.last_7d.uptime_percent}%
+            </span>
+            <span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 rounded-full text-xs font-medium text-slate-700">
+              {gettext("30d")}: {@uptime_stats.last_30d.uptime_percent}%
+            </span>
+          </div>
+        </div>
       </section>
-    </div>
 
-    <%!-- System Health Status --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <span class={[
-            "inline-block w-3 h-3 rounded-full",
-            uptime_dot_color(@uptime_status)
-          ]}>
-          </span>
-          <h2 class="text-base lg:text-lg font-semibold text-slate-900">
-            {gettext("Estado del sistema")}
-          </h2>
-          <span class={[
-            "px-2 py-0.5 rounded-full text-xs font-medium",
-            uptime_badge_color(@uptime_status)
-          ]}>
-            {uptime_label(@uptime_status)}
-          </span>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
-            {gettext("24h")}: {@uptime_stats.last_24h.uptime_percent}%
-          </span>
-          <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
-            {gettext("7d")}: {@uptime_stats.last_7d.uptime_percent}%
-          </span>
-          <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-700">
-            {gettext("30d")}: {@uptime_stats.last_30d.uptime_percent}%
-          </span>
-        </div>
-      </div>
-    </section>
-
-    <%!-- Row 2: Recent Events (full width) --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-4">
-        {gettext("Eventos recientes")}
-      </h2>
-      <div class="overflow-x-auto rounded-lg border border-slate-200">
-        <table class="min-w-full">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200">
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("ID")}
-              </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("Topic")}
-              </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("Estado")}
-              </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 hidden sm:table-cell">
-                {gettext("Fecha")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <%= for e <- Enum.take(@events, 10) do %>
-              <tr class="border-b border-slate-100 last:border-0">
-                <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600">
-                  {String.slice(e.id, 0, 8)}...
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-700 truncate max-w-[8rem] sm:max-w-none">
-                  {e.topic || "—"}
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3">
-                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
-                    {e.status}
-                  </span>
-                  <%= if e.deliver_at && DateTime.compare(e.deliver_at, DateTime.utc_now()) == :gt do %>
-                    <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700">
-                      {gettext("Programado")}
-                    </span>
-                  <% end %>
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600 hidden sm:table-cell">
-                  {format_dt(e.occurred_at)}
-                </td>
+      <%!-- Row 2: Recent Events (full width) --%>
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+          {gettext("Eventos recientes")}
+        </h2>
+        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+          <table class="min-w-full">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("ID")}
+                </th>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("Topic")}
+                </th>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("Estado")}
+                </th>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:table-cell">
+                  {gettext("Fecha")}
+                </th>
               </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </section>
+            </thead>
+            <tbody>
+              <%= if @events == [] do %>
+                <tr>
+                  <td colspan="4" class="px-4 py-12 text-center">
+                    <div class="flex flex-col items-center gap-2">
+                      <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-1">
+                        <.icon
+                          name="hero-bolt-slash"
+                          class="w-6 h-6 text-slate-400 dark:text-slate-500"
+                        />
+                      </div>
+                      <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {gettext("Sin eventos todavía")}
+                      </p>
+                      <p class="text-xs text-slate-400 dark:text-slate-500 max-w-xs">
+                        {gettext(
+                          "Envía tu primer evento usando la API o la sección de prueba de arriba."
+                        )}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              <% else %>
+                <%= for e <- Enum.take(@events, 10) do %>
+                  <tr class="border-b border-slate-100 dark:border-slate-700 last:border-0">
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                      {String.slice(e.id, 0, 8)}...
+                    </td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-700 dark:text-slate-300 truncate max-w-[8rem] sm:max-w-none">
+                      {e.topic || "—"}
+                    </td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3">
+                      <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                        {e.status}
+                      </span>
+                      <%= if e.deliver_at && DateTime.compare(e.deliver_at, DateTime.utc_now()) == :gt do %>
+                        <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                          {gettext("Programado")}
+                        </span>
+                      <% end %>
+                    </td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                      {format_dt(e.occurred_at)}
+                    </td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-    <%!-- Row 3: Webhooks Health (full width, compact) --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-4">{gettext("Webhooks")}</h2>
-      <div class="overflow-x-auto rounded-lg border border-slate-200">
-        <table class="min-w-full">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200">
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("URL")}
-              </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("Salud")}
-              </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("Estado")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <%= for w <- @webhooks do %>
-              <% health = @webhook_health[w.id] %>
-              <tr class="border-b border-slate-100 last:border-0">
-                <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600 truncate max-w-[8rem] sm:max-w-[12rem] lg:max-w-none">
-                  {w.url}
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3">
-                  <%= if health do %>
-                    <span
-                      title={"#{health.success_rate}% — #{health.total} #{gettext("entregas")} (24h)"}
-                      class={"inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium #{health_class(health.score)}"}
-                    >
-                      <span class={"w-2 h-2 rounded-full #{health_dot(health.score)}"}></span> {health_label(
-                        health.score
-                      )}
-                    </span>
-                  <% end %>
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3">
-                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
-                    {w.status}
-                  </span>
-                </td>
+      <%!-- Row 3: Webhooks Health (full width, compact) --%>
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+          {gettext("Webhooks")}
+        </h2>
+        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+          <table class="min-w-full">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("URL")}
+                </th>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("Salud")}
+                </th>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("Estado")}
+                </th>
               </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </section>
+            </thead>
+            <tbody>
+              <%= if @webhooks == [] do %>
+                <tr>
+                  <td colspan="3" class="px-4 py-12 text-center">
+                    <div class="flex flex-col items-center gap-2">
+                      <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-1">
+                        <.icon
+                          name="hero-link-slash"
+                          class="w-6 h-6 text-slate-400 dark:text-slate-500"
+                        />
+                      </div>
+                      <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {gettext("Sin webhooks configurados")}
+                      </p>
+                      <p class="text-xs text-slate-400 dark:text-slate-500 max-w-xs">
+                        {gettext(
+                          "Crea un webhook en la pestaña Webhooks para empezar a recibir eventos."
+                        )}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              <% else %>
+                <%= for w <- @webhooks do %>
+                  <% health = @webhook_health[w.id] %>
+                  <tr class="border-b border-slate-100 dark:border-slate-700 last:border-0">
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate max-w-[8rem] sm:max-w-[12rem] lg:max-w-none">
+                      {w.url}
+                    </td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3">
+                      <%= if health do %>
+                        <span
+                          title={"#{health.success_rate}% — #{health.total} #{gettext("entregas")} (24h)"}
+                          class={"inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium #{health_class(health.score)}"}
+                        >
+                          <span class={"w-2 h-2 rounded-full #{health_dot(health.score)}"}></span>
+                          {health_label(health.score)}
+                        </span>
+                      <% end %>
+                    </td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3">
+                      <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                        {w.status}
+                      </span>
+                    </td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    <% end %>
     """
   end
 
   # ===== TAB: EVENTS =====
   def render_events_tab(assigns) do
     ~H"""
-    <%!-- Events table (full width with export + search) --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900">
-          {gettext("Eventos recientes")}
-        </h2>
-        <div class="flex flex-wrap items-center gap-2">
-          <%!-- Search bar (#24) --%>
-          <.form for={%{}} id="event-search-form" phx-submit="search_events" class="flex gap-1">
-            <div class="relative">
-              <input
-                type="text"
-                name="q"
-                value={@search_query}
-                placeholder={gettext("Buscar por topic o ID...")}
-                class="w-40 sm:w-56 border border-slate-300 rounded-lg px-3 py-1.5 pl-8 text-xs sm:text-sm"
-              />
-              <.icon
-                name="hero-magnifying-glass"
-                class="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"
-              />
-            </div>
-            <%= if @search_query != "" do %>
-              <button
-                type="button"
-                phx-click="clear_search"
-                class="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
-              >
-                <.icon name="hero-x-mark" class="w-4 h-4" />
-              </button>
-            <% end %>
-          </.form>
-          <a
-            href="/export/events?format=csv"
-            target="_blank"
-            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
-          >
-            <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> CSV
-          </a>
-          <a
-            href="/export/events?format=json"
-            target="_blank"
-            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
-          >
-            <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> JSON
-          </a>
-        </div>
-      </div>
-      <%= if @search_results do %>
-        <p class="text-xs text-slate-500 mb-2">
-          {gettext("%{count} resultados para \"%{query}\"",
-            count: length(@search_results),
-            query: @search_query
-          )}
-        </p>
-      <% end %>
-      <div class="overflow-x-auto rounded-lg border border-slate-200">
-        <table class="min-w-full">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200">
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("ID")}
-              </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("Topic")}
-              </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
-                {gettext("Estado")}
-              </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 hidden sm:table-cell">
-                {gettext("Fecha")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <% display_events = @search_results || @events %>
-            <%= for e <- display_events do %>
-              <tr
-                class="border-b border-slate-100 last:border-0 hover:bg-indigo-50/50 cursor-pointer transition"
-                phx-click="show_event_detail"
-                phx-value-id={e.id}
-              >
-                <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-indigo-600">
-                  {String.slice(e.id, 0, 8)}...
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-700 truncate max-w-[8rem] sm:max-w-none">
-                  {e.topic || "—"}
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3">
-                  <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
-                    {e.status}
-                  </span>
-                  <%= if e.deliver_at && DateTime.compare(e.deliver_at, DateTime.utc_now()) == :gt do %>
-                    <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700">
-                      {gettext("Programado")}
-                    </span>
-                  <% end %>
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600 hidden sm:table-cell">
-                  {format_dt(e.occurred_at)}
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <%!-- Row 2: Event Schemas + Replay (2 cols) --%>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-      <%!-- Event Schemas --%>
-      <section class="bg-white rounded-xl border border-teal-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-        <div class="flex items-center gap-2 mb-4">
-          <.icon name="hero-document-check" class="w-5 h-5 text-teal-600" />
-          <h2 class="text-base lg:text-lg font-semibold text-slate-900">
-            {gettext("Event Schemas")}
+    <%= if is_nil(@project) do %>
+      <.skeleton type="table" rows={8} />
+    <% else %>
+      <%!-- Events table (full width with export + search) --%>
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {gettext("Eventos recientes")}
           </h2>
-        </div>
-        <%= if can_manage_team?(@current_user_role) do %>
-          <.form
-            for={%{}}
-            id="event-schema-form"
-            phx-submit="create_event_schema"
-            class="flex flex-col gap-2 mb-4"
-          >
-            <input
-              type="text"
-              name="topic"
-              placeholder={gettext("Topic (ej: order.created)")}
-              required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-            />
-            <textarea
-              name="schema"
-              rows="2"
-              placeholder={
-                gettext("JSON Schema (ej: {\"type\":\"object\",\"required\":[\"amount\"]})")
-              }
-              required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono"
-            ></textarea>
-            <button
-              type="submit"
-              phx-disable-with={gettext("Creando...")}
-              class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium"
+          <div class="flex flex-wrap items-center gap-2">
+            <%!-- Search bar (#24) --%>
+            <.form for={%{}} id="event-search-form" phx-submit="search_events" class="flex gap-1">
+              <div class="relative">
+                <input
+                  type="text"
+                  name="q"
+                  value={@search_query}
+                  placeholder={gettext("Buscar por topic o ID...")}
+                  class="w-40 sm:w-56 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-1.5 pl-8 text-xs sm:text-sm"
+                />
+                <.icon
+                  name="hero-magnifying-glass"
+                  class="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"
+                />
+              </div>
+              <%= if @search_query != "" do %>
+                <button
+                  type="button"
+                  phx-click="clear_search"
+                  class="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700 rounded-lg transition"
+                >
+                  <.icon name="hero-x-mark" class="w-4 h-4" />
+                </button>
+              <% end %>
+            </.form>
+            <a
+              href="/export/events?format=csv"
+              target="_blank"
+              class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
             >
-              {gettext("Crear")}
-            </button>
-          </.form>
-        <% end %>
-        <%= if @event_schemas == [] do %>
-          <p class="text-sm text-slate-500">
-            {gettext("Sin schemas. Los eventos no serán validados.")}
+              <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> CSV
+            </a>
+            <a
+              href="/export/events?format=json"
+              target="_blank"
+              class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
+            >
+              <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> JSON
+            </a>
+          </div>
+        </div>
+        <%= if @search_results do %>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
+            {gettext("%{count} resultados para \"%{query}\"",
+              count: length(@search_results),
+              query: @search_query
+            )}
           </p>
-        <% else %>
-          <div class="overflow-x-auto rounded-lg border border-slate-200">
-            <table class="min-w-full divide-y divide-slate-200">
-              <thead>
-                <tr class="bg-slate-50/80">
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
-                    {gettext("Topic")}
-                  </th>
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase hidden sm:table-cell">
-                    {gettext("Versión")}
-                  </th>
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
-                    {gettext("Estado")}
-                  </th>
-                  <th class="px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase">
-                    {gettext("Acciones")}
-                  </th>
+        <% end %>
+        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+          <table class="min-w-full">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("ID")}
+                </th>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("Topic")}
+                </th>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {gettext("Estado")}
+                </th>
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:table-cell">
+                  {gettext("Fecha")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <% display_events = @search_results || @events %>
+              <%= if display_events == [] do %>
+                <tr>
+                  <td colspan="4" class="px-4 py-12 text-center">
+                    <div class="flex flex-col items-center gap-2">
+                      <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-1">
+                        <.icon
+                          name="hero-bolt-slash"
+                          class="w-6 h-6 text-slate-400 dark:text-slate-500"
+                        />
+                      </div>
+                      <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {gettext("Sin eventos todavía")}
+                      </p>
+                      <p class="text-xs text-slate-400 dark:text-slate-500 max-w-xs">
+                        {gettext(
+                          "Envía tu primer evento usando la API o la sección de prueba en Overview."
+                        )}
+                      </p>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <%= for s <- @event_schemas do %>
-                  <tr class="hover:bg-slate-50/50 transition">
-                    <td class="px-3 py-2 text-sm text-slate-700 font-mono">{s.topic}</td>
-                    <td class="px-3 py-2 text-sm text-slate-600 hidden sm:table-cell">
-                      v{s.version}
+              <% else %>
+                <%= for e <- display_events do %>
+                  <tr
+                    class="border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 cursor-pointer transition"
+                    phx-click="show_event_detail"
+                    phx-value-id={e.id}
+                  >
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-indigo-600 dark:text-indigo-400">
+                      {String.slice(e.id, 0, 8)}...
                     </td>
-                    <td class="px-3 py-2">
-                      <span class="px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800">
-                        {s.status}
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-700 dark:text-slate-300 truncate max-w-[8rem] sm:max-w-none">
+                      {e.topic || "—"}
+                    </td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3">
+                      <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                        {e.status}
                       </span>
+                      <%= if e.deliver_at && DateTime.compare(e.deliver_at, DateTime.utc_now()) == :gt do %>
+                        <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                          {gettext("Programado")}
+                        </span>
+                      <% end %>
                     </td>
-                    <%= if can_manage_team?(@current_user_role) do %>
-                      <td class="px-3 py-2 text-right">
-                        <button
-                          phx-click="delete_event_schema"
-                          phx-value-id={s.id}
-                          phx-disable-with={gettext("Eliminando...")}
-                          data-confirm={gettext("¿Eliminar este schema?")}
-                          class="text-red-600 hover:text-red-700 text-xs font-medium disabled:opacity-50"
-                        >
-                          {gettext("Eliminar")}
-                        </button>
-                      </td>
-                    <% end %>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                      {format_dt(e.occurred_at)}
+                    </td>
                   </tr>
                 <% end %>
-              </tbody>
-            </table>
-          </div>
-        <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
       </section>
 
-      <%!-- Event Replay --%>
-      <section class="bg-white rounded-xl border border-blue-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div class="flex items-center gap-2">
-            <.icon name="hero-arrow-uturn-left" class="w-5 h-5 text-blue-600" />
-            <h2 class="text-base lg:text-lg font-semibold text-slate-900">
-              {gettext("Event Replay")}
+      <%!-- Row 2: Event Schemas + Replay (2 cols) --%>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <%!-- Event Schemas --%>
+        <section class="bg-white dark:bg-slate-800 rounded-xl border border-teal-200 dark:border-teal-800 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+          <div class="flex items-center gap-2 mb-4">
+            <.icon name="hero-document-check" class="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Event Schemas")}
             </h2>
           </div>
           <%= if can_manage_team?(@current_user_role) do %>
-            <button
-              type="button"
-              phx-click="open_replay_modal"
-              class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
+            <%!-- Quick schema templates --%>
+            <div class="mb-3">
+              <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                {gettext("Plantillas rápidas")}
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  phx-click="apply_schema_template"
+                  phx-value-template="order"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:border-teal-300 dark:hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 text-xs font-medium text-slate-600 dark:text-slate-300 transition"
+                >
+                  <.icon
+                    name="hero-shopping-cart"
+                    class="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-500 transition"
+                  /> order.created
+                </button>
+                <button
+                  type="button"
+                  phx-click="apply_schema_template"
+                  phx-value-template="user"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:border-teal-300 dark:hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 text-xs font-medium text-slate-600 dark:text-slate-300 transition"
+                >
+                  <.icon
+                    name="hero-user-plus"
+                    class="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-500 transition"
+                  /> user.signup
+                </button>
+                <button
+                  type="button"
+                  phx-click="apply_schema_template"
+                  phx-value-template="payment"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 hover:border-teal-300 dark:hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 text-xs font-medium text-slate-600 dark:text-slate-300 transition"
+                >
+                  <.icon
+                    name="hero-credit-card"
+                    class="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-500 transition"
+                  /> payment.completed
+                </button>
+              </div>
+            </div>
+            <.form
+              for={%{}}
+              id="event-schema-form"
+              phx-submit="create_event_schema"
+              class="flex flex-col gap-2 mb-4"
             >
-              <.icon name="hero-play" class="w-4 h-4" /> {gettext("Nuevo replay")}
-            </button>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Topic
+                </label>
+                <input
+                  type="text"
+                  name="topic"
+                  id="schema-topic-input"
+                  value={assigns[:schema_topic] || ""}
+                  placeholder="order.created"
+                  required
+                  class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm font-mono placeholder-slate-400"
+                />
+              </div>
+              <div phx-hook="AutoResize" id="schema-textarea-wrap">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  JSON Schema
+                </label>
+                <textarea
+                  name="schema"
+                  id="schema-json-input"
+                  rows="3"
+                  data-max-height="256"
+                  placeholder={"{\"type\": \"object\", \"required\": [\"amount\"]}"}
+                  required
+                  class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm font-mono placeholder-slate-400 resize-none transition-[height] duration-150"
+                >{assigns[:schema_body] || ""}</textarea>
+              </div>
+              <button
+                type="submit"
+                phx-disable-with={gettext("Creando...")}
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition shadow-sm"
+              >
+                <.icon name="hero-plus" class="w-4 h-4" />
+                {gettext("Crear")}
+              </button>
+            </.form>
           <% end %>
-        </div>
-        <%= if @replays == [] do %>
-          <p class="text-sm text-slate-500">
-            {gettext(
-              "No hay replays. Usa esta función para re-enviar eventos históricos a tus webhooks."
-            )}
-          </p>
-        <% else %>
-          <div class="overflow-x-auto rounded-lg border border-slate-200">
-            <table class="min-w-full divide-y divide-slate-200">
-              <thead>
-                <tr class="bg-slate-50/80">
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
-                    {gettext("Estado")}
-                  </th>
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
-                    {gettext("Progreso")}
-                  </th>
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase hidden sm:table-cell">
-                    {gettext("Fecha")}
-                  </th>
-                  <th class="px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase">
-                    {gettext("Acciones")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <%= for r <- @replays do %>
-                  <tr class="hover:bg-slate-50/50 transition">
-                    <td class="px-3 py-2">
-                      <span class={"inline-flex px-2 py-0.5 rounded text-xs font-medium #{replay_status_class(r.status)}"}>
-                        {replay_status_label(r.status)}
-                      </span>
-                    </td>
-                    <td class="px-3 py-2">
-                      <div class="flex items-center gap-2">
-                        <div class="flex-1 bg-slate-200 rounded-full h-2 max-w-[6rem] sm:max-w-[8rem]">
-                          <div
-                            class="bg-blue-600 h-2 rounded-full transition-all"
-                            style={"width: #{if r.total_events > 0, do: Float.round(r.processed_events / r.total_events * 100, 0), else: 0}%"}
-                          >
-                          </div>
-                        </div>
-                        <span class="text-xs text-slate-600">
-                          {r.processed_events}/{r.total_events}
-                        </span>
-                      </div>
-                    </td>
-                    <td class="px-3 py-2 text-sm text-slate-600 hidden sm:table-cell">
-                      {format_dt(r.inserted_at)}
-                    </td>
-                    <td class="px-3 py-2 text-right">
-                      <%= if r.status in ["pending", "running"] && can_manage_team?(@current_user_role) do %>
-                        <button
-                          phx-click="cancel_replay"
-                          phx-value-id={r.id}
-                          class="text-red-600 hover:text-red-700 font-medium text-xs"
-                        >
-                          {gettext("Cancelar")}
-                        </button>
-                      <% end %>
-                    </td>
+          <%= if @event_schemas == [] do %>
+            <div class="text-center py-6">
+              <.icon
+                name="hero-document-check"
+                class="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-600"
+              />
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+                {gettext("Sin schemas")}
+              </p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs mx-auto">
+                {gettext(
+                  "Define schemas JSON para validar los payloads de tus eventos antes de procesarlos."
+                )}
+              </p>
+            </div>
+          <% else %>
+            <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead>
+                  <tr class="bg-slate-50/80 dark:bg-slate-800">
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                      {gettext("Topic")}
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase hidden sm:table-cell">
+                      {gettext("Versión")}
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                      {gettext("Estado")}
+                    </th>
+                    <th class="px-3 py-2 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                      {gettext("Acciones")}
+                    </th>
                   </tr>
-                <% end %>
-              </tbody>
-            </table>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                  <%= for s <- @event_schemas do %>
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition">
+                      <td class="px-3 py-2 text-sm text-slate-700 dark:text-slate-300 font-mono">
+                        {s.topic}
+                      </td>
+                      <td class="px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                        v{s.version}
+                      </td>
+                      <td class="px-3 py-2">
+                        <span class="px-2 py-0.5 rounded text-xs font-medium bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-400">
+                          {s.status}
+                        </span>
+                      </td>
+                      <%= if can_manage_team?(@current_user_role) do %>
+                        <td class="px-3 py-2 text-right">
+                          <button
+                            phx-click={show_confirm("confirm-delete-schema-#{s.id}")}
+                            phx-disable-with={gettext("Eliminando...")}
+                            class="text-red-600 hover:text-red-700 text-xs font-medium disabled:opacity-50"
+                          >
+                            {gettext("Eliminar")}
+                          </button>
+                          <.confirm_modal
+                            id={"confirm-delete-schema-#{s.id}"}
+                            title={gettext("Confirmar eliminación")}
+                            message={gettext("¿Eliminar este schema?")}
+                            confirm_text={gettext("Eliminar")}
+                            confirm_event="delete_event_schema"
+                            confirm_value={%{id: s.id}}
+                            variant="danger"
+                          />
+                        </td>
+                      <% end %>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+        </section>
+
+        <%!-- Event Replay --%>
+        <section class="bg-white dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-blue-800 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-2">
+              <.icon name="hero-arrow-uturn-left" class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+                {gettext("Event Replay")}
+              </h2>
+            </div>
+            <%= if can_manage_team?(@current_user_role) do %>
+              <button
+                type="button"
+                phx-click="open_replay_modal"
+                class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
+              >
+                <.icon name="hero-play" class="w-4 h-4" /> {gettext("Nuevo replay")}
+              </button>
+            <% end %>
           </div>
-        <% end %>
-      </section>
-    </div>
+          <%= if @replays == [] do %>
+            <div class="text-center py-8">
+              <.icon
+                name="hero-arrow-path"
+                class="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-600"
+              />
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+                {gettext("Sin replays")}
+              </p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs mx-auto">
+                {gettext("Usa esta función para re-enviar eventos históricos a tus webhooks.")}
+              </p>
+            </div>
+          <% else %>
+            <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead>
+                  <tr class="bg-slate-50/80 dark:bg-slate-800">
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                      {gettext("Estado")}
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                      {gettext("Progreso")}
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase hidden sm:table-cell">
+                      {gettext("Fecha")}
+                    </th>
+                    <th class="px-3 py-2 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                      {gettext("Acciones")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                  <%= for r <- @replays do %>
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition">
+                      <td class="px-3 py-2">
+                        <span class={"inline-flex px-2 py-0.5 rounded text-xs font-medium #{replay_status_class(r.status)}"}>
+                          {replay_status_label(r.status)}
+                        </span>
+                      </td>
+                      <td class="px-3 py-2">
+                        <div class="flex items-center gap-2">
+                          <div class="flex-1 bg-slate-200 dark:bg-slate-600 rounded-full h-2 max-w-[6rem] sm:max-w-[8rem]">
+                            <div
+                              class="bg-blue-600 h-2 rounded-full transition-all"
+                              style={"width: #{if r.total_events > 0, do: Float.round(r.processed_events / r.total_events * 100, 0), else: 0}%"}
+                            >
+                            </div>
+                          </div>
+                          <span class="text-xs text-slate-600 dark:text-slate-400">
+                            {r.processed_events}/{r.total_events}
+                          </span>
+                        </div>
+                      </td>
+                      <td class="px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                        {format_dt(r.inserted_at)}
+                      </td>
+                      <td class="px-3 py-2 text-right">
+                        <%= if r.status in ["pending", "running"] && can_manage_team?(@current_user_role) do %>
+                          <button
+                            phx-click="cancel_replay"
+                            phx-value-id={r.id}
+                            class="text-red-600 hover:text-red-700 font-medium text-xs"
+                          >
+                            {gettext("Cancelar")}
+                          </button>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+        </section>
+      </div>
+    <% end %>
     """
   end
 
@@ -560,9 +827,11 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
   def render_webhooks_tab(assigns) do
     ~H"""
     <%!-- Webhooks table --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Webhooks")}</h2>
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {gettext("Webhooks")}
+        </h2>
         <%= if can_manage_team?(@current_user_role) do %>
           <button
             type="button"
@@ -574,124 +843,172 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           </button>
         <% end %>
       </div>
-      <div class="overflow-x-auto rounded-lg border border-slate-200">
+      <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
         <table class="min-w-full">
           <thead>
-            <tr class="bg-slate-50 border-b border-slate-200">
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
+            <tr class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                 {gettext("URL")}
               </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 hidden sm:table-cell">
+              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:table-cell">
                 {gettext("Topics")}
               </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
+              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                 {gettext("Salud")}
               </th>
-              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700">
+              <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                 {gettext("Estado")}
               </th>
               <%= if can_manage_team?(@current_user_role) do %>
-                <th class="px-3 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm font-medium text-slate-700">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                   {gettext("Acciones")}
                 </th>
               <% end %>
             </tr>
           </thead>
           <tbody>
-            <%= for w <- @webhooks do %>
-              <% health = @webhook_health[w.id] %>
-              <tr class={"border-b border-slate-100 last:border-0 #{if w.status == "inactive", do: "opacity-50"}"}>
-                <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600 truncate max-w-[8rem] sm:max-w-[12rem] lg:max-w-none">
-                  {w.url}
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3 hidden sm:table-cell">
-                  <%= if w.topics && w.topics != [] do %>
-                    <div class="flex flex-wrap gap-1">
-                      <%= for topic <- Enum.take(w.topics, 3) do %>
-                        <span class="px-1.5 py-0.5 rounded text-xs bg-slate-100 text-slate-600">
-                          {topic}
-                        </span>
-                      <% end %>
-                      <%= if length(w.topics) > 3 do %>
-                        <span class="text-xs text-slate-400">
-                          +{length(w.topics) - 3}
-                        </span>
-                      <% end %>
+            <%= if @webhooks == [] do %>
+              <tr>
+                <td
+                  colspan={if can_manage_team?(@current_user_role), do: "5", else: "4"}
+                  class="px-4 py-16 text-center"
+                >
+                  <div class="flex flex-col items-center gap-3">
+                    <div class="w-14 h-14 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
+                      <.icon
+                        name="hero-globe-alt"
+                        class="w-7 h-7 text-indigo-400 dark:text-indigo-500"
+                      />
                     </div>
-                  <% else %>
-                    <span class="text-xs text-slate-400">{gettext("Todos")}</span>
-                  <% end %>
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3">
-                  <%= if health do %>
-                    <span
-                      title={"#{health.success_rate}% — #{health.total} #{gettext("entregas")} (24h)"}
-                      class={"inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium #{health_class(health.score)}"}
-                    >
-                      <span class={"w-2 h-2 rounded-full #{health_dot(health.score)}"}></span> {health_label(
-                        health.score
-                      )}
-                    </span>
-                  <% end %>
-                </td>
-                <td class="px-3 sm:px-4 py-2 sm:py-3">
-                  <span class={[
-                    "px-2 py-0.5 rounded text-xs font-medium",
-                    if(w.status == "active",
-                      do: "bg-emerald-100 text-emerald-700",
-                      else: "bg-slate-100 text-slate-500"
-                    )
-                  ]}>
-                    {w.status}
-                  </span>
-                </td>
-                <%= if can_manage_team?(@current_user_role) do %>
-                  <td class="px-3 sm:px-4 py-2 sm:py-3 text-right">
-                    <div class="flex items-center justify-end gap-1">
+                    <div>
+                      <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        {gettext("Sin webhooks configurados")}
+                      </p>
+                      <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">
+                        {gettext(
+                          "Los webhooks envían eventos a tu servidor en tiempo real. Crea uno para empezar a recibir notificaciones."
+                        )}
+                      </p>
+                    </div>
+                    <%= if can_manage_team?(@current_user_role) do %>
                       <button
                         type="button"
-                        phx-click="edit_webhook"
-                        phx-value-id={w.id}
-                        class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition"
-                        title={gettext("Editar")}
+                        phx-click="new_webhook"
+                        class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-sm"
                       >
-                        <.icon name="hero-pencil-square" class="w-4 h-4" />
+                        <.icon name="hero-plus" class="w-4 h-4" />
+                        {gettext("Crear webhook")}
                       </button>
-                      <%= if w.status == "active" do %>
-                        <button
-                          type="button"
-                          phx-click="deactivate_webhook"
-                          phx-value-id={w.id}
-                          data-confirm={gettext("¿Desactivar este webhook?")}
-                          class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
-                          title={gettext("Desactivar")}
-                        >
-                          <.icon name="hero-pause-circle" class="w-4 h-4" />
-                        </button>
-                      <% else %>
-                        <button
-                          type="button"
-                          phx-click="activate_webhook"
-                          phx-value-id={w.id}
-                          class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition"
-                          title={gettext("Activar")}
-                        >
-                          <.icon name="hero-play-circle" class="w-4 h-4" />
-                        </button>
-                      <% end %>
-                    </div>
-                  </td>
-                <% end %>
+                    <% end %>
+                  </div>
+                </td>
               </tr>
+            <% else %>
+              <%= for w <- @webhooks do %>
+                <% health = @webhook_health[w.id] %>
+                <tr class={"border-b border-slate-100 dark:border-slate-700 last:border-0 #{if w.status == "inactive", do: "opacity-50"}"}>
+                  <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate max-w-[8rem] sm:max-w-[12rem] lg:max-w-none">
+                    {w.url}
+                  </td>
+                  <td class="px-3 sm:px-4 py-2 sm:py-3 hidden sm:table-cell">
+                    <%= if w.topics && w.topics != [] do %>
+                      <div class="flex flex-wrap gap-1">
+                        <%= for topic <- Enum.take(w.topics, 3) do %>
+                          <span class="px-1.5 py-0.5 rounded text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400">
+                            {topic}
+                          </span>
+                        <% end %>
+                        <%= if length(w.topics) > 3 do %>
+                          <span class="text-xs text-slate-400 dark:text-slate-500">
+                            +{length(w.topics) - 3}
+                          </span>
+                        <% end %>
+                      </div>
+                    <% else %>
+                      <span class="text-xs text-slate-400 dark:text-slate-500">
+                        {gettext("Todos")}
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="px-3 sm:px-4 py-2 sm:py-3">
+                    <%= if health do %>
+                      <span
+                        title={"#{health.success_rate}% — #{health.total} #{gettext("entregas")} (24h)"}
+                        class={"inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium #{health_class(health.score)}"}
+                      >
+                        <span class={"w-2 h-2 rounded-full #{health_dot(health.score)}"}></span> {health_label(
+                          health.score
+                        )}
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="px-3 sm:px-4 py-2 sm:py-3">
+                    <span class={[
+                      "px-2 py-0.5 rounded text-xs font-medium",
+                      if(w.status == "active",
+                        do:
+                          "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
+                        else: "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+                      )
+                    ]}>
+                      {w.status}
+                    </span>
+                  </td>
+                  <%= if can_manage_team?(@current_user_role) do %>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-right">
+                      <div class="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          phx-click="edit_webhook"
+                          phx-value-id={w.id}
+                          class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
+                          title={gettext("Editar")}
+                        >
+                          <.icon name="hero-pencil-square" class="w-4 h-4" />
+                        </button>
+                        <%= if w.status == "active" do %>
+                          <button
+                            type="button"
+                            phx-click={show_confirm("confirm-deactivate-wh-#{w.id}")}
+                            class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                            title={gettext("Desactivar")}
+                          >
+                            <.icon name="hero-pause-circle" class="w-4 h-4" />
+                          </button>
+                          <.confirm_modal
+                            id={"confirm-deactivate-wh-#{w.id}"}
+                            title={gettext("Confirmar desactivación")}
+                            message={gettext("¿Desactivar este webhook?")}
+                            confirm_text={gettext("Desactivar")}
+                            confirm_event="deactivate_webhook"
+                            confirm_value={%{id: w.id}}
+                            variant="warning"
+                          />
+                        <% else %>
+                          <button
+                            type="button"
+                            phx-click="activate_webhook"
+                            phx-value-id={w.id}
+                            class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition"
+                            title={gettext("Activar")}
+                          >
+                            <.icon name="hero-play-circle" class="w-4 h-4" />
+                          </button>
+                        <% end %>
+                      </div>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
             <% end %>
           </tbody>
         </table>
       </div>
     </section>
 
-    <%!-- Webhook create/edit modal --%>
+    <%!-- Webhook create/edit modal (2-step wizard) --%>
     <%= if @webhook_modal do %>
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
         <div
           class="absolute inset-0 bg-black/50 backdrop-blur-sm"
           phx-click="close_webhook_modal"
@@ -699,89 +1016,223 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
         >
         </div>
         <div
-          class="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+          class="relative z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg mx-auto border border-slate-200/50 dark:border-slate-700 max-h-[90vh] overflow-y-auto"
           role="dialog"
           aria-modal="true"
         >
-          <div class="px-6 pt-6 pb-4 flex items-start justify-between">
-            <h2 class="text-lg font-semibold text-slate-900">
-              {if @webhook_modal == :new,
-                do: gettext("Crear webhook"),
-                else: gettext("Editar webhook")}
-            </h2>
+          <%!-- Header --%>
+          <div class="px-6 pt-6 pb-4 flex items-start justify-between border-b border-slate-200 dark:border-slate-700">
+            <div>
+              <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                {if @webhook_modal == :new,
+                  do: gettext("Crear webhook"),
+                  else: gettext("Editar webhook")}
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {gettext("Paso %{current} de %{total}", current: @webhook_step, total: 2)}
+              </p>
+            </div>
             <button
               type="button"
               phx-click="close_webhook_modal"
-              class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+              class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <.icon name="hero-x-mark" class="w-5 h-5" />
             </button>
           </div>
-          <form phx-submit="save_webhook" class="px-6 pb-6 space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">{gettext("URL")}</label>
-              <input
-                type="url"
-                name="webhook[url]"
-                value={@webhook_form["url"]}
-                required
-                placeholder={gettext("https://ejemplo.com/webhook")}
-                class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-              />
+
+          <%!-- Step indicator --%>
+          <div class="px-6 pt-4 flex items-center gap-3">
+            <button
+              type="button"
+              phx-click="webhook_step"
+              phx-value-step="1"
+              class={"flex items-center gap-2 text-sm font-medium transition " <> if(@webhook_step == 1, do: "text-indigo-600 dark:text-indigo-400", else: "text-slate-400 dark:text-slate-500 hover:text-slate-600")}
+            >
+              <span class={"w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition " <> if(@webhook_step == 1, do: "border-indigo-600 bg-indigo-600 text-white dark:border-indigo-400 dark:bg-indigo-500", else: "border-slate-300 dark:border-slate-600 text-slate-400")}>
+                1
+              </span>
+              {gettext("Destino")}
+            </button>
+            <div class="flex-1 h-0.5 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <button
+              type="button"
+              phx-click="webhook_step"
+              phx-value-step="2"
+              class={"flex items-center gap-2 text-sm font-medium transition " <> if(@webhook_step == 2, do: "text-indigo-600 dark:text-indigo-400", else: "text-slate-400 dark:text-slate-500 hover:text-slate-600")}
+            >
+              <span class={"w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition " <> if(@webhook_step == 2, do: "border-indigo-600 bg-indigo-600 text-white dark:border-indigo-400 dark:bg-indigo-500", else: "border-slate-300 dark:border-slate-600 text-slate-400")}>
+                2
+              </span>
+              {gettext("Filtros y seguridad")}
+            </button>
+          </div>
+
+          <form
+            phx-submit="save_webhook"
+            phx-change="webhook_form_change"
+            class="px-6 pb-6 pt-4 space-y-4"
+          >
+            <%!-- STEP 1: Destination --%>
+            <div class={if @webhook_step != 1, do: "hidden"}>
+              <%!-- Info box --%>
+              <div class="flex gap-3 p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800/50 mb-4">
+                <.icon
+                  name="hero-information-circle"
+                  class="w-5 h-5 text-indigo-500 dark:text-indigo-400 flex-shrink-0 mt-0.5"
+                />
+                <p class="text-sm text-indigo-700 dark:text-indigo-300">
+                  {gettext(
+                    "Un webhook envía datos automáticamente a una URL cada vez que ocurre un evento en tu proyecto. Tu servidor recibirá un POST con el payload del evento."
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  {gettext("URL de destino")}
+                </label>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-1.5">
+                  {gettext("La URL de tu servidor que recibirá los eventos vía HTTP POST.")}
+                </p>
+                <input
+                  type="url"
+                  name="webhook[url]"
+                  value={@webhook_form["url"]}
+                  required
+                  placeholder="https://api.example.com/webhooks/receive"
+                  class="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+                <%= for err <- @webhook_form_errors do %>
+                  <p class="mt-1 text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
+                    <.icon name="hero-exclamation-circle" class="w-3.5 h-3.5" />{err}
+                  </p>
+                <% end %>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+                  {gettext("Debe ser una URL HTTPS accesible públicamente.")}
+                </p>
+              </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">
-                {gettext("Topics")}
-                <span class="font-normal text-slate-400">
-                  ({gettext("separados por coma, vacío = todos")})
-                </span>
-              </label>
-              <input
-                type="text"
-                name="webhook[topics]"
-                value={@webhook_form["topics"]}
-                placeholder={gettext("user.created, order.paid")}
-                class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-              />
+
+            <%!-- STEP 2: Filters & Security --%>
+            <div class={if @webhook_step != 2, do: "hidden"}>
+              <%!-- Topics --%>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  {gettext("Topics")}
+                  <span class="font-normal text-slate-400 dark:text-slate-500 ml-1">
+                    ({gettext("opcional")})
+                  </span>
+                </label>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-1.5">
+                  {gettext(
+                    "Filtra qué eventos recibe este webhook. Vacío = recibe todos los eventos."
+                  )}
+                </p>
+                <input
+                  type="text"
+                  name="webhook[topics]"
+                  value={@webhook_form["topics"]}
+                  placeholder="user.created, order.paid, payment.failed"
+                  class="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-slate-100 font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+                  {gettext("Separados por coma, ej: order.created, payment.failed")}
+                </p>
+              </div>
+
+              <%!-- HMAC Secret --%>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  {gettext("Secreto HMAC")}
+                  <span class="font-normal text-slate-400 dark:text-slate-500 ml-1">
+                    ({gettext("opcional")})
+                  </span>
+                </label>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-1.5">
+                  {gettext(
+                    "Secreto para firmar payloads. Tu servidor verifica la firma en el header x-signature."
+                  )}
+                </p>
+                <input
+                  type="password"
+                  name="webhook[secret]"
+                  value=""
+                  placeholder="whsec_..."
+                  autocomplete="off"
+                  class="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+                  {if @webhook_modal == :new,
+                    do:
+                      gettext(
+                        "Si lo defines, cada entrega incluirá un header x-signature con la firma HMAC."
+                      ),
+                    else: gettext("Dejar vacío para mantener el secreto actual.")}
+                </p>
+              </div>
+
+              <%!-- Security info --%>
+              <div class="flex gap-3 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 mt-4">
+                <.icon
+                  name="hero-shield-check"
+                  class="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5"
+                />
+                <div class="text-sm text-amber-700 dark:text-amber-300">
+                  <p class="font-medium">{gettext("Verificación de firma")}</p>
+                  <p class="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
+                    {gettext(
+                      "Recomendamos definir un secreto HMAC para verificar que los eventos provienen de Jobcelis y no de un tercero."
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">
-                {gettext("Secreto HMAC")}
-                <span class="font-normal text-slate-400">
-                  ({gettext("opcional, dejar vacío para mantener el actual")})
-                </span>
-              </label>
-              <input
-                type="password"
-                name="webhook[secret]"
-                value=""
-                placeholder="whsec_..."
-                autocomplete="off"
-                class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-              />
-            </div>
-            <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
-              <button
-                type="button"
-                phx-click="close_webhook_modal"
-                class="w-full sm:w-auto px-4 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition"
-              >
-                {gettext("Cancelar")}
-              </button>
-              <button
-                type="submit"
-                phx-disable-with={gettext("Guardando...")}
-                class="w-full sm:w-auto px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
-              >
-                {if @webhook_modal == :new, do: gettext("Crear"), else: gettext("Guardar")}
-              </button>
+
+            <%!-- Navigation buttons --%>
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+              <div>
+                <%= if @webhook_step > 1 do %>
+                  <button
+                    type="button"
+                    phx-click="webhook_step"
+                    phx-value-step={@webhook_step - 1}
+                    class="w-full sm:w-auto px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium transition"
+                  >
+                    {gettext("Anterior")}
+                  </button>
+                <% else %>
+                  <button
+                    type="button"
+                    phx-click="close_webhook_modal"
+                    class="w-full sm:w-auto px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium transition"
+                  >
+                    {gettext("Cancelar")}
+                  </button>
+                <% end %>
+              </div>
+              <div>
+                <%= if @webhook_step < 2 do %>
+                  <button
+                    type="button"
+                    phx-click="webhook_step"
+                    phx-value-step={@webhook_step + 1}
+                    class="w-full sm:w-auto px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
+                  >
+                    {gettext("Siguiente")}
+                  </button>
+                <% else %>
+                  <button
+                    type="submit"
+                    phx-disable-with={gettext("Guardando...")}
+                    class="w-full sm:w-auto px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition disabled:opacity-70"
+                  >
+                    {if @webhook_modal == :new,
+                      do: gettext("Crear webhook"),
+                      else: gettext("Guardar cambios")}
+                  </button>
+                <% end %>
+              </div>
             </div>
           </form>
         </div>
@@ -789,101 +1240,128 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
     <% end %>
 
     <%!-- Deliveries --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Entregas")}</h2>
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {gettext("Entregas")}
+        </h2>
         <div class="flex flex-wrap gap-2">
           <a
             href="/export/deliveries?format=csv"
             target="_blank"
-            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
           >
             <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> CSV
           </a>
           <a
             href="/export/deliveries?format=json"
             target="_blank"
-            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
           >
             <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> JSON
           </a>
         </div>
       </div>
-      <div class="overflow-x-auto rounded-xl border border-slate-200">
-        <table class="min-w-full divide-y divide-slate-200">
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
           <thead>
-            <tr class="bg-slate-50/80">
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <tr class="bg-slate-50/80 dark:bg-slate-800">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 {gettext("Evento / Topic")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden md:table-cell">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">
                 {gettext("Webhook")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 {gettext("Estado")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden lg:table-cell">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
                 {gettext("Intento")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">
                 {gettext("HTTP")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">
                 {gettext("Fecha")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 {gettext("Acciones")}
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
-            <%= for d <- @deliveries do %>
-              <tr class="hover:bg-slate-50/50 transition">
-                <td class="px-3 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 font-mono truncate max-w-[8rem] sm:max-w-none">
-                  {if d.event,
-                    do: d.event.topic || String.slice(d.event_id, 0, 8),
-                    else: String.slice(d.event_id, 0, 8)}
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4 font-mono text-xs text-slate-600 max-w-[14rem] truncate hidden md:table-cell">
-                  {if d.webhook, do: d.webhook.url, else: d.webhook_id}
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4">
-                  <span class={[
-                    "inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-xs font-medium",
-                    if(d.status == "success",
-                      do: "bg-emerald-100 text-emerald-800",
-                      else:
-                        if(d.status == "pending",
-                          do: "bg-amber-100 text-amber-800",
-                          else: "bg-red-100 text-red-800"
-                        )
-                    )
-                  ]}>
-                    {d.status}
-                  </span>
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 hidden lg:table-cell">
-                  {d.attempt_number}
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 font-mono hidden sm:table-cell">
-                  {d.response_status || "—"}
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 hidden sm:table-cell">
-                  {format_dt(d.inserted_at)}
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
-                  <%= if d.status != "success" and d.status != "pending" and can_manage_team?(@current_user_role) do %>
-                    <button
-                      phx-click="retry_delivery"
-                      phx-value-id={d.id}
-                      phx-disable-with={gettext("Reintentando...")}
-                      class="text-indigo-600 hover:text-indigo-700 font-medium text-xs sm:text-sm disabled:opacity-70"
-                    >
-                      {gettext("Reintentar")}
-                    </button>
-                  <% end %>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+            <%= if @deliveries == [] do %>
+              <tr>
+                <td colspan="7" class="px-4 py-14 text-center">
+                  <div class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-1">
+                      <.icon
+                        name="hero-inbox-stack"
+                        class="w-6 h-6 text-slate-400 dark:text-slate-500"
+                      />
+                    </div>
+                    <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {gettext("Sin entregas registradas")}
+                    </p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 max-w-xs">
+                      {gettext(
+                        "Las entregas aparecen aquí cuando tus eventos son enviados a los webhooks."
+                      )}
+                    </p>
+                  </div>
                 </td>
               </tr>
+            <% else %>
+              <%= for d <- @deliveries do %>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition">
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-mono truncate max-w-[8rem] sm:max-w-none">
+                    {if d.event,
+                      do: d.event.topic || String.slice(d.event_id, 0, 8),
+                      else: String.slice(d.event_id, 0, 8)}
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 font-mono text-xs text-slate-600 dark:text-slate-400 max-w-[14rem] truncate hidden md:table-cell">
+                    {if d.webhook, do: d.webhook.url, else: d.webhook_id}
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4">
+                    <span class={[
+                      "inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-xs font-medium",
+                      if(d.status == "success",
+                        do:
+                          "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400",
+                        else:
+                          if(d.status == "pending",
+                            do:
+                              "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400",
+                            else: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"
+                          )
+                      )
+                    ]}>
+                      {d.status}
+                    </span>
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 dark:text-slate-400 hidden lg:table-cell">
+                    {d.attempt_number}
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 dark:text-slate-400 font-mono hidden sm:table-cell">
+                    {d.response_status || "—"}
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                    {format_dt(d.inserted_at)}
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
+                    <%= if d.status != "success" and d.status != "pending" and can_manage_team?(@current_user_role) do %>
+                      <button
+                        phx-click="retry_delivery"
+                        phx-value-id={d.id}
+                        phx-disable-with={gettext("Reintentando...")}
+                        class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-xs sm:text-sm disabled:opacity-70"
+                      >
+                        {gettext("Reintentar")}
+                      </button>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
             <% end %>
           </tbody>
         </table>
@@ -892,12 +1370,14 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
 
     <%!-- Dead Letter Queue --%>
     <%= if @dead_letters != [] do %>
-      <section class="bg-white rounded-xl border border-red-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-red-200 dark:border-red-800 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-            <h2 class="text-base font-semibold text-red-900">{gettext("Dead Letter Queue")}</h2>
-            <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-medium">
+            <h2 class="text-base font-semibold text-red-900 dark:text-red-300">
+              {gettext("Dead Letter Queue")}
+            </h2>
+            <span class="px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium">
               {length(@dead_letters)}
             </span>
           </div>
@@ -905,7 +1385,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           <%= if can_manage_team?(@current_user_role) do %>
             <div class="flex items-center gap-2">
               <%= if @selected_dead_letters != [] do %>
-                <span class="text-xs text-slate-500">
+                <span class="text-xs text-slate-500 dark:text-slate-400">
                   {gettext("%{count} seleccionados", count: length(@selected_dead_letters))}
                 </span>
                 <button
@@ -918,7 +1398,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                 <button
                   phx-click="bulk_resolve_dl"
                   phx-disable-with={gettext("...")}
-                  class="px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
+                  class="px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
                 >
                   {gettext("Descartar seleccionados")}
                 </button>
@@ -926,14 +1406,14 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               <%= if @selected_dead_letters == [] do %>
                 <button
                   phx-click="select_all_dl"
-                  class="px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                  class="px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"
                 >
                   {gettext("Seleccionar todo")}
                 </button>
               <% else %>
                 <button
                   phx-click="deselect_all_dl"
-                  class="px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                  class="px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"
                 >
                   {gettext("Deseleccionar")}
                 </button>
@@ -941,36 +1421,36 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
             </div>
           <% end %>
         </div>
-        <p class="text-sm text-red-700 mb-4">
+        <p class="text-sm text-red-700 dark:text-red-400 mb-4">
           {gettext("Entregas que agotaron todos los reintentos. Puedes reintentar o descartar.")}
         </p>
-        <div class="overflow-x-auto rounded-lg border border-red-100">
-          <table class="min-w-full divide-y divide-red-100">
+        <div class="overflow-x-auto rounded-lg border border-red-100 dark:border-red-800">
+          <table class="min-w-full divide-y divide-red-100 dark:divide-red-800">
             <thead>
-              <tr class="bg-red-50/50">
+              <tr class="bg-red-50/50 dark:bg-red-900/20">
                 <%= if can_manage_team?(@current_user_role) do %>
                   <th class="w-8 px-3 py-2"></th>
                 <% end %>
-                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 uppercase">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 dark:text-red-400 uppercase">
                   {gettext("Webhook")}
                 </th>
-                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 uppercase hidden sm:table-cell">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 dark:text-red-400 uppercase hidden sm:table-cell">
                   {gettext("Error")}
                 </th>
-                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 uppercase">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 dark:text-red-400 uppercase">
                   {gettext("Intentos")}
                 </th>
-                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 uppercase hidden sm:table-cell">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-semibold text-red-700 dark:text-red-400 uppercase hidden sm:table-cell">
                   {gettext("Fecha")}
                 </th>
-                <th class="px-3 sm:px-4 py-2 sm:py-3 text-right text-xs font-semibold text-red-700 uppercase">
+                <th class="px-3 sm:px-4 py-2 sm:py-3 text-right text-xs font-semibold text-red-700 dark:text-red-400 uppercase">
                   {gettext("Acciones")}
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-red-50">
+            <tbody class="divide-y divide-red-50 dark:divide-red-900/30">
               <%= for dl <- @dead_letters do %>
-                <tr class="hover:bg-red-50/30 transition">
+                <tr class="hover:bg-red-50/30 dark:hover:bg-red-900/10 transition">
                   <%= if can_manage_team?(@current_user_role) do %>
                     <td class="w-8 px-3 py-2">
                       <input
@@ -978,20 +1458,20 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                         checked={dl.id in @selected_dead_letters}
                         phx-click="toggle_dl_select"
                         phx-value-id={dl.id}
-                        class="rounded border-red-300 text-red-600 focus:ring-red-500"
+                        class="rounded border-red-300 dark:border-red-700 text-red-600 focus:ring-red-500"
                       />
                     </td>
                   <% end %>
-                  <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs text-slate-600 truncate max-w-[6rem] sm:max-w-[10rem] lg:max-w-none">
+                  <td class="px-3 sm:px-4 py-2 sm:py-3 font-mono text-xs text-slate-600 dark:text-slate-400 truncate max-w-[6rem] sm:max-w-[10rem] lg:max-w-none">
                     {if dl.webhook, do: dl.webhook.url, else: "—"}
                   </td>
-                  <td class="px-3 sm:px-4 py-2 sm:py-3 text-xs text-red-700 truncate max-w-[12rem] hidden sm:table-cell">
+                  <td class="px-3 sm:px-4 py-2 sm:py-3 text-xs text-red-700 dark:text-red-400 truncate max-w-[12rem] hidden sm:table-cell">
                     {dl.last_error || "—"}
                   </td>
-                  <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600">
+                  <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600 dark:text-slate-400">
                     {dl.attempts_exhausted}
                   </td>
-                  <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600 hidden sm:table-cell">
+                  <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
                     {format_dt(dl.inserted_at)}
                   </td>
                   <td class="px-3 sm:px-4 py-2 sm:py-3 text-right">
@@ -1001,7 +1481,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                           phx-click="retry_dead_letter"
                           phx-value-id={dl.id}
                           phx-disable-with={gettext("...")}
-                          class="text-indigo-600 hover:text-indigo-700 font-medium text-xs disabled:opacity-70"
+                          class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-xs disabled:opacity-70"
                         >
                           {gettext("Reintentar")}
                         </button>
@@ -1009,7 +1489,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                           phx-click="resolve_dead_letter"
                           phx-value-id={dl.id}
                           phx-disable-with={gettext("...")}
-                          class="text-slate-500 hover:text-slate-700 font-medium text-xs disabled:opacity-70"
+                          class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium text-xs disabled:opacity-70"
                         >
                           {gettext("Descartar")}
                         </button>
@@ -1029,14 +1509,16 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
   # ===== TAB: JOBS =====
   def render_jobs_tab(assigns) do
     ~H"""
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Jobs")}</h2>
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {gettext("Jobs")}
+        </h2>
         <div class="flex flex-wrap gap-2">
           <a
             href="/export/jobs?format=csv"
             target="_blank"
-            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
           >
             <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> CSV
           </a>
@@ -1052,81 +1534,119 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           <% end %>
         </div>
       </div>
-      <div class="overflow-x-auto rounded-xl border border-slate-200">
-        <table class="min-w-full divide-y divide-slate-200">
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
           <thead>
-            <tr class="bg-slate-50/80">
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <tr class="bg-slate-50/80 dark:bg-slate-800">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 {gettext("Nombre")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">
                 {gettext("Programación")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">
                 {gettext("Acción")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 {gettext("Estado")}
               </th>
-              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 {gettext("Acciones")}
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
-            <%= for j <- @jobs do %>
-              <tr class="hover:bg-slate-50/50 transition">
-                <td class="px-3 sm:px-5 py-3 sm:py-4 font-medium text-slate-800 text-sm">{j.name}</td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 hidden sm:table-cell">
-                  {j.schedule_type}
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 hidden sm:table-cell">
-                  {j.action_type}
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4">
-                  <span class={[
-                    "inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-xs font-medium",
-                    if(j.status == "active",
-                      do: "bg-emerald-100 text-emerald-800",
-                      else: "bg-slate-200 text-slate-600"
-                    )
-                  ]}>
-                    {j.status}
-                  </span>
-                </td>
-                <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
-                  <div class="flex flex-col sm:flex-row sm:inline-flex gap-1 sm:gap-2 items-start sm:items-center">
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+            <%= if @jobs == [] do %>
+              <tr>
+                <td colspan="5" class="px-4 py-16 text-center">
+                  <div class="flex flex-col items-center gap-3">
+                    <div class="w-14 h-14 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                      <.icon
+                        name="hero-clock"
+                        class="w-7 h-7 text-amber-400 dark:text-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        {gettext("Sin jobs programados")}
+                      </p>
+                      <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">
+                        {gettext(
+                          "Los jobs te permiten enviar eventos automáticamente con un horario cron o intervalo fijo."
+                        )}
+                      </p>
+                    </div>
                     <%= if can_manage_team?(@current_user_role) do %>
                       <button
-                        phx-click="edit_job"
-                        phx-value-id={j.id}
-                        phx-disable-with={gettext("Cargando...")}
-                        class="text-indigo-600 hover:text-indigo-700 font-medium text-xs sm:text-sm disabled:opacity-70"
+                        type="button"
+                        phx-click="new_job"
+                        class="mt-1 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-sm"
                       >
-                        {gettext("Editar")}
-                      </button>
-                    <% end %>
-                    <button
-                      phx-click="show_job_runs"
-                      phx-value-id={j.id}
-                      phx-disable-with={gettext("Cargando...")}
-                      class="text-slate-600 hover:text-slate-700 font-medium text-xs sm:text-sm disabled:opacity-70"
-                    >
-                      {gettext("Runs")}
-                    </button>
-                    <%= if j.status == "active" && can_manage_team?(@current_user_role) do %>
-                      <button
-                        phx-click="deactivate_job"
-                        phx-value-id={j.id}
-                        phx-disable-with={gettext("Desactivando...")}
-                        class="text-red-600 hover:text-red-700 font-medium text-xs sm:text-sm disabled:opacity-70"
-                      >
-                        {gettext("Desactivar")}
+                        <.icon name="hero-plus" class="w-4 h-4" />
+                        {gettext("Nuevo job")}
                       </button>
                     <% end %>
                   </div>
                 </td>
               </tr>
+            <% else %>
+              <%= for j <- @jobs do %>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition">
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 font-medium text-slate-800 dark:text-slate-200 text-sm">
+                    {j.name}
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                    {j.schedule_type}
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                    {j.action_type}
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4">
+                    <span class={[
+                      "inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-xs font-medium",
+                      if(j.status == "active",
+                        do:
+                          "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400",
+                        else: "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                      )
+                    ]}>
+                      {j.status}
+                    </span>
+                  </td>
+                  <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
+                    <div class="flex flex-col sm:flex-row sm:inline-flex gap-1 sm:gap-2 items-start sm:items-center">
+                      <%= if can_manage_team?(@current_user_role) do %>
+                        <button
+                          phx-click="edit_job"
+                          phx-value-id={j.id}
+                          phx-disable-with={gettext("Cargando...")}
+                          class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-xs sm:text-sm disabled:opacity-70"
+                        >
+                          {gettext("Editar")}
+                        </button>
+                      <% end %>
+                      <button
+                        phx-click="show_job_runs"
+                        phx-value-id={j.id}
+                        phx-disable-with={gettext("Cargando...")}
+                        class="text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium text-xs sm:text-sm disabled:opacity-70"
+                      >
+                        {gettext("Runs")}
+                      </button>
+                      <%= if j.status == "active" && can_manage_team?(@current_user_role) do %>
+                        <button
+                          phx-click="deactivate_job"
+                          phx-value-id={j.id}
+                          phx-disable-with={gettext("Desactivando...")}
+                          class="text-red-600 hover:text-red-700 font-medium text-xs sm:text-sm disabled:opacity-70"
+                        >
+                          {gettext("Desactivar")}
+                        </button>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
             <% end %>
           </tbody>
         </table>
@@ -1138,9 +1658,11 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
   # ===== TAB: PIPELINES =====
   def render_pipelines_tab(assigns) do
     ~H"""
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Pipelines")}</h2>
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {gettext("Pipelines")}
+        </h2>
         <%= if can_manage_team?(@current_user_role) do %>
           <button
             type="button"
@@ -1154,44 +1676,44 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
       </div>
 
       <%= if @pipelines == [] do %>
-        <div class="text-center py-12 text-slate-500">
-          <.icon name="hero-funnel" class="w-12 h-12 mx-auto mb-3 text-slate-300" />
+        <div class="text-center py-12 text-slate-500 dark:text-slate-400">
+          <.icon name="hero-funnel" class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
           <p class="text-sm">{gettext("No hay pipelines configurados.")}</p>
-          <p class="text-xs text-slate-400 mt-1">
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
             {gettext(
               "Los pipelines permiten filtrar, transformar y retrasar eventos antes de entregarlos."
             )}
           </p>
         </div>
       <% else %>
-        <div class="overflow-x-auto rounded-xl border border-slate-200">
-          <table class="min-w-full divide-y divide-slate-200">
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
             <thead>
-              <tr class="bg-slate-50/80">
-                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <tr class="bg-slate-50/80 dark:bg-slate-800">
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                   {gettext("Nombre")}
                 </th>
-                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">
                   {gettext("Topics")}
                 </th>
-                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden md:table-cell">
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">
                   {gettext("Pasos")}
                 </th>
-                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                   {gettext("Estado")}
                 </th>
-                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th class="px-3 sm:px-5 py-2.5 sm:py-3.5 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                   {gettext("Acciones")}
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
               <%= for p <- @pipelines do %>
-                <tr class="hover:bg-slate-50/50 transition">
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition">
                   <td class="px-3 sm:px-5 py-3 sm:py-4">
-                    <div class="font-medium text-slate-800 text-sm">{p.name}</div>
+                    <div class="font-medium text-slate-800 dark:text-slate-200 text-sm">{p.name}</div>
                     <%= if p.description do %>
-                      <div class="text-xs text-slate-500 mt-0.5 truncate max-w-[200px]">
+                      <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-[200px]">
                         {p.description}
                       </div>
                     <% end %>
@@ -1199,12 +1721,12 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                   <td class="px-3 sm:px-5 py-3 sm:py-4 hidden sm:table-cell">
                     <div class="flex flex-wrap gap-1">
                       <%= for topic <- Enum.take(p.topics || [], 3) do %>
-                        <span class="inline-flex px-2 py-0.5 rounded-md text-xs bg-blue-50 text-blue-700 font-mono">
+                        <span class="inline-flex px-2 py-0.5 rounded-md text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-mono">
                           {topic}
                         </span>
                       <% end %>
                       <%= if length(p.topics || []) > 3 do %>
-                        <span class="text-xs text-slate-400">
+                        <span class="text-xs text-slate-400 dark:text-slate-500">
                           +{length(p.topics) - 3}
                         </span>
                       <% end %>
@@ -1226,8 +1748,9 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     <span class={[
                       "inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-xs font-medium",
                       if(p.status == "active",
-                        do: "bg-emerald-100 text-emerald-800",
-                        else: "bg-slate-200 text-slate-600"
+                        do:
+                          "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400",
+                        else: "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                       )
                     ]}>
                       {p.status}
@@ -1240,7 +1763,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                           phx-click="edit_pipeline"
                           phx-value-id={p.id}
                           phx-disable-with={gettext("Cargando...")}
-                          class="text-indigo-600 hover:text-indigo-700 font-medium text-xs sm:text-sm disabled:opacity-70"
+                          class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-xs sm:text-sm disabled:opacity-70"
                         >
                           {gettext("Editar")}
                         </button>
@@ -1265,26 +1788,61 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
       <% end %>
     </section>
 
-    <%!-- Pipeline Modal --%>
+    <%!-- Pipeline Modal (improved with info, tooltips, presets) --%>
     <%= if @pipeline_modal do %>
       <div class="fixed inset-0 z-50 overflow-y-auto" aria-modal="true">
-        <div class="flex min-h-full items-center justify-center p-4">
-          <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" phx-click="close_pipeline_modal">
+        <div class="flex min-h-full items-center justify-center p-3 sm:p-6">
+          <div
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            phx-click="close_pipeline_modal"
+            aria-hidden="true"
+          >
           </div>
-          <div class="relative bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 sm:p-8">
-            <h3 class="text-lg font-semibold text-slate-900 mb-4">
-              <%= if @pipeline_modal == :new do %>
-                {gettext("Nuevo pipeline")}
-              <% else %>
-                {gettext("Editar pipeline")}
-              <% end %>
-            </h3>
-            <form phx-submit="save_pipeline" class="space-y-4">
+          <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200/50 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+            <%!-- Header --%>
+            <div class="px-6 pt-6 pb-4 flex items-start justify-between border-b border-slate-200 dark:border-slate-700">
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  {if @pipeline_modal == :new,
+                    do: gettext("Nuevo pipeline"),
+                    else: gettext("Editar pipeline")}
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  {gettext("Procesa eventos antes de entregarlos a tus webhooks.")}
+                </p>
+              </div>
+              <button
+                type="button"
+                phx-click="close_pipeline_modal"
+                class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+              >
+                <.icon name="hero-x-mark" class="w-5 h-5" />
+              </button>
+            </div>
+
+            <%!-- Info box --%>
+            <div class="px-6 pt-4">
+              <div class="flex gap-3 p-3.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50">
+                <.icon
+                  name="hero-funnel"
+                  class="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5"
+                />
+                <p class="text-sm text-blue-700 dark:text-blue-300">
+                  {gettext(
+                    "Un pipeline filtra, transforma o retrasa eventos antes de entregarlos. Los pasos se ejecutan en orden: si un filtro no coincide, el evento se omite para ese pipeline."
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <form phx-submit="save_pipeline" class="px-6 pb-6 pt-4 space-y-4">
               <%= if @pipeline_modal not in [:new] do %>
                 <input type="hidden" name="pipeline_id" value={@pipeline_modal} />
               <% end %>
+
+              <%!-- Name --%>
               <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   {gettext("Nombre")}
                 </label>
                 <input
@@ -1292,65 +1850,122 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                   name="name"
                   value={@pipeline_form["name"]}
                   required
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder={gettext("Ej: Filtrar pagos completados")}
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                 />
               </div>
+
+              <%!-- Description --%>
               <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   {gettext("Descripción")}
+                  <span class="font-normal text-slate-400 dark:text-slate-500 ml-1">
+                    ({gettext("opcional")})
+                  </span>
                 </label>
                 <input
                   type="text"
                   name="description"
                   value={@pipeline_form["description"]}
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder={gettext("Breve descripción de lo que hace este pipeline")}
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                 />
               </div>
+
+              <%!-- Topics --%>
               <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   {gettext("Topics")}
-                  <span class="text-xs text-slate-400 font-normal">
-                    ({gettext("separados por coma")})
-                  </span>
                 </label>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-1.5">
+                  {gettext(
+                    "Solo los eventos con estos topics pasarán por este pipeline. Vacío = todos."
+                  )}
+                </p>
                 <input
                   type="text"
                   name="topics"
                   value={@pipeline_form["topics"]}
                   placeholder="order.created, payment.*"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 font-mono placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                 />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">
-                  {gettext("Pasos")}
-                  <span class="text-xs text-slate-400 font-normal">(JSON)</span>
-                </label>
-                <textarea
-                  name="steps"
-                  rows="5"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >{@pipeline_form["steps"]}</textarea>
-                <p class="text-xs text-slate-400 mt-1">
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                   {gettext(
-                    "Ej: [{\"type\": \"filter\", \"field\": \"status\", \"operator\": \"eq\", \"value\": \"paid\"}]"
+                    "Separados por coma. Soporta wildcards: payment.* matchea payment.created, payment.failed, etc."
                   )}
                 </p>
               </div>
-              <div class="flex justify-end gap-3 pt-2">
+
+              <%!-- Steps --%>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  {gettext("Pasos del pipeline")}
+                </label>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-1.5">
+                  {gettext(
+                    "Define los pasos como JSON. Cada paso tiene un tipo (filter, transform, delay) y su configuración."
+                  )}
+                </p>
+                <textarea
+                  name="steps"
+                  rows="5"
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 font-mono placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                >{@pipeline_form["steps"]}</textarea>
+
+                <%!-- Step type presets --%>
+                <div class="mt-2 space-y-1.5">
+                  <p class="text-xs font-medium text-slate-500 dark:text-slate-400">
+                    {gettext("Plantillas de pasos:")}
+                  </p>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      phx-click="pipeline_step_preset"
+                      phx-value-preset="filter"
+                      class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition"
+                    >
+                      <.icon name="hero-funnel" class="w-3.5 h-3.5" />
+                      {gettext("Filtro")}
+                    </button>
+                    <button
+                      type="button"
+                      phx-click="pipeline_step_preset"
+                      phx-value-preset="transform"
+                      class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 border border-violet-200 dark:border-violet-800/50 hover:bg-violet-100 dark:hover:bg-violet-900/50 transition"
+                    >
+                      <.icon name="hero-arrow-path" class="w-3.5 h-3.5" />
+                      {gettext("Transformar")}
+                    </button>
+                    <button
+                      type="button"
+                      phx-click="pipeline_step_preset"
+                      phx-value-preset="delay"
+                      class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition"
+                    >
+                      <.icon name="hero-clock" class="w-3.5 h-3.5" />
+                      {gettext("Retraso")}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <%!-- Buttons --%>
+              <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
                 <button
                   type="button"
                   phx-click="close_pipeline_modal"
-                  class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800"
+                  class="w-full sm:w-auto px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium transition"
                 >
                   {gettext("Cancelar")}
                 </button>
                 <button
                   type="submit"
                   phx-disable-with={gettext("Guardando...")}
-                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-70"
+                  class="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-70"
                 >
-                  {gettext("Guardar")}
+                  {if @pipeline_modal == :new,
+                    do: gettext("Crear pipeline"),
+                    else: gettext("Guardar cambios")}
                 </button>
               </div>
             </form>
@@ -1380,28 +1995,39 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
         }
         phx-click="oban_filter_state"
         phx-value-state={state}
-        class={"cursor-pointer rounded-lg border p-3 text-center transition hover:shadow-md #{if @oban_filter_state == state, do: "ring-2 ring-indigo-500 border-indigo-300", else: "border-slate-200"}"}
+        class={"cursor-pointer rounded-lg border p-3 text-center transition hover:shadow-md #{if @oban_filter_state == state, do: "ring-2 ring-indigo-500 border-indigo-300 dark:border-indigo-600", else: "border-slate-200 dark:border-slate-700"} bg-white dark:bg-slate-800"}
       >
         <p class={"text-2xl font-bold text-#{color}-600"}>
           {Map.get(@oban_state_counts, state, 0)}
         </p>
-        <p class="text-xs text-slate-500 capitalize">{state}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 capitalize">{state}</p>
       </div>
     </div>
 
     <%!-- Queue breakdown --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 mb-6">
-      <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-4">
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 mb-6">
+      <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
         {gettext("Colas")}
       </h2>
-      <div :if={@oban_queue_stats == []} class="text-slate-400 text-sm py-4">
-        {gettext("No hay colas activas.")}
+      <div :if={@oban_queue_stats == []} class="text-center py-8">
+        <.icon
+          name="hero-queue-list"
+          class="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-600"
+        />
+        <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+          {gettext("Sin colas activas")}
+        </p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+          {gettext("Las colas aparecerán cuando haya jobs en proceso.")}
+        </p>
       </div>
       <div :if={@oban_queue_stats != []} class="overflow-x-auto">
         <table class="min-w-full text-sm">
           <thead>
-            <tr class="border-b border-slate-200">
-              <th class="text-left py-2 px-3 font-medium text-slate-600">{gettext("Cola")}</th>
+            <tr class="border-b border-slate-200 dark:border-slate-700">
+              <th class="text-left py-2 px-3 font-medium text-slate-600 dark:text-slate-400">
+                {gettext("Cola")}
+              </th>
               <th class="text-center py-2 px-3 font-medium text-emerald-600">Available</th>
               <th class="text-center py-2 px-3 font-medium text-blue-600">Scheduled</th>
               <th class="text-center py-2 px-3 font-medium text-amber-600">Executing</th>
@@ -1414,11 +2040,11 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           <tbody>
             <tr
               :for={qs <- @oban_queue_stats}
-              class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"
+              class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer"
               phx-click="oban_filter_queue"
               phx-value-queue={qs.queue}
             >
-              <td class={"py-2 px-3 font-medium #{if @oban_filter_queue == qs.queue, do: "text-indigo-700", else: "text-slate-900"}"}>
+              <td class={"py-2 px-3 font-medium #{if @oban_filter_queue == qs.queue, do: "text-indigo-700 dark:text-indigo-400", else: "text-slate-900 dark:text-slate-100"}"}>
                 {qs.queue}
               </td>
               <td class="text-center py-2 px-3">{Map.get(qs.counts, "available", 0)}</td>
@@ -1435,14 +2061,20 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
     </section>
 
     <%!-- Recent jobs list --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8">
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900">
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
           {gettext("Jobs recientes")}
-          <span :if={@oban_filter_state} class="ml-2 text-sm font-normal text-indigo-600">
+          <span
+            :if={@oban_filter_state}
+            class="ml-2 text-sm font-normal text-indigo-600 dark:text-indigo-400"
+          >
             ({@oban_filter_state})
           </span>
-          <span :if={@oban_filter_queue} class="ml-2 text-sm font-normal text-indigo-600">
+          <span
+            :if={@oban_filter_queue}
+            class="ml-2 text-sm font-normal text-indigo-600 dark:text-indigo-400"
+          >
             [{@oban_filter_queue}]
           </span>
         </h2>
@@ -1450,61 +2082,90 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           <button
             :if={@oban_filter_state || @oban_filter_queue}
             phx-click="oban_clear_filters"
-            class="text-xs px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition"
+            class="text-xs px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
           >
             {gettext("Limpiar filtros")}
           </button>
           <button
             phx-click="oban_refresh"
-            class="text-xs px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition"
+            class="text-xs px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition"
           >
             {gettext("Actualizar")}
           </button>
           <button
-            phx-click="oban_purge"
-            data-confirm={
-              gettext("¿Eliminar jobs completados/descartados/cancelados de más de 7 días?")
-            }
-            class="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition"
+            phx-click={show_confirm("confirm-oban-purge")}
+            class="text-xs px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40 transition"
           >
             {gettext("Purgar antiguos")}
           </button>
+          <.confirm_modal
+            id="confirm-oban-purge"
+            title={gettext("Confirmar purga")}
+            message={gettext("¿Eliminar jobs completados/descartados/cancelados de más de 7 días?")}
+            confirm_text={gettext("Purgar")}
+            confirm_event="oban_purge"
+            variant="danger"
+          />
         </div>
       </div>
 
-      <div :if={@oban_jobs == []} class="text-slate-400 text-sm py-8 text-center">
-        {gettext("No hay jobs que mostrar.")}
+      <div :if={@oban_jobs == []} class="text-center py-8">
+        <.icon
+          name="hero-clock"
+          class="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-600"
+        />
+        <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+          {gettext("Sin jobs")}
+        </p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+          {gettext("Filtra por estado o cola para ver jobs específicos.")}
+        </p>
       </div>
 
       <div :if={@oban_jobs != []} class="overflow-x-auto">
         <table class="min-w-full text-sm">
           <thead>
-            <tr class="border-b border-slate-200">
-              <th class="text-left py-2 px-3 font-medium text-slate-600">ID</th>
-              <th class="text-left py-2 px-3 font-medium text-slate-600">{gettext("Estado")}</th>
-              <th class="text-left py-2 px-3 font-medium text-slate-600">{gettext("Cola")}</th>
-              <th class="text-left py-2 px-3 font-medium text-slate-600">Worker</th>
-              <th class="text-center py-2 px-3 font-medium text-slate-600">{gettext("Intentos")}</th>
-              <th class="text-left py-2 px-3 font-medium text-slate-600">{gettext("Creado")}</th>
-              <th class="text-right py-2 px-3 font-medium text-slate-600">{gettext("Acciones")}</th>
+            <tr class="border-b border-slate-200 dark:border-slate-700">
+              <th class="text-left py-2 px-3 font-medium text-slate-600 dark:text-slate-400">ID</th>
+              <th class="text-left py-2 px-3 font-medium text-slate-600 dark:text-slate-400">
+                {gettext("Estado")}
+              </th>
+              <th class="text-left py-2 px-3 font-medium text-slate-600 dark:text-slate-400">
+                {gettext("Cola")}
+              </th>
+              <th class="text-left py-2 px-3 font-medium text-slate-600 dark:text-slate-400">
+                Worker
+              </th>
+              <th class="text-center py-2 px-3 font-medium text-slate-600 dark:text-slate-400">
+                {gettext("Intentos")}
+              </th>
+              <th class="text-left py-2 px-3 font-medium text-slate-600 dark:text-slate-400">
+                {gettext("Creado")}
+              </th>
+              <th class="text-right py-2 px-3 font-medium text-slate-600 dark:text-slate-400">
+                {gettext("Acciones")}
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr :for={job <- @oban_jobs} class="border-b border-slate-100 hover:bg-slate-50">
-              <td class="py-2 px-3 font-mono text-xs text-slate-500">{job.id}</td>
+            <tr
+              :for={job <- @oban_jobs}
+              class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+            >
+              <td class="py-2 px-3 font-mono text-xs text-slate-500 dark:text-slate-400">{job.id}</td>
               <td class="py-2 px-3">
                 <span class={"inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium #{oban_state_badge(job.state)}"}>
                   {job.state}
                 </span>
               </td>
-              <td class="py-2 px-3 text-slate-700">{job.queue}</td>
-              <td class="py-2 px-3 text-slate-700 font-mono text-xs">
+              <td class="py-2 px-3 text-slate-700 dark:text-slate-300">{job.queue}</td>
+              <td class="py-2 px-3 text-slate-700 dark:text-slate-300 font-mono text-xs">
                 {job.worker |> String.split(".") |> List.last()}
               </td>
-              <td class="text-center py-2 px-3 text-slate-600">
+              <td class="text-center py-2 px-3 text-slate-600 dark:text-slate-400">
                 {job.attempt}/{job.max_attempts}
               </td>
-              <td class="py-2 px-3 text-slate-500 text-xs whitespace-nowrap">
+              <td class="py-2 px-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
                 {Calendar.strftime(job.inserted_at, "%Y-%m-%d %H:%M:%S")}
               </td>
               <td class="py-2 px-3 text-right space-x-1">
@@ -1512,21 +2173,29 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                   :if={job.state in ["retryable", "discarded"]}
                   phx-click="oban_retry_job"
                   phx-value-id={job.id}
-                  class="text-xs text-indigo-600 hover:text-indigo-800"
+                  class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
                   title={gettext("Reintentar")}
                 >
                   {gettext("Reintentar")}
                 </button>
                 <button
                   :if={job.state in ["available", "scheduled", "retryable"]}
-                  phx-click="oban_cancel_job"
-                  phx-value-id={job.id}
-                  data-confirm={gettext("¿Cancelar este job?")}
-                  class="text-xs text-red-600 hover:text-red-800"
+                  phx-click={show_confirm("confirm-cancel-job-#{job.id}")}
+                  class="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                   title={gettext("Cancelar")}
                 >
                   {gettext("Cancelar")}
                 </button>
+                <.confirm_modal
+                  :if={job.state in ["available", "scheduled", "retryable"]}
+                  id={"confirm-cancel-job-#{job.id}"}
+                  title={gettext("Confirmar cancelación")}
+                  message={gettext("¿Cancelar este job?")}
+                  confirm_text={gettext("Cancelar")}
+                  confirm_event="oban_cancel_job"
+                  confirm_value={%{id: job.id}}
+                  variant="danger"
+                />
               </td>
             </tr>
           </tbody>
@@ -1542,8 +2211,10 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
     <%!-- Row 1: Project + Analytics (2 cols) --%>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
       <%!-- Project info --%>
-      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900 mb-2">{gettext("Proyecto")}</h2>
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+          {gettext("Proyecto")}
+        </h2>
         <%= if @editing_project_name do %>
           <.form
             for={%{}}
@@ -1555,7 +2226,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               type="text"
               name="name"
               value={@project.name}
-              class="w-full max-w-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900"
+              class="w-full max-w-xs px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100"
               placeholder={gettext("Nombre del proyecto")}
             />
             <button
@@ -1568,52 +2239,63 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
             <button
               type="button"
               phx-click="cancel_edit_project_name"
-              class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-sm font-medium"
+              class="px-3 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg text-sm font-medium"
             >
               {gettext("Cancelar")}
             </button>
           </.form>
         <% else %>
-          <p class="text-slate-600">
+          <p class="text-slate-600 dark:text-slate-300">
             <strong>{@project.name}</strong>
             <%= if can_admin_team?(@current_user_role) do %>
               <button
                 type="button"
                 phx-click="edit_project_name"
-                class="ml-2 text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+                class="ml-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 text-sm font-medium"
               >
                 {gettext("Editar nombre")}
               </button>
             <% end %>
           </p>
         <% end %>
-        <p class="text-slate-500 text-sm font-mono mt-1 break-all">{@project.id}</p>
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-mono mt-1 break-all">
+          {@project.id}
+        </p>
         <%!-- Delete project --%>
         <%= if @project.user_id == @current_user.id do %>
-          <div class="mt-4 pt-4 border-t border-slate-200">
+          <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
             <button
-              phx-click="delete_project"
-              phx-value-id={@project.id}
+              phx-click={show_confirm("confirm-delete-project-#{@project.id}")}
               phx-disable-with={gettext("Eliminando...")}
-              data-confirm={gettext("¿Eliminar este proyecto? Esta acción no se puede deshacer.")}
               class="text-red-600 hover:text-red-700 text-xs font-medium disabled:opacity-50"
             >
               {gettext("Eliminar proyecto")}
             </button>
+            <.confirm_modal
+              id={"confirm-delete-project-#{@project.id}"}
+              title={gettext("Confirmar eliminación")}
+              message={gettext("¿Eliminar este proyecto? Esta acción no se puede deshacer.")}
+              confirm_text={gettext("Eliminar proyecto")}
+              confirm_event="delete_project"
+              confirm_value={%{id: @project.id}}
+              variant="danger"
+            />
           </div>
         <% end %>
       </section>
 
       <%!-- Analytics (always visible) --%>
-      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
         <div class="flex items-center gap-2 mb-4">
-          <.icon name="hero-chart-bar" class="w-5 h-5 text-indigo-600" />
-          <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Analíticas")}</h2>
+          <.icon name="hero-chart-bar" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {gettext("Analíticas")}
+          </h2>
         </div>
         <%= if @analytics != %{} do %>
           <div class="grid grid-cols-1 gap-4">
-            <div class="border border-slate-200 rounded-lg p-3">
-              <h3 class="text-sm font-semibold text-slate-700 mb-3">
+            <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-3">
+              <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
                 {gettext("Eventos por día (30d)")}
               </h3>
               <div class="h-32 sm:h-40">
@@ -1638,8 +2320,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                 </canvas>
               </div>
             </div>
-            <div class="border border-slate-200 rounded-lg p-3">
-              <h3 class="text-sm font-semibold text-slate-700 mb-3">
+            <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-3">
+              <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
                 {gettext("Entregas por día (30d)")}
               </h3>
               <div class="h-32 sm:h-40">
@@ -1670,7 +2352,9 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
             </div>
           </div>
         <% else %>
-          <p class="text-sm text-slate-400 text-center py-8">{gettext("Sin datos")}</p>
+          <p class="text-sm text-slate-400 dark:text-slate-500 text-center py-8">
+            {gettext("Sin datos")}
+          </p>
         <% end %>
       </section>
     </div>
@@ -1678,11 +2362,13 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
     <%!-- Row 2: Sandbox + Team (2 cols) --%>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
       <%!-- Sandbox --%>
-      <section class="bg-white rounded-xl border border-purple-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-purple-200 dark:border-purple-800 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div class="flex items-center gap-2">
-            <.icon name="hero-beaker" class="w-5 h-5 text-purple-600" />
-            <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Sandbox")}</h2>
+            <.icon name="hero-beaker" class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Sandbox")}
+            </h2>
           </div>
           <%= if can_manage_team?(@current_user_role) do %>
             <button
@@ -1695,14 +2381,23 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           <% end %>
         </div>
         <%= if @sandbox_endpoints == [] do %>
-          <p class="text-sm text-slate-500">
-            {gettext("Crea un endpoint temporal para recibir y ver requests en tiempo real.")}
-          </p>
+          <div class="text-center py-8">
+            <.icon
+              name="hero-beaker"
+              class="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-600"
+            />
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+              {gettext("Sin endpoints de prueba")}
+            </p>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs mx-auto">
+              {gettext("Crea un endpoint temporal para recibir y ver requests en tiempo real.")}
+            </p>
+          </div>
         <% else %>
           <div class="flex flex-wrap gap-2 mb-4">
             <%= for ep <- @sandbox_endpoints do %>
               <div
-                class={"inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition #{if @sandbox_active && @sandbox_active.id == ep.id, do: "bg-purple-50 border-purple-300 text-purple-800", else: "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"}"}
+                class={"inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition #{if @sandbox_active && @sandbox_active.id == ep.id, do: "bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700 text-purple-800 dark:text-purple-300", else: "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"}"}
                 phx-click="select_sandbox"
                 phx-value-id={ep.id}
               >
@@ -1724,44 +2419,54 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           </div>
         <% end %>
         <%= if @sandbox_active do %>
-          <div class="rounded-lg border border-purple-100 bg-purple-50/50 p-3 mb-4">
-            <p class="text-sm text-purple-800 mb-1">{gettext("URL del endpoint:")}</p>
-            <code class="text-xs font-mono text-purple-900 break-all">
+          <div class="rounded-lg border border-purple-100 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/20 p-3 mb-4">
+            <p class="text-sm text-purple-800 dark:text-purple-300 mb-1">
+              {gettext("URL del endpoint:")}
+            </p>
+            <code class="text-xs font-mono text-purple-900 dark:text-purple-200 break-all">
               {sandbox_url(@sandbox_active)}
             </code>
           </div>
           <%= if @sandbox_requests == [] do %>
-            <p class="text-sm text-slate-500 text-center py-4">
-              {gettext("Esperando requests... Envía un POST/GET a la URL de arriba.")}
-            </p>
+            <div class="text-center py-6">
+              <.icon
+                name="hero-signal"
+                class="w-8 h-8 mx-auto mb-2 text-purple-300 dark:text-purple-600 animate-pulse"
+              />
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                {gettext("Esperando requests... Envía un POST/GET a la URL de arriba.")}
+              </p>
+            </div>
           <% else %>
-            <div class="overflow-x-auto rounded-lg border border-slate-200">
-              <table class="min-w-full divide-y divide-slate-200">
+            <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead>
-                  <tr class="bg-slate-50/80">
-                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
+                  <tr class="bg-slate-50/80 dark:bg-slate-800">
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
                       {gettext("Método")}
                     </th>
-                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase hidden sm:table-cell">
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase hidden sm:table-cell">
                       {gettext("Body")}
                     </th>
-                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
                       {gettext("Fecha")}
                     </th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                   <%= for req <- @sandbox_requests do %>
-                    <tr class="hover:bg-slate-50/50 transition">
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition">
                       <td class="px-3 py-2">
                         <span class={"inline-flex px-2 py-0.5 rounded text-xs font-medium #{method_color(req.method)}"}>
                           {req.method}
                         </span>
                       </td>
-                      <td class="px-3 py-2 text-xs text-slate-600 font-mono truncate max-w-[16rem] hidden sm:table-cell">
+                      <td class="px-3 py-2 text-xs text-slate-600 dark:text-slate-400 font-mono truncate max-w-[16rem] hidden sm:table-cell">
                         {if req.body && req.body != "", do: String.slice(req.body, 0, 80), else: "—"}
                       </td>
-                      <td class="px-3 py-2 text-xs text-slate-600">{format_dt(req.inserted_at)}</td>
+                      <td class="px-3 py-2 text-xs text-slate-600 dark:text-slate-400">
+                        {format_dt(req.inserted_at)}
+                      </td>
                     </tr>
                   <% end %>
                 </tbody>
@@ -1772,11 +2477,13 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
       </section>
 
       <%!-- Team --%>
-      <section class="bg-white rounded-xl border border-cyan-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <section class="bg-white dark:bg-slate-800 rounded-xl border border-cyan-200 dark:border-cyan-800 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
-            <.icon name="hero-user-group" class="w-5 h-5 text-cyan-600" />
-            <h2 class="text-base lg:text-lg font-semibold text-slate-900">{gettext("Equipo")}</h2>
+            <.icon name="hero-user-group" class="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+            <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Equipo")}
+            </h2>
           </div>
           <span class={"px-2 py-0.5 rounded text-xs font-medium #{member_role_class(@current_user_role)}"}>
             {gettext("Tu rol: %{role}", role: @current_user_role || "—")}
@@ -1794,9 +2501,12 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               name="email"
               placeholder={gettext("Email del usuario")}
               required
-              class="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              class="flex-1 min-w-0 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
             />
-            <select name="role" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+            <select
+              name="role"
+              class="border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 dark:text-slate-100"
+            >
               <option value="viewer">{gettext("Viewer")}</option>
               <%= if can_admin_team?(@current_user_role) do %>
                 <option value="editor">{gettext("Editor")}</option>
@@ -1812,34 +2522,43 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           </.form>
         <% end %>
         <%= if @team_members == [] do %>
-          <p class="text-sm text-slate-500">
-            {gettext("Solo tú tienes acceso. Invita colaboradores.")}
-          </p>
+          <div class="text-center py-8">
+            <.icon
+              name="hero-user-group"
+              class="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-600"
+            />
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+              {gettext("Sin miembros del equipo")}
+            </p>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+              {gettext("Solo tú tienes acceso. Invita colaboradores arriba.")}
+            </p>
+          </div>
         <% else %>
-          <div class="overflow-x-auto rounded-lg border border-slate-200">
-            <table class="min-w-full divide-y divide-slate-200">
+          <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
               <thead>
-                <tr class="bg-slate-50/80">
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
+                <tr class="bg-slate-50/80 dark:bg-slate-800">
+                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
                     {gettext("Usuario")}
                   </th>
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
+                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
                     {gettext("Rol")}
                   </th>
-                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 uppercase">
+                  <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
                     {gettext("Estado")}
                   </th>
                   <%= if can_admin_team?(@current_user_role) do %>
-                    <th class="px-3 py-2 text-right text-xs font-semibold text-slate-600 uppercase">
+                    <th class="px-3 py-2 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
                       {gettext("Acciones")}
                     </th>
                   <% end %>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                 <%= for m <- @team_members do %>
-                  <tr class="hover:bg-slate-50/50 transition">
-                    <td class="px-3 py-2 text-sm text-slate-700 font-mono truncate max-w-[6rem] sm:max-w-[10rem] lg:max-w-none">
+                  <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition">
+                    <td class="px-3 py-2 text-sm text-slate-700 dark:text-slate-300 font-mono truncate max-w-[6rem] sm:max-w-[10rem] lg:max-w-none">
                       {String.slice(m.user_id, 0, 8)}...
                     </td>
                     <td class="px-3 py-2">
@@ -1879,14 +2598,21 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                               </button>
                             <% end %>
                             <button
-                              phx-click="remove_member"
-                              phx-value-id={m.id}
+                              phx-click={show_confirm("confirm-remove-member-#{m.id}")}
                               phx-disable-with={gettext("Removiendo...")}
-                              data-confirm={gettext("¿Remover este miembro?")}
                               class="text-red-600 hover:text-red-700 text-xs font-medium disabled:opacity-50"
                             >
                               {gettext("Remover")}
                             </button>
+                            <.confirm_modal
+                              id={"confirm-remove-member-#{m.id}"}
+                              title={gettext("Confirmar remoción")}
+                              message={gettext("¿Remover este miembro?")}
+                              confirm_text={gettext("Remover")}
+                              confirm_event="remove_member"
+                              confirm_value={%{id: m.id}}
+                              variant="danger"
+                            />
                           </div>
                         <% end %>
                       </td>
@@ -1903,8 +2629,10 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
     <%!-- Row 3: More analytics charts (full width, 2-col grid) --%>
     <%= if @analytics != %{} do %>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-        <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6">
-          <h3 class="text-sm font-semibold text-slate-700 mb-3">{gettext("Top topics")}</h3>
+        <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6">
+          <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+            {gettext("Top topics")}
+          </h3>
           <div class="h-48 sm:h-56">
             <canvas
               id="topics-chart"
@@ -1934,22 +2662,34 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
             </canvas>
           </div>
         </section>
-        <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6">
-          <h3 class="text-sm font-semibold text-slate-700 mb-3">
+        <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6">
+          <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
             {gettext("Entregas por webhook (7d)")}
           </h3>
           <%= if @analytics.webhook_stats == [] do %>
-            <p class="text-sm text-slate-400 text-center py-8">{gettext("Sin datos")}</p>
+            <div class="text-center py-8">
+              <.icon
+                name="hero-chart-bar"
+                class="w-8 h-8 mx-auto mb-2 text-slate-300 dark:text-slate-600"
+              />
+              <p class="text-sm text-slate-400 dark:text-slate-500">
+                {gettext("Sin datos de entregas aún")}
+              </p>
+            </div>
           <% else %>
             <div class="space-y-2 max-h-56 overflow-y-auto">
               <%= for ws <- @analytics.webhook_stats do %>
                 <div class="flex items-center gap-2 text-sm">
-                  <span class="font-mono text-xs text-slate-600 truncate flex-1 min-w-0">
+                  <span class="font-mono text-xs text-slate-600 dark:text-slate-400 truncate flex-1 min-w-0">
                     {ws.webhook_url}
                   </span>
-                  <span class="text-emerald-700 font-medium text-xs shrink-0">{ws.success}</span>
-                  <span class="text-slate-300 shrink-0">/</span>
-                  <span class="text-red-600 font-medium text-xs shrink-0">{ws.failed}</span>
+                  <span class="text-emerald-700 dark:text-emerald-400 font-medium text-xs shrink-0">
+                    {ws.success}
+                  </span>
+                  <span class="text-slate-300 dark:text-slate-600 shrink-0">/</span>
+                  <span class="text-red-600 dark:text-red-400 font-medium text-xs shrink-0">
+                    {ws.failed}
+                  </span>
                 </div>
               <% end %>
             </div>
@@ -1959,25 +2699,43 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
     <% end %>
 
     <%!-- Row 4: Audit Log (full width) --%>
-    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
       <div class="flex items-center gap-2 mb-4">
-        <.icon name="hero-clipboard-document-list" class="w-5 h-5 text-slate-600" />
-        <h2 class="text-base lg:text-lg font-semibold text-slate-900">
+        <.icon name="hero-clipboard-document-list" class="w-5 h-5 text-slate-600 dark:text-slate-400" />
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
           {gettext("Registro de actividad")}
         </h2>
       </div>
       <%= if @audit_logs == [] do %>
-        <p class="text-sm text-slate-500">{gettext("Sin actividad registrada.")}</p>
+        <div class="text-center py-8">
+          <.icon
+            name="hero-clipboard-document-list"
+            class="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-600"
+          />
+          <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
+            {gettext("Sin actividad registrada")}
+          </p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+            {gettext("Las acciones del equipo se registrarán aquí automáticamente.")}
+          </p>
+        </div>
       <% else %>
         <div class="space-y-2 max-h-48 sm:max-h-80 overflow-y-auto">
           <%= for log <- @audit_logs do %>
-            <div class="flex items-start gap-3 py-2 border-b border-slate-100 last:border-0">
+            <div class="flex items-start gap-3 py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
               <div class="mt-0.5 shrink-0">
-                <.icon name={Audit.action_icon(log.action)} class="w-4 h-4 text-slate-400" />
+                <.icon
+                  name={Audit.action_icon(log.action)}
+                  class="w-4 h-4 text-slate-400 dark:text-slate-500"
+                />
               </div>
               <div class="min-w-0 flex-1">
-                <p class="text-sm text-slate-800">{audit_action_label(log.action)}</p>
-                <p class="text-[11px] text-slate-400">{format_dt(log.inserted_at)}</p>
+                <p class="text-sm text-slate-800 dark:text-slate-200">
+                  {audit_action_label(log.action)}
+                </p>
+                <p class="text-[11px] text-slate-400 dark:text-slate-500">
+                  {format_dt(log.inserted_at)}
+                </p>
               </div>
             </div>
           <% end %>
