@@ -17,6 +17,9 @@ defmodule StreamflixCore.Schemas.Delivery do
     field(:response_headers, :map)
     field(:response_latency_ms, :integer)
     field(:next_retry_at, :utc_datetime_usec)
+    field(:request_headers, :map)
+    field(:request_body, :string)
+    field(:destination_ip, :string)
 
     belongs_to(:event, StreamflixCore.Schemas.WebhookEvent)
     belongs_to(:webhook, StreamflixCore.Schemas.Webhook)
@@ -35,7 +38,10 @@ defmodule StreamflixCore.Schemas.Delivery do
       :response_body,
       :response_headers,
       :response_latency_ms,
-      :next_retry_at
+      :next_retry_at,
+      :request_headers,
+      :request_body,
+      :destination_ip
     ])
     |> validate_required([:event_id, :webhook_id])
     |> validate_inclusion(:status, ~w(pending success failed circuit_open))

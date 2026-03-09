@@ -1522,7 +1522,7 @@
 
               <p class="text-slate-700 dark:text-slate-300 text-sm mb-3">
                 {gettext(
-                  "Lista deliveries. Query: event_id, webhook_id, status, limit (1-100). Respuesta: deliveries (array)."
+                  "Lista deliveries con logs detallados. Query: event_id, webhook_id, status, limit (1-200), cursor. Cada delivery incluye request/response completo, headers, latencia e IP de destino."
                 )}
               </p>
               <pre
@@ -1534,6 +1534,29 @@
                 phx-no-curly-interpolation
               >curl -X GET "<%= @base_url %>/api/v1/deliveries?event_id=EVENT_ID&amp;status=failed&amp;limit=20" \
   -H "X-Api-Key: YOUR_API_KEY"</pre>
+              <p class="text-slate-700 dark:text-slate-300 text-sm mt-3 mb-2 font-medium">
+                {gettext("Respuesta:")}
+              </p>
+              <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono">{Jason.encode!(%{
+  "deliveries" => [%{
+    "id" => "uuid",
+    "event_id" => "uuid",
+    "webhook_id" => "uuid",
+    "status" => "success",
+    "attempt_number" => 1,
+    "response_status" => 200,
+    "response_body" => "{\"ok\":true}",
+    "response_headers" => %{"content-type" => "application/json"},
+    "response_latency_ms" => 142,
+    "request_headers" => %{"content-type" => "application/json", "x-signature" => "sha256=..."},
+    "request_body" => "{\"event_id\":\"...\",\"topic\":\"order.created\"}",
+    "destination_ip" => "93.184.216.34",
+    "next_retry_at" => nil,
+    "inserted_at" => "2026-03-09T12:00:01Z"
+  }],
+  "has_next" => false,
+  "next_cursor" => nil
+}, pretty: true)}</pre>
             </div>
 
             <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 p-6">

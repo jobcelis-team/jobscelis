@@ -84,6 +84,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
       status: d.status,
       attempt_number: d.attempt_number,
       response_status: d.response_status,
+      response_body: d.response_body,
+      response_headers: d.response_headers,
+      response_latency_ms: d.response_latency_ms,
+      request_headers: d.request_headers,
+      request_body: d.request_body,
+      destination_ip: d.destination_ip,
       next_retry_at: d.next_retry_at,
       inserted_at: d.inserted_at
     }
