@@ -122,10 +122,13 @@ defmodule StreamflixCore.Platform.Webhooks do
     # Reset circuit breaker when URL changes so deliveries aren't blocked
     attrs =
       if is_map(attrs) and url_changed?(attrs, webhook) do
-        attrs
-        |> Map.put(:circuit_state, "closed")
-        |> Map.put(:consecutive_failures, 0)
-        |> Map.put(:circuit_opened_at, nil)
+        circuit_reset = %{
+          "circuit_state" => "closed",
+          "consecutive_failures" => 0,
+          "circuit_opened_at" => nil
+        }
+
+        attrs |> stringify_keys() |> Map.merge(circuit_reset)
       else
         attrs
       end
@@ -146,6 +149,13 @@ defmodule StreamflixCore.Platform.Webhooks do
   defp url_changed?(%{url: new_url}, %Webhook{url: old_url}) when new_url != old_url, do: true
   defp url_changed?(%{"url" => new_url}, %Webhook{url: old_url}) when new_url != old_url, do: true
   defp url_changed?(_, _), do: false
+
+  defp stringify_keys(map) do
+    Map.new(map, fn
+      {k, v} when is_atom(k) -> {Atom.to_string(k), v}
+      {k, v} -> {k, v}
+    end)
+  end
 
   def set_webhook_inactive(%Webhook{} = webhook) do
     update_webhook(webhook, %{status: "inactive"})
