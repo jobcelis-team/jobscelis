@@ -12,21 +12,21 @@
     aria-label={gettext("Presentación")}
   >
     <div
-      class="absolute inset-0 bg-gradient-to-b from-indigo-50/60 via-transparent to-transparent pointer-events-none"
+      class="absolute inset-0 bg-gradient-to-b from-indigo-50/60 via-transparent to-transparent dark:from-indigo-950/30 pointer-events-none"
       aria-hidden="true"
     >
     </div>
 
     <div class="relative text-center max-w-3xl mx-auto">
-      <p class="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-4">
+      <p class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-4">
         {gettext("Eventos, webhooks y jobs programados")}
       </p>
 
-      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-slate-100 mb-6 leading-tight tracking-tight">
         {gettext("Infraestructura de eventos para developers")}
       </h1>
 
-      <p class="text-lg md:text-xl text-slate-600 mb-10 leading-relaxed">
+      <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed">
         {gettext(
           "Envía eventos con un POST, configura webhooks con filtros inteligentes y programa jobs recurrentes. Reintentos automáticos, dead letter queue, replay y 13 SDKs. Todo gratis."
         )}
@@ -55,7 +55,7 @@
         </a>
         <a
           href="/docs"
-          class="inline-flex items-center justify-center bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 px-8 py-4 rounded-xl font-semibold text-base transition"
+          class="inline-flex items-center justify-center bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 px-8 py-4 rounded-xl font-semibold text-base transition"
         >
           {gettext("Ver documentación")}
         </a>
@@ -182,25 +182,27 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
     </div>
   </section>
   <%!-- How it works --%>
-  <section class="border-t border-slate-200 bg-white py-20 md:py-24">
+  <section class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-20 md:py-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 text-center mb-4">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 text-center mb-4">
         {gettext("Cómo funciona")}
       </h2>
 
-      <p class="text-slate-600 text-center max-w-xl mx-auto mb-14">
+      <p class="text-slate-600 dark:text-slate-400 text-center max-w-xl mx-auto mb-14">
         {gettext("Tres pasos para conectar cualquier sistema con webhooks en tiempo real.")}
       </p>
 
       <div class="grid md:grid-cols-3 gap-8">
         <div class="text-center">
-          <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4">
             <span class="text-xl font-bold">1</span>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Envía un evento")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Envía un evento")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "POST a la API con el token y un body JSON. Sin esquemas fijos: cualquier estructura de payload con un topic para clasificación."
             )}
@@ -208,13 +210,15 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
         </div>
 
         <div class="text-center">
-          <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4">
             <span class="text-xl font-bold">2</span>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Ruteamos a tus webhooks")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Ruteamos a tus webhooks")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Jobcelis entrega el evento a cada webhook que coincida por topic, wildcards o filtros de payload. En tiempo real."
             )}
@@ -222,15 +226,15 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
         </div>
 
         <div class="text-center">
-          <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4">
             <span class="text-xl font-bold">3</span>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
             {gettext("Reintentos automáticos")}
           </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Si una entrega falla, reintentamos automáticamente con intervalos crecientes. Las que no se recuperan van a la Dead Letter Queue."
             )}
@@ -240,21 +244,21 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
     </div>
   </section>
   <%!-- Features --%>
-  <section class="border-t border-slate-200 bg-slate-50/50 py-20 md:py-24">
+  <section class="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 py-20 md:py-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 text-center mb-4">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 text-center mb-4">
         {gettext("Todo lo que necesitas")}
       </h2>
 
-      <p class="text-slate-600 text-center max-w-xl mx-auto mb-14">
+      <p class="text-slate-600 dark:text-slate-400 text-center max-w-xl mx-auto mb-14">
         {gettext(
           "Una sola API, un token, y control total sobre eventos, entregas y tareas programadas."
         )}
       </p>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
               class="w-6 h-6"
               fill="none"
@@ -271,17 +275,19 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Eventos")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Eventos")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Publica eventos con topic y payload JSON vía API. Sin esquemas predefinidos: la plataforma enruta, filtra y entrega automáticamente."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
               class="w-6 h-6"
               fill="none"
@@ -298,17 +304,19 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Webhooks")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Webhooks")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Configura URLs de destino con filtros por topic, wildcards o campos del payload. Entregas en tiempo real con seguimiento completo."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
               class="w-6 h-6"
               fill="none"
@@ -325,17 +333,19 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Jobs programados")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Jobs programados")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Tareas recurrentes: diario, semanal, mensual o cron. Cada ejecución puede emitir un evento o hacer POST a una URL."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
               class="w-6 h-6"
               fill="none"
@@ -352,17 +362,19 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Replay de eventos")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Replay de eventos")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Reenvía eventos pasados a tus webhooks. Filtra por rango de fechas, topic o webhook específico."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
               class="w-6 h-6"
               fill="none"
@@ -379,17 +391,19 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Pipelines")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Pipelines")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Encadena transformaciones sobre tus eventos: filtra, transforma payloads y enruta a distintos webhooks con reglas."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
               class="w-6 h-6"
               fill="none"
@@ -406,17 +420,19 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Dead Letter Queue")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Dead Letter Queue")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Las entregas que agotan reintentos no se pierden. Revísalas, corrige el destino y reenvía con un clic."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
               class="w-6 h-6"
               fill="none"
@@ -433,17 +449,19 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Sandbox")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Sandbox")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Endpoints de prueba temporales para validar webhooks sin requerir infraestructura propia."
             )}
           </p>
         </div>
 
-        <div class="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 transition">
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
               class="w-6 h-6"
               fill="none"
@@ -460,9 +478,11 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
             </svg>
           </div>
 
-          <h3 class="font-semibold text-slate-900 mb-2">{gettext("Seguridad")}</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Seguridad")}
+          </h3>
 
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Cifrado en reposo, firma de webhooks verificable, MFA, rate limiting y audit log completo."
             )}
@@ -472,41 +492,45 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
     </div>
   </section>
   <%!-- Stats --%>
-  <section class="border-t border-slate-200 bg-white py-16">
+  <section class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         <div>
-          <p class="text-3xl md:text-4xl font-bold text-indigo-600">74+</p>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">74+</p>
 
-          <p class="text-slate-600 text-sm mt-1">{gettext("Endpoints API")}</p>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+            {gettext("Endpoints API")}
+          </p>
         </div>
 
         <div>
-          <p class="text-3xl md:text-4xl font-bold text-indigo-600">13</p>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">13</p>
 
-          <p class="text-slate-600 text-sm mt-1">SDKs</p>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">SDKs</p>
         </div>
 
         <div>
-          <p class="text-3xl md:text-4xl font-bold text-indigo-600">12</p>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">12</p>
 
-          <p class="text-slate-600 text-sm mt-1">{gettext("Lenguajes")}</p>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">{gettext("Lenguajes")}</p>
         </div>
 
         <div>
-          <p class="text-3xl md:text-4xl font-bold text-indigo-600">100%</p>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">100%</p>
 
-          <p class="text-slate-600 text-sm mt-1">{gettext("Gratis")}</p>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">{gettext("Gratis")}</p>
         </div>
       </div>
     </div>
   </section>
   <%!-- CTA --%>
-  <section class="border-t border-slate-200 py-20 bg-gradient-to-b from-slate-50 to-white">
+  <section class="border-t border-slate-200 dark:border-slate-700 py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
     <div class="max-w-2xl mx-auto px-4 text-center">
-      <h2 class="text-2xl font-bold text-slate-900 mb-3">{gettext("¿Listo para comenzar?")}</h2>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">
+        {gettext("¿Listo para comenzar?")}
+      </h2>
 
-      <p class="text-slate-600 mb-8">
+      <p class="text-slate-600 dark:text-slate-400 mb-8">
         {gettext(
           "Registro gratuito sin tarjeta de crédito. Crear un proyecto, obtener el token y comenzar a enviar eventos."
         )}

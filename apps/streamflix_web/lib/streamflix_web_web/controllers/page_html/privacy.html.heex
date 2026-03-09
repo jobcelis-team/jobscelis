@@ -5,15 +5,19 @@
   legal={@legal}
   active_page={@active_page}
 >
-  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Política de privacidad")}</h1>
+  <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+    {gettext("Política de privacidad")}
+  </h1>
 
-  <p class="text-slate-500 text-sm mb-8">
+  <p class="text-slate-500 dark:text-slate-400 text-sm mb-8">
     {gettext("Última actualización")}: {Date.utc_today() |> Calendar.strftime("%d/%m/%Y")}
   </p>
 
-  <div class="prose prose-slate max-w-none text-slate-700 space-y-6">
+  <div class="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-6">
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">1. {gettext("Responsable")}</h2>
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
+        1. {gettext("Responsable")}
+      </h2>
 
       <p>
         {gettext(
@@ -24,7 +28,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         2. {gettext("Datos que recogemos")}
       </h2>
 
@@ -36,7 +40,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         3. {gettext("Finalidad y legitimación")}
       </h2>
 
@@ -48,7 +52,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         4. {gettext("Conservación y seguridad")}
       </h2>
 
@@ -60,7 +64,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         5. {gettext("Derechos del usuario")}
       </h2>
 
@@ -75,7 +79,7 @@
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-indigo-600 hover:underline"
+              class="text-indigo-600 dark:text-indigo-400 hover:underline"
             >GitHub</a>{if Map.get(@legal, :profile_url),
               do: " " <> gettext("o") <> " ",
               else: "."}
@@ -85,7 +89,7 @@
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-indigo-600 hover:underline"
+              class="text-indigo-600 dark:text-indigo-400 hover:underline"
             ><%= gettext("perfil") %></a>.
           <% end %>
         <% else %>
@@ -93,7 +97,7 @@
         <% end %>
       </p>
 
-      <h3 class="text-lg font-medium text-slate-900 mt-6 mb-1">
+      <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mt-6 mb-1">
         5.1 {gettext("Derecho de supresión")}
       </h3>
       <p>
@@ -102,7 +106,7 @@
         )}
       </p>
 
-      <h3 class="text-lg font-medium text-slate-900 mt-6 mb-1">
+      <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mt-6 mb-1">
         5.2 {gettext("Exportación de datos")}
       </h3>
       <p>
@@ -111,7 +115,7 @@
         )}
       </p>
 
-      <h3 class="text-lg font-medium text-slate-900 mt-6 mb-1">
+      <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mt-6 mb-1">
         5.3 {gettext("Gestión de consentimientos")}
       </h3>
       <p>
@@ -122,7 +126,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         6. {gettext("Cookies y similares")}
       </h2>
 
@@ -134,7 +138,9 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">7. {gettext("Cambios")}</h2>
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
+        7. {gettext("Cambios")}
+      </h2>
 
       <p>
         {gettext(

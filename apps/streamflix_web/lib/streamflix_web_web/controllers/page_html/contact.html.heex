@@ -5,32 +5,36 @@
   legal={@legal}
   active_page={@active_page}
 >
-  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Contacto")}</h1>
+  <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+    {gettext("Contacto")}
+  </h1>
 
-  <p class="text-slate-600 mb-10">
+  <p class="text-slate-600 dark:text-slate-400 mb-10">
     {gettext(
       "Contactar para consultas sobre el servicio, soporte técnico o cualquier otra solicitud."
     )}
   </p>
 
   <div class="space-y-6">
-    <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("Email")}</h2>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("Email")}
+      </h2>
 
       <%= if (email = Map.get(@legal, :contact_email)) && email != "" do %>
         <a
           href={"mailto:#{email}"}
-          class="text-indigo-600 hover:text-indigo-700 font-medium text-lg break-all"
+          class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-lg break-all"
         >
           {email}
         </a>
-        <p class="text-slate-500 text-sm mt-1">
+        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">
           {gettext(
             "Las consultas se atienden a la brevedad. Para temas legales o privacidad, ver también Términos y Política de privacidad."
           )}
         </p>
       <% else %>
-        <p class="text-slate-600">
+        <p class="text-slate-600 dark:text-slate-400">
           {gettext(
             "Consulta los Términos de uso y la Política de privacidad para datos de contacto del titular."
           )}
@@ -38,12 +42,14 @@
       <% end %>
     </section>
 
-    <section class="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">{gettext("¿Cuándo contactar?")}</h2>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("¿Cuándo contactar?")}
+      </h2>
 
       <div class="space-y-3 mt-3">
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -55,18 +61,18 @@
           </div>
 
           <div>
-            <p class="text-slate-700 text-sm font-medium">
+            <p class="text-slate-700 dark:text-slate-300 text-sm font-medium">
               {gettext("Dudas sobre la plataforma")}
             </p>
 
-            <p class="text-slate-500 text-xs">
+            <p class="text-slate-500 dark:text-slate-400 text-xs">
               {gettext("Configuración de webhooks, jobs, SDKs y otras características.")}
             </p>
           </div>
         </div>
 
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
+          <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 mt-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -78,16 +84,18 @@
           </div>
 
           <div>
-            <p class="text-slate-700 text-sm font-medium">{gettext("Reportar un bug")}</p>
+            <p class="text-slate-700 dark:text-slate-300 text-sm font-medium">
+              {gettext("Reportar un bug")}
+            </p>
 
-            <p class="text-slate-500 text-xs">
+            <p class="text-slate-500 dark:text-slate-400 text-xs">
               {gettext("También puedes abrir un issue en GitHub.")}
             </p>
           </div>
         </div>
 
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -99,18 +107,18 @@
           </div>
 
           <div>
-            <p class="text-slate-700 text-sm font-medium">
+            <p class="text-slate-700 dark:text-slate-300 text-sm font-medium">
               {gettext("Sugerencias y feature requests")}
             </p>
 
-            <p class="text-slate-500 text-xs">
+            <p class="text-slate-500 dark:text-slate-400 text-xs">
               {gettext("Propuestas de mejora y nuevas características.")}
             </p>
           </div>
         </div>
 
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -122,11 +130,11 @@
           </div>
 
           <div>
-            <p class="text-slate-700 text-sm font-medium">
+            <p class="text-slate-700 dark:text-slate-300 text-sm font-medium">
               {gettext("Temas legales y privacidad")}
             </p>
 
-            <p class="text-slate-500 text-xs">
+            <p class="text-slate-500 dark:text-slate-400 text-xs">
               {gettext("GDPR, exportación de datos, eliminación de cuenta.")}
             </p>
           </div>
@@ -159,7 +167,7 @@
 
       <a
         href="/docs"
-        class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 transition"
+        class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
       >
         <.icon name="hero-book-open" class="w-5 h-5" /> {gettext("Documentación")}
       </a>

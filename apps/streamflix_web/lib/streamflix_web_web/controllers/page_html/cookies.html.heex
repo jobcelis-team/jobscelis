@@ -5,15 +5,17 @@
   legal={@legal}
   active_page={@active_page}
 >
-  <h1 class="text-3xl font-bold text-slate-900 mb-2">{gettext("Política de cookies")}</h1>
+  <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+    {gettext("Política de cookies")}
+  </h1>
 
-  <p class="text-slate-500 text-sm mb-8">
+  <p class="text-slate-500 dark:text-slate-400 text-sm mb-8">
     {gettext("Última actualización")}: {Date.utc_today() |> Calendar.strftime("%d/%m/%Y")}
   </p>
 
-  <div class="prose prose-slate max-w-none text-slate-700 space-y-6">
+  <div class="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-6">
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         1. {gettext("Qué son las cookies")}
       </h2>
 
@@ -25,7 +27,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         2. {gettext("Cookies que usa este sitio")}
       </h2>
 
@@ -35,24 +37,26 @@
         )}
       </p>
 
-      <div class="overflow-x-auto border border-slate-200 rounded-lg">
+      <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
         <table class="min-w-full text-sm">
-          <thead class="bg-slate-100">
+          <thead class="bg-slate-100 dark:bg-slate-700">
             <tr>
-              <th class="px-4 py-2 text-left font-medium text-slate-700">{gettext("Nombre")}</th>
+              <th class="px-4 py-2 text-left font-medium text-slate-700 dark:text-slate-300">
+                {gettext("Nombre")}
+              </th>
 
-              <th class="px-4 py-2 text-left font-medium text-slate-700">
+              <th class="px-4 py-2 text-left font-medium text-slate-700 dark:text-slate-300">
                 {gettext("Finalidad")}
               </th>
 
-              <th class="px-4 py-2 text-left font-medium text-slate-700">
+              <th class="px-4 py-2 text-left font-medium text-slate-700 dark:text-slate-300">
                 {gettext("Duración")}
               </th>
             </tr>
           </thead>
 
-          <tbody class="text-slate-600">
-            <tr class="border-t border-slate-200">
+          <tbody class="text-slate-600 dark:text-slate-400">
+            <tr class="border-t border-slate-200 dark:border-slate-700">
               <td class="px-4 py-3 text-xs">{gettext("Cookie de sesión")}</td>
 
               <td class="px-4 py-3">
@@ -64,7 +68,7 @@
               <td class="px-4 py-3">{gettext("30 días")}</td>
             </tr>
 
-            <tr class="border-t border-slate-200">
+            <tr class="border-t border-slate-200 dark:border-slate-700">
               <td class="px-4 py-3 text-xs">{gettext("Cookie de idioma")}</td>
 
               <td class="px-4 py-3">
@@ -79,7 +83,7 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         3. {gettext("Cómo gestionar o eliminar cookies")}
       </h2>
 
@@ -91,18 +95,18 @@
     </section>
 
     <section>
-      <h2 class="text-xl font-semibold text-slate-900 mt-8 mb-2">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mt-8 mb-2">
         4. {gettext("Más información")}
       </h2>
 
       <p>
         {gettext("El tratamiento de los datos personales se describe en la")} <a
           href="/privacy"
-          class="text-indigo-600 hover:underline"
+          class="text-indigo-600 dark:text-indigo-400 hover:underline"
         ><%= gettext("Política de privacidad") %></a>. {gettext("Para consultas, contactar a")}
         <strong>{Map.get(@legal, :owner, "Jobcelis")}</strong> {gettext("en la página de")} <a
           href="/contact"
-          class="text-indigo-600 hover:underline"
+          class="text-indigo-600 dark:text-indigo-400 hover:underline"
         ><%= gettext("Contacto") %></a>.
       </p>
     </section>

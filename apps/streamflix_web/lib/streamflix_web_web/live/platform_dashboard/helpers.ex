@@ -169,9 +169,9 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
 
   def tab_classes(active_tab, tab) do
     if active_tab == tab do
-      "border-indigo-600 text-indigo-700 font-semibold"
+      "border-indigo-600 dark:border-indigo-400 text-indigo-700 dark:text-indigo-300 font-semibold"
     else
-      "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+      "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
     end
   end
 
