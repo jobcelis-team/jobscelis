@@ -105,6 +105,16 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       finch: StreamflixCore.Finch
     ]
 
+    # Resolve destination IP before request
+    destination_ip = resolve_destination_ip(url)
+
+    # Store request details for logging
+    request_info = %{
+      request_headers: flatten_headers(headers),
+      request_body: truncate_body(body_json, 10_000),
+      destination_ip: destination_ip
+    }
+
     start_time = System.monotonic_time(:millisecond)
 
     case Req.post(url, opts) do
@@ -120,7 +130,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
           duration_ms: latency_ms
         )
 
-        mark_success(delivery, status, resp, latency_ms)
+        mark_success(delivery, status, resp, latency_ms, request_info)
 
       {:ok, %{status: status} = resp} ->
         latency_ms = System.monotonic_time(:millisecond) - start_time
@@ -135,7 +145,15 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         )
 
         resp_body = format_response_body(resp)
-        mark_failed(delivery, status, resp_body, latency_ms, flatten_headers(resp.headers))
+
+        mark_failed(
+          delivery,
+          status,
+          resp_body,
+          latency_ms,
+          flatten_headers(resp.headers),
+          request_info
+        )
 
       {:error, reason} ->
         latency_ms = System.monotonic_time(:millisecond) - start_time
@@ -149,7 +167,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
           duration_ms: latency_ms
         )
 
-        mark_failed(delivery, nil, inspect(reason), latency_ms, nil)
+        mark_failed(delivery, nil, inspect(reason), latency_ms, nil, request_info)
     end
   end
 
@@ -171,24 +189,41 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     :crypto.mac(:hmac, :sha256, secret, body) |> Base.encode64(padding: false)
   end
 
+  @max_response_body 10_000
+
   defp format_response_body(%{body: body}) when is_binary(body) do
-    if String.length(body) > 500, do: String.slice(body, 0, 500) <> "...", else: body
+    if String.length(body) > @max_response_body,
+      do: String.slice(body, 0, @max_response_body) <> "...",
+      else: body
+  end
+
+  defp format_response_body(%{body: body}) when is_map(body) or is_list(body) do
+    json = Jason.encode!(body)
+
+    if String.length(json) > @max_response_body,
+      do: String.slice(json, 0, @max_response_body) <> "...",
+      else: json
   end
 
   defp format_response_body(%{body: body}), do: inspect(body)
 
-  defp mark_success(delivery, status, resp, latency_ms) do
+  defp mark_success(delivery, status, resp, latency_ms, request_info) do
     result =
       delivery
-      |> Delivery.changeset(%{
-        status: "success",
-        attempt_number: delivery.attempt_number + 1,
-        response_status: status,
-        response_body: nil,
-        response_headers: flatten_headers(resp.headers),
-        response_latency_ms: latency_ms,
-        next_retry_at: nil
-      })
+      |> Delivery.changeset(
+        Map.merge(
+          %{
+            status: "success",
+            attempt_number: delivery.attempt_number + 1,
+            response_status: status,
+            response_body: format_response_body(resp),
+            response_headers: flatten_headers(resp.headers),
+            response_latency_ms: latency_ms,
+            next_retry_at: nil
+          },
+          request_info
+        )
+      )
       |> Repo.update()
 
     case result do
@@ -202,20 +237,32 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     end
   end
 
-  defp mark_failed(delivery, status, reason, latency_ms \\ nil, resp_headers \\ nil) do
+  defp mark_failed(
+         delivery,
+         status,
+         reason,
+         latency_ms \\ nil,
+         resp_headers \\ nil,
+         request_info \\ %{}
+       ) do
     new_attempt = delivery.attempt_number + 1
     max_attempts = get_max_attempts(delivery)
 
     delivery
-    |> Delivery.changeset(%{
-      status: "failed",
-      attempt_number: new_attempt,
-      response_status: status,
-      response_body: reason,
-      response_latency_ms: latency_ms,
-      response_headers: resp_headers,
-      next_retry_at: nil
-    })
+    |> Delivery.changeset(
+      Map.merge(
+        %{
+          status: "failed",
+          attempt_number: new_attempt,
+          response_status: status,
+          response_body: reason,
+          response_latency_ms: latency_ms,
+          response_headers: resp_headers,
+          next_retry_at: nil
+        },
+        request_info
+      )
+    )
     |> Repo.update()
     |> case do
       {:ok, d} ->
@@ -275,6 +322,25 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         event_id: delivery.event_id,
         attempts: delivery.attempt_number
       )
+    end
+  end
+
+  defp resolve_destination_ip(url) do
+    uri = URI.parse(url)
+
+    case :inet.getaddr(to_charlist(uri.host || ""), :inet) do
+      {:ok, ip} -> :inet.ntoa(ip) |> to_string()
+      _ -> nil
+    end
+  rescue
+    _ -> nil
+  end
+
+  defp truncate_body(body, max_length) when is_binary(body) do
+    if String.length(body) > max_length do
+      String.slice(body, 0, max_length) <> "..."
+    else
+      body
     end
   end
 

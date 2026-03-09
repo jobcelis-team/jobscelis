@@ -128,6 +128,11 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                         <%= if d.response_status do %>
                           <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                             HTTP {d.response_status}
+                            <%= if d.destination_ip do %>
+                              <span class="ml-2 text-slate-400 dark:text-slate-500">
+                                → {d.destination_ip}
+                              </span>
+                            <% end %>
                             <%= if d.response_body && d.response_body != "" do %>
                               —
                               <span class="text-red-600 dark:text-red-400 truncate">
@@ -136,6 +141,50 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                             <% end %>
                           </p>
                         <% end %>
+                        <%!-- Expandable request/response details --%>
+                        <details class="mt-2 text-xs">
+                          <summary class="cursor-pointer text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">
+                            {gettext("Ver detalles")}
+                          </summary>
+                          <div class="mt-2 space-y-2">
+                            <%!-- Request Headers --%>
+                            <%= if d.request_headers && d.request_headers != %{} do %>
+                              <div>
+                                <span class="font-semibold text-slate-600 dark:text-slate-300">
+                                  {gettext("Request Headers")}
+                                </span>
+                                <pre class="mt-1 p-2 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono text-slate-600 dark:text-slate-400 overflow-x-auto max-h-24">{Jason.encode!(d.request_headers, pretty: true)}</pre>
+                              </div>
+                            <% end %>
+                            <%!-- Request Body --%>
+                            <%= if d.request_body do %>
+                              <div>
+                                <span class="font-semibold text-slate-600 dark:text-slate-300">
+                                  {gettext("Request Body")}
+                                </span>
+                                <pre class="mt-1 p-2 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono text-slate-600 dark:text-slate-400 overflow-x-auto max-h-32">{format_json_preview(d.request_body)}</pre>
+                              </div>
+                            <% end %>
+                            <%!-- Response Headers --%>
+                            <%= if d.response_headers && d.response_headers != %{} do %>
+                              <div>
+                                <span class="font-semibold text-slate-600 dark:text-slate-300">
+                                  {gettext("Response Headers")}
+                                </span>
+                                <pre class="mt-1 p-2 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono text-slate-600 dark:text-slate-400 overflow-x-auto max-h-24">{Jason.encode!(d.response_headers, pretty: true)}</pre>
+                              </div>
+                            <% end %>
+                            <%!-- Response Body --%>
+                            <%= if d.response_body do %>
+                              <div>
+                                <span class="font-semibold text-slate-600 dark:text-slate-300">
+                                  {gettext("Response Body")}
+                                </span>
+                                <pre class="mt-1 p-2 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono text-slate-600 dark:text-slate-400 overflow-x-auto max-h-32">{format_json_preview(d.response_body)}</pre>
+                              </div>
+                            <% end %>
+                          </div>
+                        </details>
                       </div>
                     </div>
                   <% end %>

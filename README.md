@@ -275,7 +275,7 @@ Interactive docs: **https://jobcelis.com/docs** | Swagger UI: **https://jobcelis
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| GET | `/api/v1/deliveries` | List deliveries (status, attempts, response) |
+| GET | `/api/v1/deliveries` | List deliveries with full request/response logs, headers, latency, and destination IP |
 | POST | `/api/v1/deliveries/:id/retry` | Retry failed delivery |
 
 ### Dead Letter Queue (API Key)

@@ -176,14 +176,34 @@ defmodule StreamflixWebWeb.Schemas do
       type: :object,
       properties: %{
         id: %Schema{type: :string, format: :uuid},
-        status: %Schema{type: :string},
+        event_id: %Schema{type: :string, format: :uuid},
+        webhook_id: %Schema{type: :string, format: :uuid},
+        status: %Schema{type: :string, enum: ["pending", "success", "failed", "circuit_open"]},
         attempt_number: %Schema{type: :integer},
+        response_status: %Schema{type: :integer, nullable: true},
+        response_body: %Schema{type: :string, nullable: true},
+        response_headers: %Schema{type: :object, nullable: true},
+        response_latency_ms: %Schema{type: :integer, nullable: true},
+        request_headers: %Schema{type: :object, nullable: true},
+        request_body: %Schema{type: :string, nullable: true},
+        destination_ip: %Schema{type: :string, nullable: true},
+        next_retry_at: %Schema{type: :string, format: :"date-time", nullable: true},
         inserted_at: %Schema{type: :string, format: :"date-time"}
       },
       example: %{
         id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-        status: "delivered",
+        event_id: "a1b2c3d4-5678-9abc-def0-123456789abc",
+        webhook_id: "b2c3d4e5-6789-abcd-ef01-23456789abcd",
+        status: "success",
         attempt_number: 1,
+        response_status: 200,
+        response_body: "{\"ok\":true}",
+        response_headers: %{"content-type" => "application/json"},
+        response_latency_ms: 142,
+        request_headers: %{"content-type" => "application/json", "x-signature" => "sha256=..."},
+        request_body: "{\"event_id\":\"...\",\"topic\":\"order.created\",\"amount\":99.99}",
+        destination_ip: "93.184.216.34",
+        next_retry_at: nil,
         inserted_at: "2026-03-06T12:00:01.234567Z"
       }
     })
