@@ -46,7 +46,8 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("DB_POOL_SIZE") || "20"),
     socket_options: maybe_ipv6,
     ssl: [verify: :verify_none],
-    prepare: :unnamed
+    prepare: :unnamed,
+    after_connect: {Postgrex, :query!, ["SET search_path TO public", []]}
 
   # Secret Key Base
   secret_key_base =
