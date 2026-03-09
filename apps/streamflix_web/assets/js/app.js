@@ -535,6 +535,82 @@ Hooks.CopyCode = {
   },
 };
 
+// Password strength indicator hook for LiveView inputs (modals, etc.)
+// Uses opacity transitions instead of hidden to prevent layout shifts.
+Hooks.PasswordStrength = {
+  mounted() { this._bind(); },
+  updated() { this._bind(); },
+  _bind() {
+    // Find the actual password input (may be type="text" if toggle is active)
+    const input = this.el.querySelector('input[type="password"], input[type="text"]');
+    const fill = this.el.querySelector('[data-strength-fill]');
+    const label = this.el.querySelector('[data-strength-label]');
+    if (!input || !fill || !label) return;
+
+    // Avoid duplicate listeners — mark the hook element, not the input
+    // (morphdom may replace the input but preserves the hook element)
+    if (this._bound) return;
+    this._bound = true;
+
+    const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500'];
+    const labels = {
+      en: ['Weak', 'Fair', 'Good', 'Strong'],
+      es: ['Débil', 'Regular', 'Buena', 'Fuerte'],
+    };
+
+    function getLocale() {
+      const m = document.cookie.match(/locale=(es|en)/);
+      return m ? m[1] : 'en';
+    }
+
+    function score(pw) {
+      if (!pw || pw.length < 8) return 0;
+      let s = 1;
+      if (pw.length >= 12) s++;
+      if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
+      if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) s++;
+      return Math.min(s, 4);
+    }
+
+    const wrapper = fill.closest('[data-strength-bar]');
+    input.addEventListener('input', () => {
+      const s = score(input.value);
+      const locale = getLocale();
+      const widths = ['0%', '25%', '50%', '75%', '100%'];
+
+      // Use opacity instead of hidden to prevent layout shift
+      if (wrapper) wrapper.style.opacity = input.value.length === 0 ? '0' : '1';
+      fill.style.width = widths[s];
+      colors.forEach(c => fill.classList.remove(c));
+      if (s > 0) fill.classList.add(colors[s - 1]);
+      label.textContent = s > 0 ? (labels[locale] || labels.en)[s - 1] : '';
+    });
+  },
+};
+
+// Auto-resize textarea: grows with content up to a max height, then scrolls.
+Hooks.AutoResize = {
+  mounted() { this._bind(); },
+  updated() { this._resize(); },
+  _bind() {
+    const ta = this.el.tagName === 'TEXTAREA' ? this.el : this.el.querySelector('textarea');
+    if (!ta) return;
+    this._ta = ta;
+    this._maxPx = parseInt(ta.dataset.maxHeight || '256', 10);
+    ta.style.overflow = 'hidden';
+    ta.addEventListener('input', () => this._resize());
+    this._resize();
+  },
+  _resize() {
+    const ta = this._ta;
+    if (!ta) return;
+    ta.style.height = 'auto';
+    const next = Math.min(ta.scrollHeight, this._maxPx);
+    ta.style.height = next + 'px';
+    ta.style.overflow = ta.scrollHeight > this._maxPx ? 'auto' : 'hidden';
+  },
+};
+
 // Infinite scroll hook for content lists
 Hooks.InfiniteScroll = {
   mounted() {
