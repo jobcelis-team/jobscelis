@@ -11,7 +11,7 @@
 
   <p class="text-slate-600 dark:text-slate-400 mb-10">
     {gettext(
-      "%{product} es un servicio gratuito de eventos y webhooks creado y mantenido por un desarrollador independiente. Sin empresa: proyecto personal.",
+      "%{product} nació de un problema real: reconstruir infraestructura de webhooks en cada proyecto. Reintentos, dead letters, logs, filtros — siempre lo mismo. Un desarrollador independiente decidió resolverlo una vez y compartirlo con la comunidad.",
       product: Map.get(@legal, :product_name, "Jobcelis")
     )}
   </p>
@@ -24,9 +24,103 @@
 
       <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
         {gettext(
-          "Jobcelis se creó para resolver el problema recurrente de implementar infraestructura de webhooks en cada proyecto: reintentos, dead letters, logs, filtros. Cada vez, reimplementar lo mismo. Jobcelis centraliza toda esa infraestructura en una API simple para que los developers se enfoquen en su lógica de negocio."
+          "En cada proyecto que necesitaba notificar a otros servicios, terminaba escribiendo la misma infraestructura: clientes HTTP con reintentos, colas de fallos, logs de entregas, filtros por tipo de evento. Jobcelis centraliza todo en una API simple. En vez de reconstruir, integrás con un POST y configurás a dónde van los datos."
         )}
       </p>
+    </section>
+
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+        {gettext("Qué hace diferente a Jobcelis")}
+      </h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="flex items-start gap-3">
+          <span class="text-indigo-600 dark:text-indigo-400 mt-0.5 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+              />
+            </svg>
+          </span>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Developer-first")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
+              {gettext("API REST, no un constructor visual. Control total desde código.")}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-indigo-600 dark:text-indigo-400 mt-0.5 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+          </span>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Completo")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
+              {gettext(
+                "Eventos, webhooks, jobs, pipelines, dead letters, replay, sandbox — todo incluido."
+              )}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-indigo-600 dark:text-indigo-400 mt-0.5 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </span>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Gratis de verdad")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
+              {gettext(
+                "Sin límites artificiales, sin tarjeta, sin trials. Sin inversores que moneticen tus datos."
+              )}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-indigo-600 dark:text-indigo-400 mt-0.5 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              />
+            </svg>
+          </span>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Confiable")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
+              {gettext(
+                "Elixir/OTP (tolerante a fallos), reintentos exponenciales, circuit breaker, cifrado en reposo."
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
