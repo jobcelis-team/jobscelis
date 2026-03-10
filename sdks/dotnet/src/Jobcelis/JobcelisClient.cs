@@ -503,6 +503,26 @@ public class JobcelisClient : IDisposable
         => DoDeleteAsync("/api/v1/me/object");
 
     // -------------------------------------------------------------------------
+    // Retention & Purge
+    // -------------------------------------------------------------------------
+
+    /// <summary>Get current retention policy.</summary>
+    public Task<JsonElement> GetRetentionPolicyAsync()
+        => GetAsync("/api/v1/retention");
+
+    /// <summary>Update retention policy.</summary>
+    public Task<JsonElement> UpdateRetentionPolicyAsync(object policy)
+        => PatchAsync("/api/v1/retention", policy);
+
+    /// <summary>Preview a purge operation.</summary>
+    public Task<JsonElement> PreviewPurgeAsync(object parameters)
+        => PostAsync("/api/v1/purge/preview", parameters);
+
+    /// <summary>Execute a purge operation.</summary>
+    public Task<JsonElement> PurgeDataAsync(object parameters)
+        => PostAsync("/api/v1/purge", parameters);
+
+    // -------------------------------------------------------------------------
     // Health
     // -------------------------------------------------------------------------
 

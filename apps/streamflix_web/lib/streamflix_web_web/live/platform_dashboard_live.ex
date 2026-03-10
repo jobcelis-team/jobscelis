@@ -120,7 +120,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         oban_state_counts: %{},
         oban_jobs: [],
         oban_filter_state: nil,
-        oban_filter_queue: nil
+        oban_filter_queue: nil,
+        retention_policy: %{},
+        purge_form: %{
+          "type" => "events",
+          "older_than" => "",
+          "topic" => "",
+          "status" => ""
+        },
+        purge_preview: nil,
+        purge_confirming: false
       })
 
     if connected?(socket), do: Notifications.subscribe(user.id)
@@ -1771,6 +1780,124 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     end
   end
 
+  # ---------- Data Management ----------
+
+  @impl true
+  def handle_event("save_retention_policy", params, socket) do
+    with_permission(socket, :admin, fn ->
+      project = socket.assigns.project
+
+      policy = %{
+        "events_days" => parse_int(params["events_days"]),
+        "deliveries_days" => parse_int(params["deliveries_days"]),
+        "audit_logs_days" => parse_int(params["audit_logs_days"])
+      }
+
+      case Platform.update_retention_policy(project, policy) do
+        {:ok, updated_project} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("Política de retención actualizada."))
+           |> assign(:project, updated_project)
+           |> assign(:retention_policy, updated_project.retention_policy || %{})}
+
+        {:error, _} ->
+          {:noreply,
+           put_flash(socket, :error, gettext("Error al actualizar la política de retención."))}
+      end
+    end)
+  end
+
+  @impl true
+  def handle_event("purge_form_change", params, socket) do
+    form = %{
+      "type" => params["type"] || "events",
+      "older_than" => params["older_than"] || "",
+      "topic" => params["topic"] || "",
+      "status" => params["status"] || ""
+    }
+
+    {:noreply, socket |> assign(:purge_form, form) |> assign(:purge_preview, nil)}
+  end
+
+  @impl true
+  def handle_event("preview_purge", _params, socket) do
+    with_permission(socket, :admin, fn ->
+      project = socket.assigns.project
+      form = socket.assigns.purge_form
+
+      params = %{
+        "type" => form["type"],
+        "older_than" => form["older_than"],
+        "topic" => if(form["topic"] != "", do: form["topic"]),
+        "status" => if(form["status"] != "", do: form["status"])
+      }
+
+      case Platform.preview_purge(project.id, params) do
+        {:ok, result} ->
+          {:noreply, assign(socket, :purge_preview, result)}
+
+        {:error, :invalid_type} ->
+          {:noreply, put_flash(socket, :error, gettext("Tipo de dato inválido."))}
+
+        {:error, :invalid_date} ->
+          {:noreply,
+           put_flash(socket, :error, gettext("Fecha inválida. Usa formato YYYY-MM-DD."))}
+      end
+    end)
+  end
+
+  @impl true
+  def handle_event("confirm_purge", _params, socket) do
+    {:noreply, assign(socket, :purge_confirming, true)}
+  end
+
+  @impl true
+  def handle_event("cancel_purge", _params, socket) do
+    {:noreply, assign(socket, :purge_confirming, false)}
+  end
+
+  @impl true
+  def handle_event("execute_purge", _params, socket) do
+    with_permission(socket, :admin, fn ->
+      project = socket.assigns.project
+      form = socket.assigns.purge_form
+
+      params = %{
+        "type" => form["type"],
+        "older_than" => form["older_than"],
+        "topic" => if(form["topic"] != "", do: form["topic"]),
+        "status" => if(form["status"] != "", do: form["status"])
+      }
+
+      case Platform.manual_purge(project.id, params) do
+        {:ok, result} ->
+          Audit.record("data.purged",
+            user_id: socket.assigns.current_user.id,
+            project_id: project.id,
+            resource_type: result.type,
+            metadata: %{deleted_count: result.deleted_count, older_than: result.older_than}
+          )
+
+          {:noreply,
+           socket
+           |> put_flash(
+             :info,
+             gettext("%{count} registros eliminados.", count: result.deleted_count)
+           )
+           |> assign(:purge_preview, nil)
+           |> assign(:purge_confirming, false)}
+
+        {:error, :invalid_type} ->
+          {:noreply, put_flash(socket, :error, gettext("Tipo de dato inválido."))}
+
+        {:error, :invalid_date} ->
+          {:noreply,
+           put_flash(socket, :error, gettext("Fecha inválida. Usa formato YYYY-MM-DD."))}
+      end
+    end)
+  end
+
   # ---------- Project switch (deferred via handle_params) ----------
 
   @impl true
@@ -1888,7 +2015,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           Task.async(fn -> {:analytics, load_analytics(project.id)} end),
           Task.async(fn -> {:uptime_status, load_uptime_status()} end),
           Task.async(fn -> {:uptime_stats, load_uptime_stats()} end),
-          Task.async(fn -> {:pending_invitations, Teams.list_pending_invitations(user.id)} end)
+          Task.async(fn -> {:pending_invitations, Teams.list_pending_invitations(user.id)} end),
+          Task.async(fn -> {:retention_policy, project.retention_policy || %{}} end)
         ]
 
         # Only load queue data for superadmins
@@ -2633,6 +2761,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   defp blank_to_nil(""), do: nil
   defp blank_to_nil(s) when is_binary(s), do: String.trim(s)
   defp blank_to_nil(v), do: v
+
+  defp parse_int(val) when is_binary(val) do
+    case Integer.parse(val) do
+      {n, _} -> n
+      :error -> nil
+    end
+  end
+
+  defp parse_int(val) when is_integer(val), do: val
+  defp parse_int(_), do: nil
 
   defp parse_event_types(nil), do: nil
   defp parse_event_types(types) when is_list(types), do: Enum.filter(types, &(&1 != ""))

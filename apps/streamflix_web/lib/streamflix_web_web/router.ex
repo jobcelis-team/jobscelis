@@ -251,6 +251,11 @@ defmodule StreamflixWebWeb.Router do
     get "/token", PlatformProjectController, :token
     post "/token/regenerate", PlatformProjectController, :regenerate_token
 
+    get "/retention", PlatformProjectController, :retention
+    patch "/retention", PlatformProjectController, :update_retention
+    post "/purge", PlatformProjectController, :purge
+    post "/purge/preview", PlatformProjectController, :preview_purge
+
     # Event Schemas (B14)
     get "/event-schemas", PlatformEventSchemasController, :index
     post "/event-schemas", PlatformEventSchemasController, :create

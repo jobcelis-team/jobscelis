@@ -498,6 +498,26 @@ defmodule Jobcelis.Client do
   end
 
   # ---------------------------------------------------------------------------
+  # Retention & Purge
+  # ---------------------------------------------------------------------------
+
+  def get_retention_policy(%__MODULE__{} = client) do
+    get(client, "/api/v1/retention")
+  end
+
+  def update_retention_policy(%__MODULE__{} = client, policy) do
+    patch(client, "/api/v1/retention", policy)
+  end
+
+  def preview_purge(%__MODULE__{} = client, params) do
+    post(client, "/api/v1/purge/preview", params)
+  end
+
+  def purge_data(%__MODULE__{} = client, params) do
+    post(client, "/api/v1/purge", params)
+  end
+
+  # ---------------------------------------------------------------------------
   # Health
   # ---------------------------------------------------------------------------
 

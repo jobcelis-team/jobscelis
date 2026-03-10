@@ -2884,7 +2884,249 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
       <% end %>
     </section>
 
-    <%!-- Row 4: More analytics charts (full width, 2-col grid) --%>
+    <%!-- Row 4: Data Management (full width) --%>
+    <section class="bg-white dark:bg-slate-800 rounded-xl border border-red-200 dark:border-red-800 shadow-sm p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <div class="flex items-center gap-2 mb-4">
+        <.icon name="hero-trash" class="w-5 h-5 text-red-600 dark:text-red-400" />
+        <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {gettext("Gestión de datos")}
+        </h2>
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
+        {gettext("Configura retención automática por proyecto y ejecuta purgas manuales selectivas.")}
+      </p>
+      <%= if can_manage_team?(@current_user_role) do %>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <%!-- Left: Retention Policy --%>
+          <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+            <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
+              {gettext("Retención automática")}
+            </h3>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mb-4">
+              {gettext(
+                "El sistema purga automáticamente registros antiguos cada semana. 0 = ilimitado."
+              )}
+            </p>
+            <.form for={%{}} id="retention-form" phx-submit="save_retention_policy" class="space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  {gettext("Eventos (días)")}
+                </label>
+                <select
+                  name="events_days"
+                  class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
+                >
+                  <%= for {label, val} <- retention_options() do %>
+                    <option
+                      value={val}
+                      selected={val == retention_val(@retention_policy, "events_days")}
+                    >
+                      {label}
+                    </option>
+                  <% end %>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  {gettext("Entregas (días)")}
+                </label>
+                <select
+                  name="deliveries_days"
+                  class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
+                >
+                  <%= for {label, val} <- retention_options() do %>
+                    <option
+                      value={val}
+                      selected={val == retention_val(@retention_policy, "deliveries_days")}
+                    >
+                      {label}
+                    </option>
+                  <% end %>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  {gettext("Audit logs (días)")}
+                </label>
+                <select
+                  name="audit_logs_days"
+                  class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
+                >
+                  <%= for {label, val} <- retention_options() do %>
+                    <option
+                      value={val}
+                      selected={val == retention_val(@retention_policy, "audit_logs_days")}
+                    >
+                      {label}
+                    </option>
+                  <% end %>
+                </select>
+              </div>
+              <div class="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  phx-disable-with={gettext("Guardando...")}
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
+                >
+                  <.icon name="hero-check" class="w-4 h-4" />
+                  {gettext("Guardar retención")}
+                </button>
+              </div>
+            </.form>
+          </div>
+
+          <%!-- Right: Manual Purge --%>
+          <div class="rounded-lg border border-red-200 dark:border-red-700 p-4">
+            <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
+              {gettext("Purga manual")}
+            </h3>
+            <p class="text-xs text-red-500 dark:text-red-400 mb-4">
+              {gettext("Elimina registros selectivamente. Esta acción es irreversible.")}
+            </p>
+            <.form
+              for={%{}}
+              id="purge-form"
+              phx-change="purge_form_change"
+              phx-submit="preview_purge"
+              class="space-y-3"
+            >
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  {gettext("Tipo de dato")}
+                </label>
+                <select
+                  name="type"
+                  class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="events" selected={@purge_form["type"] == "events"}>
+                    {gettext("Eventos")}
+                  </option>
+                  <option value="deliveries" selected={@purge_form["type"] == "deliveries"}>
+                    {gettext("Entregas")}
+                  </option>
+                  <option value="audit_logs" selected={@purge_form["type"] == "audit_logs"}>
+                    Audit logs
+                  </option>
+                  <option value="dead_letters" selected={@purge_form["type"] == "dead_letters"}>
+                    Dead letters
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  {gettext("Anteriores a")}
+                </label>
+                <input
+                  type="date"
+                  name="older_than"
+                  value={@purge_form["older_than"]}
+                  class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
+                  required
+                />
+              </div>
+              <%= if @purge_form["type"] in ["events", "deliveries"] do %>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    Topic <span class="text-slate-400 font-normal">({gettext("opcional")})</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="topic"
+                    value={@purge_form["topic"]}
+                    placeholder="user.* o order.created"
+                    class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+              <% end %>
+              <%= if @purge_form["type"] == "deliveries" do %>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                    Status <span class="text-slate-400 font-normal">({gettext("opcional")})</span>
+                  </label>
+                  <select
+                    name="status"
+                    class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
+                  >
+                    <option value="" selected={@purge_form["status"] == ""}>
+                      {gettext("Todos")}
+                    </option>
+                    <option value="success" selected={@purge_form["status"] == "success"}>
+                      Success
+                    </option>
+                    <option value="failed" selected={@purge_form["status"] == "failed"}>
+                      Failed
+                    </option>
+                  </select>
+                </div>
+              <% end %>
+
+              <%!-- Preview result --%>
+              <%= if @purge_preview do %>
+                <div class="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 p-3">
+                  <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    {gettext("%{count} registros encontrados",
+                      count: @purge_preview.count
+                    )}
+                  </p>
+                  <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                    {gettext("Tipo: %{type} | Anteriores a: %{date}",
+                      type: @purge_preview.type,
+                      date: @purge_preview.older_than
+                    )}
+                  </p>
+                </div>
+              <% end %>
+
+              <div class="flex items-center gap-2 pt-2">
+                <button
+                  type="submit"
+                  phx-disable-with={gettext("Calculando...")}
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
+                >
+                  <.icon name="hero-magnifying-glass" class="w-4 h-4" />
+                  {gettext("Vista previa")}
+                </button>
+
+                <%= if @purge_preview && @purge_preview.count > 0 do %>
+                  <%= if @purge_confirming do %>
+                    <button
+                      type="button"
+                      phx-click="execute_purge"
+                      class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium text-sm shadow-sm transition animate-pulse"
+                    >
+                      <.icon name="hero-exclamation-triangle" class="w-4 h-4" />
+                      {gettext("Confirmar eliminación")}
+                    </button>
+                    <button
+                      type="button"
+                      phx-click="cancel_purge"
+                      class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                    >
+                      {gettext("Cancelar")}
+                    </button>
+                  <% else %>
+                    <button
+                      type="button"
+                      phx-click="confirm_purge"
+                      class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium text-sm shadow-sm transition"
+                    >
+                      <.icon name="hero-trash" class="w-4 h-4" />
+                      {gettext("Purgar")}
+                    </button>
+                  <% end %>
+                <% end %>
+              </div>
+            </.form>
+          </div>
+        </div>
+      <% else %>
+        <p class="text-sm text-slate-400 dark:text-slate-500 text-center py-8">
+          {gettext("Solo el owner o editor puede gestionar la retención de datos.")}
+        </p>
+      <% end %>
+    </section>
+
+    <%!-- Row 5: More analytics charts (full width, 2-col grid) --%>
     <%= if @analytics != %{} do %>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
         <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6">
@@ -3001,5 +3243,23 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
       <% end %>
     </section>
     """
+  end
+
+  defp retention_options do
+    [
+      {gettext("90 días (predeterminado)"), 90},
+      {"30 " <> gettext("días"), 30},
+      {"180 " <> gettext("días"), 180},
+      {"365 " <> gettext("días"), 365},
+      {gettext("Ilimitado"), 0}
+    ]
+  end
+
+  defp retention_val(policy, key) do
+    case Map.get(policy, key) do
+      nil -> 90
+      val when is_integer(val) -> val
+      _ -> 90
+    end
   end
 end
