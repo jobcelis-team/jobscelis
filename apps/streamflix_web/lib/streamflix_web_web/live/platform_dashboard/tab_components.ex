@@ -943,16 +943,26 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     <% end %>
                   </td>
                   <td class="px-3 sm:px-4 py-2 sm:py-3">
-                    <span class={[
-                      "px-2 py-0.5 rounded text-xs font-medium",
-                      if(w.status == "active",
-                        do:
-                          "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
-                        else: "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
-                      )
-                    ]}>
-                      {w.status}
-                    </span>
+                    <div class="flex items-center gap-1.5">
+                      <span class={[
+                        "px-2 py-0.5 rounded text-xs font-medium",
+                        if(w.status == "active",
+                          do:
+                            "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
+                          else: "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+                        )
+                      ]}>
+                        {w.status}
+                      </span>
+                      <%= if StreamflixCore.RateLimiter.throttled?(w.id, w.rate_limit || %{}) do %>
+                        <span
+                          class="px-2 py-0.5 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                          title={gettext("Este webhook está siendo limitado por rate limit")}
+                        >
+                          {gettext("Limitado")}
+                        </span>
+                      <% end %>
+                    </div>
                   </td>
                   <%= if can_manage_team?(@current_user_role) do %>
                     <td class="px-3 sm:px-4 py-2 sm:py-3 text-right">

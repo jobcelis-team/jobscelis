@@ -19,6 +19,7 @@ defmodule StreamflixCore.Schemas.Webhook do
     field(:headers, :map, default: %{})
     field(:retry_config, :map, default: %{})
     field(:batch_config, :map)
+    field(:rate_limit, :map, default: %{})
 
     # Circuit breaker fields
     field(:circuit_state, :string, default: "closed")
@@ -44,6 +45,7 @@ defmodule StreamflixCore.Schemas.Webhook do
       :headers,
       :retry_config,
       :batch_config,
+      :rate_limit,
       :circuit_state,
       :circuit_opened_at,
       :consecutive_failures

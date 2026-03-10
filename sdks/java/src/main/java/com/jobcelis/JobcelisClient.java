@@ -124,10 +124,37 @@ public class JobcelisClient {
 
     // ── Webhooks ──────────────────────────────────────────────────────────
 
-    /** Create a webhook. */
+    /**
+     * Create a webhook.
+     *
+     * <p>The {@code extra} map may include a {@code "rate_limit"} key with a nested map
+     * containing {@code "max_per_second"} and/or {@code "max_per_minute"} to throttle
+     * outbound delivery rates.</p>
+     */
     public JsonObject createWebhook(String url, Map<String, Object> extra) throws JobcelisException, IOException {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("url", url);
+        if (extra != null) body.putAll(extra);
+        return post("/api/v1/webhooks", body);
+    }
+
+    /**
+     * Create a webhook with outbound rate limiting.
+     *
+     * @param url          The webhook endpoint URL.
+     * @param maxPerSecond Maximum deliveries per second (null to omit).
+     * @param maxPerMinute Maximum deliveries per minute (null to omit).
+     * @param extra        Additional webhook parameters (topics, secret, etc.).
+     */
+    public JsonObject createWebhook(String url, Integer maxPerSecond, Integer maxPerMinute, Map<String, Object> extra) throws JobcelisException, IOException {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("url", url);
+        if (maxPerSecond != null || maxPerMinute != null) {
+            Map<String, Object> rateLimit = new LinkedHashMap<>();
+            if (maxPerSecond != null) rateLimit.put("max_per_second", maxPerSecond);
+            if (maxPerMinute != null) rateLimit.put("max_per_minute", maxPerMinute);
+            body.put("rate_limit", rateLimit);
+        }
         if (extra != null) body.putAll(extra);
         return post("/api/v1/webhooks", body);
     }
@@ -145,9 +172,36 @@ public class JobcelisClient {
         return get("/api/v1/webhooks", params);
     }
 
-    /** Update a webhook. */
+    /**
+     * Update a webhook.
+     *
+     * <p>The {@code data} map may include a {@code "rate_limit"} key with a nested map
+     * containing {@code "max_per_second"} and/or {@code "max_per_minute"} to throttle
+     * outbound delivery rates. Pass {@code null} for the {@code "rate_limit"} key to
+     * remove rate limiting.</p>
+     */
     public JsonObject updateWebhook(String webhookId, Map<String, Object> data) throws JobcelisException, IOException {
         return patch("/api/v1/webhooks/" + webhookId, data);
+    }
+
+    /**
+     * Update a webhook with outbound rate limiting.
+     *
+     * @param webhookId    The webhook ID.
+     * @param maxPerSecond Maximum deliveries per second (null to omit).
+     * @param maxPerMinute Maximum deliveries per minute (null to omit).
+     * @param data         Additional webhook fields to update (url, topics, etc.).
+     */
+    public JsonObject updateWebhook(String webhookId, Integer maxPerSecond, Integer maxPerMinute, Map<String, Object> data) throws JobcelisException, IOException {
+        Map<String, Object> body = new LinkedHashMap<>();
+        if (data != null) body.putAll(data);
+        if (maxPerSecond != null || maxPerMinute != null) {
+            Map<String, Object> rateLimit = new LinkedHashMap<>();
+            if (maxPerSecond != null) rateLimit.put("max_per_second", maxPerSecond);
+            if (maxPerMinute != null) rateLimit.put("max_per_minute", maxPerMinute);
+            body.put("rate_limit", rateLimit);
+        }
+        return patch("/api/v1/webhooks/" + webhookId, body);
     }
 
     /** Delete a webhook. */

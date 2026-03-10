@@ -99,9 +99,14 @@ class JobcelisClient(
     // ── Webhooks ──────────────────────────────────────────────────────────
 
     /** Create a webhook. */
-    suspend fun createWebhook(url: String, extra: Map<String, Any>? = null): JsonObject {
+    suspend fun createWebhook(
+        url: String,
+        extra: Map<String, Any>? = null,
+        rateLimit: Map<String, Int>? = null
+    ): JsonObject {
         val body = mutableMapOf<String, Any>("url" to url)
         extra?.let { body.putAll(it) }
+        rateLimit?.let { body["rate_limit"] = it }
         return post("/api/v1/webhooks", body)
     }
 
@@ -114,8 +119,15 @@ class JobcelisClient(
         get("/api/v1/webhooks", buildParams("limit" to "$limit", "cursor" to cursor))
 
     /** Update a webhook. */
-    suspend fun updateWebhook(webhookId: String, data: Map<String, Any>): JsonObject =
-        patch("/api/v1/webhooks/$webhookId", data)
+    suspend fun updateWebhook(
+        webhookId: String,
+        data: Map<String, Any>,
+        rateLimit: Map<String, Int>? = null
+    ): JsonObject {
+        val body = data.toMutableMap()
+        rateLimit?.let { body["rate_limit"] = it }
+        return patch("/api/v1/webhooks/$webhookId", body)
+    }
 
     /** Delete a webhook. */
     suspend fun deleteWebhook(webhookId: String) {

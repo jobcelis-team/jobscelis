@@ -98,10 +98,22 @@ public class JobcelisClient : IDisposable
     // -------------------------------------------------------------------------
 
     /// <summary>Create a webhook.</summary>
-    public Task<JsonElement> CreateWebhookAsync(string url, Dictionary<string, object?>? extra = null)
+    /// <param name="url">The webhook endpoint URL.</param>
+    /// <param name="extra">Optional extra fields (topics, secret, etc.).</param>
+    /// <param name="rateLimitMaxPerSecond">Optional max deliveries per second.</param>
+    /// <param name="rateLimitMaxPerMinute">Optional max deliveries per minute.</param>
+    public Task<JsonElement> CreateWebhookAsync(string url, Dictionary<string, object?>? extra = null,
+        int? rateLimitMaxPerSecond = null, int? rateLimitMaxPerMinute = null)
     {
         var body = new Dictionary<string, object?> { ["url"] = url };
         if (extra != null) foreach (var kv in extra) body[kv.Key] = kv.Value;
+        if (rateLimitMaxPerSecond != null || rateLimitMaxPerMinute != null)
+        {
+            var rateLimit = new Dictionary<string, object?>();
+            if (rateLimitMaxPerSecond != null) rateLimit["max_per_second"] = rateLimitMaxPerSecond;
+            if (rateLimitMaxPerMinute != null) rateLimit["max_per_minute"] = rateLimitMaxPerMinute;
+            body["rate_limit"] = rateLimit;
+        }
         return PostAsync("/api/v1/webhooks", body);
     }
 
@@ -116,6 +128,24 @@ public class JobcelisClient : IDisposable
     /// <summary>Update a webhook.</summary>
     public Task<JsonElement> UpdateWebhookAsync(string webhookId, object data)
         => PatchAsync($"/api/v1/webhooks/{webhookId}", data);
+
+    /// <summary>Update a webhook with explicit rate limit parameters.</summary>
+    /// <param name="webhookId">The webhook ID.</param>
+    /// <param name="data">Fields to update (url, topics, secret, etc.).</param>
+    /// <param name="rateLimitMaxPerSecond">Optional max deliveries per second.</param>
+    /// <param name="rateLimitMaxPerMinute">Optional max deliveries per minute.</param>
+    public Task<JsonElement> UpdateWebhookAsync(string webhookId, Dictionary<string, object?> data,
+        int? rateLimitMaxPerSecond = null, int? rateLimitMaxPerMinute = null)
+    {
+        if (rateLimitMaxPerSecond != null || rateLimitMaxPerMinute != null)
+        {
+            var rateLimit = new Dictionary<string, object?>();
+            if (rateLimitMaxPerSecond != null) rateLimit["max_per_second"] = rateLimitMaxPerSecond;
+            if (rateLimitMaxPerMinute != null) rateLimit["max_per_minute"] = rateLimitMaxPerMinute;
+            data["rate_limit"] = rateLimit;
+        }
+        return PatchAsync($"/api/v1/webhooks/{webhookId}", data);
+    }
 
     /// <summary>Delete a webhook.</summary>
     public Task DeleteWebhookAsync(string webhookId)

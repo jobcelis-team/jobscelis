@@ -100,9 +100,13 @@ class JobcelisClient {
   // ── Webhooks ──────────────────────────────────────────────────────────
 
   /// Create a webhook.
-  Future<Map<String, dynamic>> createWebhook(String url, {Map<String, dynamic>? extra}) async {
+  ///
+  /// [rateLimit] - Optional rate limiting configuration with keys
+  /// `max_per_second` and/or `max_per_minute`.
+  Future<Map<String, dynamic>> createWebhook(String url, {Map<String, dynamic>? extra, Map<String, dynamic>? rateLimit}) async {
     final body = <String, dynamic>{'url': url};
     if (extra != null) body.addAll(extra);
+    if (rateLimit != null) body['rate_limit'] = rateLimit;
     return _post('/api/v1/webhooks', body);
   }
 
@@ -117,7 +121,11 @@ class JobcelisClient {
   }
 
   /// Update a webhook.
-  Future<Map<String, dynamic>> updateWebhook(String webhookId, Map<String, dynamic> data) async {
+  ///
+  /// [rateLimit] - Optional rate limiting configuration with keys
+  /// `max_per_second` and/or `max_per_minute`.
+  Future<Map<String, dynamic>> updateWebhook(String webhookId, Map<String, dynamic> data, {Map<String, dynamic>? rateLimit}) async {
+    if (rateLimit != null) data['rate_limit'] = rateLimit;
     return _patch('/api/v1/webhooks/$webhookId', data);
   }
 
