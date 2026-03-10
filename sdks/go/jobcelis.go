@@ -502,6 +502,13 @@ func (c *Client) WebhookHealth(ctx context.Context, id string) (map[string]inter
 	return resp, err
 }
 
+// TestWebhook sends a test delivery to a webhook.
+func (c *Client) TestWebhook(ctx context.Context, id string) (map[string]interface{}, error) {
+	var resp map[string]interface{}
+	err := c.doRequest(ctx, http.MethodPost, "/api/v1/webhooks/"+id+"/test", nil, &resp)
+	return resp, err
+}
+
 // WebhookTemplates retrieves available webhook templates.
 func (c *Client) WebhookTemplates(ctx context.Context) ([]map[string]interface{}, error) {
 	var resp struct {

@@ -9,7 +9,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
        "webhooks:read" when action in [:index, :show, :health, :templates]
 
   plug StreamflixWebWeb.Plugs.RequireScope,
-       "webhooks:write" when action in [:create, :update, :delete]
+       "webhooks:write" when action in [:create, :update, :delete, :test]
 
   action_fallback StreamflixWebWeb.FallbackController
 
@@ -219,6 +219,45 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
       rate_limit: w.rate_limit || %{},
       inserted_at: w.inserted_at
     }
+  end
+
+  operation(:test,
+    summary: "Send a test ping to a webhook",
+    parameters: [id: [in: :path, type: :string, description: "Webhook ID"]],
+    responses: [
+      ok: {"Test result", "application/json", Schemas.WebhookTestResult},
+      not_found: {"Not found", "application/json", Schemas.ErrorResponse},
+      unprocessable_entity: {"Test failed", "application/json", Schemas.WebhookTestResult}
+    ]
+  )
+
+  def test(conn, %{"id" => webhook_id}) do
+    project = conn.assigns.current_project
+
+    case Platform.get_webhook(webhook_id) do
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "webhook not found"})
+
+      webhook ->
+        if webhook.project_id != project.id do
+          conn |> put_status(:not_found) |> json(%{error: "webhook not found"})
+        else
+          case Platform.test_webhook(webhook_id) do
+            {:ok, result} ->
+              json(conn, %{
+                success: true,
+                status: result.status,
+                latency_ms: result.latency_ms,
+                webhook_id: result.webhook_id
+              })
+
+            {:error, result} ->
+              conn
+              |> put_status(:unprocessable_entity)
+              |> json(%{success: false, reason: result.reason, webhook_id: result.webhook_id})
+          end
+        end
+    end
   end
 
   def templates(conn, _params) do

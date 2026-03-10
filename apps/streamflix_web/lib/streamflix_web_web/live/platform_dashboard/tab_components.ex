@@ -976,6 +976,15 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                         >
                           <.icon name="hero-pencil-square" class="w-4 h-4" />
                         </button>
+                        <button
+                          type="button"
+                          phx-click="send_webhook_test"
+                          phx-value-id={w.id}
+                          class="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition"
+                          title={gettext("Enviar prueba")}
+                        >
+                          <.icon name="hero-paper-airplane" class="w-4 h-4" />
+                        </button>
                         <%= if w.status == "active" do %>
                           <button
                             type="button"

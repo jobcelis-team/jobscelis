@@ -142,6 +142,10 @@ class JobcelisClient(
     suspend fun webhookTemplates(): JsonObject =
         get("/api/v1/webhooks/templates")
 
+    /** Send a test delivery to a webhook. */
+    suspend fun testWebhook(webhookId: String): JsonObject =
+        post("/api/v1/webhooks/$webhookId/test", emptyMap())
+
     // ── Deliveries ────────────────────────────────────────────────────────
 
     /** List deliveries. */

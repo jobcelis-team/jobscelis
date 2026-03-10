@@ -98,6 +98,10 @@ export class JobcelisClient {
     return this.get('/api/v1/webhooks/templates');
   }
 
+  async testWebhook(webhookId: string): Promise<any> {
+    return this.post(`/api/v1/webhooks/${webhookId}/test`, {});
+  }
+
   // --- Deliveries ---
 
   async listDeliveries(opts?: ListOptions & { event_id?: string; webhook_id?: string; status?: string }): Promise<PaginatedResponse<Delivery>> {

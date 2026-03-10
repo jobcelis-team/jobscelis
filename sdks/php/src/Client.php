@@ -222,6 +222,14 @@ class Client
         return $this->get('/api/v1/webhooks/templates');
     }
 
+    /**
+     * Send a test delivery to a webhook.
+     */
+    public function testWebhook(string $webhookId): array
+    {
+        return $this->post("/api/v1/webhooks/{$webhookId}/test", []);
+    }
+
     // -------------------------------------------------------------------------
     // Deliveries
     // -------------------------------------------------------------------------
