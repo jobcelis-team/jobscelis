@@ -153,6 +153,10 @@ Commands:
     embed tokens-create --name <n> --scopes <s1,s2>   Create embed token
     embed tokens-revoke <id>                          Revoke embed token
 
+  Webhook Verification:
+    verify-signature --secret <s> --body <b> --signature <sig>
+                                                      Verify a webhook signature
+
   Other:
     status                                            Check platform health
     version                                           Show CLI version
@@ -325,6 +329,11 @@ async function main(): Promise<void> {
 
   if (args[0] === "simulate") {
     await commands.simulate(args.slice(1));
+    return;
+  }
+
+  if (args[0] === "verify-signature") {
+    await commands.verifySignature(args.slice(1));
     return;
   }
 
