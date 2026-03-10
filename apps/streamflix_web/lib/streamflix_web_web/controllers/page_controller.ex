@@ -6,7 +6,7 @@ defmodule StreamflixWebWeb.PageController do
       active_page: :home,
       meta_description:
         gettext(
-          "Infraestructura de eventos para developers. Envía eventos con un POST, configura webhooks con filtros, programa jobs. 13 SDKs, replay, DLQ, pipelines. Gratis."
+          "Infraestructura de eventos para developers. Envía eventos con un POST, configura webhooks con filtros, programa jobs. 12 SDKs + CLI, replay, DLQ, pipelines. Gratis."
         )
     )
   end
@@ -65,7 +65,7 @@ defmodule StreamflixWebWeb.PageController do
       active_page: :pricing,
       meta_description:
         gettext(
-          "Jobcelis es gratis. Sin planes, sin límites. Eventos ilimitados, 13 SDKs, replay, pipelines y más."
+          "Jobcelis es gratis. Sin planes, sin límites. Eventos ilimitados, 12 SDKs + CLI, replay, pipelines y más."
         )
     )
   end
