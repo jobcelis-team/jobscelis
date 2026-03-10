@@ -1,7 +1,7 @@
 defmodule Jobcelis.MixProject do
   use Mix.Project
 
-  @version "1.0.0"
+  @version "1.2.0"
   @source_url "https://github.com/vladimirCeli/jobcelis-elixir"
 
   def project do
