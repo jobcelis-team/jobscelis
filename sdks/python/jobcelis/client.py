@@ -418,6 +418,20 @@ class JobcelisClient:
         """Withdraw objection to data processing."""
         self._delete("/api/v1/me/object")
 
+    # --- Embed Tokens ---
+
+    def list_embed_tokens(self) -> dict:
+        """List embed tokens."""
+        return self._get("/api/v1/embed/tokens")
+
+    def create_embed_token(self, config: dict) -> dict:
+        """Create an embed token."""
+        return self._post("/api/v1/embed/tokens", config)
+
+    def revoke_embed_token(self, id: str) -> None:
+        """Revoke an embed token."""
+        self._delete(f"/api/v1/embed/tokens/{id}")
+
     # --- Notification Channels ---
 
     def get_notification_channel(self) -> dict:

@@ -148,6 +148,11 @@ Commands:
     auth refresh --token <t>                          Refresh token
     auth mfa-verify --token <t> --code <c>            Verify MFA code
 
+  Embed Tokens:
+    embed tokens-list                                 List embed tokens
+    embed tokens-create --name <n> --scopes <s1,s2>   Create embed token
+    embed tokens-revoke <id>                          Revoke embed token
+
   Other:
     status                                            Check platform health
     version                                           Show CLI version
@@ -292,6 +297,11 @@ const COMMAND_MAP: Record<string, Record<string, CommandHandler>> = {
     login: commands.authLogin,
     refresh: commands.authRefresh,
     "mfa-verify": commands.authMfaVerify,
+  },
+  embed: {
+    "tokens-list": commands.embedTokensList,
+    "tokens-create": commands.embedTokensCreate,
+    "tokens-revoke": commands.embedTokensRevoke,
   },
 };
 

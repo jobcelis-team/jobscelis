@@ -440,6 +440,23 @@ public class JobcelisClient {
         try await get("/api/v1/audit-log", params: ["limit": "\(limit)", "cursor": cursor])
     }
 
+    // MARK: - Embed Tokens
+
+    /// List embed tokens.
+    public func listEmbedTokens() async throws -> [String: Any] {
+        try await get("/api/v1/embed/tokens")
+    }
+
+    /// Create an embed token.
+    public func createEmbedToken(config: [String: Any]) async throws -> [String: Any] {
+        try await post("/api/v1/embed/tokens", body: config)
+    }
+
+    /// Revoke an embed token.
+    public func revokeEmbedToken(id: String) async throws {
+        try await doDelete("/api/v1/embed/tokens/\(id)")
+    }
+
     // MARK: - Notification Channels
 
     /// Get the notification channel configuration.

@@ -32,4 +32,7 @@ export type {
   WebhookStat,
   WebhookTemplate,
   Consent,
+  EmbedToken,
+  EmbedTokenCreate,
+  EmbedTokenResponse,
 } from './types';

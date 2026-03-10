@@ -51,6 +51,7 @@ Built with **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1**, and **PostgreSQL**
 | **Pipelines** | Multi-step event processing workflows with transformations. Chain events through configurable pipeline stages. |
 | **External Alerts** | Receive notifications via email, Slack, Discord, or meta-webhook when webhooks fail, circuit breakers open, jobs fail, or deliveries move to DLQ. Configurable per project with event type filters. |
 | **Idempotency Keys** | Prevent duplicate event processing with client-provided idempotency keys via body field or `X-Idempotency-Key` header. Keys auto-expire after a configurable TTL. Critical for payments and financial operations. |
+| **Embeddable Portal** | White-label widget (`embed.js`) for your end-users to manage webhooks and view deliveries. Embed token auth, customizable theme (colors, logo), bilingual (en/es). Turns Jobcelis into white-label infrastructure. |
 | **Dashboard** | Real-time LiveView dashboard with KPIs, analytics charts, webhook/job/event management, dead letter queue, sandbox, schemas, team management, alert configuration, and more. |
 | **Multi-project** | Multiple projects per user. Project selector with URL persistence. Invite members with roles (owner/editor/viewer). |
 | **Security** | Industry-standard encryption at rest, MFA/TOTP, session management, rate limiting, IP allowlist, circuit breaker, anomaly detection, security headers, cookie consent. |
@@ -338,6 +339,25 @@ Interactive docs: **https://jobcelis.com/docs** | Swagger UI: **https://jobcelis
 | PUT | `/api/v1/notification-channels` | Create or update channels (email, Slack, Discord, meta-webhook) |
 | DELETE | `/api/v1/notification-channels` | Delete channel configuration |
 | POST | `/api/v1/notification-channels/test` | Send test notification to all enabled channels |
+
+### Embed Portal (API Key — Token Management)
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/embed/tokens` | List embed tokens |
+| POST | `/api/v1/embed/tokens` | Generate new embed token |
+| DELETE | `/api/v1/embed/tokens/:id` | Revoke embed token |
+
+### Embed Portal (Embed Token Auth)
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/embed/webhooks` | List webhooks |
+| POST | `/api/v1/embed/webhooks` | Create webhook |
+| PATCH | `/api/v1/embed/webhooks/:id` | Update webhook |
+| DELETE | `/api/v1/embed/webhooks/:id` | Delete webhook |
+| GET | `/api/v1/embed/deliveries` | List deliveries |
+| POST | `/api/v1/embed/deliveries/:id/retry` | Retry delivery |
 
 ### Event Schemas (API Key)
 

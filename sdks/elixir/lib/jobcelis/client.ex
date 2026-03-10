@@ -458,6 +458,22 @@ defmodule Jobcelis.Client do
   end
 
   # ---------------------------------------------------------------------------
+  # Embed Tokens
+  # ---------------------------------------------------------------------------
+
+  def list_embed_tokens(%__MODULE__{} = client) do
+    get(client, "/api/v1/embed/tokens")
+  end
+
+  def create_embed_token(%__MODULE__{} = client, config) do
+    post(client, "/api/v1/embed/tokens", config)
+  end
+
+  def revoke_embed_token(%__MODULE__{} = client, id) do
+    do_delete(client, "/api/v1/embed/tokens/#{id}")
+  end
+
+  # ---------------------------------------------------------------------------
   # Notification Channels
   # ---------------------------------------------------------------------------
 

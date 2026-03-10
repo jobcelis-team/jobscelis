@@ -383,6 +383,19 @@ type Consent struct {
 	UpdatedAt string `json:"updated_at,omitempty"`
 }
 
+// EmbedToken represents an embed token for client-side integrations.
+type EmbedToken struct {
+	ID             string                 `json:"id"`
+	Prefix         string                 `json:"prefix"`
+	Name           string                 `json:"name"`
+	Status         string                 `json:"status"`
+	Scopes         []string               `json:"scopes"`
+	AllowedOrigins []string               `json:"allowed_origins"`
+	Metadata       map[string]interface{} `json:"metadata"`
+	ExpiresAt      *string                `json:"expires_at"`
+	InsertedAt     string                 `json:"inserted_at"`
+}
+
 // PaginatedResponse wraps paginated API responses.
 type PaginatedResponse[T any] struct {
 	Data       []T    `json:"data"`
@@ -1111,6 +1124,30 @@ func (c *Client) VerifyMFA(ctx context.Context, mfaToken, code string) (*AuthTok
 	var resp AuthTokenResponse
 	err := c.doPublicRequest(ctx, http.MethodPost, "/api/v1/auth/mfa/verify", body, &resp)
 	return &resp, err
+}
+
+// ---------- Embed Tokens ----------
+
+// ListEmbedTokens lists all embed tokens for the current project.
+func (c *Client) ListEmbedTokens(ctx context.Context) ([]EmbedToken, error) {
+	var resp struct {
+		Data []EmbedToken `json:"data"`
+	}
+	err := c.doRequest(ctx, http.MethodGet, "/api/v1/embed/tokens", nil, &resp)
+	return resp.Data, err
+}
+
+// CreateEmbedToken creates a new embed token.
+// Returns the raw response including the "token" field (only available at creation time).
+func (c *Client) CreateEmbedToken(ctx context.Context, config map[string]interface{}) (map[string]interface{}, error) {
+	var resp map[string]interface{}
+	err := c.doRequest(ctx, http.MethodPost, "/api/v1/embed/tokens", config, &resp)
+	return resp, err
+}
+
+// RevokeEmbedToken revokes an embed token by ID.
+func (c *Client) RevokeEmbedToken(ctx context.Context, id string) error {
+	return c.doRequest(ctx, http.MethodDelete, "/api/v1/embed/tokens/"+id, nil, nil)
 }
 
 // ---------- Health ----------
