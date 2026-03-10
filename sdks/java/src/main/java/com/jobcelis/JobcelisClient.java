@@ -663,6 +663,28 @@ public class JobcelisClient {
         return post("/api/v1/notification-channels/test", Map.of());
     }
 
+    // ── Retention & Purge ──────────────────────────────────────────────────
+
+    /** Get current retention policy. */
+    public JsonObject getRetentionPolicy() throws JobcelisException, IOException {
+        return get("/api/v1/retention");
+    }
+
+    /** Update retention policy. */
+    public JsonObject updateRetentionPolicy(Map<String, Object> policy) throws JobcelisException, IOException {
+        return patch("/api/v1/retention", policy);
+    }
+
+    /** Preview a purge operation. */
+    public JsonObject previewPurge(Map<String, Object> params) throws JobcelisException, IOException {
+        return post("/api/v1/purge/preview", params);
+    }
+
+    /** Execute a purge operation. */
+    public JsonObject purgeData(Map<String, Object> params) throws JobcelisException, IOException {
+        return post("/api/v1/purge", params);
+    }
+
     // ── Health ─────────────────────────────────────────────────────────────
 
     /** Check API health. */

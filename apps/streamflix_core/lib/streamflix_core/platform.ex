@@ -163,6 +163,11 @@ defmodule StreamflixCore.Platform do
   defdelegate oban_purge_jobs(days), to: StreamflixCore.Platform.ObanMonitor, as: :purge_jobs
   defdelegate oban_queues(), to: StreamflixCore.Platform.ObanMonitor, as: :queues
 
+  # ---------- Data Management (Retention + Purge) ----------
+  defdelegate update_retention_policy(project, policy), to: StreamflixCore.Platform.DataManagement
+  defdelegate manual_purge(project_id, params), to: StreamflixCore.Platform.DataManagement
+  defdelegate preview_purge(project_id, params), to: StreamflixCore.Platform.DataManagement
+
   # ---------- Pagination ----------
   defdelegate paginate_events(project_id), to: StreamflixCore.Platform.Pagination
   defdelegate paginate_events(project_id, opts), to: StreamflixCore.Platform.Pagination

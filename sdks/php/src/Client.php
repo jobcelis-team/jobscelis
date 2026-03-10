@@ -922,6 +922,42 @@ class Client
     }
 
     // -------------------------------------------------------------------------
+    // Retention & Purge
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get current retention policy.
+     */
+    public function getRetentionPolicy(): array
+    {
+        return $this->get('/api/v1/retention');
+    }
+
+    /**
+     * Update retention policy.
+     */
+    public function updateRetentionPolicy(array $policy): array
+    {
+        return $this->patch('/api/v1/retention', $policy);
+    }
+
+    /**
+     * Preview a purge operation.
+     */
+    public function previewPurge(array $params): array
+    {
+        return $this->post('/api/v1/purge/preview', $params);
+    }
+
+    /**
+     * Execute a purge operation.
+     */
+    public function purgeData(array $params): array
+    {
+        return $this->post('/api/v1/purge', $params);
+    }
+
+    // -------------------------------------------------------------------------
     // Health
     // -------------------------------------------------------------------------
 

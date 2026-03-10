@@ -136,7 +136,10 @@ config :logger, :console,
     :channel_id,
     :event_type,
     :errors,
-    :keys_cleared
+    :keys_cleared,
+    :deleted_count,
+    :type,
+    :older_than
   ]
 
 # ============================================
