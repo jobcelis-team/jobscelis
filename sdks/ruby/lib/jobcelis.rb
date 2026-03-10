@@ -5,5 +5,5 @@ require_relative "jobcelis/webhook_verifier"
 require_relative "jobcelis/client"
 
 module Jobcelis
-  VERSION = "1.0.0"
+  VERSION = "1.2.0"
 end
