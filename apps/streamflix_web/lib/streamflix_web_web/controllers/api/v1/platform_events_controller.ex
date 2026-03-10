@@ -31,6 +31,13 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
   def create(conn, body) when is_map(body) do
     project = conn.assigns.current_project
 
+    # Support X-Idempotency-Key header (header takes precedence over body field)
+    body =
+      case Plug.Conn.get_req_header(conn, "x-idempotency-key") do
+        [key | _] when key != "" -> Map.put(body, "idempotency_key", key)
+        _ -> body
+      end
+
     case Platform.create_event(project.id, body) do
       {:ok, event} ->
         resp = %{event_id: event.id, payload_hash: event.payload_hash}

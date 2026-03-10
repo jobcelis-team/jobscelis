@@ -50,6 +50,7 @@ Built with **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1**, and **PostgreSQL**
 | **Scheduled Jobs** | Recurring tasks: daily, weekly, monthly, or cron expression. Actions: emit event or POST to external URL with configurable payload. Execution history tracking. |
 | **Pipelines** | Multi-step event processing workflows with transformations. Chain events through configurable pipeline stages. |
 | **External Alerts** | Receive notifications via email, Slack, Discord, or meta-webhook when webhooks fail, circuit breakers open, jobs fail, or deliveries move to DLQ. Configurable per project with event type filters. |
+| **Idempotency Keys** | Prevent duplicate event processing with client-provided idempotency keys via body field or `X-Idempotency-Key` header. Keys auto-expire after a configurable TTL. Critical for payments and financial operations. |
 | **Dashboard** | Real-time LiveView dashboard with KPIs, analytics charts, webhook/job/event management, dead letter queue, sandbox, schemas, team management, alert configuration, and more. |
 | **Multi-project** | Multiple projects per user. Project selector with URL persistence. Invite members with roles (owner/editor/viewer). |
 | **Security** | Industry-standard encryption at rest, MFA/TOTP, session management, rate limiting, IP allowlist, circuit breaker, anomaly detection, security headers, cookie consent. |
