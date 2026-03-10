@@ -19,16 +19,22 @@
 
     <div class="relative text-center max-w-3xl mx-auto">
       <p class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-4">
-        {gettext("Eventos, webhooks, jobs, pipelines y alertas")}
+        {gettext("La infraestructura de webhooks que no quieres reconstruir")}
       </p>
 
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-slate-100 mb-6 leading-tight tracking-tight">
-        {gettext("Plataforma de eventos y webhooks para developers")}
+        {gettext("Conecta tus aplicaciones con eventos, sin complicaciones")}
       </h1>
 
-      <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed">
+      <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
         {gettext(
-          "Envía eventos, configura webhooks con filtros inteligentes, programa jobs recurrentes y recibe alertas en Slack, Discord o email. Pipelines, replay, sandbox, portal embebible, métricas Prometheus y 12 SDKs + CLI. Todo gratis."
+          "Cada vez que una app necesita notificar a otra, terminas escribiendo la misma lógica: llamadas HTTP, reintentos, manejo de fallos, logs. Jobcelis centraliza todo eso en una API. Envía un POST, nosotros lo entregamos al destino correcto."
+        )}
+      </p>
+
+      <p class="text-sm text-slate-500 dark:text-slate-500 mb-10">
+        {gettext(
+          "Para: notificaciones de pago, procesamiento de pedidos, triggers CI/CD, integraciones SaaS, y más."
         )}
       </p>
 
@@ -37,7 +43,7 @@
           href="/signup"
           class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-base transition shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30"
         >
-          {gettext("Comenzar gratis")}
+          {gettext("Envía tu primer evento (gratis)")}
           <svg
             class="ml-2 w-5 h-5"
             fill="none"
@@ -54,10 +60,10 @@
           </svg>
         </a>
         <a
-          href="/docs"
+          href="#how-it-works"
           class="inline-flex items-center justify-center bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 px-8 py-4 rounded-xl font-semibold text-base transition"
         >
-          {gettext("Ver documentación")}
+          {gettext("Cómo funciona")}
         </a>
       </div>
     </div>
@@ -182,30 +188,31 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
     </div>
   </section>
   <%!-- How it works --%>
-  <section class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-20 md:py-24">
+  <section
+    id="how-it-works"
+    class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-20 md:py-24"
+  >
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 text-center mb-4">
         {gettext("Cómo funciona")}
       </h2>
 
       <p class="text-slate-600 dark:text-slate-400 text-center max-w-xl mx-auto mb-14">
-        {gettext("Tres pasos para conectar cualquier sistema con webhooks en tiempo real.")}
+        {gettext("De tu aplicación al destino, en cinco pasos.")}
       </p>
 
-      <div class="grid md:grid-cols-3 gap-8">
+      <div class="grid md:grid-cols-5 gap-8">
         <div class="text-center">
           <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4">
             <span class="text-xl font-bold">1</span>
           </div>
 
           <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
-            {gettext("Envía un evento")}
+            {gettext("Tu app envía un evento")}
           </h3>
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-            {gettext(
-              "POST a la API con el token y un body JSON. Sin esquemas fijos: cualquier estructura de payload con un topic para clasificación."
-            )}
+            {gettext("POST JSON a la API con tu token. Cualquier estructura, cualquier topic.")}
           </p>
         </div>
 
@@ -215,13 +222,11 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
           </div>
 
           <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
-            {gettext("Ruteamos a tus webhooks")}
+            {gettext("Jobcelis lo enruta")}
           </h3>
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-            {gettext(
-              "Jobcelis entrega el evento a cada webhook que coincida por topic, wildcards o filtros de payload. En tiempo real."
-            )}
+            {gettext("Matchea webhooks por topic, wildcards o filtros de payload.")}
           </p>
         </div>
 
@@ -231,20 +236,192 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
           </div>
 
           <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
-            {gettext("Reintentos automáticos")}
+            {gettext("Tus endpoints lo reciben")}
           </h3>
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-            {gettext(
-              "Si una entrega falla, reintentamos automáticamente con intervalos crecientes. Las que no se recuperan van a la Dead Letter Queue."
-            )}
+            {gettext("HTTP POST con el payload configurado y firma verificable.")}
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4">
+            <span class="text-xl font-bold">4</span>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("¿Falló? Reintentamos")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+            {gettext("Backoff exponencial automático. Dead letters para las que no se recuperan.")}
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4">
+            <span class="text-xl font-bold">5</span>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Monitorea todo")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+            {gettext("Dashboard, analytics, audit log y alertas en Slack, Discord o email.")}
           </p>
         </div>
       </div>
     </div>
   </section>
-  <%!-- Features --%>
+  <%!-- Use cases --%>
   <section class="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 py-20 md:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 text-center mb-4">
+        {gettext("Casos de uso")}
+      </h2>
+
+      <p class="text-slate-600 dark:text-slate-400 text-center max-w-xl mx-auto mb-14">
+        {gettext("Cómo otros developers usan Jobcelis para resolver problemas reales.")}
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-bold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Procesamiento de pedidos")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3">
+            {gettext(
+              "Cuando un cliente hace un pedido, un solo evento notifica al warehouse, al sistema de facturación y al servicio de emails — automáticamente, con reintentos."
+            )}
+          </p>
+
+          <span class="font-mono text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded">
+            "topic": "order.created"
+          </span>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-bold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Notificaciones de pago")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3">
+            {gettext(
+              "Tu pasarela de pago envía un evento, Jobcelis actualiza el estado del pedido en tu backend y envía el recibo al cliente."
+            )}
+          </p>
+
+          <span class="font-mono text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded">
+            "topic": "payment.completed"
+          </span>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-bold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Triggers CI/CD")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3">
+            {gettext(
+              "Cada deploy exitoso notifica al servicio de monitoreo, al canal de Slack y al tracker de analytics — sin código adicional."
+            )}
+          </p>
+
+          <span class="font-mono text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded">
+            "topic": "deploy.success"
+          </span>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-bold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Integraciones SaaS")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3">
+            {gettext(
+              "Cuando un usuario se registra en tu plataforma, sincroniza con tu CRM, envía el email de bienvenida y registra en analytics."
+            )}
+          </p>
+
+          <span class="font-mono text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded">
+            "topic": "user.signup"
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <%!-- Features --%>
+  <section class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-20 md:py-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 text-center mb-4">
         {gettext("Todo lo que necesitas")}
@@ -252,8 +429,12 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
       <p class="text-slate-600 dark:text-slate-400 text-center max-w-xl mx-auto mb-14">
         {gettext(
-          "Una sola API, un token, y control total sobre eventos, entregas y tareas programadas."
+          "Empieza simple, escala con confianza. Desde el primer evento hasta flujos enterprise."
         )}
+      </p>
+
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4 mt-8">
+        {gettext("Lo esencial")}
       </p>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -281,7 +462,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Publica eventos con topic y payload JSON vía API. Sin esquemas predefinidos: la plataforma enruta, filtra y entrega automáticamente."
+              "Envía JSON con un POST. Sin esquemas fijos. Jobcelis persiste, enruta y entrega automáticamente a tus webhooks."
             )}
           </p>
         </div>
@@ -310,7 +491,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Configura URLs de destino con filtros por topic, wildcards o campos del payload. Entregas en tiempo real con seguimiento completo."
+              "URLs de destino con filtros por topic y payload. Entregas en tiempo real con firma verificable y seguimiento completo."
             )}
           </p>
         </div>
@@ -339,7 +520,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Tareas recurrentes: diario, semanal, mensual o cron. Cada ejecución puede emitir un evento o hacer POST a una URL."
+              "Programa tareas: diario, semanal, mensual o cron. Cada ejecución emite un evento o hace POST a una URL externa."
             )}
           </p>
         </div>
@@ -368,11 +549,17 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Reenvía eventos pasados a tus webhooks. Filtra por rango de fechas, topic o webhook específico."
+              "Reenvía eventos pasados cuando cambias código o migras sistemas. Filtra por fechas, topic o webhook."
             )}
           </p>
         </div>
+      </div>
 
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4 mt-8">
+        {gettext("Escala tu integración")}
+      </p>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
@@ -397,7 +584,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Encadena transformaciones sobre tus eventos: filtra, transforma payloads y enruta a distintos webhooks con reglas."
+              "Encadena pasos: filtra por condiciones, transforma payloads y enruta a distintos webhooks. Testa antes de desplegar."
             )}
           </p>
         </div>
@@ -426,7 +613,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Las entregas que agotan reintentos no se pierden. Revísalas, corrige el destino y reenvía con un clic."
+              "Las entregas que agotan reintentos no se pierden. Revisa el error, corrige y reenvía — nada se pierde."
             )}
           </p>
         </div>
@@ -455,7 +642,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Endpoints de prueba temporales para validar webhooks sin requerir infraestructura propia."
+              "Endpoints temporales para probar webhooks en desarrollo. Captura y examina cada petición sin servidor propio."
             )}
           </p>
         </div>
@@ -484,11 +671,17 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Cifrado en reposo, firma de webhooks verificable, MFA, rate limiting y audit log completo."
+              "Cifrado en reposo, firma de webhooks, MFA, rate limiting, audit log. Seguridad enterprise sin configuración extra."
             )}
           </p>
         </div>
+      </div>
 
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4 mt-8">
+        {gettext("Enterprise-ready")}
+      </p>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
           <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
             <svg
@@ -513,7 +706,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Recibe notificaciones por email, Slack o Discord cuando las entregas fallan o se detectan anomalías."
+              "Recibe notificaciones cuando entregas fallan o se detectan anomalías. Configura Email, Slack o Discord en un clic."
             )}
           </p>
         </div>
@@ -542,7 +735,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Integra la gestión de webhooks en tu propia app con tokens de embed y un widget JS listo para usar."
+              "Dale a tus clientes su propio panel de webhooks. Tokens con scopes granulares y widget JS listo para embeber."
             )}
           </p>
         </div>
@@ -571,7 +764,7 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Evita eventos duplicados con claves de idempotencia (X-Idempotency-Key). Expiración automática configurable."
+              "Evita duplicados con claves de idempotencia. Si envías el mismo evento dos veces, solo se procesa una."
             )}
           </p>
         </div>
@@ -600,41 +793,451 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
 
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
-              "Prometheus metrics, analytics por día, top topics y estadísticas de webhooks. Monitoreo completo en tiempo real."
+              "Prometheus metrics, analytics por día, top topics, latencia p50/p95/p99. Visibilidad total de tu infraestructura."
             )}
           </p>
         </div>
       </div>
     </div>
   </section>
+  <%!-- Problems we solve --%>
+  <section class="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 py-20 md:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 text-center mb-4">
+        {gettext("Problemas que resolvemos")}
+      </h2>
+
+      <p class="text-slate-600 dark:text-slate-400 text-center max-w-xl mx-auto mb-14">
+        {gettext(
+          "Sin Jobcelis, cada uno de estos problemas requiere código custom, mantenimiento y depuración."
+        )}
+      </p>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Reintentos manuales")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "¿Tu webhook falla? Sin reintentos automáticos, pierdes datos. Jobcelis reintenta con backoff exponencial y los guarda en Dead Letter Queue."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Sin visibilidad de entregas")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "¿Llegó el webhook? ¿Qué respondió? Sin logs no sabes. Jobcelis registra cada intento con status, headers y tiempos de respuesta."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Código duplicado entre proyectos")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "Clientes HTTP, colas de fallos, filtros por tipo — lo mismo en cada proyecto. Jobcelis centraliza todo en una API que reutilizas."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Cron jobs frágiles")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "Un crontab en el servidor, sin logs ni historial. Jobcelis programa tareas con dashboard, historial de ejecuciones y alertas de fallo."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Webhooks sin verificación")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "¿Cómo sabe tu servidor que el POST es legítimo? Jobcelis firma cada entrega con HMAC. Verificación en los 12 SDKs."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Sin replay ni recuperación")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "Migraste tu sistema y necesitas reprocesar eventos del mes pasado. Sin replay, imposible. Jobcelis reenvía por fechas, topic o webhook."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Eventos duplicados")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "Tu app envía el mismo evento dos veces por un retry del frontend. Jobcelis deduplica con claves de idempotencia automáticas."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Testing sin infraestructura")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "Para probar webhooks necesitas un servidor público. El Sandbox de Jobcelis te da endpoints temporales para capturar y examinar peticiones."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-sm font-bold">
+            !
+          </span>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              {gettext("Sin monitoreo de entregas")}
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+              {gettext(
+                "¿Cuántos webhooks fallan? ¿Cuál es la latencia? Jobcelis ofrece analytics, Prometheus metrics y alertas por Slack, Discord o email."
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <%!-- Why choose us --%>
+  <section class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-20 md:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 text-center mb-4">
+        {gettext("¿Por qué elegirnos?")}
+      </h2>
+
+      <p class="text-slate-600 dark:text-slate-400 text-center max-w-xl mx-auto mb-14">
+        {gettext(
+          "Lo que hace diferente a Jobcelis frente a construirlo tú mismo o pagar por alternativas."
+        )}
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-12">
+        <div class="flex items-start gap-4 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <span class="shrink-0 w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+              />
+            </svg>
+          </span>
+          <div>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Developer-first")}
+            </h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              {gettext(
+                "API REST, no un builder visual. 12 SDKs oficiales, CLI, GitHub Action y Terraform. Integrás con código, no con drag & drop."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <span class="shrink-0 w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+          </span>
+          <div>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Todo incluido")}
+            </h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              {gettext(
+                "Eventos, webhooks, jobs, pipelines, dead letters, replay, sandbox, schemas, analytics, audit log, alertas, portal embebible — en una sola plataforma."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <span class="shrink-0 w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </span>
+          <div>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Gratis de verdad")}
+            </h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              {gettext(
+                "Sin límites artificiales, sin tarjeta de crédito, sin trials. Sin inversores ni publicidad. Solo un developer construyendo para developers."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <span class="shrink-0 w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              />
+            </svg>
+          </span>
+          <div>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Seguridad enterprise")}
+            </h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              {gettext(
+                "Cifrado en reposo, firma HMAC de webhooks, MFA/TOTP, circuit breaker, detección de anomalías, GDPR completo. Sin configuración extra."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <span class="shrink-0 w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+          </span>
+          <div>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Tiempo real")}
+            </h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              {gettext(
+                "SSE streaming y WebSocket para recibir eventos y actualizaciones de entregas en tiempo real. Dashboard con LiveView auto-actualizable."
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <span class="shrink-0 w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </span>
+          <div>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
+              {gettext("Confiable y escalable")}
+            </h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              {gettext(
+                "Construido con Elixir/OTP — la misma tecnología detrás de sistemas que manejan millones de conexiones. Tolerante a fallos por diseño."
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <%!-- Comparison table --%>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 overflow-x-auto">
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-4">
+          {gettext("Comparación rápida")}
+        </h3>
+
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-slate-700">
+              <th class="text-left py-2 pr-4 text-slate-700 dark:text-slate-300 font-medium">
+                {gettext("Funcionalidad")}
+              </th>
+              <th class="text-center py-2 px-3 text-indigo-600 dark:text-indigo-400 font-semibold">
+                Jobcelis
+              </th>
+              <th class="text-center py-2 px-3 text-slate-500 dark:text-slate-400 font-medium">
+                {gettext("Alternativas de pago")}
+              </th>
+              <th class="text-center py-2 px-3 text-slate-500 dark:text-slate-400 font-medium">
+                DIY
+              </th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-600 dark:text-slate-400">
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">{gettext("Webhooks + reintentos automáticos")}</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-slate-400">{gettext("Construir")}</td>
+            </tr>
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">{gettext("Jobs programados (cron)")}</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-slate-400">—</td>
+              <td class="text-center py-2 px-3 text-slate-400">{gettext("Construir")}</td>
+            </tr>
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">{gettext("Pipelines y transformaciones")}</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-amber-500">~</td>
+              <td class="text-center py-2 px-3 text-slate-400">{gettext("Construir")}</td>
+            </tr>
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">Dead Letter Queue + Replay</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-amber-500">~</td>
+              <td class="text-center py-2 px-3 text-slate-400">{gettext("Construir")}</td>
+            </tr>
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">{gettext("Streaming en tiempo real (SSE + WebSocket)")}</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-slate-400">—</td>
+              <td class="text-center py-2 px-3 text-slate-400">{gettext("Construir")}</td>
+            </tr>
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">{gettext("Portal embebible + Sandbox")}</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-amber-500">~</td>
+              <td class="text-center py-2 px-3 text-slate-400">{gettext("Construir")}</td>
+            </tr>
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">{gettext("12 SDKs + CLI + GitHub Action")}</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-amber-500">~</td>
+              <td class="text-center py-2 px-3 text-slate-400">—</td>
+            </tr>
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">{gettext("Analytics + Prometheus metrics")}</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-amber-500">~</td>
+              <td class="text-center py-2 px-3 text-slate-400">{gettext("Construir")}</td>
+            </tr>
+            <tr class="border-b border-slate-100 dark:border-slate-700/50">
+              <td class="py-2 pr-4">{gettext("GDPR + MFA + cifrado + audit log")}</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-emerald-600">✓</td>
+              <td class="text-center py-2 px-3 text-slate-400">{gettext("Construir")}</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-4 font-medium text-slate-900 dark:text-slate-100">
+                {gettext("Precio")}
+              </td>
+              <td class="text-center py-2 px-3 font-bold text-indigo-600">$0</td>
+              <td class="text-center py-2 px-3 text-slate-500">$25–500+/mo</td>
+              <td class="text-center py-2 px-3 text-slate-500">{gettext("Tiempo dev")}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
   <%!-- Stats --%>
-  <section class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-16">
+  <section class="border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 py-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         <div>
           <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">98+</p>
 
           <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
-            {gettext("Endpoints API")}
+            {gettext("Endpoints REST")}
           </p>
         </div>
 
         <div>
-          <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">12+1</p>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">13</p>
 
-          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">SDKs + CLI</p>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+            {gettext("SDKs oficiales")}
+          </p>
         </div>
 
         <div>
           <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">12</p>
 
-          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">{gettext("Lenguajes")}</p>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+            {gettext("Lenguajes soportados")}
+          </p>
         </div>
 
         <div>
-          <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">100%</p>
+          <p class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400">$0</p>
 
-          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">{gettext("Gratis")}</p>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+            {gettext("Gratis para siempre")}
+          </p>
         </div>
       </div>
     </div>
@@ -643,12 +1246,12 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
   <section class="border-t border-slate-200 dark:border-slate-700 py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
     <div class="max-w-2xl mx-auto px-4 text-center">
       <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">
-        {gettext("¿Listo para comenzar?")}
+        {gettext("Empieza en 2 minutos")}
       </h2>
 
       <p class="text-slate-600 dark:text-slate-400 mb-8">
         {gettext(
-          "Registro gratuito sin tarjeta de crédito. Crear un proyecto, obtener el token y comenzar a enviar eventos."
+          "Registro gratuito, sin tarjeta de crédito. Crea un proyecto, obtén tu token y envía tu primer evento."
         )}
       </p>
 
