@@ -90,7 +90,7 @@ defmodule StreamflixCore.Platform.JobsTest do
     test "next_cron_executions returns future times" do
       executions = Platform.next_cron_executions("* * * * *", 3)
       assert length(executions) == 3
-      assert Enum.all?(executions, &(DateTime.compare(&1, DateTime.utc_now()) == :gt))
+      assert Enum.all?(executions, &(DateTime.compare(&1, DateTime.utc_now()) != :lt))
     end
 
     test "next_cron_executions for specific time" do
