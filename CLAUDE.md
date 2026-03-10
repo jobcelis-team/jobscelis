@@ -145,17 +145,17 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - `sdks/github-action/` — GitHub Action (used directly from this repo)
 
 ### External repos (required by their registries)
-- **Go SDK**: `github.com/vladimirCeli/go-jobcelis` — pkg.go.dev requires own repo with `go.mod` at root
-- **PHP SDK**: `github.com/vladimirCeli/jobcelis-php` — Packagist requires `composer.json` at repo root
-- **Ruby SDK**: `github.com/vladimirCeli/jobcelis-ruby` — public repo for RubyGems + code visibility
-- **Elixir SDK**: `github.com/vladimirCeli/jobcelis-elixir` — Hex.pm requires own repo for publishing
-- **C# / .NET SDK**: `github.com/vladimirCeli/jobcelis-dotnet` — NuGet requires own repo for publishing
-- **Rust SDK**: `github.com/vladimirCeli/jobcelis-rust` — crates.io requires own repo for publishing
-- **Swift SDK**: `github.com/vladimirCeli/jobcelis-swift` — Swift Package Manager uses GitHub repo URL directly
-- **Java SDK**: `github.com/vladimirCeli/jobcelis-java` — Maven Central requires own repo for publishing
-- **Dart/Flutter SDK**: `github.com/vladimirCeli/jobcelis-dart` — pub.dev requires own repo for publishing
-- **Kotlin SDK**: `github.com/vladimirCeli/jobcelis-kotlin` — Maven Central requires own repo for publishing
-- **Terraform Provider**: `github.com/vladimirCeli/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
+- **Go SDK**: `github.com/jobcelis-team/go-jobcelis` — pkg.go.dev requires own repo with `go.mod` at root
+- **PHP SDK**: `github.com/jobcelis-team/jobcelis-php` — Packagist requires `composer.json` at repo root
+- **Ruby SDK**: `github.com/jobcelis-team/jobcelis-ruby` — public repo for RubyGems + code visibility
+- **Elixir SDK**: `github.com/jobcelis-team/jobcelis-elixir` — Hex.pm requires own repo for publishing
+- **C# / .NET SDK**: `github.com/jobcelis-team/jobcelis-dotnet` — NuGet requires own repo for publishing
+- **Rust SDK**: `github.com/jobcelis-team/jobcelis-rust` — crates.io requires own repo for publishing
+- **Swift SDK**: `github.com/jobcelis-team/jobcelis-swift` — Swift Package Manager uses GitHub repo URL directly
+- **Java SDK**: `github.com/jobcelis-team/jobcelis-java` — Maven Central requires own repo for publishing
+- **Dart/Flutter SDK**: `github.com/jobcelis-team/jobcelis-dart` — pub.dev requires own repo for publishing
+- **Kotlin SDK**: `github.com/jobcelis-team/jobcelis-kotlin` — Maven Central requires own repo for publishing
+- **Terraform Provider**: `github.com/jobcelis-team/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
 
 ### SDK publishing rules
 - **npm**: Requires granular token with `@jobcelis` scope + "bypass 2FA" enabled. GitHub secret: `NPM_TOKEN`
@@ -170,7 +170,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **Maven Central (Java)**: Requires Sonatype OSSRH account + GPG signing. Publish with `mvn deploy` from external repo
 - **pub.dev (Dart)**: Requires Google account. Publish with `dart pub publish` from external repo
 - **Maven Central (Kotlin)**: Same as Java — Sonatype OSSRH + GPG signing. Namespace `com.jobcelis` already verified
-- **GitHub Action**: No publishing — used directly from repo with `uses: vladimirCeli/jobscelis/sdks/github-action@main`
+- **GitHub Action**: No publishing — used directly from repo with `uses: jobcelis-team/jobscelis/sdks/github-action@main`
 - **Workflow**: `.github/workflows/publish-sdks.yml` — manual trigger with package choice
 - Always bump version in `package.json`/`setup.py`/`gemspec` before publishing — registries reject duplicate versions
 
