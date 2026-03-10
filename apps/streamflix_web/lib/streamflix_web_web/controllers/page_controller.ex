@@ -6,7 +6,7 @@ defmodule StreamflixWebWeb.PageController do
       active_page: :home,
       meta_description:
         gettext(
-          "Infraestructura de eventos para developers. Envía eventos con un POST, configura webhooks con filtros, programa jobs. 12 SDKs + CLI, replay, DLQ, pipelines. Gratis."
+          "Plataforma de eventos y webhooks para developers. Envía eventos, configura webhooks, programa jobs, recibe alertas. Pipelines, replay, sandbox, portal embebible, 12 SDKs + CLI. Gratis."
         )
     )
   end
