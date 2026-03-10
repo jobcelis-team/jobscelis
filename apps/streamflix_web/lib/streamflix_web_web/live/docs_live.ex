@@ -510,6 +510,138 @@ defmodule StreamflixWebWeb.DocsLive do
   defp method_color("DELETE"), do: "bg-red-600"
   defp method_color(_), do: "bg-slate-600"
 
+  # ── Framework Example Component ────────────────────────────────────────
+
+  attr :name, :string, required: true
+  attr :code, :string, required: true
+
+  defp framework_example(assigns) do
+    ~H"""
+    <details class="group border border-slate-200 dark:border-slate-700 rounded-lg">
+      <summary class="px-4 py-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg">
+        {@name}
+      </summary>
+      <pre class="p-4 bg-slate-800 text-slate-100 text-xs overflow-x-auto font-mono rounded-b-lg"><code>{@code}</code></pre>
+    </details>
+    """
+  end
+
+  defp framework_code(:express) do
+    ~s|const crypto = require('crypto');
+
+app.post('/webhook', express.raw({ type: '*/*' }), (req, res) => {
+  const signature = req.headers['x-signature'];
+  const body = req.body.toString();
+  if (!verifySignature(process.env.WEBHOOK_SECRET, body, signature)) {
+    return res.status(401).send('Invalid signature');
+  }
+  const event = JSON.parse(body);
+  // Process event...
+  res.sendStatus(200);
+});|
+  end
+
+  defp framework_code(:fastapi) do
+    ~s|from fastapi import FastAPI, Request, HTTPException
+
+@app.post("/webhook")
+async def webhook(request: Request):
+    body = (await request.body()).decode()
+    signature = request.headers.get("x-signature", "")
+    if not verify_signature(WEBHOOK_SECRET, body, signature):
+        raise HTTPException(status_code=401, detail="Invalid signature")
+    event = await request.json()
+    # Process event...
+    return {"ok": True}|
+  end
+
+  defp framework_code(:gin) do
+    ~s|func webhookHandler(c *gin.Context) {
+    body, _ := io.ReadAll(c.Request.Body)
+    signature := c.GetHeader("X-Signature")
+    if !jobcelis.VerifyWebhookSignature(secret, string(body), signature) {
+        c.JSON(401, gin.H{"error": "invalid signature"})
+        return
+    }
+    // Process event...
+    c.JSON(200, gin.H{"ok": true})
+}|
+  end
+
+  defp framework_code(:phoenix) do
+    "defmodule MyAppWeb.WebhookController do\n" <>
+      "  use MyAppWeb, :controller\n\n" <>
+      "  def handle(conn, _params) do\n" <>
+      "    {:ok, body, conn} = Plug.Conn.read_body(conn)\n" <>
+      "    sig = Plug.Conn.get_req_header(conn, \"x-signature\") |> List.first(\"\")\n" <>
+      "    if Jobcelis.WebhookVerifier.verify(secret, body, sig) do\n" <>
+      "      event = Jason.decode!(body)\n" <>
+      "      # Process event...\n" <>
+      "      json(conn, %{ok: true})\n" <>
+      "    else\n" <>
+      "      conn |> put_status(401) |> json(%{error: \"invalid signature\"})\n" <>
+      "    end\n" <>
+      "  end\n" <>
+      "end"
+  end
+
+  defp framework_code(:laravel) do
+    ~s|Route::post('/webhook', function (Request $request) {
+    $body = $request->getContent();
+    $signature = $request->header('X-Signature', '');
+    if (!WebhookVerifier::verify($secret, $body, $signature)) {
+        return response()->json(['error' => 'invalid signature'], 401);
+    }
+    $event = json_decode($body, true);
+    // Process event...
+    return response()->json(['ok' => true]);
+});|
+  end
+
+  defp framework_code(:spring) do
+    "@PostMapping(\"/webhook\")\n" <>
+      "public ResponseEntity<Map<String, Object>> webhook(\n" <>
+      "        @RequestBody String body,\n" <>
+      "        @RequestHeader(\"X-Signature\") String signature) {\n" <>
+      "    if (!WebhookVerifier.verify(secret, body, signature)) {\n" <>
+      "        return ResponseEntity.status(401).body(Map.of(\"error\", \"invalid signature\"));\n" <>
+      "    }\n" <>
+      "    // Process event...\n" <>
+      "    return ResponseEntity.ok(Map.of(\"ok\", true));\n" <>
+      "}"
+  end
+
+  defp framework_code(:aspnet) do
+    "[HttpPost(\"webhook\")]\n" <>
+      "public async Task<IActionResult> Webhook() {\n" <>
+      "    using var reader = new StreamReader(Request.Body);\n" <>
+      "    var body = await reader.ReadToEndAsync();\n" <>
+      "    var signature = Request.Headers[\"X-Signature\"].FirstOrDefault() ?? \"\";\n" <>
+      "    if (!WebhookVerifier.Verify(secret, body, signature))\n" <>
+      "        return Unauthorized(new { error = \"invalid signature\" });\n" <>
+      "    // Process event...\n" <>
+      "    return Ok(new { ok = true });\n" <>
+      "}"
+  end
+
+  defp framework_code(:rails) do
+    "class WebhooksController < ApplicationController\n" <>
+      "  skip_before_action :verify_authenticity_token\n\n" <>
+      "  def handle\n" <>
+      "    body = request.raw_post\n" <>
+      "    signature = request.headers[\"X-Signature\"] || \"\"\n" <>
+      "    unless Jobcelis::WebhookVerifier.verify(\n" <>
+      "      secret: ENV[\"WEBHOOK_SECRET\"], body: body, signature: signature\n" <>
+      "    )\n" <>
+      "      return render json: { error: \"invalid signature\" }, status: 401\n" <>
+      "    end\n" <>
+      "    event = JSON.parse(body)\n" <>
+      "    # Process event...\n" <>
+      "    render json: { ok: true }\n" <>
+      "  end\n" <>
+      "end"
+  end
+
   # ── SDK Code Block Component ──────────────────────────────────────────
 
   attr :sdk_languages, :list, required: true
@@ -829,6 +961,104 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       "    end\n" <>
       "  end\n" <>
       "end"
+  end
+
+  defp sdk_usage("dotnet", "verify_webhook") do
+    ~s|using System.Security.Cryptography;
+using System.Text;
+
+public static bool VerifySignature(string secret, string body, string signature) {
+    if (!signature.StartsWith("sha256=")) return false;
+    var received = signature.Substring(7);
+    using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+    var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(body));
+    var expected = Convert.ToBase64String(hash).TrimEnd('=');
+    return CryptographicOperations.FixedTimeEquals(
+        Encoding.UTF8.GetBytes(received),
+        Encoding.UTF8.GetBytes(expected));
+}|
+  end
+
+  defp sdk_usage("rust", "verify_webhook") do
+    ~s|use hmac::{Hmac, Mac};
+use sha2::Sha256;
+use base64::engine::general_purpose::STANDARD_NO_PAD;
+use base64::Engine;
+
+fn verify_signature(secret: &str, body: &str, signature: &str) -> bool {
+    let received = match signature.strip_prefix("sha256=") {
+        Some(s) => s,
+        None => return false,
+    };
+    let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).unwrap();
+    mac.update(body.as_bytes());
+    let expected = STANDARD_NO_PAD.encode(mac.finalize().into_bytes());
+    received == expected
+}|
+  end
+
+  defp sdk_usage("swift", "verify_webhook") do
+    ~s|import CryptoKit
+import Foundation
+
+func verifySignature(secret: String, body: String, signature: String) -> Bool {
+    guard signature.hasPrefix("sha256=") else { return false }
+    let received = String(signature.dropFirst(7))
+    let key = SymmetricKey(data: Data(secret.utf8))
+    let mac = HMAC<SHA256>.authenticationCode(
+        for: Data(body.utf8), using: key
+    )
+    let expected = Data(mac).base64EncodedString()
+        .replacingOccurrences(of: "=", with: "")
+    return received == expected
+}|
+  end
+
+  defp sdk_usage("java", "verify_webhook") do
+    ~s|import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public static boolean verifySignature(String secret, String body, String signature) {
+    if (!signature.startsWith("sha256=")) return false;
+    String received = signature.substring(7);
+    Mac mac = Mac.getInstance("HmacSHA256");
+    mac.init(new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256"));
+    byte[] hash = mac.doFinal(body.getBytes("UTF-8"));
+    String expected = Base64.getEncoder().withoutPadding().encodeToString(hash);
+    return MessageDigest.isEqual(received.getBytes(), expected.getBytes());
+}|
+  end
+
+  defp sdk_usage("dart", "verify_webhook") do
+    ~s|import 'dart:convert';
+import 'package:crypto/crypto.dart';
+
+bool verifySignature(String secret, String body, String signature) {
+  if (!signature.startsWith('sha256=')) return false;
+  final received = signature.substring(7);
+  final hmac = Hmac(sha256, utf8.encode(secret));
+  final digest = hmac.convert(utf8.encode(body));
+  final expected = base64Encode(digest.bytes).replaceAll('=', '');
+  return received == expected;
+}|
+  end
+
+  defp sdk_usage("kotlin", "verify_webhook") do
+    ~s|import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+import java.security.MessageDigest
+import java.util.Base64
+
+fun verifySignature(secret: String, body: String, signature: String): Boolean {
+    if (!signature.startsWith("sha256=")) return false
+    val received = signature.removePrefix("sha256=")
+    val mac = Mac.getInstance("HmacSHA256")
+    mac.init(SecretKeySpec(secret.toByteArray(), "HmacSHA256"))
+    val hash = mac.doFinal(body.toByteArray())
+    val expected = Base64.getEncoder().withoutPadding().encodeToString(hash)
+    return MessageDigest.isEqual(received.toByteArray(), expected.toByteArray())
+}|
   end
 
   defp sdk_usage(_, "verify_webhook") do
@@ -3304,9 +3534,71 @@ function verifySignature(string $secret, string $body, string $signature): bool 
         )}
       </p>
 
+      <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+        {gettext("Algoritmo de firma")}
+      </h4>
+      <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-4 text-sm text-slate-600 dark:text-slate-400">
+        <ol class="list-decimal list-inside space-y-1">
+          <li>{gettext("Se calcula HMAC-SHA256 del body crudo usando el secret del webhook")}</li>
+          <li>{gettext("Se codifica el resultado en Base64 sin padding")}</li>
+          <li>{gettext("Se envía en el header como: X-Signature: sha256=<base64>")}</li>
+        </ol>
+      </div>
+
+      <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+        {gettext("Función de verificación por lenguaje")}
+      </h4>
+
       <.sdk_code_block
         sdk_languages={@sdk_languages}
         example="verify_webhook"
+      />
+
+      <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-6 mb-3">
+        {gettext("Ejemplos de middleware por framework")}
+      </h4>
+
+      <div class="space-y-3 mb-4">
+        <.framework_example
+          name="Express.js (Node.js)"
+          code={framework_code(:express)}
+        />
+        <.framework_example
+          name="FastAPI (Python)"
+          code={framework_code(:fastapi)}
+        />
+        <.framework_example
+          name="Gin (Go)"
+          code={framework_code(:gin)}
+        />
+        <.framework_example
+          name="Phoenix (Elixir)"
+          code={framework_code(:phoenix)}
+        />
+        <.framework_example
+          name="Laravel (PHP)"
+          code={framework_code(:laravel)}
+        />
+        <.framework_example
+          name="Spring Boot (Java)"
+          code={framework_code(:spring)}
+        />
+        <.framework_example
+          name="ASP.NET (C#)"
+          code={framework_code(:aspnet)}
+        />
+        <.framework_example
+          name="Rails (Ruby)"
+          code={framework_code(:rails)}
+        />
+      </div>
+
+      <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-6 mb-3">
+        {gettext("Verificación desde CLI")}
+      </h4>
+      <.code_block
+        code={"jobcelis verify-signature \\\n  --secret \"whsec_your_secret\" \\\n  --body '{\"topic\":\"order.created\",\"data\":{\"id\":\"123\"}}' \\\n  --signature \"sha256=abc123...\""}
+        copy_id="copy-verify-cli"
       />
 
       <.callout kind="warning">

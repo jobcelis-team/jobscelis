@@ -12,11 +12,15 @@ package jobcelis
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -1159,6 +1163,37 @@ func (c *Client) Health(ctx context.Context) (map[string]interface{}, error) {
 	var resp map[string]interface{}
 	err := c.doRequest(ctx, http.MethodGet, "/health", nil, &resp)
 	return resp, err
+}
+
+// ---------- Webhook Signature Verification ----------
+
+// VerifyWebhookSignature verifies a webhook signature from Jobcelis.
+//
+// The Jobcelis backend signs webhook payloads with HMAC-SHA256, Base64-encoded
+// without padding, and sends the signature in the x-signature header with the
+// format "sha256=<base64_no_padding>".
+//
+// Parameters:
+//   - secret: the webhook signing secret
+//   - body: the raw request body
+//   - signature: the full X-Signature header value (e.g. "sha256=abc123...")
+func VerifyWebhookSignature(secret, body, signature string) bool {
+	if secret == "" || body == "" || signature == "" {
+		return false
+	}
+
+	const prefix = "sha256="
+	if !strings.HasPrefix(signature, prefix) {
+		return false
+	}
+
+	receivedSig := signature[len(prefix):]
+
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(body))
+	expectedSig := base64.RawStdEncoding.EncodeToString(mac.Sum(nil))
+
+	return hmac.Equal([]byte(expectedSig), []byte(receivedSig))
 }
 
 // ---------- Internal ----------
