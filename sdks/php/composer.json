@@ -2,7 +2,7 @@
   "name": "jobcelis/sdk",
   "description": "Official PHP SDK for the Jobcelis Event Infrastructure Platform",
   "type": "library",
-  "license": "MIT",
+  "license": "proprietary",
   "homepage": "https://jobcelis.com",
   "keywords": ["jobcelis", "webhooks", "events", "sdk", "api"],
   "authors": [{"name": "Jobcelis", "email": "support@jobcelis.com"}],

@@ -1,6 +1,6 @@
 {
   "name": "@jobcelis/sdk",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Official Node.js/TypeScript SDK for the Jobcelis Event Infrastructure Platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "url": "https://github.com/vladimirCeli/jobscelis",
     "directory": "sdks/node"
   },
-  "license": "MIT",
+  "license": "BUSL-1.1",
   "engines": {
     "node": ">=18.0.0"
   },

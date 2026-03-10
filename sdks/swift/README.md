@@ -332,4 +332,4 @@ if WebhookVerifier.verify(secret: "your_webhook_secret", body: body, signature: 
 
 ## License
 
-MIT
+BSL-1.1 (Business Source License)

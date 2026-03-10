@@ -328,4 +328,4 @@ if verify_webhook_signature("your_webhook_secret", body, signature) {
 
 ## License
 
-MIT
+BSL-1.1 (Business Source License)
