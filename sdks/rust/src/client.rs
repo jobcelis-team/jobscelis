@@ -171,6 +171,11 @@ impl JobcelisClient {
         self.get("/api/v1/webhooks/templates", &[]).await
     }
 
+    /// Send a test delivery to a webhook.
+    pub async fn test_webhook(&self, webhook_id: &str) -> Result<Value, JobcelisError> {
+        self.post(&format!("/api/v1/webhooks/{webhook_id}/test"), json!({})).await
+    }
+
     // -------------------------------------------------------------------------
     // Deliveries
     // -------------------------------------------------------------------------

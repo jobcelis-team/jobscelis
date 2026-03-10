@@ -117,7 +117,8 @@ defmodule StreamflixWebWeb.DocsLive do
           %{id: "external-alerts", label: gettext("Alertas externas")},
           %{id: "embed-portal", label: gettext("Portal embebible")},
           %{id: "rate-limiting-outbound", label: gettext("Rate limiting saliente")},
-          %{id: "prometheus-metrics", label: gettext("Métricas Prometheus")}
+          %{id: "prometheus-metrics", label: gettext("Métricas Prometheus")},
+          %{id: "webhook-testing", label: gettext("Testing de webhooks")}
         ]
       },
       %{
@@ -3405,6 +3406,45 @@ fun verifySignature(secret: String, body: String, signature: String): Boolean {
       <.callout kind="info">
         {gettext(
           "Las métricas se exponen en un puerto separado. Configura tu scraper de Prometheus apuntando al puerto de métricas."
+        )}
+      </.callout>
+    </.docs_section>
+
+    <.docs_section
+      id="webhook-testing"
+      title={gettext("Testing de webhooks")}
+      subtitle={
+        gettext("Envía un evento de prueba a un webhook sin crear un evento real en el proyecto.")
+      }
+    >
+      <p class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+        {gettext(
+          "Usa el endpoint de test para verificar que el receptor está configurado correctamente. Se envía un payload de prueba con el tipo webhook.test, se calcula la firma HMAC si el webhook tiene secret, y se retorna el código de respuesta y la latencia."
+        )}
+      </p>
+
+      <.api_endpoint
+        method="POST"
+        path="/api/v1/webhooks/:id/test"
+        description={gettext("Enviar evento de prueba a un webhook.")}
+        id="ep-test-webhook"
+      >
+        <.code_block
+          code={"curl -X POST #{@base_url}/api/v1/webhooks/WEBHOOK_ID/test \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
+          copy_id="copy-test-webhook"
+        />
+        <.response_block
+          code={
+            ~s|{\n  "success": true,\n  "status": 200,\n  "latency_ms": 145,\n  "webhook_id": "abc-123"\n}|
+          }
+          status="200 OK"
+          copy_id="copy-test-webhook-resp"
+        />
+      </.api_endpoint>
+
+      <.callout kind="info">
+        {gettext(
+          "El evento de prueba no se almacena ni genera entregas reales. También puedes enviar pruebas desde el dashboard usando el botón de avión de papel en la fila del webhook."
         )}
       </.callout>
     </.docs_section>

@@ -159,6 +159,10 @@ public class JobcelisClient : IDisposable
     public Task<JsonElement> WebhookTemplatesAsync()
         => GetAsync("/api/v1/webhooks/templates");
 
+    /// <summary>Send a test delivery to a webhook.</summary>
+    public Task<JsonElement> TestWebhookAsync(string webhookId)
+        => PostAsync($"/api/v1/webhooks/{webhookId}/test", new { });
+
     // -------------------------------------------------------------------------
     // Deliveries
     // -------------------------------------------------------------------------

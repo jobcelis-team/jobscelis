@@ -144,6 +144,11 @@ class JobcelisClient {
     return _get('/api/v1/webhooks/templates');
   }
 
+  /// Send a test delivery to a webhook.
+  Future<Map<String, dynamic>> testWebhook(String webhookId) async {
+    return _post('/api/v1/webhooks/$webhookId/test', {});
+  }
+
   // ── Deliveries ────────────────────────────────────────────────────────
 
   /// List deliveries.

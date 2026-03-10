@@ -202,6 +202,7 @@ defmodule StreamflixWebWeb.Router do
     get "/webhooks/:id/health", PlatformWebhooksController, :health
     patch "/webhooks/:id", PlatformWebhooksController, :update
     delete "/webhooks/:id", PlatformWebhooksController, :delete
+    post "/webhooks/:id/test", PlatformWebhooksController, :test
 
     get "/deliveries", PlatformDeliveriesController, :index
     post "/deliveries/:id/retry", PlatformDeliveriesController, :retry
