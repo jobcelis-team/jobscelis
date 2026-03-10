@@ -6112,23 +6112,38 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
               </h3>
               <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">
                 {gettext(
-                  "Envía idempotency_key en el body para deduplicar eventos. Si ya existe un evento con la misma clave en el proyecto, se retorna el evento existente sin crear uno nuevo."
+                  "Envía idempotency_key en el body o el header X-Idempotency-Key para deduplicar eventos. Si ya existe un evento con la misma clave en el proyecto, se retorna el evento existente sin crear uno nuevo. Las claves expiran automáticamente después de varios días."
                 )}
               </p>
               <div class="bg-slate-800 rounded-xl p-4 overflow-x-auto">
                 <pre
                   class="text-sm text-slate-100 font-mono whitespace-pre"
                   phx-no-curly-interpolation
-                ># POST con idempotency_key — la segunda llamada retorna el mismo evento
+                ># Opción 1: idempotency_key en el body
 curl -X POST -H "X-API-Key: YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{"topic":"order.created","amount":150,"idempotency_key":"order-123-abc"}' \
+  <%= gettext("https://tu-dominio.com") %>/api/v1/events
+
+># Opción 2: X-Idempotency-Key como header (tiene prioridad sobre el body)
+curl -X POST -H "X-API-Key: YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -H "X-Idempotency-Key: order-123-abc" \
+  -d '{"topic":"order.created","amount":150}' \
   <%= gettext("https://tu-dominio.com") %>/api/v1/events</pre>
               </div>
               <ul class="list-disc list-inside text-slate-700 dark:text-slate-300 text-sm space-y-2 mt-4">
                 <li>{gettext("La clave es única por proyecto (partial unique index).")}</li>
                 <li>
                   {gettext("Si la clave ya existe, se retorna el evento original con status 202.")}
+                </li>
+                <li>
+                  {gettext("El header X-Idempotency-Key tiene prioridad sobre el campo del body.")}
+                </li>
+                <li>
+                  {gettext(
+                    "Las claves expiran automáticamente después de varios días para permitir su reutilización."
+                  )}
                 </li>
                 <li>{gettext("Útil para reintentos seguros desde el cliente.")}</li>
               </ul>
