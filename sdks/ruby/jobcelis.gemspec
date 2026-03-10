@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "jobcelis"
-  s.version     = "1.0.0"
+  s.version     = "1.2.0"
   s.summary     = "Official Ruby SDK for the Jobcelis Event Infrastructure Platform"
   s.description = "Ruby client for the Jobcelis API — events, webhooks, jobs, pipelines, and more. Connects to https://jobcelis.com by default."
   s.authors     = ["Jobcelis"]
