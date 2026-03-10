@@ -38,7 +38,7 @@ defmodule StreamflixWebWeb.DocsLive do
        page_title: gettext("Documentación"),
        meta_description:
          gettext(
-           "Documentación completa de la API de Jobcelis: 74 endpoints, ejemplos curl, respuestas JSON, 13 SDKs."
+           "Documentación completa de la API de Jobcelis: 98 endpoints, ejemplos curl, respuestas JSON, 12 SDKs + CLI."
          ),
        current_path: "/docs",
        base_url: base_url,

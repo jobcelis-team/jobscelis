@@ -60,7 +60,7 @@ Built with **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1**, and **PostgreSQL**
 | **Multi-project** | Multiple projects per user. Project selector with URL persistence. Invite members with roles (owner/editor/viewer). |
 | **Security** | Industry-standard encryption at rest, MFA/TOTP, session management, rate limiting, IP allowlist, circuit breaker, anomaly detection, security headers, cookie consent. |
 | **GDPR** | Right to erasure (Art. 17), restriction of processing (Art. 18), right to object (Art. 21), personal data export (Art. 15/20), consent management. |
-| **API** | 90+ REST endpoints with JWT and API Key authentication. OpenAPI 3.0 with interactive Swagger UI. SSE and WebSocket for streaming. |
+| **API** | 98+ REST endpoints with JWT and API Key authentication. OpenAPI 3.0 with interactive Swagger UI. SSE and WebSocket for streaming. |
 | **Backups** | Automated daily database backups with compression. Local or cloud object storage. Configurable retention policy. |
 | **Observability** | Periodic uptime monitoring, health checks (database, jobs, cache, backup), immutable audit log, structured JSON logs in production. |
 | **Admin Panel** | Superadmin panel: user management with search, project overview, system metrics, platform settings. |
@@ -792,7 +792,7 @@ Multi-stage Dockerfile:
 
 ## SDKs & Tools
 
-All SDKs cover **100% of the API** (84+ endpoints) with full documentation.
+All SDKs cover **100% of the API** (98+ endpoints) with full documentation.
 
 ### Published Packages
 
@@ -994,7 +994,7 @@ resource "jobcelis_job" "daily_report" {
 
 ### API Coverage per SDK
 
-All SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cover all 84 API routes:
+All SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cover all 98 API routes:
 
 - **Auth**: register, login, refresh, MFA verify
 - **Events**: send, batch, list, get, delete, simulate
