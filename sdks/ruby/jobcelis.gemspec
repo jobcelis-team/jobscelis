@@ -1,12 +1,12 @@
 Gem::Specification.new do |s|
   s.name        = "jobcelis"
-  s.version     = "1.2.0"
+  s.version     = "1.2.1"
   s.summary     = "Official Ruby SDK for the Jobcelis Event Infrastructure Platform"
   s.description = "Ruby client for the Jobcelis API — events, webhooks, jobs, pipelines, and more. Connects to https://jobcelis.com by default."
   s.authors     = ["Jobcelis"]
   s.email       = "support@jobcelis.com"
   s.homepage    = "https://jobcelis.com"
-  s.license     = "MIT"
+  s.license     = "BUSL-1.1"
   s.files       = Dir["lib/**/*.rb"] + ["README.md", "LICENSE"]
   s.required_ruby_version = ">= 3.0"
   s.add_dependency "net-http"

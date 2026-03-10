@@ -364,4 +364,4 @@ http_response_code(200);
 
 ## License
 
-MIT
+BSL-1.1 (Business Source License)
