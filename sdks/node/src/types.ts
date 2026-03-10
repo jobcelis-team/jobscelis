@@ -35,6 +35,7 @@ export interface Webhook {
   filters: string[];
   headers: Record<string, string>;
   retry_config: RetryConfig;
+  rate_limit?: { max_per_second?: number; max_per_minute?: number };
   inserted_at: string;
 }
 
@@ -45,6 +46,7 @@ export interface WebhookCreate {
   filters?: string[];
   headers?: Record<string, string>;
   retry_config?: Partial<RetryConfig>;
+  rate_limit?: { max_per_second?: number; max_per_minute?: number };
 }
 
 export interface RetryConfig {

@@ -92,8 +92,14 @@ public class JobcelisClient {
     // MARK: - Webhooks
 
     /// Create a webhook.
-    public func createWebhook(url: String, extra: [String: Any] = [:]) async throws -> [String: Any] {
+    ///
+    /// - Parameters:
+    ///   - url: The webhook endpoint URL.
+    ///   - rateLimit: Optional rate limit with `max_per_second` and/or `max_per_minute`.
+    ///   - extra: Additional fields to include in the request body.
+    public func createWebhook(url: String, rateLimit: [String: Any]? = nil, extra: [String: Any] = [:]) async throws -> [String: Any] {
         var body: [String: Any] = ["url": url]
+        if let rateLimit = rateLimit { body["rate_limit"] = rateLimit }
         for (k, v) in extra { body[k] = v }
         return try await post("/api/v1/webhooks", body: body)
     }
@@ -109,8 +115,15 @@ public class JobcelisClient {
     }
 
     /// Update a webhook.
-    public func updateWebhook(_ webhookId: String, data: [String: Any]) async throws -> [String: Any] {
-        try await patch("/api/v1/webhooks/\(webhookId)", body: data)
+    ///
+    /// - Parameters:
+    ///   - webhookId: The webhook ID.
+    ///   - data: Fields to update.
+    ///   - rateLimit: Optional rate limit with `max_per_second` and/or `max_per_minute`.
+    public func updateWebhook(_ webhookId: String, data: [String: Any], rateLimit: [String: Any]? = nil) async throws -> [String: Any] {
+        var body = data
+        if let rateLimit = rateLimit { body["rate_limit"] = rateLimit }
+        return try await patch("/api/v1/webhooks/\(webhookId)", body: body)
     }
 
     /// Delete a webhook.

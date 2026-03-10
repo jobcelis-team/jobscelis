@@ -96,8 +96,10 @@ module Jobcelis
     # ------------------------------------------------------------------
 
     # Create a webhook.
-    def create_webhook(url:, **kwargs)
-      post("/api/v1/webhooks", { url: url, **kwargs })
+    def create_webhook(url:, rate_limit: nil, **kwargs)
+      body = { url: url, **kwargs }
+      body[:rate_limit] = rate_limit if rate_limit
+      post("/api/v1/webhooks", body)
     end
 
     # Get webhook details.
@@ -111,8 +113,10 @@ module Jobcelis
     end
 
     # Update a webhook.
-    def update_webhook(webhook_id, **kwargs)
-      patch("/api/v1/webhooks/#{webhook_id}", kwargs)
+    def update_webhook(webhook_id, rate_limit: nil, **kwargs)
+      body = { **kwargs }
+      body[:rate_limit] = rate_limit if rate_limit
+      patch("/api/v1/webhooks/#{webhook_id}", body)
     end
 
     # Deactivate a webhook.

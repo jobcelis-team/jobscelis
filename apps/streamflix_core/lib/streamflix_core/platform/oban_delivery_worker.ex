@@ -75,23 +75,66 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
     if attempt > max do
       :ok
     else
-      try do
-        case StreamflixCore.Platform.DeliveryWorker.run(delivery_id) do
-          {:ok, _} -> :ok
-          {:error, :circuit_open} -> {:snooze, 300}
-          {:error, {:failed, %{response_status: status}}} when status in @no_retry_statuses -> :ok
-          {:error, _} -> :error
-        end
-      rescue
-        e ->
-          Logger.error("DeliveryWorker crashed",
+      # Check outbound rate limit before delivering
+      case check_outbound_rate_limit(delivery_id) do
+        {:error, :rate_limited} ->
+          Logger.info("Delivery rate limited, snoozing",
             worker: "ObanDeliveryWorker",
-            delivery_id: delivery_id,
-            error: Exception.message(e)
+            delivery_id: delivery_id
           )
 
-          :error
+          {:snooze, 5}
+
+        :ok ->
+          execute_delivery(delivery_id)
       end
+    end
+  end
+
+  defp check_outbound_rate_limit(delivery_id) do
+    alias StreamflixCore.{Repo, Schemas.Delivery, RateLimiter}
+
+    case Repo.get(Delivery, delivery_id) do
+      nil ->
+        :ok
+
+      delivery ->
+        webhook = Repo.get(StreamflixCore.Schemas.Webhook, delivery.webhook_id)
+
+        if webhook do
+          rate_config = webhook.rate_limit || %{}
+
+          case RateLimiter.check_rate(webhook.id, rate_config) do
+            :ok ->
+              RateLimiter.record_request(webhook.id)
+              :ok
+
+            {:error, :rate_limited} ->
+              {:error, :rate_limited}
+          end
+        else
+          :ok
+        end
+    end
+  end
+
+  defp execute_delivery(delivery_id) do
+    try do
+      case StreamflixCore.Platform.DeliveryWorker.run(delivery_id) do
+        {:ok, _} -> :ok
+        {:error, :circuit_open} -> {:snooze, 300}
+        {:error, {:failed, %{response_status: status}}} when status in @no_retry_statuses -> :ok
+        {:error, _} -> :error
+      end
+    rescue
+      e ->
+        Logger.error("DeliveryWorker crashed",
+          worker: "ObanDeliveryWorker",
+          delivery_id: delivery_id,
+          error: Exception.message(e)
+        )
+
+        :error
     end
   end
 end
