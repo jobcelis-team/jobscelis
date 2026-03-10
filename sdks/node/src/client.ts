@@ -28,6 +28,8 @@ import type {
   WebhookStat,
   WebhookTemplate,
   Consent,
+  NotificationChannel,
+  NotificationChannelCreate,
 } from './types';
 
 export class JobcelisClient {
@@ -367,6 +369,24 @@ export class JobcelisClient {
     return this.post('/api/v1/simulate', { topic, payload });
   }
 
+  // --- Notification Channels ---
+
+  async getNotificationChannel(): Promise<{ data: NotificationChannel | null }> {
+    return this.get('/api/v1/notification-channels');
+  }
+
+  async upsertNotificationChannel(config: NotificationChannelCreate): Promise<{ data: NotificationChannel }> {
+    return this.put('/api/v1/notification-channels', config);
+  }
+
+  async deleteNotificationChannel(): Promise<void> {
+    await this.delete('/api/v1/notification-channels');
+  }
+
+  async testNotificationChannel(): Promise<{ status: string; channels: string[] }> {
+    return this.post('/api/v1/notification-channels/test', {});
+  }
+
   // --- GDPR ---
 
   async getConsents(): Promise<{ data: Consent[] }> {
@@ -471,6 +491,10 @@ export class JobcelisClient {
 
   private async post(path: string, body: unknown): Promise<any> {
     return this.request('POST', path, body);
+  }
+
+  private async put(path: string, body: unknown): Promise<any> {
+    return this.request('PUT', path, body);
   }
 
   private async patch(path: string, body: unknown): Promise<any> {

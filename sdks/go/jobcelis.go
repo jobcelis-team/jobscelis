@@ -358,6 +358,24 @@ type Member struct {
 	Role  string `json:"role"`
 }
 
+// NotificationChannel represents external notification channel config for a project.
+type NotificationChannel struct {
+	ID                 string   `json:"id"`
+	ProjectID          string   `json:"project_id"`
+	EmailEnabled       bool     `json:"email_enabled"`
+	EmailAddress       *string  `json:"email_address,omitempty"`
+	SlackEnabled       bool     `json:"slack_enabled"`
+	SlackWebhookURL    *string  `json:"slack_webhook_url,omitempty"`
+	DiscordEnabled     bool     `json:"discord_enabled"`
+	DiscordWebhookURL  *string  `json:"discord_webhook_url,omitempty"`
+	MetaWebhookEnabled bool     `json:"meta_webhook_enabled"`
+	MetaWebhookURL     *string  `json:"meta_webhook_url,omitempty"`
+	MetaWebhookSecret  *string  `json:"meta_webhook_secret,omitempty"`
+	EventTypes         []string `json:"event_types,omitempty"`
+	InsertedAt         string   `json:"inserted_at"`
+	UpdatedAt          string   `json:"updated_at"`
+}
+
 // Consent represents a GDPR consent record.
 type Consent struct {
 	Purpose   string `json:"purpose"`
@@ -916,6 +934,36 @@ func (c *Client) SimulateEvent(ctx context.Context, topic string, payload map[st
 	var resp map[string]interface{}
 	err := c.doRequest(ctx, http.MethodPost, "/api/v1/simulate", body, &resp)
 	return resp, err
+}
+
+// ---------- Notification Channels ----------
+
+// GetNotificationChannel retrieves the notification channel config for the current project.
+func (c *Client) GetNotificationChannel(ctx context.Context) (*NotificationChannel, error) {
+	var resp struct {
+		Data *NotificationChannel `json:"data"`
+	}
+	err := c.doRequest(ctx, http.MethodGet, "/api/v1/notification-channels", nil, &resp)
+	return resp.Data, err
+}
+
+// UpsertNotificationChannel creates or updates the notification channel config.
+func (c *Client) UpsertNotificationChannel(ctx context.Context, config map[string]interface{}) (*NotificationChannel, error) {
+	var resp struct {
+		Data NotificationChannel `json:"data"`
+	}
+	err := c.doRequest(ctx, http.MethodPut, "/api/v1/notification-channels", config, &resp)
+	return &resp.Data, err
+}
+
+// DeleteNotificationChannel removes the notification channel config.
+func (c *Client) DeleteNotificationChannel(ctx context.Context) error {
+	return c.doRequest(ctx, http.MethodDelete, "/api/v1/notification-channels", nil, nil)
+}
+
+// TestNotificationChannel sends a test notification to all enabled channels.
+func (c *Client) TestNotificationChannel(ctx context.Context) error {
+	return c.doRequest(ctx, http.MethodPost, "/api/v1/notification-channels/test", nil, nil)
 }
 
 // ---------- GDPR (requires Bearer token) ----------

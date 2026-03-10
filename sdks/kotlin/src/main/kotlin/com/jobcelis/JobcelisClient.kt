@@ -396,6 +396,25 @@ class JobcelisClient(
     suspend fun listAuditLogs(limit: Int = 50, cursor: String? = null): JsonObject =
         get("/api/v1/audit-log", buildParams("limit" to "$limit", "cursor" to cursor))
 
+    // ── Notification Channels ─────────────────────────────────────────────
+
+    /** Get the notification channel configuration. */
+    suspend fun getNotificationChannel(): JsonObject =
+        get("/api/v1/notification-channels")
+
+    /** Create or update the notification channel configuration. */
+    suspend fun upsertNotificationChannel(config: JsonObject): JsonObject =
+        put("/api/v1/notification-channels", gson.fromJson(config, Map::class.java) as Map<String, Any>)
+
+    /** Delete the notification channel configuration. */
+    suspend fun deleteNotificationChannel() {
+        doDelete("/api/v1/notification-channels")
+    }
+
+    /** Send a test notification to the configured channel. */
+    suspend fun testNotificationChannel(): JsonObject =
+        post("/api/v1/notification-channels/test", emptyMap())
+
     // ── Export ─────────────────────────────────────────────────────────────
 
     /** Export events as CSV or JSON. Returns raw string. */
@@ -463,6 +482,9 @@ class JobcelisClient(
 
     private suspend fun post(path: String, body: Map<String, Any>): JsonObject =
         request("POST", path, body = body)
+
+    private suspend fun put(path: String, body: Map<String, Any>): JsonObject =
+        request("PUT", path, body = body)
 
     private suspend fun patch(path: String, body: Map<String, Any>): JsonObject =
         request("PATCH", path, body = body)

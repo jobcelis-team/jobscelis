@@ -6,6 +6,7 @@ defmodule StreamflixCore.Notifications do
   import Ecto.Query
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.Notification
+  alias StreamflixCore.NotificationChannels
 
   @pubsub StreamflixCore.PubSub
 
@@ -85,47 +86,79 @@ defmodule StreamflixCore.Notifications do
   # --- Notification triggers (called from workers/platform) ---
 
   def notify_webhook_failing(user_id, project_id, webhook_url) do
-    create(%{
-      user_id: user_id,
-      project_id: project_id,
-      type: "webhook_failing",
-      title: "Webhook failing",
-      message: "#{webhook_url} has multiple consecutive failures",
-      metadata: %{"webhook_url" => webhook_url}
+    result =
+      create(%{
+        user_id: user_id,
+        project_id: project_id,
+        type: "webhook_failing",
+        title: "Webhook failing",
+        message: "#{webhook_url} has multiple consecutive failures",
+        metadata: %{"webhook_url" => webhook_url}
+      })
+
+    dispatch_external(project_id, "webhook_failing", %{
+      "message" => "#{webhook_url} has multiple consecutive failures",
+      "webhook_url" => webhook_url
     })
+
+    result
   end
 
   def notify_job_failed(user_id, project_id, job_name) do
-    create(%{
-      user_id: user_id,
-      project_id: project_id,
-      type: "job_failed",
-      title: "Job failed",
-      message: "Scheduled job \"#{job_name}\" failed to execute",
-      metadata: %{"job_name" => job_name}
+    result =
+      create(%{
+        user_id: user_id,
+        project_id: project_id,
+        type: "job_failed",
+        title: "Job failed",
+        message: "Scheduled job \"#{job_name}\" failed to execute",
+        metadata: %{"job_name" => job_name}
+      })
+
+    dispatch_external(project_id, "job_failed", %{
+      "message" => "Scheduled job \"#{job_name}\" failed to execute",
+      "job_name" => job_name
     })
+
+    result
   end
 
   def notify_dlq_entry(user_id, project_id, webhook_url) do
-    create(%{
-      user_id: user_id,
-      project_id: project_id,
-      type: "dlq_entry",
-      title: "Delivery moved to DLQ",
-      message: "A delivery to #{webhook_url} exhausted all retries",
-      metadata: %{"webhook_url" => webhook_url}
+    result =
+      create(%{
+        user_id: user_id,
+        project_id: project_id,
+        type: "dlq_entry",
+        title: "Delivery moved to DLQ",
+        message: "A delivery to #{webhook_url} exhausted all retries",
+        metadata: %{"webhook_url" => webhook_url}
+      })
+
+    dispatch_external(project_id, "dlq_entry", %{
+      "message" => "A delivery to #{webhook_url} exhausted all retries",
+      "webhook_url" => webhook_url
     })
+
+    result
   end
 
   def notify_replay_completed(user_id, project_id, event_count) do
-    create(%{
-      user_id: user_id,
-      project_id: project_id,
-      type: "replay_completed",
-      title: "Replay completed",
-      message: "#{event_count} events were successfully re-delivered",
-      metadata: %{"event_count" => event_count}
+    result =
+      create(%{
+        user_id: user_id,
+        project_id: project_id,
+        type: "replay_completed",
+        title: "Replay completed",
+        message: "#{event_count} events were successfully re-delivered",
+        metadata: %{"event_count" => event_count}
+      })
+
+    dispatch_external(project_id, "replay_completed", %{
+      "message" => "#{event_count} events were successfully re-delivered",
+      "event_count" => event_count
     })
+
+    result
   end
 
   def notify_team_invite(user_id, project_id, role, member_id) do
@@ -147,6 +180,10 @@ defmodule StreamflixCore.Notifications do
 
   defp broadcast(user_id, message) do
     Phoenix.PubSub.broadcast(@pubsub, "notifications:#{user_id}", message)
+  end
+
+  defp dispatch_external(project_id, event_type, payload) do
+    NotificationChannels.dispatch(project_id, event_type, payload)
   end
 
   defp maybe_unread_only(query, true), do: where(query, [n], n.read == false)

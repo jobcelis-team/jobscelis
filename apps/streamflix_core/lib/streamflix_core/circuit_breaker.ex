@@ -132,6 +132,12 @@ defmodule StreamflixCore.CircuitBreaker do
         message: message,
         metadata: %{"webhook_id" => webhook.id, "webhook_url" => webhook.url}
       })
+
+      StreamflixCore.NotificationChannels.dispatch(project.id, type, %{
+        "message" => message,
+        "webhook_id" => webhook.id,
+        "webhook_url" => webhook.url
+      })
     end
   end
 end

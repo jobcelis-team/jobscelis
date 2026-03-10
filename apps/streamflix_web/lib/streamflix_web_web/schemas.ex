@@ -845,4 +845,146 @@ defmodule StreamflixWebWeb.Schemas do
       }
     })
   end
+
+  # ---- Notification Channels ----
+
+  defmodule NotificationChannelResponse do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "NotificationChannelResponse",
+      type: :object,
+      properties: %{
+        data: %Schema{
+          type: :object,
+          nullable: true,
+          properties: %{
+            id: %Schema{type: :string, format: :uuid},
+            project_id: %Schema{type: :string, format: :uuid},
+            email_enabled: %Schema{type: :boolean},
+            email_address: %Schema{type: :string, nullable: true},
+            slack_enabled: %Schema{type: :boolean},
+            slack_webhook_url: %Schema{type: :string, nullable: true, description: "Masked URL"},
+            discord_enabled: %Schema{type: :boolean},
+            discord_webhook_url: %Schema{
+              type: :string,
+              nullable: true,
+              description: "Masked URL"
+            },
+            meta_webhook_enabled: %Schema{type: :boolean},
+            meta_webhook_url: %Schema{type: :string, nullable: true},
+            meta_webhook_secret: %Schema{
+              type: :string,
+              nullable: true,
+              description: "Masked secret"
+            },
+            event_types: %Schema{
+              type: :array,
+              items: %Schema{type: :string},
+              nullable: true,
+              description: "Event types to alert on (null = all)"
+            },
+            inserted_at: %Schema{type: :string, format: :"date-time"},
+            updated_at: %Schema{type: :string, format: :"date-time"}
+          }
+        }
+      },
+      example: %{
+        data: %{
+          id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+          project_id: "550e8400-e29b-41d4-a716-446655440000",
+          email_enabled: true,
+          email_address: "alerts@myapp.com",
+          slack_enabled: true,
+          slack_webhook_url: "https://hooks.slack.com/••••••",
+          discord_enabled: false,
+          discord_webhook_url: nil,
+          meta_webhook_enabled: false,
+          meta_webhook_url: nil,
+          meta_webhook_secret: nil,
+          event_types: ["dlq_entry", "circuit_open", "job_failed"],
+          inserted_at: "2026-03-17T12:00:00.000000Z",
+          updated_at: "2026-03-17T12:00:00.000000Z"
+        }
+      }
+    })
+  end
+
+  defmodule NotificationChannelCreate do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "NotificationChannelCreate",
+      type: :object,
+      properties: %{
+        email_enabled: %Schema{type: :boolean, default: false},
+        email_address: %Schema{type: :string, description: "Alert email address"},
+        slack_enabled: %Schema{type: :boolean, default: false},
+        slack_webhook_url: %Schema{
+          type: :string,
+          description: "Slack incoming webhook URL"
+        },
+        discord_enabled: %Schema{type: :boolean, default: false},
+        discord_webhook_url: %Schema{
+          type: :string,
+          description: "Discord webhook URL"
+        },
+        meta_webhook_enabled: %Schema{type: :boolean, default: false},
+        meta_webhook_url: %Schema{
+          type: :string,
+          description: "URL to receive alert webhooks"
+        },
+        meta_webhook_secret: %Schema{
+          type: :string,
+          description: "Secret for HMAC-signing alert payloads"
+        },
+        event_types: %Schema{
+          type: :array,
+          items: %Schema{
+            type: :string,
+            enum: [
+              "webhook_failing",
+              "circuit_open",
+              "circuit_closed",
+              "dlq_entry",
+              "job_failed",
+              "replay_completed",
+              "security_anomaly",
+              "system_health"
+            ]
+          },
+          nullable: true,
+          description: "Event types to alert on (null or empty = all)"
+        }
+      },
+      example: %{
+        email_enabled: true,
+        email_address: "alerts@myapp.com",
+        slack_enabled: true,
+        slack_webhook_url: "https://hooks.slack.com/services/T00/B00/xxxx",
+        event_types: ["dlq_entry", "circuit_open", "job_failed"]
+      }
+    })
+  end
+
+  defmodule NotificationTestResponse do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "NotificationTestResponse",
+      type: :object,
+      properties: %{
+        status: %Schema{type: :string, example: "sent"},
+        channels: %Schema{
+          type: :array,
+          items: %Schema{type: :string},
+          description: "Channels that received the test"
+        }
+      },
+      example: %{
+        status: "sent",
+        channels: ["email", "slack"]
+      }
+    })
+  end
 end

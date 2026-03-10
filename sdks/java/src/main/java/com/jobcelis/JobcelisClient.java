@@ -564,6 +564,28 @@ public class JobcelisClient {
         doDelete("/api/v1/me/object");
     }
 
+    // ── Notification Channels ────────────────────────────────────────────
+
+    /** Get the notification channel configuration. */
+    public JsonObject getNotificationChannel() throws JobcelisException, IOException {
+        return get("/api/v1/notification-channels");
+    }
+
+    /** Create or update the notification channel configuration. */
+    public JsonObject upsertNotificationChannel(JsonObject config) throws JobcelisException, IOException {
+        return put("/api/v1/notification-channels", config);
+    }
+
+    /** Delete the notification channel configuration. */
+    public void deleteNotificationChannel() throws JobcelisException, IOException {
+        doDelete("/api/v1/notification-channels");
+    }
+
+    /** Send a test notification to the configured channel. */
+    public JsonObject testNotificationChannel() throws JobcelisException, IOException {
+        return post("/api/v1/notification-channels/test", Map.of());
+    }
+
     // ── Health ─────────────────────────────────────────────────────────────
 
     /** Check API health. */
@@ -588,6 +610,11 @@ public class JobcelisClient {
 
     private JsonObject post(String path, Map<String, Object> body) throws JobcelisException, IOException {
         return request("POST", path, Map.of(), body);
+    }
+
+    private JsonObject put(String path, JsonObject body) throws JobcelisException, IOException {
+        Map<String, Object> map = GSON.fromJson(body, Map.class);
+        return request("PUT", path, Map.of(), map);
     }
 
     private JsonObject patch(String path, Map<String, Object> body) throws JobcelisException, IOException {

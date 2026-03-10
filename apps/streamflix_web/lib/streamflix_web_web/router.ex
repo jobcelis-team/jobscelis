@@ -254,6 +254,12 @@ defmodule StreamflixWebWeb.Router do
     delete "/event-schemas/:id", PlatformEventSchemasController, :delete
     post "/event-schemas/validate", PlatformEventSchemasController, :validate
 
+    # Notification Channels
+    get "/notification-channels", NotificationChannelsController, :show
+    put "/notification-channels", NotificationChannelsController, :upsert
+    delete "/notification-channels", NotificationChannelsController, :delete
+    post "/notification-channels/test", NotificationChannelsController, :test
+
     # SSE Stream (B17)
     get "/stream", PlatformSSEController, :stream
 

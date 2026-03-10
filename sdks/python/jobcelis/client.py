@@ -418,6 +418,24 @@ class JobcelisClient:
         """Withdraw objection to data processing."""
         self._delete("/api/v1/me/object")
 
+    # --- Notification Channels ---
+
+    def get_notification_channel(self) -> dict:
+        """Get notification channel configuration."""
+        return self._get("/api/v1/notification-channels")
+
+    def upsert_notification_channel(self, config: dict) -> dict:
+        """Create or update notification channel configuration."""
+        return self._put("/api/v1/notification-channels", config)
+
+    def delete_notification_channel(self) -> None:
+        """Delete notification channel configuration."""
+        self._delete("/api/v1/notification-channels")
+
+    def test_notification_channel(self) -> dict:
+        """Send a test notification to the configured channel."""
+        return self._post("/api/v1/notification-channels/test", {})
+
     # --- Health ---
 
     def health(self) -> dict:
@@ -435,6 +453,9 @@ class JobcelisClient:
 
     def _post(self, path: str, body: dict) -> dict:
         return self._request("POST", path, json=body)
+
+    def _put(self, path: str, body: dict) -> dict:
+        return self._request("PUT", path, json=body)
 
     def _patch(self, path: str, body: dict) -> dict:
         return self._request("PATCH", path, json=body)
