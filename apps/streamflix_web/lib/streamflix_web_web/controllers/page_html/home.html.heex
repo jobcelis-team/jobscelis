@@ -19,16 +19,16 @@
 
     <div class="relative text-center max-w-3xl mx-auto">
       <p class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-4">
-        {gettext("Eventos, webhooks y jobs programados")}
+        {gettext("Eventos, webhooks, jobs, pipelines y alertas")}
       </p>
 
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-slate-100 mb-6 leading-tight tracking-tight">
-        {gettext("Infraestructura de eventos para developers")}
+        {gettext("Plataforma de eventos y webhooks para developers")}
       </h1>
 
       <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed">
         {gettext(
-          "Envía eventos con un POST, configura webhooks con filtros inteligentes y programa jobs recurrentes. Reintentos automáticos, dead letter queue, replay y 12 SDKs + CLI. Todo gratis."
+          "Envía eventos, configura webhooks con filtros inteligentes, programa jobs recurrentes y recibe alertas en Slack, Discord o email. Pipelines, replay, sandbox, portal embebible, métricas Prometheus y 12 SDKs + CLI. Todo gratis."
         )}
       </p>
 
@@ -485,6 +485,122 @@ res = client.<span class="hero-code-cmd">send_event</span>(<span class="hero-cod
           <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             {gettext(
               "Cifrado en reposo, firma de webhooks verificable, MFA, rate limiting y audit log completo."
+            )}
+          </p>
+        </div>
+
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-9.33-5M3 3l18 18M10.268 21a1.999 1.999 0 003.464 0"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Alertas externas")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+            {gettext(
+              "Recibe notificaciones por email, Slack o Discord cuando las entregas fallan o se detectan anomalías."
+            )}
+          </p>
+        </div>
+
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Portal embebible")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+            {gettext(
+              "Integra la gestión de webhooks en tu propia app con tokens de embed y un widget JS listo para usar."
+            )}
+          </p>
+        </div>
+
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Idempotencia")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+            {gettext(
+              "Evita eventos duplicados con claves de idempotencia (X-Idempotency-Key). Expiración automática configurable."
+            )}
+          </p>
+        </div>
+
+        <div class="group p-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-200/80 dark:group-hover:bg-indigo-800/50 transition">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+          </div>
+
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {gettext("Métricas y analytics")}
+          </h3>
+
+          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+            {gettext(
+              "Prometheus metrics, analytics por día, top topics y estadísticas de webhooks. Monitoreo completo en tiempo real."
             )}
           </p>
         </div>
