@@ -579,6 +579,30 @@ impl JobcelisClient {
     }
 
     // -------------------------------------------------------------------------
+    // Notification Channels
+    // -------------------------------------------------------------------------
+
+    /// Get the notification channel configuration.
+    pub async fn get_notification_channel(&self) -> Result<Value, JobcelisError> {
+        self.get("/api/v1/notification-channels", &[]).await
+    }
+
+    /// Create or update the notification channel configuration.
+    pub async fn upsert_notification_channel(&self, config: Value) -> Result<Value, JobcelisError> {
+        self.put("/api/v1/notification-channels", config).await
+    }
+
+    /// Delete the notification channel configuration.
+    pub async fn delete_notification_channel(&self) -> Result<(), JobcelisError> {
+        self.do_delete("/api/v1/notification-channels").await
+    }
+
+    /// Send a test notification to the configured channel.
+    pub async fn test_notification_channel(&self) -> Result<Value, JobcelisError> {
+        self.post("/api/v1/notification-channels/test", json!({})).await
+    }
+
+    // -------------------------------------------------------------------------
     // Health
     // -------------------------------------------------------------------------
 
@@ -602,6 +626,10 @@ impl JobcelisClient {
 
     async fn post(&self, path: &str, body: Value) -> Result<Value, JobcelisError> {
         self.request(Method::POST, path, &[], Some(body)).await
+    }
+
+    async fn put(&self, path: &str, body: Value) -> Result<Value, JobcelisError> {
+        self.request(Method::PUT, path, &[], Some(body)).await
     }
 
     async fn patch(&self, path: &str, body: Value) -> Result<Value, JobcelisError> {

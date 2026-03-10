@@ -267,6 +267,38 @@ export interface WebhookTemplate {
   headers: Record<string, string>;
 }
 
+// --- Notification Channels ---
+
+export interface NotificationChannel {
+  id: string;
+  project_id: string;
+  email_enabled: boolean;
+  email_address: string | null;
+  slack_enabled: boolean;
+  slack_webhook_url: string | null;
+  discord_enabled: boolean;
+  discord_webhook_url: string | null;
+  meta_webhook_enabled: boolean;
+  meta_webhook_url: string | null;
+  meta_webhook_secret: string | null;
+  event_types: string[] | null;
+  inserted_at: string;
+  updated_at: string;
+}
+
+export interface NotificationChannelCreate {
+  email_enabled?: boolean;
+  email_address?: string;
+  slack_enabled?: boolean;
+  slack_webhook_url?: string;
+  discord_enabled?: boolean;
+  discord_webhook_url?: string;
+  meta_webhook_enabled?: boolean;
+  meta_webhook_url?: string;
+  meta_webhook_secret?: string;
+  event_types?: string[];
+}
+
 // --- GDPR ---
 
 export interface Consent {

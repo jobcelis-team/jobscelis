@@ -49,7 +49,8 @@ Built with **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1**, and **PostgreSQL**
 | **Webhooks** | Destination URLs with topic and payload field filters. Real-time POST with configurable retries, circuit breaker, batch delivery, and 5 built-in templates (Slack, Discord, Telegram, generic JSON, custom). |
 | **Scheduled Jobs** | Recurring tasks: daily, weekly, monthly, or cron expression. Actions: emit event or POST to external URL with configurable payload. Execution history tracking. |
 | **Pipelines** | Multi-step event processing workflows with transformations. Chain events through configurable pipeline stages. |
-| **Dashboard** | Real-time LiveView dashboard with KPIs, analytics charts, webhook/job/event management, dead letter queue, sandbox, schemas, team management, and more. |
+| **External Alerts** | Receive notifications via email, Slack, Discord, or meta-webhook when webhooks fail, circuit breakers open, jobs fail, or deliveries move to DLQ. Configurable per project with event type filters. |
+| **Dashboard** | Real-time LiveView dashboard with KPIs, analytics charts, webhook/job/event management, dead letter queue, sandbox, schemas, team management, alert configuration, and more. |
 | **Multi-project** | Multiple projects per user. Project selector with URL persistence. Invite members with roles (owner/editor/viewer). |
 | **Security** | Industry-standard encryption at rest, MFA/TOTP, session management, rate limiting, IP allowlist, circuit breaker, anomaly detection, security headers, cookie consent. |
 | **GDPR** | Right to erasure (Art. 17), restriction of processing (Art. 18), right to object (Art. 21), personal data export (Art. 15/20), consent management. |
@@ -327,6 +328,15 @@ Interactive docs: **https://jobcelis.com/docs** | Swagger UI: **https://jobcelis
 | POST | `/api/v1/sandbox-endpoints` | Create temporary endpoint |
 | DELETE | `/api/v1/sandbox-endpoints/:id` | Delete endpoint |
 | GET | `/api/v1/sandbox-endpoints/:id/requests` | View captured requests |
+
+### Notification Channels (API Key)
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/v1/notification-channels` | Get channel configuration |
+| PUT | `/api/v1/notification-channels` | Create or update channels (email, Slack, Discord, meta-webhook) |
+| DELETE | `/api/v1/notification-channels` | Delete channel configuration |
+| POST | `/api/v1/notification-channels/test` | Send test notification to all enabled channels |
 
 ### Event Schemas (API Key)
 
