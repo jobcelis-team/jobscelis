@@ -643,6 +643,30 @@ impl JobcelisClient {
     }
 
     // -------------------------------------------------------------------------
+    // Retention & Purge
+    // -------------------------------------------------------------------------
+
+    /// Get current retention policy.
+    pub async fn get_retention_policy(&self) -> Result<Value, JobcelisError> {
+        self.get("/api/v1/retention", &[]).await
+    }
+
+    /// Update retention policy.
+    pub async fn update_retention_policy(&self, policy: Value) -> Result<Value, JobcelisError> {
+        self.patch("/api/v1/retention", policy).await
+    }
+
+    /// Preview a purge operation.
+    pub async fn preview_purge(&self, params: Value) -> Result<Value, JobcelisError> {
+        self.post("/api/v1/purge/preview", params).await
+    }
+
+    /// Execute a purge operation.
+    pub async fn purge_data(&self, params: Value) -> Result<Value, JobcelisError> {
+        self.post("/api/v1/purge", params).await
+    }
+
+    // -------------------------------------------------------------------------
     // Health
     // -------------------------------------------------------------------------
 

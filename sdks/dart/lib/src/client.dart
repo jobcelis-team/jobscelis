@@ -563,6 +563,28 @@ class JobcelisClient {
     await _delete('/api/v1/me/object');
   }
 
+  // ── Retention & Purge ──────────────────────────────────────────────────
+
+  /// Get current retention policy.
+  Future<Map<String, dynamic>> getRetentionPolicy() async {
+    return _get('/api/v1/retention');
+  }
+
+  /// Update retention policy.
+  Future<Map<String, dynamic>> updateRetentionPolicy(Map<String, dynamic> policy) async {
+    return _patch('/api/v1/retention', policy);
+  }
+
+  /// Preview a purge operation.
+  Future<Map<String, dynamic>> previewPurge(Map<String, dynamic> params) async {
+    return _post('/api/v1/purge/preview', params);
+  }
+
+  /// Execute a purge operation.
+  Future<Map<String, dynamic>> purgeData(Map<String, dynamic> params) async {
+    return _post('/api/v1/purge', params);
+  }
+
   // ── Health ─────────────────────────────────────────────────────────────
 
   /// Check API health.

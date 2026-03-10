@@ -91,38 +91,64 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
   end
 
   defp purge_deliveries_per_project(now) do
-    projects = Repo.all(from(p in Project, select: {p.id, p.retention_days}))
+    projects =
+      Repo.all(from(p in Project, select: {p.id, p.retention_days, p.retention_policy}))
 
-    Enum.reduce(projects, 0, fn {project_id, retention_days}, acc ->
-      days = retention_days || @default_retention_days
-      cutoff = DateTime.add(now, -days, :day)
+    Enum.reduce(projects, 0, fn {project_id, retention_days, retention_policy}, acc ->
+      days = delivery_retention(retention_policy, retention_days)
 
-      {count, _} =
-        from(d in Delivery,
-          join: e in WebhookEvent,
-          on: d.event_id == e.id,
-          where: e.project_id == ^project_id and d.status == "success" and d.inserted_at < ^cutoff
-        )
-        |> Repo.delete_all()
+      if days == 0 do
+        acc
+      else
+        cutoff = DateTime.add(now, -days, :day)
 
-      acc + count
+        {count, _} =
+          from(d in Delivery,
+            join: e in WebhookEvent,
+            on: d.event_id == e.id,
+            where:
+              e.project_id == ^project_id and d.status == "success" and d.inserted_at < ^cutoff
+          )
+          |> Repo.delete_all()
+
+        acc + count
+      end
     end)
   end
 
   defp purge_events_per_project(now) do
-    projects = Repo.all(from(p in Project, select: {p.id, p.retention_days}))
+    projects =
+      Repo.all(from(p in Project, select: {p.id, p.retention_days, p.retention_policy}))
 
-    Enum.reduce(projects, 0, fn {project_id, retention_days}, acc ->
-      days = retention_days || @default_retention_days
-      cutoff = DateTime.add(now, -days, :day)
+    Enum.reduce(projects, 0, fn {project_id, retention_days, retention_policy}, acc ->
+      days = event_retention(retention_policy, retention_days)
 
-      {count, _} =
-        from(e in WebhookEvent,
-          where: e.project_id == ^project_id and e.status == "active" and e.inserted_at < ^cutoff
-        )
-        |> Repo.delete_all()
+      if days == 0 do
+        acc
+      else
+        cutoff = DateTime.add(now, -days, :day)
 
-      acc + count
+        {count, _} =
+          from(e in WebhookEvent,
+            where:
+              e.project_id == ^project_id and e.status == "active" and e.inserted_at < ^cutoff
+          )
+          |> Repo.delete_all()
+
+        acc + count
+      end
     end)
   end
+
+  defp delivery_retention(policy, legacy_days) when is_map(policy) do
+    Map.get(policy, "deliveries_days") || legacy_days || @default_retention_days
+  end
+
+  defp delivery_retention(_, legacy_days), do: legacy_days || @default_retention_days
+
+  defp event_retention(policy, legacy_days) when is_map(policy) do
+    Map.get(policy, "events_days") || legacy_days || @default_retention_days
+  end
+
+  defp event_retention(_, legacy_days), do: legacy_days || @default_retention_days
 end

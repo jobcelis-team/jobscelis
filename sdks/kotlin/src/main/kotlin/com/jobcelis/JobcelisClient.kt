@@ -496,6 +496,24 @@ class JobcelisClient(
         doDelete("/api/v1/me/object")
     }
 
+    // ── Retention & Purge ──────────────────────────────────────────────────
+
+    /** Get current retention policy. */
+    suspend fun getRetentionPolicy(): JsonObject =
+        get("/api/v1/retention")
+
+    /** Update retention policy. */
+    suspend fun updateRetentionPolicy(policy: Map<String, Any>): JsonObject =
+        patch("/api/v1/retention", policy)
+
+    /** Preview a purge operation. */
+    suspend fun previewPurge(params: Map<String, Any>): JsonObject =
+        post("/api/v1/purge/preview", params)
+
+    /** Execute a purge operation. */
+    suspend fun purgeData(params: Map<String, Any>): JsonObject =
+        post("/api/v1/purge", params)
+
     // ── Health ─────────────────────────────────────────────────────────────
 
     /** Check API health. */

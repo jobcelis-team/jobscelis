@@ -154,6 +154,17 @@ Commands:
     embed tokens-create --name <n> --scopes <s1,s2>   Create embed token
     embed tokens-revoke <id>                          Revoke embed token
 
+  Retention:
+    retention get                                     Get retention policy
+    retention set [--events-days N] [--deliveries-days N] [--audit-logs-days N]
+                                                      Update retention policy
+
+  Purge:
+    purge preview --type <t> [--older-than <date>] [--topic <p>] [--status <s>]
+                                                      Preview purge operation
+    purge execute --type <t> [--older-than <date>] [--topic <p>] [--status <s>]
+                                                      Execute purge operation
+
   Webhook Verification:
     verify-signature --secret <s> --body <b> --signature <sig>
                                                       Verify a webhook signature
@@ -308,6 +319,14 @@ const COMMAND_MAP: Record<string, Record<string, CommandHandler>> = {
     "tokens-list": commands.embedTokensList,
     "tokens-create": commands.embedTokensCreate,
     "tokens-revoke": commands.embedTokensRevoke,
+  },
+  retention: {
+    get: commands.retentionGet,
+    set: commands.retentionSet,
+  },
+  purge: {
+    preview: commands.purgePreview,
+    execute: commands.purgeExecute,
   },
 };
 

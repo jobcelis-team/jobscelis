@@ -1163,6 +1163,51 @@ func (c *Client) RevokeEmbedToken(ctx context.Context, id string) error {
 	return c.doRequest(ctx, http.MethodDelete, "/api/v1/embed/tokens/"+id, nil, nil)
 }
 
+// ---------- Retention & Purge ----------
+
+// RetentionPolicy represents the data retention policy.
+type RetentionPolicy struct {
+	EventsDays    int `json:"events_days,omitempty"`
+	DeliveriesDays int `json:"deliveries_days,omitempty"`
+	AuditLogsDays int `json:"audit_logs_days,omitempty"`
+}
+
+// PurgeRequest represents the parameters for a purge operation.
+type PurgeRequest struct {
+	Type     string `json:"type"`
+	OlderThan string `json:"older_than,omitempty"`
+	Topic    string `json:"topic,omitempty"`
+	Status   string `json:"status,omitempty"`
+}
+
+// GetRetentionPolicy retrieves the current retention policy.
+func (c *Client) GetRetentionPolicy(ctx context.Context) (map[string]interface{}, error) {
+	var resp map[string]interface{}
+	err := c.doRequest(ctx, http.MethodGet, "/api/v1/retention", nil, &resp)
+	return resp, err
+}
+
+// UpdateRetentionPolicy updates the retention policy.
+func (c *Client) UpdateRetentionPolicy(ctx context.Context, policy RetentionPolicy) (map[string]interface{}, error) {
+	var resp map[string]interface{}
+	err := c.doRequest(ctx, http.MethodPatch, "/api/v1/retention", policy, &resp)
+	return resp, err
+}
+
+// PreviewPurge previews a purge operation without executing it.
+func (c *Client) PreviewPurge(ctx context.Context, req PurgeRequest) (map[string]interface{}, error) {
+	var resp map[string]interface{}
+	err := c.doRequest(ctx, http.MethodPost, "/api/v1/purge/preview", req, &resp)
+	return resp, err
+}
+
+// PurgeData executes a purge operation.
+func (c *Client) PurgeData(ctx context.Context, req PurgeRequest) (map[string]interface{}, error) {
+	var resp map[string]interface{}
+	err := c.doRequest(ctx, http.MethodPost, "/api/v1/purge", req, &resp)
+	return resp, err
+}
+
 // ---------- Health ----------
 
 // Health checks the platform health.

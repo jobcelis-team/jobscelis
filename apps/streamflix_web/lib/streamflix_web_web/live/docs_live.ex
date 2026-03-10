@@ -118,7 +118,8 @@ defmodule StreamflixWebWeb.DocsLive do
           %{id: "embed-portal", label: gettext("Portal embebible")},
           %{id: "rate-limiting-outbound", label: gettext("Rate limiting saliente")},
           %{id: "prometheus-metrics", label: gettext("Métricas Prometheus")},
-          %{id: "webhook-testing", label: gettext("Testing de webhooks")}
+          %{id: "webhook-testing", label: gettext("Testing de webhooks")},
+          %{id: "data-retention", label: gettext("Retención de datos")}
         ]
       },
       %{
@@ -3445,6 +3446,125 @@ fun verifySignature(secret: String, body: String, signature: String): Boolean {
       <.callout kind="info">
         {gettext(
           "El evento de prueba no se almacena ni genera entregas reales. También puedes enviar pruebas desde el dashboard usando el botón de avión de papel en la fila del webhook."
+        )}
+      </.callout>
+    </.docs_section>
+
+    <.docs_section
+      id="data-retention"
+      title={gettext("Retención de datos")}
+      subtitle={
+        gettext("Configura retención automática por proyecto y ejecuta purgas manuales selectivas.")
+      }
+    >
+      <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+        {gettext("Retención automática")}
+      </h4>
+      <p class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+        {gettext(
+          "Configura cuántos días retener cada tipo de dato. El sistema purga automáticamente los registros antiguos de forma semanal. Un valor de 0 significa retención ilimitada."
+        )}
+      </p>
+
+      <.api_endpoint
+        method="PATCH"
+        path="/api/v1/retention"
+        description={gettext("Actualizar política de retención.")}
+        id="ep-update-retention"
+      >
+        <.code_block
+          code={"curl -X PATCH #{@base_url}/api/v1/retention \\\n  -H \"X-Api-Key: YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"events_days\": 90, \"deliveries_days\": 30, \"audit_logs_days\": 365}'"}
+          copy_id="copy-update-retention"
+        />
+        <.response_block
+          code={
+            ~s|{\n  "retention_policy": {\n    "events_days": 90,\n    "deliveries_days": 30,\n    "audit_logs_days": 365\n  }\n}|
+          }
+          status="200 OK"
+          copy_id="copy-retention-resp"
+        />
+      </.api_endpoint>
+
+      <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-6 mb-3">
+        {gettext("Purga manual")}
+      </h4>
+      <p class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+        {gettext(
+          "Elimina datos de forma selectiva por tipo, fecha, topic y status. Usa el endpoint de preview para ver cuántos registros se eliminarían antes de ejecutar."
+        )}
+      </p>
+
+      <.api_endpoint
+        method="POST"
+        path="/api/v1/purge/preview"
+        description={gettext("Vista previa de purga (sin eliminar).")}
+        id="ep-purge-preview"
+      >
+        <.code_block
+          code={"curl -X POST #{@base_url}/api/v1/purge/preview \\\n  -H \"X-Api-Key: YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"type\": \"deliveries\", \"older_than\": \"2025-01-01\", \"status\": \"failed\"}'"}
+          copy_id="copy-purge-preview"
+        />
+        <.response_block
+          code={~s|{\n  "type": "deliveries",\n  "count": 1247,\n  "older_than": "2025-01-01"\n}|}
+          status="200 OK"
+          copy_id="copy-purge-preview-resp"
+        />
+      </.api_endpoint>
+
+      <.api_endpoint
+        method="POST"
+        path="/api/v1/purge"
+        description={gettext("Ejecutar purga de datos.")}
+        id="ep-purge-execute"
+      >
+        <.code_block
+          code={"curl -X POST #{@base_url}/api/v1/purge \\\n  -H \"X-Api-Key: YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"type\": \"deliveries\", \"older_than\": \"2025-01-01\", \"status\": \"failed\"}'"}
+          copy_id="copy-purge-execute"
+        />
+        <.response_block
+          code={
+            ~s|{\n  "type": "deliveries",\n  "deleted_count": 1247,\n  "older_than": "2025-01-01"\n}|
+          }
+          status="200 OK"
+          copy_id="copy-purge-execute-resp"
+        />
+      </.api_endpoint>
+
+      <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-4">
+        <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          {gettext("Tipos disponibles para purga")}
+        </h4>
+        <table class="w-full text-sm">
+          <thead class="text-left text-slate-500 dark:text-slate-400">
+            <tr>
+              <th class="py-1 pr-4">{gettext("Tipo")}</th>
+              <th class="py-1 pr-4">{gettext("Filtros opcionales")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700 dark:text-slate-300">
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-1 pr-4 font-mono text-xs">events</td>
+              <td class="py-1 text-xs">topic</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-1 pr-4 font-mono text-xs">deliveries</td>
+              <td class="py-1 text-xs">topic, status</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-1 pr-4 font-mono text-xs">audit_logs</td>
+              <td class="py-1 text-xs">—</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-1 pr-4 font-mono text-xs">dead_letters</td>
+              <td class="py-1 text-xs">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <.callout kind="warning">
+        {gettext(
+          "La purga de datos es irreversible. Usa siempre el endpoint de preview antes de ejecutar para confirmar el número de registros afectados."
         )}
       </.callout>
     </.docs_section>

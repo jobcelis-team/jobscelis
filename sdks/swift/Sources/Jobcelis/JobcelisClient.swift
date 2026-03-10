@@ -556,6 +556,28 @@ public class JobcelisClient {
         try await doDelete("/api/v1/me/object")
     }
 
+    // MARK: - Retention & Purge
+
+    /// Get current retention policy.
+    public func getRetentionPolicy() async throws -> [String: Any] {
+        try await get("/api/v1/retention")
+    }
+
+    /// Update retention policy.
+    public func updateRetentionPolicy(_ policy: [String: Any]) async throws -> [String: Any] {
+        try await patch("/api/v1/retention", body: policy)
+    }
+
+    /// Preview a purge operation.
+    public func previewPurge(_ params: [String: Any]) async throws -> [String: Any] {
+        try await post("/api/v1/purge/preview", body: params)
+    }
+
+    /// Execute a purge operation.
+    public func purgeData(_ params: [String: Any]) async throws -> [String: Any] {
+        try await post("/api/v1/purge", body: params)
+    }
+
     // MARK: - Health
 
     /// Check API health.
