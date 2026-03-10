@@ -650,6 +650,29 @@ defmodule StreamflixWebWeb.Schemas do
     })
   end
 
+  defmodule WebhookTestResult do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "WebhookTestResult",
+      type: :object,
+      properties: %{
+        success: %Schema{type: :boolean},
+        status: %Schema{type: :integer, nullable: true, description: "HTTP response status code"},
+        latency_ms: %Schema{type: :integer, nullable: true, description: "Response time in ms"},
+        webhook_id: %Schema{type: :string, format: :uuid},
+        reason: %Schema{type: :string, nullable: true, description: "Error reason if failed"}
+      },
+      example: %{
+        success: true,
+        status: 200,
+        latency_ms: 142,
+        webhook_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        reason: nil
+      }
+    })
+  end
+
   # ---- Phase 6: Cursor Pagination ----
 
   defmodule PaginatedResponse do

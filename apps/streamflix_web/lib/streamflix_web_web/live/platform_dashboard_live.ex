@@ -917,6 +917,25 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     end)
   end
 
+  def handle_event("send_webhook_test", %{"id" => id}, socket) do
+    with_permission(socket, :write, fn ->
+      case Platform.test_webhook(id) do
+        {:ok, result} ->
+          msg =
+            gettext("Test enviado — Status: %{status}, Latencia: %{latency}ms",
+              status: result.status,
+              latency: result.latency_ms
+            )
+
+          {:noreply, put_flash(socket, :info, msg)}
+
+        {:error, result} ->
+          msg = gettext("Test fallido — %{reason}", reason: result.reason)
+          {:noreply, put_flash(socket, :error, msg)}
+      end
+    end)
+  end
+
   @impl true
   def handle_event("simulate_event", %{"topic" => topic, "payload" => payload_str}, socket) do
     with_permission(socket, :write, fn ->

@@ -109,6 +109,10 @@ class JobcelisClient:
         """List available webhook templates."""
         return self._get("/api/v1/webhooks/templates")
 
+    def test_webhook(self, webhook_id: str) -> dict:
+        """Send a test delivery to a webhook."""
+        return self._post(f"/api/v1/webhooks/{webhook_id}/test", {})
+
     # --- Deliveries ---
 
     def list_deliveries(self, limit: int = 50, cursor: str | None = None, **filters) -> dict:

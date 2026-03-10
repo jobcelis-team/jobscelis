@@ -141,6 +141,11 @@ public class JobcelisClient {
         try await get("/api/v1/webhooks/templates")
     }
 
+    /// Send a test delivery to a webhook.
+    public func testWebhook(_ webhookId: String) async throws -> [String: Any] {
+        try await post("/api/v1/webhooks/\(webhookId)/test", body: [:])
+    }
+
     // MARK: - Deliveries
 
     /// List deliveries.

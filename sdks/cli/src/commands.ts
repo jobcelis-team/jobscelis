@@ -243,6 +243,18 @@ export async function webhooksHealth(args: string[]): Promise<void> {
   printJson(result);
 }
 
+export async function webhooksTest(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis webhooks test <id>\n\nSend a test delivery to a webhook.\n"
+    );
+    return;
+  }
+  const id = requirePositional(args, 0, "webhook id");
+  const result = await api.post(`/api/v1/webhooks/${id}/test`, {});
+  printJson(result);
+}
+
 export async function webhooksTemplates(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
