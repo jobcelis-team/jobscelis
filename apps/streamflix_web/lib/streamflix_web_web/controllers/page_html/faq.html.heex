@@ -14,6 +14,22 @@
   </p>
 
   <div class="space-y-8">
+    <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 mt-2">
+      {gettext("Entendiendo Jobcelis")}
+    </h2>
+
+    <section class="border-b border-slate-200 dark:border-slate-700 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("¿Qué problema resuelve Jobcelis?")}
+      </h2>
+
+      <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+        {gettext(
+          "Cada vez que construyes una app que necesita notificar a otros servicios — enviar actualizaciones de pedidos, procesar pagos, notificar a Slack — terminas escribiendo la misma lógica de reintentos, manejo de fallos y logs de entregas. Jobcelis centraliza toda esa infraestructura: envías un evento, configurás a dónde va, y nosotros nos encargamos del resto."
+        )}
+      </p>
+    </section>
+
     <section class="border-b border-slate-200 dark:border-slate-700 pb-6">
       <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
         {gettext("¿Qué es Jobcelis?")}
@@ -25,6 +41,46 @@
         )}
       </p>
     </section>
+
+    <section class="border-b border-slate-200 dark:border-slate-700 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("¿En qué se diferencia Jobcelis de Zapier o n8n?")}
+      </h2>
+
+      <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+        {gettext(
+          "Zapier y n8n son herramientas no-code/low-code con interfaz visual para conectar apps. Jobcelis es una API developer-first: enviás eventos con código (POST JSON), configurás webhooks programáticamente, y tenés control total sobre filtros, transformaciones y reintentos. Es más parecido a la infraestructura de webhooks de Stripe, pero para cualquier app."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 dark:border-slate-700 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("¿Puedo usar Jobcelis en producción?")}
+      </h2>
+
+      <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+        {gettext(
+          "Sí. Jobcelis está construido con Elixir/OTP, diseñado para sistemas concurrentes y tolerantes a fallos. Incluye reintentos automáticos, circuit breaker, dead letter queue, cifrado en reposo, MFA y audit log. Es la misma infraestructura que usan plataformas como WhatsApp y Discord internamente."
+        )}
+      </p>
+    </section>
+
+    <section class="border-b border-slate-200 dark:border-slate-700 pb-6">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {gettext("¿Qué pasa si Jobcelis está caído?")}
+      </h2>
+
+      <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+        {gettext(
+          "Las entregas pendientes se encolan y se procesan cuando el servicio se recupera. Los eventos no se pierden. Podés monitorear el estado en tiempo real en la página de Status (/status)."
+        )}
+      </p>
+    </section>
+
+    <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 mt-10">
+      {gettext("Primeros pasos")}
+    </h2>
 
     <section class="border-b border-slate-200 dark:border-slate-700 pb-6">
       <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
@@ -73,6 +129,10 @@
         )}
       </p>
     </section>
+
+    <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 mt-10">
+      {gettext("Funcionalidades")}
+    </h2>
 
     <section class="border-b border-slate-200 dark:border-slate-700 pb-6">
       <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
@@ -145,6 +205,10 @@
         )}
       </p>
     </section>
+
+    <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 mt-10">
+      {gettext("Técnico y seguridad")}
+    </h2>
 
     <section class="border-b border-slate-200 dark:border-slate-700 pb-6">
       <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
