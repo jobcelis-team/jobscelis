@@ -8,10 +8,10 @@
 
     <!-- NuGet package metadata -->
     <PackageId>Jobcelis</PackageId>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>Jobcelis</Authors>
     <Description>Official .NET SDK for the Jobcelis Event Infrastructure Platform</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://jobcelis.com</PackageProjectUrl>
     <RepositoryUrl>https://github.com/vladimirCeli/jobcelis-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>

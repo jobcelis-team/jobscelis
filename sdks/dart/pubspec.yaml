@@ -1,6 +1,6 @@
 name: jobcelis
 description: Official Dart/Flutter SDK for the Jobcelis Event Infrastructure Platform. Full API coverage (84+ routes).
-version: 1.2.0
+version: 1.2.1
 homepage: https://jobcelis.com
 repository: https://github.com/vladimirCeli/jobcelis-dart
 documentation: https://github.com/vladimirCeli/jobcelis-dart#readme
