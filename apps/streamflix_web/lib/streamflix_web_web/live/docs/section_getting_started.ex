@@ -14,13 +14,58 @@ defmodule StreamflixWebWeb.Docs.SectionGettingStarted do
     <.docs_section
       id="intro"
       title={gettext("Introducción")}
-      subtitle={gettext("Qué es Jobcelis y capacidades de la API.")}
+      subtitle={gettext("Qué problema resuelve Jobcelis, casos de uso y capacidades de la API.")}
     >
-      <p class="text-slate-700 leading-relaxed">
+      <%!-- Problem statement --%>
+      <div class="rounded-xl bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 p-5 mb-6">
+        <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-medium">
+          {gettext(
+            "Cada vez que construyes una app que necesita notificar a otros servicios, terminas escribiendo la misma lógica: clientes HTTP, reintentos, manejo de fallos, logs de entregas. En cada proyecto, reimplementando lo mismo."
+          )}
+        </p>
+      </div>
+
+      <%!-- Solution --%>
+      <p class="text-slate-700 leading-relaxed mb-6">
         {gettext(
-          "Jobcelis es una plataforma de eventos y webhooks completamente configurable. Permite enviar cualquier JSON mediante HTTP POST; la plataforma enruta, filtra, transforma y entrega a las URLs de destino configuradas. Sin esquemas fijos: los topics, payloads y reglas se definen libremente."
+          "Jobcelis centraliza esa infraestructura en una API. Envía cualquier JSON mediante HTTP POST — la plataforma enruta, filtra, transforma y entrega a las URLs de destino configuradas. Sin esquemas fijos: los topics, payloads y reglas se definen libremente."
         )}
       </p>
+
+      <%!-- Use cases --%>
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-3">
+        {gettext("Ejemplos de uso")}
+      </h3>
+      <div class="grid sm:grid-cols-2 gap-3 mb-6">
+        <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+          <p class="font-medium text-slate-900 dark:text-slate-100 text-sm">
+            {gettext("E-commerce")}
+          </p>
+          <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+            {gettext("Pedido creado → notifica warehouse + facturación + email de confirmación")}
+          </p>
+        </div>
+        <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+          <p class="font-medium text-slate-900 dark:text-slate-100 text-sm">{gettext("Pagos")}</p>
+          <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+            {gettext("Pago completado → actualiza pedido + envía recibo + registra en contabilidad")}
+          </p>
+        </div>
+        <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+          <p class="font-medium text-slate-900 dark:text-slate-100 text-sm">CI/CD</p>
+          <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+            {gettext("Deploy exitoso → monitoreo + Slack + analytics tracker")}
+          </p>
+        </div>
+        <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+          <p class="font-medium text-slate-900 dark:text-slate-100 text-sm">SaaS</p>
+          <p class="text-slate-600 dark:text-slate-400 text-xs mt-1">
+            {gettext("Usuario registrado → CRM + email bienvenida + analytics")}
+          </p>
+        </div>
+      </div>
+
+      <%!-- Capabilities grid (keep but simplify) --%>
       <div class="grid sm:grid-cols-2 gap-4">
         <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4">
           <h3 class="font-semibold text-slate-900 mb-2 text-sm">
