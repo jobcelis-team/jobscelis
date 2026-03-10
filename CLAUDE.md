@@ -198,6 +198,12 @@ When updating Go SDK or Terraform provider:
 4. For Go: `git tag v1.x.0 && git push origin v1.x.0`
 5. For Terraform: same tag pattern, GoReleaser handles the release
 
+### Full publishing guide
+- See `SDK_PUBLISHING_GUIDE.md` (gitignored, local only) for complete step-by-step instructions
+- Covers: version bumping, automated + manual publishing, Maven Central bundle process, GPG key management, external repo sync, troubleshooting
+- Maven Central (Java/Kotlin) requires manual bundle ZIP upload to https://central.sonatype.com/publishing
+- GPG key must be on keyservers (keyserver.ubuntu.com, keys.openpgp.org, pgp.mit.edu) with email verified on openpgp.org
+
 ## Migrations
 
 - Supabase has `ensure_rls_on_new_tables` event trigger — always wrap `ALTER EVENT TRIGGER` in `IF EXISTS` check
