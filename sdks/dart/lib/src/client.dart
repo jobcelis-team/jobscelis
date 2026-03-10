@@ -452,6 +452,23 @@ class JobcelisClient {
     return _get('/api/v1/audit-log', params: {'limit': '$limit', if (cursor != null) 'cursor': cursor});
   }
 
+  // ── Embed Tokens ────────────────────────────────────────────────────
+
+  /// List embed tokens.
+  Future<Map<String, dynamic>> listEmbedTokens() async {
+    return _get('/api/v1/embed/tokens');
+  }
+
+  /// Create an embed token.
+  Future<Map<String, dynamic>> createEmbedToken(Map<String, dynamic> config) async {
+    return _post('/api/v1/embed/tokens', config);
+  }
+
+  /// Revoke an embed token.
+  Future<void> revokeEmbedToken(String id) async {
+    await _delete('/api/v1/embed/tokens/$id');
+  }
+
   // ── Notification Channels ────────────────────────────────────────────
 
   /// Get the notification channel configuration.

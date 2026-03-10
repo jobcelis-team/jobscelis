@@ -58,6 +58,10 @@ defmodule StreamflixWebWeb.Router do
     plug StreamflixWebWeb.Plugs.ProjectRateLimit
   end
 
+  pipeline :embed_token_auth do
+    plug StreamflixWebWeb.Plugs.EmbedTokenAuth
+  end
+
   pipeline :openapi do
     plug OpenApiSpex.Plug.PutApiSpec, module: StreamflixWebWeb.ApiSpec
   end
@@ -260,6 +264,11 @@ defmodule StreamflixWebWeb.Router do
     delete "/notification-channels", NotificationChannelsController, :delete
     post "/notification-channels/test", NotificationChannelsController, :test
 
+    # Embed Tokens (manage tokens for embeddable portal)
+    get "/embed/tokens", EmbedTokensController, :index
+    post "/embed/tokens", EmbedTokensController, :create
+    delete "/embed/tokens/:id", EmbedTokensController, :delete
+
     # SSE Stream (B17)
     get "/stream", PlatformSSEController, :stream
 
@@ -268,6 +277,23 @@ defmodule StreamflixWebWeb.Router do
     get "/export/deliveries", PlatformExportController, :deliveries
     get "/export/jobs", PlatformExportController, :jobs
     get "/export/audit-log", PlatformExportController, :audit_log
+  end
+
+  # ============================================
+  # API V1 - EMBED PORTAL (Embed Token auth)
+  # ============================================
+
+  scope "/api/v1/embed", StreamflixWebWeb.Api.V1, as: :api_v1_embed do
+    pipe_through [:api, :embed_token_auth]
+
+    get "/webhooks", EmbedPortalController, :list_webhooks
+    post "/webhooks", EmbedPortalController, :create_webhook
+    get "/webhooks/:id", EmbedPortalController, :get_webhook
+    patch "/webhooks/:id", EmbedPortalController, :update_webhook
+    delete "/webhooks/:id", EmbedPortalController, :delete_webhook
+
+    get "/deliveries", EmbedPortalController, :list_deliveries
+    post "/deliveries/:id/retry", EmbedPortalController, :retry_delivery
   end
 
   # ============================================

@@ -530,6 +530,25 @@ module Jobcelis
     end
 
     # ------------------------------------------------------------------
+    # Embed Tokens
+    # ------------------------------------------------------------------
+
+    # List embed tokens.
+    def list_embed_tokens
+      get("/api/v1/embed/tokens")
+    end
+
+    # Create an embed token.
+    def create_embed_token(config)
+      post("/api/v1/embed/tokens", config)
+    end
+
+    # Revoke an embed token.
+    def revoke_embed_token(id)
+      do_delete("/api/v1/embed/tokens/#{id}")
+    end
+
+    # ------------------------------------------------------------------
     # Notification Channels
     # ------------------------------------------------------------------
 

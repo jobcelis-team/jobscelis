@@ -564,6 +564,24 @@ public class JobcelisClient {
         doDelete("/api/v1/me/object");
     }
 
+    // ── Embed Tokens ─────────────────────────────────────────────────────
+
+    /** List embed tokens. */
+    public JsonObject listEmbedTokens() throws JobcelisException, IOException {
+        return get("/api/v1/embed/tokens");
+    }
+
+    /** Create an embed token. */
+    public JsonObject createEmbedToken(JsonObject config) throws JobcelisException, IOException {
+        Map<String, Object> body = GSON.fromJson(config, Map.class);
+        return post("/api/v1/embed/tokens", body);
+    }
+
+    /** Revoke an embed token. */
+    public void revokeEmbedToken(String id) throws JobcelisException, IOException {
+        doDelete("/api/v1/embed/tokens/" + id);
+    }
+
     // ── Notification Channels ────────────────────────────────────────────
 
     /** Get the notification channel configuration. */
