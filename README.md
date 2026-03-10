@@ -504,6 +504,7 @@ Cross-cutting features:
 | **Anomaly detection** | Continuous monitoring for suspicious patterns (brute force, data exfiltration, coordinated attacks) |
 | **Security headers** | CSP (nonce-based), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy |
 | **Webhook signatures** | Each delivery signed with a unique per-webhook secret |
+| **Signature verification guides** | SDK helpers + framework middleware examples (Express, FastAPI, Gin, Phoenix, Laravel, Spring Boot, ASP.NET, Rails) |
 | **Password history** | Prevents reuse of recent passwords |
 | **Password blocklist** | Common passwords rejected |
 | **Password strength** | Visual strength indicator on signup and password reset |

@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 import * as api from "./api";
@@ -1389,6 +1390,50 @@ export async function embedTokensRevoke(args: string[]): Promise<void> {
   const id = requirePositional(args, 0, "token-id");
   const result = await api.del(`/api/v1/embed/tokens/${id}`);
   printJson(result);
+}
+
+// ---------------------------------------------------------------------------
+// Webhook Signature Verification
+// ---------------------------------------------------------------------------
+
+export async function verifySignature(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis verify-signature --secret <s> --body <b> --signature <sig>\n\n" +
+        "Verify a webhook signature (HMAC-SHA256, Base64 no padding).\n" +
+        "The --signature value should be the full header, e.g. 'sha256=abc123...'.\n"
+    );
+    return;
+  }
+  const secret = requireFlag(args, "--secret", "secret");
+  const body = requireFlag(args, "--body", "body");
+  const signature = requireFlag(args, "--signature", "signature");
+
+  const prefix = "sha256=";
+  if (!signature.startsWith(prefix)) {
+    process.stdout.write("false\n");
+    return;
+  }
+
+  const receivedSig = signature.slice(prefix.length);
+  const expectedSig = crypto
+    .createHmac("sha256", secret)
+    .update(body)
+    .digest("base64")
+    .replace(/=+$/, "");
+
+  let isValid = false;
+  try {
+    const a = Buffer.from(receivedSig, "base64");
+    const b = Buffer.from(expectedSig, "base64");
+    if (a.length === b.length) {
+      isValid = crypto.timingSafeEqual(a, b);
+    }
+  } catch {
+    isValid = false;
+  }
+
+  process.stdout.write(isValid ? "true\n" : "false\n");
 }
 
 // ---------------------------------------------------------------------------
