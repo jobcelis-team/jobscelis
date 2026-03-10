@@ -52,6 +52,7 @@ defmodule StreamflixCore.CircuitBreaker do
 
     if was_open do
       Logger.info("[CircuitBreaker] Circuit closed for webhook #{webhook.id}")
+      StreamflixCore.TelemetryEvents.circuit_closed(webhook.project_id, webhook.id)
       notify_circuit_closed(webhook)
     end
 
@@ -79,6 +80,7 @@ defmodule StreamflixCore.CircuitBreaker do
         "[CircuitBreaker] Circuit opened for webhook #{webhook.id} after #{new_failures} failures"
       )
 
+      StreamflixCore.TelemetryEvents.circuit_opened(webhook.project_id, webhook.id)
       notify_circuit_open(webhook)
     else
       webhook
