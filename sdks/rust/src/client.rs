@@ -579,6 +579,25 @@ impl JobcelisClient {
     }
 
     // -------------------------------------------------------------------------
+    // Embed Tokens
+    // -------------------------------------------------------------------------
+
+    /// List embed tokens.
+    pub async fn list_embed_tokens(&self) -> Result<Value, JobcelisError> {
+        self.get("/api/v1/embed/tokens", &[]).await
+    }
+
+    /// Create an embed token.
+    pub async fn create_embed_token(&self, config: Value) -> Result<Value, JobcelisError> {
+        self.post("/api/v1/embed/tokens", config).await
+    }
+
+    /// Revoke an embed token.
+    pub async fn revoke_embed_token(&self, id: &str) -> Result<(), JobcelisError> {
+        self.do_delete(&format!("/api/v1/embed/tokens/{id}")).await
+    }
+
+    // -------------------------------------------------------------------------
     // Notification Channels
     // -------------------------------------------------------------------------
 

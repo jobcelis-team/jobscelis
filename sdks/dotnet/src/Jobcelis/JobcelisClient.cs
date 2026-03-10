@@ -481,6 +481,22 @@ public class JobcelisClient : IDisposable
         => GetAsync("/status");
 
     // -------------------------------------------------------------------------
+    // Embed Tokens
+    // -------------------------------------------------------------------------
+
+    /// <summary>List embed tokens.</summary>
+    public Task<JsonElement> ListEmbedTokensAsync()
+        => GetAsync("/api/v1/embed/tokens");
+
+    /// <summary>Create an embed token.</summary>
+    public Task<JsonElement> CreateEmbedTokenAsync(object config)
+        => PostAsync("/api/v1/embed/tokens", config);
+
+    /// <summary>Revoke an embed token.</summary>
+    public Task RevokeEmbedTokenAsync(string id)
+        => DoDeleteAsync($"/api/v1/embed/tokens/{id}");
+
+    // -------------------------------------------------------------------------
     // Notification Channels
     // -------------------------------------------------------------------------
 

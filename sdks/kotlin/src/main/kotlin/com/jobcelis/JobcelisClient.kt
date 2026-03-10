@@ -396,6 +396,21 @@ class JobcelisClient(
     suspend fun listAuditLogs(limit: Int = 50, cursor: String? = null): JsonObject =
         get("/api/v1/audit-log", buildParams("limit" to "$limit", "cursor" to cursor))
 
+    // ── Embed Tokens ──────────────────────────────────────────────────────
+
+    /** List embed tokens. */
+    suspend fun listEmbedTokens(): JsonObject =
+        get("/api/v1/embed/tokens")
+
+    /** Create an embed token. */
+    suspend fun createEmbedToken(config: JsonObject): JsonObject =
+        post("/api/v1/embed/tokens", gson.fromJson(config, Map::class.java) as Map<String, Any>)
+
+    /** Revoke an embed token. */
+    suspend fun revokeEmbedToken(id: String) {
+        doDelete("/api/v1/embed/tokens/$id")
+    }
+
     // ── Notification Channels ─────────────────────────────────────────────
 
     /** Get the notification channel configuration. */

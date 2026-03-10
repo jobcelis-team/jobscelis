@@ -299,6 +299,33 @@ export interface NotificationChannelCreate {
   event_types?: string[];
 }
 
+// --- Embed Tokens ---
+
+export interface EmbedToken {
+  id: string;
+  prefix: string;
+  name: string;
+  status: string;
+  scopes: string[];
+  allowed_origins: string[];
+  metadata: Record<string, unknown>;
+  expires_at: string | null;
+  inserted_at: string;
+}
+
+export interface EmbedTokenCreate {
+  name?: string;
+  scopes?: string[];
+  allowed_origins?: string[];
+  metadata?: Record<string, unknown>;
+  expires_at?: string;
+}
+
+export interface EmbedTokenResponse {
+  token: string;
+  data: EmbedToken;
+}
+
 // --- GDPR ---
 
 export interface Consent {
