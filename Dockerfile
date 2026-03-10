@@ -105,6 +105,6 @@ USER app
 EXPOSE 4000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:4000/health || exit 1
+    CMD ["/bin/sh", "-c", "curl -f http://localhost:4000/health || exit 1"]
 
-CMD bin/streamflix eval "StreamflixCore.Release.migrate()" && bin/streamflix start
+CMD ["/bin/sh", "-c", "bin/streamflix eval 'StreamflixCore.Release.migrate()' && bin/streamflix start"]
