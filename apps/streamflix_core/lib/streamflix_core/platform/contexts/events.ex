@@ -70,6 +70,7 @@ defmodule StreamflixCore.Platform.Events do
         create_deliveries_for_event(event)
       end
 
+      StreamflixCore.TelemetryEvents.event_created(project_id, topic)
       broadcast(project_id, {:event_created, event})
       {:ok, event}
     end

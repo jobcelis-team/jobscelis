@@ -112,7 +112,12 @@ defmodule StreamflixWebWeb.DocsLive do
           %{id: "cursor-págination", label: gettext("Paginación cursor")},
           %{id: "webhook-templates", label: gettext("Plantillas webhook")},
           %{id: "ip-allowlist", label: "IP Allowlist"},
-          %{id: "simulate", label: gettext("Simulador")}
+          %{id: "simulate", label: gettext("Simulador")},
+          %{id: "idempotency-keys", label: gettext("Claves de idempotencia")},
+          %{id: "external-alerts", label: gettext("Alertas externas")},
+          %{id: "embed-portal", label: gettext("Portal embebible")},
+          %{id: "rate-limiting-outbound", label: gettext("Rate limiting saliente")},
+          %{id: "prometheus-metrics", label: gettext("Métricas Prometheus")}
         ]
       },
       %{
@@ -2888,6 +2893,288 @@ function verifySignature(string $secret, string $body, string $signature): bool 
       <.callout kind="info">
         {gettext(
           "El simulador no persiste eventos ni genera entregas reales. Muestra qué webhooks recibirían el evento y el payload transformado resultante."
+        )}
+      </.callout>
+    </.docs_section>
+
+    <.docs_section
+      id="idempotency-keys"
+      title={gettext("Claves de idempotencia")}
+      subtitle={
+        gettext("Previene el procesamiento duplicado de eventos usando claves únicas por cliente.")
+      }
+    >
+      <p class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+        {gettext(
+          "Envía idempotency_key en el body o el header X-Idempotency-Key para deduplicar eventos. Si ya existe un evento con la misma clave en el proyecto, se retorna el evento existente sin crear uno nuevo."
+        )}
+      </p>
+      <.code_block
+        code={"# Opción 1: idempotency_key en el body\ncurl -X POST \"#{@base_url}/api/v1/send\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"topic\":\"order.created\",\"amount\":150,\"idempotency_key\":\"order-123-abc\"}'"}
+        copy_id="copy-idempotency-body"
+      />
+      <.code_block
+        code={"# Opción 2: X-Idempotency-Key como header\ncurl -X POST \"#{@base_url}/api/v1/send\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-Idempotency-Key: order-123-abc\" \\\n  -d '{\"topic\":\"order.created\",\"amount\":150}'"}
+        copy_id="copy-idempotency-header"
+      />
+      <.callout kind="info">
+        {gettext(
+          "El header X-Idempotency-Key tiene prioridad sobre el campo del body. Las claves expiran automáticamente después de varios días."
+        )}
+      </.callout>
+    </.docs_section>
+
+    <.docs_section
+      id="external-alerts"
+      title={gettext("Alertas externas")}
+      subtitle={
+        gettext("Recibe notificaciones fuera del dashboard cuando algo falla en tus webhooks.")
+      }
+    >
+      <p class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+        {gettext(
+          "Configura canales de notificación para recibir alertas por email, Slack, Discord o meta-webhook cuando ocurren eventos críticos."
+        )}
+      </p>
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 overflow-x-auto mb-4">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-slate-500">
+              <th class="pb-2 font-medium">{gettext("Canal")}</th>
+              <th class="pb-2 font-medium">{gettext("Configuración")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700 dark:text-slate-300">
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-2 font-mono text-xs">email</td>
+              <td class="py-2 text-xs">{gettext("Dirección de correo del destinatario")}</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-2 font-mono text-xs">slack</td>
+              <td class="py-2 text-xs">{gettext("URL del Incoming Webhook de Slack")}</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-2 font-mono text-xs">discord</td>
+              <td class="py-2 text-xs">{gettext("URL del Webhook de Discord")}</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-2 font-mono text-xs">webhook</td>
+              <td class="py-2 text-xs">
+                {gettext("URL de un endpoint HTTP que recibe alertas (meta-webhook)")}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <.api_endpoint
+        id="notification-channel-upsert"
+        method="PUT"
+        path="/api/v1/notification-channels"
+        description={gettext("Crear o actualizar un canal de notificación.")}
+      >
+        <.code_block
+          code={"curl -X PUT \"#{@base_url}/api/v1/notification-channels\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"channel\":\"slack\",\"config\":{\"webhook_url\":\"https://hooks.slack.com/services/...\"},\"events\":[\"webhook_failing\",\"circuit_open\"]}'"}
+          copy_id="copy-notification-upsert"
+        />
+      </.api_endpoint>
+      <.api_endpoint
+        id="notification-channel-test"
+        method="POST"
+        path="/api/v1/notification-channels/test"
+        description={gettext("Enviar una notificación de prueba al canal configurado.")}
+      >
+        <.code_block
+          code={"curl -X POST \"#{@base_url}/api/v1/notification-channels/test\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"channel\":\"slack\"}'"}
+          copy_id="copy-notification-test"
+        />
+      </.api_endpoint>
+    </.docs_section>
+
+    <.docs_section
+      id="embed-portal"
+      title={gettext("Portal embebible")}
+      subtitle={
+        gettext("Widget JavaScript para que tus usuarios finales gestionen sus propios webhooks.")
+      }
+    >
+      <p class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+        {gettext(
+          "Genera un token de embed con scopes específicos y usa el widget JS para que tus clientes configuren webhooks y vean entregas sin acceder a tu dashboard."
+        )}
+      </p>
+      <.api_endpoint
+        id="embed-token-create"
+        method="POST"
+        path="/api/v1/embed/tokens"
+        description={gettext("Generar un nuevo token de embed.")}
+      >
+        <.code_block
+          code={"curl -X POST \"#{@base_url}/api/v1/embed/tokens\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"project_id\":\"PROJECT_ID\",\"name\":\"My Portal\"}'"}
+          copy_id="copy-embed-token"
+        />
+      </.api_endpoint>
+      <div class="mt-4">
+        <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          {gettext("Integrar el widget")}
+        </h4>
+        <.code_block
+          code={"<script src=\"#{@base_url}/embed.js\"></script>\n<div id=\"jobcelis-portal\"></div>\n<script>\n  JobcelisPortal.init({\n    token: \"emb_...\",\n    container: \"#jobcelis-portal\",\n    baseUrl: \"#{@base_url}\",\n    locale: \"en\"\n  });\n</script>"}
+          copy_id="copy-embed-widget"
+        />
+      </div>
+      <div class="mt-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-slate-500">
+              <th class="pb-2 font-medium">{gettext("Método")}</th>
+              <th class="pb-2 font-medium">{gettext("Ruta")}</th>
+              <th class="pb-2 font-medium">{gettext("Descripción")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700 dark:text-slate-300">
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-2">
+                <span class="px-1.5 py-0.5 rounded text-xs font-mono bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700">
+                  GET
+                </span>
+              </td>
+              <td class="py-2 font-mono text-xs">/api/v1/embed/webhooks</td>
+              <td class="py-2 text-xs">{gettext("Listar webhooks")}</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-2">
+                <span class="px-1.5 py-0.5 rounded text-xs font-mono bg-blue-100 dark:bg-blue-900/30 text-blue-700">
+                  POST
+                </span>
+              </td>
+              <td class="py-2 font-mono text-xs">/api/v1/embed/webhooks</td>
+              <td class="py-2 text-xs">{gettext("Crear webhook")}</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-2">
+                <span class="px-1.5 py-0.5 rounded text-xs font-mono bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700">
+                  GET
+                </span>
+              </td>
+              <td class="py-2 font-mono text-xs">/api/v1/embed/deliveries</td>
+              <td class="py-2 text-xs">{gettext("Listar entregas")}</td>
+            </tr>
+            <tr class="border-t border-slate-200 dark:border-slate-700">
+              <td class="py-2">
+                <span class="px-1.5 py-0.5 rounded text-xs font-mono bg-blue-100 dark:bg-blue-900/30 text-blue-700">
+                  POST
+                </span>
+              </td>
+              <td class="py-2 font-mono text-xs">/api/v1/embed/deliveries/:id/retry</td>
+              <td class="py-2 text-xs">{gettext("Reintentar entrega")}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <.callout kind="info">
+        {gettext(
+          "El token de embed solo se muestra una vez al crearlo. Los scopes disponibles son: webhooks:read, webhooks:write, deliveries:read, deliveries:retry."
+        )}
+      </.callout>
+    </.docs_section>
+
+    <.docs_section
+      id="rate-limiting-outbound"
+      title={gettext("Rate limiting saliente")}
+      subtitle={
+        gettext(
+          "Controla la velocidad de entrega de webhooks para no sobrecargar los servidores receptores."
+        )
+      }
+    >
+      <p class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+        {gettext(
+          "Cada webhook puede tener su propio límite de velocidad. Si no se configura, se aplican los valores por defecto."
+        )}
+      </p>
+      <.code_block
+        code={"curl -X PATCH \"#{@base_url}/api/v1/webhooks/WEBHOOK_ID\" \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"rate_limit\":{\"max_per_second\":100,\"max_per_minute\":5000}}'"}
+        copy_id="copy-rate-limit"
+      />
+      <.callout kind="info">
+        {gettext(
+          "Cuando un webhook alcanza su límite, las entregas pendientes se encolan automáticamente y se reintentan en pocos segundos."
+        )}
+      </.callout>
+    </.docs_section>
+
+    <.docs_section
+      id="prometheus-metrics"
+      title={gettext("Métricas Prometheus")}
+      subtitle={
+        gettext("Endpoint /metrics compatible con Prometheus para monitoreo profesional con Grafana.")
+      }
+    >
+      <p class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+        {gettext("Métricas disponibles")}:
+      </p>
+      <div class="space-y-3 mb-4">
+        <div>
+          <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Counters</h4>
+          <ul class="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <li>
+              <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">
+                jobcelis_events_created_total
+              </code>
+              — {gettext("Eventos creados (por proyecto, topic)")}
+            </li>
+            <li>
+              <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">
+                jobcelis_deliveries_success_total
+              </code>
+              — {gettext("Entregas exitosas (por proyecto, webhook, topic)")}
+            </li>
+            <li>
+              <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">
+                jobcelis_deliveries_failed_total
+              </code>
+              — {gettext("Entregas fallidas (por proyecto, webhook, topic)")}
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Gauges</h4>
+          <ul class="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <li>
+              <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">
+                jobcelis_webhooks_active
+              </code>
+              — {gettext("Webhooks activos")}
+            </li>
+            <li>
+              <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">
+                jobcelis_circuit_breakers_open
+              </code>
+              — {gettext("Circuit breakers abiertos")}
+            </li>
+            <li>
+              <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">
+                jobcelis_deliveries_pending
+              </code>
+              — {gettext("Entregas pendientes en cola")}
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Histograms</h4>
+          <ul class="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <li>
+              <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">
+                jobcelis_delivery_latency_milliseconds
+              </code>
+              — {gettext("Latencia de entregas (por proyecto, webhook, topic)")}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <.callout kind="info">
+        {gettext(
+          "Las métricas se exponen en un puerto separado. Configura tu scraper de Prometheus apuntando al puerto de métricas."
         )}
       </.callout>
     </.docs_section>
