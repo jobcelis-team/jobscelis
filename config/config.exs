@@ -132,7 +132,10 @@ config :logger, :console,
     :total_events,
     :age_hours,
     :storage,
-    :threshold_hours
+    :threshold_hours,
+    :channel_id,
+    :event_type,
+    :errors
   ]
 
 # ============================================
