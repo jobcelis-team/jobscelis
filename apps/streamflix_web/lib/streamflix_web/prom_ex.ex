@@ -14,7 +14,8 @@ defmodule StreamflixWeb.PromEx do
       Plugins.Beam,
       {Plugins.Phoenix, router: StreamflixWebWeb.Router, endpoint: StreamflixWebWeb.Endpoint},
       {Plugins.Ecto, repos: [StreamflixCore.Repo]},
-      {Plugins.Oban, oban_supervisors: [Oban]}
+      {Plugins.Oban, oban_supervisors: [Oban]},
+      {StreamflixWeb.PromEx.JobcelisPlugin, poll_rate: 15_000}
     ]
   end
 

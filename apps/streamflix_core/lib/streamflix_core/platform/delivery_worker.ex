@@ -230,6 +230,18 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       {:ok, d} ->
         if delivery.webhook, do: StreamflixCore.CircuitBreaker.record_success(delivery.webhook)
         broadcast_delivery(d)
+
+        evt = delivery.event || Repo.get(StreamflixCore.Schemas.WebhookEvent, delivery.event_id)
+
+        if evt do
+          StreamflixCore.TelemetryEvents.delivery_success(
+            evt.project_id,
+            delivery.webhook_id,
+            evt.topic,
+            latency_ms
+          )
+        end
+
         {:ok, d}
 
       err ->
@@ -268,6 +280,16 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       {:ok, d} ->
         if delivery.webhook, do: StreamflixCore.CircuitBreaker.record_failure(delivery.webhook)
         broadcast_delivery(d)
+
+        event = delivery.event || Repo.get(StreamflixCore.Schemas.WebhookEvent, delivery.event_id)
+
+        if event do
+          StreamflixCore.TelemetryEvents.delivery_failure(
+            event.project_id,
+            delivery.webhook_id,
+            event.topic
+          )
+        end
 
         # Move to Dead Letter Queue if all retries exhausted
         if new_attempt >= max_attempts do
