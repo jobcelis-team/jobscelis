@@ -452,6 +452,28 @@ class JobcelisClient {
     return _get('/api/v1/audit-log', params: {'limit': '$limit', if (cursor != null) 'cursor': cursor});
   }
 
+  // ── Notification Channels ────────────────────────────────────────────
+
+  /// Get the notification channel configuration.
+  Future<Map<String, dynamic>> getNotificationChannel() async {
+    return _get('/api/v1/notification-channels');
+  }
+
+  /// Create or update notification channel configuration.
+  Future<Map<String, dynamic>> upsertNotificationChannel(Map<String, dynamic> config) async {
+    return _put('/api/v1/notification-channels', config);
+  }
+
+  /// Delete the notification channel configuration.
+  Future<void> deleteNotificationChannel() async {
+    await _delete('/api/v1/notification-channels');
+  }
+
+  /// Test the notification channel configuration.
+  Future<Map<String, dynamic>> testNotificationChannel() async {
+    return _post('/api/v1/notification-channels/test', {});
+  }
+
   // ── Export ─────────────────────────────────────────────────────────────
 
   /// Export events as CSV or JSON. Returns raw string.
@@ -533,6 +555,10 @@ class JobcelisClient {
     return _request('POST', path, body: body);
   }
 
+  Future<Map<String, dynamic>> _put(String path, Map<String, dynamic> body) async {
+    return _request('PUT', path, body: body);
+  }
+
   Future<Map<String, dynamic>> _patch(String path, Map<String, dynamic> body) async {
     return _request('PATCH', path, body: body);
   }
@@ -585,6 +611,9 @@ class JobcelisClient {
         break;
       case 'POST':
         response = await _httpClient.post(uri, headers: headers, body: encodedBody);
+        break;
+      case 'PUT':
+        response = await _httpClient.put(uri, headers: headers, body: encodedBody);
         break;
       case 'PATCH':
         response = await _httpClient.patch(uri, headers: headers, body: encodedBody);

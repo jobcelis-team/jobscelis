@@ -1126,6 +1126,64 @@ export async function simulate(args: string[]): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Notification Channels
+// ---------------------------------------------------------------------------
+
+export async function channelsShow(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis channels show\n\nShow notification channel configuration.\n"
+    );
+    return;
+  }
+  const result = await api.get("/api/v1/notification-channels");
+  printJson(result);
+}
+
+export async function channelsUpsert(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis channels upsert --config '<json>'\n\n" +
+        "Create or update notification channel configuration.\n" +
+        "Example: jobcelis channels upsert --config '{\"email_enabled\":true,\"email_address\":\"a@b.com\"}'\n"
+    );
+    return;
+  }
+  const config = requireFlag(args, "--config", "json");
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(config);
+  } catch {
+    process.stderr.write("Error: --config must be valid JSON.\n");
+    process.exit(1);
+  }
+  const result = await api.put("/api/v1/notification-channels", parsed);
+  printJson(result);
+}
+
+export async function channelsDelete(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis channels delete\n\nDelete notification channel configuration.\n"
+    );
+    return;
+  }
+  const result = await api.del("/api/v1/notification-channels");
+  printJson(result);
+}
+
+export async function channelsTest(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis channels test\n\nSend a test notification to all enabled channels.\n"
+    );
+    return;
+  }
+  const result = await api.post("/api/v1/notification-channels/test");
+  printJson(result);
+}
+
+// ---------------------------------------------------------------------------
 // GDPR
 // ---------------------------------------------------------------------------
 

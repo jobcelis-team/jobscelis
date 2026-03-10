@@ -440,6 +440,28 @@ public class JobcelisClient {
         try await get("/api/v1/audit-log", params: ["limit": "\(limit)", "cursor": cursor])
     }
 
+    // MARK: - Notification Channels
+
+    /// Get the notification channel configuration.
+    public func getNotificationChannel() async throws -> [String: Any] {
+        try await get("/api/v1/notification-channels")
+    }
+
+    /// Create or update the notification channel configuration.
+    public func upsertNotificationChannel(config: [String: Any]) async throws -> [String: Any] {
+        try await request("PUT", path: "/api/v1/notification-channels", body: config)
+    }
+
+    /// Delete the notification channel configuration.
+    public func deleteNotificationChannel() async throws {
+        try await doDelete("/api/v1/notification-channels")
+    }
+
+    /// Test the notification channel configuration.
+    public func testNotificationChannel() async throws -> [String: Any] {
+        try await post("/api/v1/notification-channels/test", body: [:])
+    }
+
     // MARK: - Export
 
     /// Export events as CSV or JSON. Returns raw string.

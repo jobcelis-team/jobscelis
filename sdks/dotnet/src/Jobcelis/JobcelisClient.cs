@@ -480,6 +480,26 @@ public class JobcelisClient : IDisposable
     public Task<JsonElement> StatusAsync()
         => GetAsync("/status");
 
+    // -------------------------------------------------------------------------
+    // Notification Channels
+    // -------------------------------------------------------------------------
+
+    /// <summary>Get the notification channel configuration.</summary>
+    public Task<JsonElement> GetNotificationChannelAsync()
+        => GetAsync("/api/v1/notification-channels");
+
+    /// <summary>Create or update the notification channel configuration.</summary>
+    public Task<JsonElement> UpsertNotificationChannelAsync(object config)
+        => PutAsync("/api/v1/notification-channels", config);
+
+    /// <summary>Delete the notification channel configuration.</summary>
+    public Task DeleteNotificationChannelAsync()
+        => DoDeleteAsync("/api/v1/notification-channels");
+
+    /// <summary>Test the notification channel configuration.</summary>
+    public Task<JsonElement> TestNotificationChannelAsync()
+        => PostAsync("/api/v1/notification-channels/test", new { });
+
     // =========================================================================
     // Private HTTP helpers
     // =========================================================================
@@ -492,6 +512,9 @@ public class JobcelisClient : IDisposable
 
     private Task<JsonElement> PatchAsync(string path, object body)
         => RequestAsync(HttpMethod.Patch, path, body: body);
+
+    private Task<JsonElement> PutAsync(string path, object body)
+        => RequestAsync(HttpMethod.Put, path, body: body);
 
     private Task DoDeleteAsync(string path)
         => RequestAsync(HttpMethod.Delete, path).ContinueWith(_ => { });

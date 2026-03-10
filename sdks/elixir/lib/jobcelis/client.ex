@@ -458,6 +458,26 @@ defmodule Jobcelis.Client do
   end
 
   # ---------------------------------------------------------------------------
+  # Notification Channels
+  # ---------------------------------------------------------------------------
+
+  def get_notification_channel(%__MODULE__{} = client) do
+    get(client, "/api/v1/notification-channels")
+  end
+
+  def upsert_notification_channel(%__MODULE__{} = client, config) do
+    put(client, "/api/v1/notification-channels", config)
+  end
+
+  def delete_notification_channel(%__MODULE__{} = client) do
+    do_delete(client, "/api/v1/notification-channels")
+  end
+
+  def test_notification_channel(%__MODULE__{} = client) do
+    post(client, "/api/v1/notification-channels/test", %{})
+  end
+
+  # ---------------------------------------------------------------------------
   # Health
   # ---------------------------------------------------------------------------
 
@@ -479,6 +499,10 @@ defmodule Jobcelis.Client do
 
   defp post(%__MODULE__{} = client, path, body) do
     request(client, :post, path, body: body)
+  end
+
+  defp put(%__MODULE__{} = client, path, body) do
+    request(client, :put, path, body: body)
   end
 
   defp patch(%__MODULE__{} = client, path, body) do

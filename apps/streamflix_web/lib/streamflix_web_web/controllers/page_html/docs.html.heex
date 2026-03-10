@@ -224,6 +224,12 @@
               {gettext("Sandbox")}
             </a>
             <a
+              href="#notification-channels"
+              class="block py-2 px-3 rounded-lg text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition"
+            >
+              {gettext("Alertas externas")}
+            </a>
+            <a
               href="#analytics"
               class="block py-2 px-3 rounded-lg text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition"
             >
@@ -2600,6 +2606,144 @@
               >curl -X POST "<%= @base_url %>/sandbox/xk9m2p" \
   -H "Content-Type: application/json" \
   -d '{"order_id":"12345","status":"completed"}'</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="notification-channels" class="mb-14 scroll-mt-24">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {gettext("Alertas externas")}
+            </h2>
+
+            <p class="text-slate-600 dark:text-slate-400 mt-1 text-sm">
+              {gettext(
+                "Configura canales de notificación externos para recibir alertas cuando algo falla: email, Slack, Discord o un meta-webhook."
+              )}
+            </p>
+          </div>
+
+          <div class="p-4 sm:p-8 space-y-8">
+            <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/30 border border-slate-200 dark:border-slate-700 p-5">
+              <p class="text-slate-700 dark:text-slate-300 text-sm">
+                {gettext(
+                  "Cada proyecto puede configurar uno o más canales. Las alertas se envían cuando un webhook falla repetidamente, un circuit breaker se activa, una entrega va al DLQ, un job falla, o un replay se completa. También puedes filtrar qué tipos de evento disparan alertas."
+                )}
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white">
+                  GET
+                </span>
+                <code class="font-mono text-slate-800 dark:text-slate-200 font-medium break-all">
+                  /api/v1/notification-channels
+                </code>
+              </div>
+
+              <p class="text-slate-700 dark:text-slate-300 text-sm mb-3">
+                {gettext(
+                  "Obtiene la configuración actual de canales de notificación del proyecto."
+                )}
+              </p>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >curl -X GET "<%= @base_url %>/api/v1/notification-channels" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
+                  PUT
+                </span>
+                <code class="font-mono text-slate-800 dark:text-slate-200 font-medium break-all">
+                  /api/v1/notification-channels
+                </code>
+              </div>
+
+              <p class="text-slate-700 dark:text-slate-300 text-sm mb-3">
+                {gettext(
+                  "Crea o actualiza la configuración. Habilita los canales que necesites y proporciona las URLs correspondientes."
+                )}
+              </p>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >curl -X PUT "<%= @base_url %>/api/v1/notification-channels" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{
+    "email_enabled": true,
+    "email_address": "alerts@myapp.com",
+    "slack_enabled": true,
+    "slack_webhook_url": "https://hooks.slack.com/services/T00/B00/xxxx",
+    "event_types": ["dlq_entry", "circuit_open", "job_failed"]
+  }'</pre>
+              <p class="text-slate-500 dark:text-slate-400 text-xs mt-3">
+                {gettext("Respuesta ejemplo:")}
+              </p>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto mt-1 font-mono"
+                phx-no-curly-interpolation
+              >{
+  "data": {
+    "id": "a1b2c3d4-...",
+    "email_enabled": true,
+    "email_address": "alerts@myapp.com",
+    "slack_enabled": true,
+    "slack_webhook_url": "https://hooks.slack.com/••••••",
+    "discord_enabled": false,
+    "meta_webhook_enabled": false,
+    "event_types": ["dlq_entry", "circuit_open", "job_failed"]
+  }
+}</pre>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white">
+                  POST
+                </span>
+                <code class="font-mono text-slate-800 dark:text-slate-200 font-medium break-all">
+                  /api/v1/notification-channels/test
+                </code>
+              </div>
+
+              <p class="text-slate-700 dark:text-slate-300 text-sm mb-3">
+                {gettext(
+                  "Envía una notificación de prueba a todos los canales habilitados para verificar la configuración."
+                )}
+              </p>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >curl -X POST "<%= @base_url %>/api/v1/notification-channels/test" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 p-6">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
+                  DELETE
+                </span>
+                <code class="font-mono text-slate-800 dark:text-slate-200 font-medium break-all">
+                  /api/v1/notification-channels
+                </code>
+              </div>
+
+              <p class="text-slate-700 dark:text-slate-300 text-sm mb-3">
+                {gettext("Elimina la configuración de canales de notificación del proyecto.")}
+              </p>
+              <pre
+                class="bg-slate-800 text-slate-100 p-4 rounded-lg text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              >curl -X DELETE "<%= @base_url %>/api/v1/notification-channels" \
+  -H "X-Api-Key: YOUR_API_KEY"</pre>
             </div>
           </div>
         </div>
