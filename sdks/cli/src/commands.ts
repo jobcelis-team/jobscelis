@@ -1327,6 +1327,54 @@ export async function authMfaVerify(args: string[]): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Embed Tokens
+// ---------------------------------------------------------------------------
+
+export async function embedTokensList(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis embed tokens-list\n\nList embed tokens.\n"
+    );
+    return;
+  }
+  const result = await api.get("/api/v1/embed/tokens");
+  printJson((result as Record<string, unknown>).data ?? result);
+}
+
+export async function embedTokensCreate(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis embed tokens-create --name <n> --scopes <s1,s2>\n\n" +
+        "Create an embed token.\n"
+    );
+    return;
+  }
+  const name = requireFlag(args, "--name", "name");
+  const scopes = requireFlag(args, "--scopes", "scopes");
+  const result = await api.post("/api/v1/embed/tokens", {
+    name,
+    scopes: scopes.split(","),
+  });
+  const r = result as Record<string, unknown>;
+  if (r.token) {
+    process.stdout.write(`Token: ${r.token}\n`);
+  }
+  printJson(r.data ?? result);
+}
+
+export async function embedTokensRevoke(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis embed tokens-revoke <id>\n\nRevoke an embed token.\n"
+    );
+    return;
+  }
+  const id = requirePositional(args, 0, "token-id");
+  const result = await api.del(`/api/v1/embed/tokens/${id}`);
+  printJson(result);
+}
+
+// ---------------------------------------------------------------------------
 // Status
 // ---------------------------------------------------------------------------
 

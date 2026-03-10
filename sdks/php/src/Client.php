@@ -740,6 +740,34 @@ class Client
     }
 
     // -------------------------------------------------------------------------
+    // Embed Tokens
+    // -------------------------------------------------------------------------
+
+    /**
+     * List embed tokens.
+     */
+    public function listEmbedTokens(): array
+    {
+        return $this->get('/api/v1/embed/tokens');
+    }
+
+    /**
+     * Create an embed token.
+     */
+    public function createEmbedToken(array $config): array
+    {
+        return $this->post('/api/v1/embed/tokens', $config);
+    }
+
+    /**
+     * Revoke an embed token.
+     */
+    public function revokeEmbedToken(string $id): void
+    {
+        $this->doDelete("/api/v1/embed/tokens/{$id}");
+    }
+
+    // -------------------------------------------------------------------------
     // Notification Channels
     // -------------------------------------------------------------------------
 

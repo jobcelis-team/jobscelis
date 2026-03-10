@@ -30,6 +30,9 @@ import type {
   Consent,
   NotificationChannel,
   NotificationChannelCreate,
+  EmbedToken,
+  EmbedTokenCreate,
+  EmbedTokenResponse,
 } from './types';
 
 export class JobcelisClient {
@@ -385,6 +388,20 @@ export class JobcelisClient {
 
   async testNotificationChannel(): Promise<{ status: string; channels: string[] }> {
     return this.post('/api/v1/notification-channels/test', {});
+  }
+
+  // --- Embed Tokens ---
+
+  async listEmbedTokens(): Promise<{ data: EmbedToken[] }> {
+    return this.get('/api/v1/embed/tokens');
+  }
+
+  async createEmbedToken(config: EmbedTokenCreate): Promise<EmbedTokenResponse> {
+    return this.post('/api/v1/embed/tokens', config);
+  }
+
+  async revokeEmbedToken(id: string): Promise<{ status: string }> {
+    return this.delete(`/api/v1/embed/tokens/${id}`);
   }
 
   // --- GDPR ---
