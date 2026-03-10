@@ -6,7 +6,7 @@
 
     <groupId>com.jobcelis</groupId>
     <artifactId>jobcelis</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
 
     <name>Jobcelis Java SDK</name>
@@ -15,8 +15,8 @@
 
     <licenses>
         <license>
-            <name>MIT License</name>
-            <url>https://opensource.org/licenses/MIT</url>
+            <name>Business Source License 1.1</name>
+            <url>https://github.com/jobcelis-team/jobscelis/blob/main/LICENSE</url>
         </license>
     </licenses>
 

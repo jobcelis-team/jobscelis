@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.jobcelis"
-version = "1.2.0"
+version = "1.2.1"
 
 repositories {
     mavenCentral()
@@ -41,8 +41,8 @@ publishing {
                 url.set("https://github.com/vladimirCeli/jobcelis-kotlin")
                 licenses {
                     license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
+                        name.set("Business Source License 1.1")
+                        url.set("https://github.com/jobcelis-team/jobscelis/blob/main/LICENSE")
                     }
                 }
                 developers {

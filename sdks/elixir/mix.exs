@@ -1,7 +1,7 @@
 defmodule Jobcelis.MixProject do
   use Mix.Project
 
-  @version "1.2.0"
+  @version "1.2.1"
   @source_url "https://github.com/vladimirCeli/jobcelis-elixir"
 
   def project do
@@ -39,7 +39,7 @@ defmodule Jobcelis.MixProject do
   defp package do
     [
       name: "jobcelis",
-      licenses: ["MIT"],
+      licenses: ["BUSL-1.1"],
       links: %{
         "GitHub" => @source_url,
         "Documentation" => "https://jobcelis.com/docs"

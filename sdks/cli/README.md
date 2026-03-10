@@ -396,4 +396,4 @@ node dist/index.js help
 
 ## License
 
-MIT
+BSL-1.1 (Business Source License)

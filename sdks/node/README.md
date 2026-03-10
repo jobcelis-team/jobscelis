@@ -382,4 +382,4 @@ do {
 
 ## License
 
-MIT
+BSL-1.1 (Business Source License)
