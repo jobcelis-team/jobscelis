@@ -11,8 +11,13 @@ on:
           - npm-sdk
           - npm-cli
           - pypi
-          - packagist
           - rubygems
+          - hex
+          - nuget
+          - crates
+          - maven-java
+          - maven-kotlin
+          - pub-dev
           - all
 
 jobs:
@@ -108,3 +113,131 @@ jobs:
           echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" >> ~/.gem/credentials
           chmod 0600 ~/.gem/credentials
           gem push jobcelis-*.gem
+
+  publish-hex:
+    name: Publish jobcelis to Hex.pm
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'hex' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: vladimirCeli/jobcelis-elixir
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.17"
+
+      - name: Install deps
+        run: mix deps.get
+
+      - name: Publish to Hex.pm
+        run: mix hex.publish --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
+  publish-nuget:
+    name: Publish Jobcelis to NuGet
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'nuget' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: vladimirCeli/jobcelis-dotnet
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build & Pack
+        run: dotnet pack src/Jobcelis/Jobcelis.csproj -c Release -o ./nupkg
+
+      - name: Publish to NuGet
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
+  publish-crates:
+    name: Publish jobcelis to crates.io
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'crates' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: vladimirCeli/jobcelis-rust
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish to crates.io
+        run: cargo publish --token ${{ secrets.CRATES_TOKEN }}
+
+  publish-maven-java:
+    name: Publish jobcelis to Maven Central (Java)
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'maven-java' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: vladimirCeli/jobcelis-java
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name: Publish to Maven Central
+        run: mvn deploy -P release
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+  publish-maven-kotlin:
+    name: Publish jobcelis to Maven Central (Kotlin)
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'maven-kotlin' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: vladimirCeli/jobcelis-kotlin
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Import GPG key
+        run: echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Publish to Maven Central
+        run: ./gradlew publishToMavenCentral --no-daemon
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+  publish-pub-dev:
+    name: Publish jobcelis to pub.dev
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package == 'pub-dev' || inputs.package == 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: vladimirCeli/jobcelis-dart
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "3.3.0"
+
+      - name: Install deps
+        run: dart pub get
+
+      - name: Publish to pub.dev
+        run: dart pub publish --force
+        env:
+          PUB_TOKEN: ${{ secrets.PUB_TOKEN }}
