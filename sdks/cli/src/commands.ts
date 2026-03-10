@@ -1405,6 +1405,80 @@ export async function embedTokensRevoke(args: string[]): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Retention & Purge
+// ---------------------------------------------------------------------------
+
+export async function retentionGet(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis retention get\n\nGet current retention policy.\n"
+    );
+    return;
+  }
+  const result = await api.get("/api/v1/retention");
+  printJson(result);
+}
+
+export async function retentionSet(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis retention set [--events-days N] [--deliveries-days N] [--audit-logs-days N]\n\n" +
+        "Update retention policy.\n"
+    );
+    return;
+  }
+  const body: Record<string, number> = {};
+  const eventsDays = getFlag(args, "--events-days");
+  if (eventsDays) body.events_days = parseInt(eventsDays, 10);
+  const deliveriesDays = getFlag(args, "--deliveries-days");
+  if (deliveriesDays) body.deliveries_days = parseInt(deliveriesDays, 10);
+  const auditLogsDays = getFlag(args, "--audit-logs-days");
+  if (auditLogsDays) body.audit_logs_days = parseInt(auditLogsDays, 10);
+  const result = await api.patch("/api/v1/retention", body);
+  printJson(result);
+}
+
+export async function purgePreview(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis purge preview --type <type> [--older-than <date>] [--topic <pattern>] [--status <status>]\n\n" +
+        "Preview a purge operation.\n"
+    );
+    return;
+  }
+  const type = requireFlag(args, "--type", "type");
+  const body: Record<string, string> = { type };
+  const olderThan = getFlag(args, "--older-than");
+  if (olderThan) body.older_than = olderThan;
+  const topic = getFlag(args, "--topic");
+  if (topic) body.topic = topic;
+  const statusVal = getFlag(args, "--status");
+  if (statusVal) body.status = statusVal;
+  const result = await api.post("/api/v1/purge/preview", body);
+  printJson(result);
+}
+
+export async function purgeExecute(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis purge execute --type <type> [--older-than <date>] [--topic <pattern>] [--status <status>]\n\n" +
+        "Execute a purge operation.\n"
+    );
+    return;
+  }
+  const type = requireFlag(args, "--type", "type");
+  const body: Record<string, string> = { type };
+  const olderThan = getFlag(args, "--older-than");
+  if (olderThan) body.older_than = olderThan;
+  const topic = getFlag(args, "--topic");
+  if (topic) body.topic = topic;
+  const statusVal = getFlag(args, "--status");
+  if (statusVal) body.status = statusVal;
+  const result = await api.post("/api/v1/purge", body);
+  printJson(result);
+}
+
+// ---------------------------------------------------------------------------
 // Webhook Signature Verification
 // ---------------------------------------------------------------------------
 

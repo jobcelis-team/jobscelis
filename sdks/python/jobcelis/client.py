@@ -459,6 +459,24 @@ class JobcelisClient:
         """Send a test notification to the configured channel."""
         return self._post("/api/v1/notification-channels/test", {})
 
+    # --- Retention & Purge ---
+
+    def get_retention_policy(self) -> dict:
+        """Get current retention policy."""
+        return self._get("/api/v1/retention")
+
+    def update_retention_policy(self, policy: dict) -> dict:
+        """Update retention policy."""
+        return self._patch("/api/v1/retention", policy)
+
+    def preview_purge(self, params: dict) -> dict:
+        """Preview a purge operation."""
+        return self._post("/api/v1/purge/preview", params)
+
+    def purge_data(self, params: dict) -> dict:
+        """Execute a purge operation."""
+        return self._post("/api/v1/purge", params)
+
     # --- Health ---
 
     def health(self) -> dict:

@@ -438,6 +438,24 @@ export class JobcelisClient {
     await this.delete('/api/v1/me/object');
   }
 
+  // --- Retention & Purge ---
+
+  async getRetentionPolicy(): Promise<any> {
+    return this.get('/api/v1/retention');
+  }
+
+  async updateRetentionPolicy(policy: { events_days?: number; deliveries_days?: number; audit_logs_days?: number }): Promise<any> {
+    return this.patch('/api/v1/retention', policy);
+  }
+
+  async previewPurge(params: { type: string; older_than?: string; topic?: string; status?: string }): Promise<any> {
+    return this.post('/api/v1/purge/preview', params);
+  }
+
+  async purgeData(params: { type: string; older_than?: string; topic?: string; status?: string }): Promise<any> {
+    return this.post('/api/v1/purge', params);
+  }
+
   // --- Health ---
 
   async health(): Promise<Record<string, unknown>> {

@@ -582,6 +582,30 @@ module Jobcelis
     end
 
     # ------------------------------------------------------------------
+    # Retention & Purge
+    # ------------------------------------------------------------------
+
+    # Get current retention policy.
+    def get_retention_policy
+      get("/api/v1/retention")
+    end
+
+    # Update retention policy.
+    def update_retention_policy(policy)
+      patch("/api/v1/retention", policy)
+    end
+
+    # Preview a purge operation.
+    def preview_purge(params)
+      post("/api/v1/purge/preview", params)
+    end
+
+    # Execute a purge operation.
+    def purge_data(params)
+      post("/api/v1/purge", params)
+    end
+
+    # ------------------------------------------------------------------
     # Health
     # ------------------------------------------------------------------
 
