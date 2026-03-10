@@ -29,6 +29,7 @@ Commands:
     webhooks update <id> [--url <u>] [--topics <t>]   Update webhook
     webhooks delete <id>                              Delete webhook
     webhooks health <id>                              Get webhook health
+    webhooks test <id>                                Test a webhook
     webhooks templates                                List webhook templates
 
   Deliveries:
@@ -191,6 +192,7 @@ const COMMAND_MAP: Record<string, Record<string, CommandHandler>> = {
     update: commands.webhooksUpdate,
     delete: commands.webhooksDelete,
     health: commands.webhooksHealth,
+    test: commands.webhooksTest,
     templates: commands.webhooksTemplates,
   },
   deliveries: {

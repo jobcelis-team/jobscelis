@@ -219,6 +219,11 @@ public class JobcelisClient {
         return get("/api/v1/webhooks/templates");
     }
 
+    /** Send a test delivery to a webhook. */
+    public JsonObject testWebhook(String webhookId) throws JobcelisException, IOException {
+        return post("/api/v1/webhooks/" + webhookId + "/test", Map.of());
+    }
+
     // ── Deliveries ────────────────────────────────────────────────────────
 
     /** List deliveries. */

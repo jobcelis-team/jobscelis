@@ -121,6 +121,10 @@ defmodule Jobcelis.Client do
     get(client, "/api/v1/webhooks/templates")
   end
 
+  def test_webhook(%__MODULE__{} = client, webhook_id) do
+    post(client, "/api/v1/webhooks/#{webhook_id}/test", %{})
+  end
+
   # ---------------------------------------------------------------------------
   # Deliveries
   # ---------------------------------------------------------------------------

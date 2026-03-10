@@ -134,6 +134,11 @@ module Jobcelis
       get("/api/v1/webhooks/templates")
     end
 
+    # Send a test delivery to a webhook.
+    def test_webhook(webhook_id)
+      post("/api/v1/webhooks/#{webhook_id}/test", {})
+    end
+
     # ------------------------------------------------------------------
     # Deliveries
     # ------------------------------------------------------------------
