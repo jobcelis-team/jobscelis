@@ -89,6 +89,18 @@ export async function patch(
   return handleResponse(res);
 }
 
+export async function put(
+  path: string,
+  body?: unknown
+): Promise<unknown> {
+  const res = await fetch(buildUrl(path), {
+    method: "PUT",
+    headers: headers(),
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  return handleResponse(res);
+}
+
 export async function del(path: string): Promise<unknown> {
   const res = await fetch(buildUrl(path), {
     method: "DELETE",

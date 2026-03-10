@@ -740,6 +740,42 @@ class Client
     }
 
     // -------------------------------------------------------------------------
+    // Notification Channels
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get the notification channel configuration.
+     */
+    public function getNotificationChannel(): array
+    {
+        return $this->get('/api/v1/notification-channels');
+    }
+
+    /**
+     * Create or update the notification channel configuration.
+     */
+    public function upsertNotificationChannel(array $config): array
+    {
+        return $this->request('PUT', '/api/v1/notification-channels', body: $config);
+    }
+
+    /**
+     * Delete the notification channel configuration.
+     */
+    public function deleteNotificationChannel(): void
+    {
+        $this->doDelete('/api/v1/notification-channels');
+    }
+
+    /**
+     * Test the notification channel configuration.
+     */
+    public function testNotificationChannel(): array
+    {
+        return $this->post('/api/v1/notification-channels/test', []);
+    }
+
+    // -------------------------------------------------------------------------
     // Export
     // -------------------------------------------------------------------------
 

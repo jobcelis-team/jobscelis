@@ -123,6 +123,12 @@ Commands:
     invitations accept <id>                           Accept invitation
     invitations reject <id>                           Reject invitation
 
+  Notification Channels:
+    channels show                                     Show channel configuration
+    channels upsert --config '<json>'                 Create/update channels
+    channels delete                                   Delete channel configuration
+    channels test                                     Send test notification
+
   Simulate:
     simulate --topic <t> --payload '<json>'           Simulate event delivery
 
@@ -265,6 +271,12 @@ const COMMAND_MAP: Record<string, Record<string, CommandHandler>> = {
     pending: commands.invitationsPending,
     accept: commands.invitationsAccept,
     reject: commands.invitationsReject,
+  },
+  channels: {
+    show: commands.channelsShow,
+    upsert: commands.channelsUpsert,
+    delete: commands.channelsDelete,
+    test: commands.channelsTest,
   },
   gdpr: {
     consents: commands.gdprConsents,

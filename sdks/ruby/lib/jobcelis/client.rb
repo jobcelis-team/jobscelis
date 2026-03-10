@@ -530,6 +530,30 @@ module Jobcelis
     end
 
     # ------------------------------------------------------------------
+    # Notification Channels
+    # ------------------------------------------------------------------
+
+    # Get the notification channel configuration.
+    def get_notification_channel
+      get("/api/v1/notification-channels")
+    end
+
+    # Create or update the notification channel configuration.
+    def upsert_notification_channel(config)
+      put("/api/v1/notification-channels", config)
+    end
+
+    # Delete the notification channel configuration.
+    def delete_notification_channel
+      do_delete("/api/v1/notification-channels")
+    end
+
+    # Test the notification channel configuration.
+    def test_notification_channel
+      post("/api/v1/notification-channels/test", {})
+    end
+
+    # ------------------------------------------------------------------
     # Health
     # ------------------------------------------------------------------
 
@@ -559,6 +583,10 @@ module Jobcelis
 
     def patch(path, body)
       request("PATCH", path, body: body)
+    end
+
+    def put(path, body)
+      request("PUT", path, body: body)
     end
 
     def do_delete(path)
@@ -638,6 +666,7 @@ module Jobcelis
       when "GET"    then Net::HTTP::Get.new(request_path)
       when "POST"   then Net::HTTP::Post.new(request_path)
       when "PATCH"  then Net::HTTP::Patch.new(request_path)
+      when "PUT"    then Net::HTTP::Put.new(request_path)
       when "DELETE" then Net::HTTP::Delete.new(request_path)
       else raise ArgumentError, "Unsupported HTTP method: #{method}"
       end

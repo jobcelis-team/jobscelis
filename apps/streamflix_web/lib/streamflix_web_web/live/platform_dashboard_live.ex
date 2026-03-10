@@ -99,6 +99,20 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         search_results: nil,
         selected_dead_letters: [],
         onboarding_step: nil,
+        notification_channel: nil,
+        nc_form: %{
+          "email_enabled" => false,
+          "email_address" => "",
+          "slack_enabled" => false,
+          "slack_webhook_url" => "",
+          "discord_enabled" => false,
+          "discord_webhook_url" => "",
+          "meta_webhook_enabled" => false,
+          "meta_webhook_url" => "",
+          "meta_webhook_secret" => "",
+          "event_types" => []
+        },
+        nc_form_errors: nil,
         pipelines: [],
         pipeline_modal: nil,
         pipeline_form: %{"name" => "", "topics" => "", "description" => "", "steps" => "[]"},
@@ -328,6 +342,103 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
            |> assign(:confirm_regenerate_token, false)}
       end
     end)
+  end
+
+  # --- Notification Channels ---
+
+  @impl true
+  def handle_event("nc_form_change", params, socket) do
+    form = %{
+      "email_enabled" => params["email_enabled"] == "true",
+      "email_address" => params["email_address"] || "",
+      "slack_enabled" => params["slack_enabled"] == "true",
+      "slack_webhook_url" => params["slack_webhook_url"] || "",
+      "discord_enabled" => params["discord_enabled"] == "true",
+      "discord_webhook_url" => params["discord_webhook_url"] || "",
+      "meta_webhook_enabled" => params["meta_webhook_enabled"] == "true",
+      "meta_webhook_url" => params["meta_webhook_url"] || "",
+      "meta_webhook_secret" => params["meta_webhook_secret"] || "",
+      "event_types" => params["event_types"] || []
+    }
+
+    {:noreply, assign(socket, :nc_form, form)}
+  end
+
+  @impl true
+  def handle_event("save_notification_channel", params, socket) do
+    with_permission(socket, :admin, fn ->
+      project = socket.assigns.project
+
+      attrs = %{
+        email_enabled: params["email_enabled"] == "true",
+        email_address: blank_to_nil(params["email_address"]),
+        slack_enabled: params["slack_enabled"] == "true",
+        slack_webhook_url: blank_to_nil(params["slack_webhook_url"]),
+        discord_enabled: params["discord_enabled"] == "true",
+        discord_webhook_url: blank_to_nil(params["discord_webhook_url"]),
+        meta_webhook_enabled: params["meta_webhook_enabled"] == "true",
+        meta_webhook_url: blank_to_nil(params["meta_webhook_url"]),
+        meta_webhook_secret: blank_to_nil(params["meta_webhook_secret"]),
+        event_types: parse_event_types(params["event_types"])
+      }
+
+      case StreamflixCore.NotificationChannels.upsert(project.id, attrs) do
+        {:ok, channel} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("Canales de notificación guardados."))
+           |> assign(:notification_channel, channel)
+           |> assign(:nc_form, nc_form_from_channel(channel))
+           |> assign(:nc_form_errors, nil)}
+
+        {:error, changeset} ->
+          errors =
+            Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+
+          {:noreply,
+           socket
+           |> put_flash(:error, gettext("Error al guardar canales de notificación."))
+           |> assign(:nc_form_errors, errors)}
+      end
+    end)
+  end
+
+  @impl true
+  def handle_event("delete_notification_channel", _params, socket) do
+    with_permission(socket, :admin, fn ->
+      case socket.assigns.notification_channel do
+        nil ->
+          {:noreply, socket}
+
+        channel ->
+          {:ok, _} = StreamflixCore.NotificationChannels.delete(channel)
+
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("Canales de notificación eliminados."))
+           |> assign(:notification_channel, nil)
+           |> assign(:nc_form, nc_form_from_channel(nil))
+           |> assign(:nc_form_errors, nil)}
+      end
+    end)
+  end
+
+  @impl true
+  def handle_event("test_notification_channel", _params, socket) do
+    project = socket.assigns.project
+
+    case socket.assigns.notification_channel do
+      nil ->
+        {:noreply, put_flash(socket, :error, gettext("No hay canales configurados."))}
+
+      _channel ->
+        StreamflixCore.NotificationChannels.dispatch(project.id, "webhook_failing", %{
+          "message" => "This is a test notification from Jobcelis.",
+          "test" => true
+        })
+
+        {:noreply, put_flash(socket, :info, gettext("Notificación de prueba enviada."))}
+    end
   end
 
   # Jobs: open create modal
@@ -1674,6 +1785,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         Task.async(fn -> {:event_schemas, Platform.list_event_schemas(project.id)} end),
         Task.async(fn -> {:pipelines, Platform.list_pipelines(project.id)} end),
         Task.async(fn -> {:team_members, Teams.list_members(project.id)} end),
+        Task.async(fn ->
+          {:notification_channel, StreamflixCore.NotificationChannels.get_by_project(project.id)}
+        end),
         Task.async(fn -> {:analytics, load_analytics(project.id)} end),
         Task.async(fn -> {:uptime_status, load_uptime_status()} end),
         Task.async(fn -> {:uptime_stats, load_uptime_stats()} end),
@@ -1707,6 +1821,12 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
        |> assign(:event_schemas, Map.get(data, :event_schemas, []))
        |> assign(:pipelines, Map.get(data, :pipelines, []))
        |> assign(:team_members, Map.get(data, :team_members, []))
+       |> assign(
+         :notification_channel,
+         Map.get(data, :notification_channel)
+       )
+       |> assign(:nc_form, nc_form_from_channel(Map.get(data, :notification_channel)))
+       |> assign(:nc_form_errors, nil)
        |> assign(:current_user_role, user_role)
        |> assign(:analytics, Map.get(data, :analytics, %{}))
        |> assign(:uptime_status, Map.get(data, :uptime_status, %{status: "unknown", checks: %{}}))
@@ -2457,6 +2577,47 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   defp schema_template(_), do: {"", "{}"}
+
+  # --- Notification channel form helpers ---
+
+  defp nc_form_from_channel(nil) do
+    %{
+      "email_enabled" => false,
+      "email_address" => "",
+      "slack_enabled" => false,
+      "slack_webhook_url" => "",
+      "discord_enabled" => false,
+      "discord_webhook_url" => "",
+      "meta_webhook_enabled" => false,
+      "meta_webhook_url" => "",
+      "meta_webhook_secret" => "",
+      "event_types" => []
+    }
+  end
+
+  defp nc_form_from_channel(ch) do
+    %{
+      "email_enabled" => ch.email_enabled || false,
+      "email_address" => ch.email_address || "",
+      "slack_enabled" => ch.slack_enabled || false,
+      "slack_webhook_url" => ch.slack_webhook_url || "",
+      "discord_enabled" => ch.discord_enabled || false,
+      "discord_webhook_url" => ch.discord_webhook_url || "",
+      "meta_webhook_enabled" => ch.meta_webhook_enabled || false,
+      "meta_webhook_url" => ch.meta_webhook_url || "",
+      "meta_webhook_secret" => ch.meta_webhook_secret || "",
+      "event_types" => ch.event_types || []
+    }
+  end
+
+  defp blank_to_nil(nil), do: nil
+  defp blank_to_nil(""), do: nil
+  defp blank_to_nil(s) when is_binary(s), do: String.trim(s)
+  defp blank_to_nil(v), do: v
+
+  defp parse_event_types(nil), do: nil
+  defp parse_event_types(types) when is_list(types), do: Enum.filter(types, &(&1 != ""))
+  defp parse_event_types(_), do: nil
 
   # Helpers imported from StreamflixWebWeb.PlatformDashboard.Helpers
 end
