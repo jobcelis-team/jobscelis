@@ -86,7 +86,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
       "filters" => params["filters"] || [],
       "body_config" => params["body_config"] || %{},
       "headers" => params["headers"] || %{},
-      "retry_config" => params["retry_config"] || %{}
+      "retry_config" => params["retry_config"] || %{},
+      "rate_limit" => params["rate_limit"] || %{}
     }
 
     case Platform.create_webhook(project.id, attrs) do
@@ -126,7 +127,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
               "body_config",
               "headers",
               "status",
-              "retry_config"
+              "retry_config",
+              "rate_limit"
             ])
 
           attrs =
@@ -214,6 +216,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
       body_config: w.body_config || %{},
       headers: w.headers || %{},
       retry_config: w.retry_config || %{},
+      rate_limit: w.rate_limit || %{},
       inserted_at: w.inserted_at
     }
   end

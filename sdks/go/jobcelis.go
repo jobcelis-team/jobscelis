@@ -142,15 +142,17 @@ type Webhook struct {
 	Topics      []string               `json:"topics"`
 	Headers     map[string]string      `json:"headers,omitempty"`
 	RetryConfig map[string]interface{} `json:"retry_config,omitempty"`
+	RateLimit   map[string]interface{} `json:"rate_limit,omitempty"`
 	InsertedAt  string                 `json:"inserted_at"`
 }
 
 // WebhookRequest is the request body for creating or updating a webhook.
 type WebhookRequest struct {
-	URL     string            `json:"url"`
-	Secret  string            `json:"secret,omitempty"`
-	Topics  []string          `json:"topics,omitempty"`
-	Headers map[string]string `json:"headers,omitempty"`
+	URL       string                 `json:"url"`
+	Secret    string                 `json:"secret,omitempty"`
+	Topics    []string               `json:"topics,omitempty"`
+	Headers   map[string]string      `json:"headers,omitempty"`
+	RateLimit map[string]interface{} `json:"rate_limit,omitempty"`
 }
 
 // BatchRequest is the request body for sending multiple events.

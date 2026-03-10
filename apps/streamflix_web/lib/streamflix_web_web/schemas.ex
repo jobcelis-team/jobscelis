@@ -95,6 +95,19 @@ defmodule StreamflixWebWeb.Schemas do
         body_config: %Schema{type: :object},
         headers: %Schema{type: :object},
         retry_config: %Schema{type: :object},
+        rate_limit: %Schema{
+          type: :object,
+          properties: %{
+            max_per_second: %Schema{
+              type: :integer,
+              description: "Max requests per second (default: 50)"
+            },
+            max_per_minute: %Schema{
+              type: :integer,
+              description: "Max requests per minute (default: 3000)"
+            }
+          }
+        },
         inserted_at: %Schema{type: :string, format: :"date-time"}
       },
       example: %{
@@ -106,6 +119,7 @@ defmodule StreamflixWebWeb.Schemas do
         body_config: %{},
         headers: %{"X-Custom-Header" => "my-value"},
         retry_config: %{max_retries: 5, backoff: "exponential"},
+        rate_limit: %{max_per_second: 50, max_per_minute: 3000},
         inserted_at: "2026-03-06T10:30:00.000000Z"
       }
     })
@@ -125,13 +139,21 @@ defmodule StreamflixWebWeb.Schemas do
         filters: %Schema{type: :array, items: %Schema{type: :string}},
         body_config: %Schema{type: :object},
         headers: %Schema{type: :object},
-        retry_config: %Schema{type: :object}
+        retry_config: %Schema{type: :object},
+        rate_limit: %Schema{
+          type: :object,
+          properties: %{
+            max_per_second: %Schema{type: :integer},
+            max_per_minute: %Schema{type: :integer}
+          }
+        }
       },
       example: %{
         url: "https://api.example.com/webhooks/receiver",
         secret: "whsec_MK8pFg2xR7YzQ3nV",
         topics: ["order.*", "user.created"],
-        headers: %{"X-Custom-Header" => "my-value"}
+        headers: %{"X-Custom-Header" => "my-value"},
+        rate_limit: %{max_per_second: 100, max_per_minute: 5000}
       }
     })
   end

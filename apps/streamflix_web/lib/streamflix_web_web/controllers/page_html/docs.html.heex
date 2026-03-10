@@ -236,6 +236,12 @@
               {gettext("Portal embebible")}
             </a>
             <a
+              href="#rate-limiting-outbound"
+              class="block py-2 px-3 rounded-lg text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition"
+            >
+              {gettext("Rate limiting saliente")}
+            </a>
+            <a
               href="#analytics"
               class="block py-2 px-3 rounded-lg text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition"
             >
@@ -6152,6 +6158,69 @@ curl -X POST -H "X-API-Key: YOUR_KEY" \
                   )}
                 </li>
                 <li>{gettext("Útil para reintentos seguros desde el cliente.")}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="rate-limiting-outbound" class="mb-14 scroll-mt-24">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="px-4 sm:px-8 py-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {gettext("Rate limiting saliente")}
+            </h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+              {gettext(
+                "Controla la velocidad de entrega de webhooks para no sobrecargar los servidores receptores."
+              )}
+            </p>
+          </div>
+          <div class="px-4 sm:px-8 py-6 space-y-6">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
+                {gettext("Configuración por webhook")}
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                {gettext(
+                  "Cada webhook puede tener su propio límite de velocidad. Si no se configura, se aplican los valores por defecto."
+                )}
+              </p>
+              <pre
+                class="bg-slate-900 text-slate-100 rounded-xl p-4 text-sm overflow-x-auto font-mono"
+                phx-no-curly-interpolation
+              ># Configurar rate limit al crear un webhook
+curl -X POST https://jobcelis.com/api/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://api.example.com/webhooks","topics":["order.*"],"rate_limit":{"max_per_second":100,"max_per_minute":5000}}'
+
+# Actualizar rate limit de un webhook existente
+curl -X PUT https://jobcelis.com/api/v1/webhooks/WEBHOOK_ID \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"rate_limit":{"max_per_second":20,"max_per_minute":1000}}'</pre>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
+                {gettext("Comportamiento")}
+              </h3>
+              <ul class="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-2">
+                <li>
+                  {gettext(
+                    "Cuando un webhook alcanza su límite, las entregas pendientes se encolan automáticamente y se reintentan en pocos segundos."
+                  )}
+                </li>
+                <li>
+                  {gettext(
+                    "El dashboard muestra un indicador 'Limitado' junto al estado del webhook cuando está siendo throttleado."
+                  )}
+                </li>
+                <li>
+                  {gettext(
+                    "Los límites se aplican por webhook individual, no a nivel de proyecto."
+                  )}
+                </li>
               </ul>
             </div>
           </div>

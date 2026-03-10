@@ -26,7 +26,8 @@ defmodule StreamflixCore.Application do
        name: StreamflixCore.Finch,
        pools: %{default: [size: 25, count: System.schedulers_online()]}},
       {Oban, Application.fetch_env!(:streamflix_core, Oban)},
-      StreamflixCore.Platform.Scheduler
+      StreamflixCore.Platform.Scheduler,
+      StreamflixCore.RateLimiter
     ]
 
     opts = [strategy: :one_for_one, name: StreamflixCore.Supervisor]
