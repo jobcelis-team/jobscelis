@@ -234,10 +234,15 @@ jobs:
         with:
           sdk: "3.3.0"
 
+      - name: Setup pub credentials
+        run: |
+          mkdir -p ~/.config/dart
+          cat > ~/.config/dart/pub-credentials.json << 'CREDS'
+          ${{ secrets.PUB_CREDENTIALS_JSON }}
+          CREDS
+
       - name: Install deps
         run: dart pub get
 
       - name: Publish to pub.dev
         run: dart pub publish --force
-        env:
-          PUB_TOKEN: ${{ secrets.PUB_TOKEN }}
