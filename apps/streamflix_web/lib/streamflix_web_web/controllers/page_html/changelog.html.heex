@@ -14,16 +14,88 @@
   </p>
 
   <div class="space-y-10 text-slate-700 dark:text-slate-300">
+    <%!-- v0.4.0 --%>
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">[0.4.0]</h2>
+
+        <span class="text-sm text-slate-500 dark:text-slate-400">— 2026-03-10</span>
+
+        <span class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-medium">
+          {gettext("Última versión")}
+        </span>
+      </div>
+
+      <h3 class="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Añadido")}
+      </h3>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>
+          {gettext("Logs detallados de delivery con captura completa de request/response HTTP.")}
+        </li>
+
+        <li>
+          {gettext("Alertas externas: notificaciones por email, Slack, Discord y meta-webhook.")}
+        </li>
+
+        <li>
+          {gettext("Claves de idempotencia (X-Idempotency-Key) con expiración automática.")}
+        </li>
+
+        <li>
+          {gettext(
+            "Portal embebible: tokens de embed con alcance limitado y widget JS para integraciones."
+          )}
+        </li>
+
+        <li>{gettext("Rate limiting saliente por webhook con ventana deslizante.")}</li>
+
+        <li>{gettext("Métricas Prometheus con plugin PromEx y eventos de telemetría.")}</li>
+
+        <li>
+          {gettext("Guías de verificación de firma con helpers en SDKs y ejemplos por framework.")}
+        </li>
+
+        <li>{gettext("Testing de webhooks desde el dashboard y API con soporte en SDKs.")}</li>
+
+        <li>
+          {gettext(
+            "Retención de datos configurable y purga manual con UI en dashboard de Settings."
+          )}
+        </li>
+      </ul>
+
+      <h3 class="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider mt-4 mb-2">
+        {gettext("Cambiado")}
+      </h3>
+
+      <ul class="list-disc list-inside space-y-1 text-sm">
+        <li>
+          {gettext("API expandida a 98+ endpoints (anteriormente 74+).")}
+        </li>
+
+        <li>
+          {gettext("Licencia actualizada de MIT a BSL-1.1 en todos los SDKs y repositorios.")}
+        </li>
+
+        <li>
+          {gettext(
+            "Todos los 12 SDKs + CLI publicados en sus registros oficiales (npm, PyPI, RubyGems, NuGet, crates.io, Hex.pm, pub.dev, Maven Central, Packagist, pkg.go.dev, SPM)."
+          )}
+        </li>
+
+        <li>
+          {gettext("Página /docs actualizada con links directos a cada registro de paquete.")}
+        </li>
+      </ul>
+    </section>
     <%!-- v0.3.0 --%>
     <section>
       <div class="flex items-center gap-3 mb-4">
         <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">[0.3.0]</h2>
 
         <span class="text-sm text-slate-500 dark:text-slate-400">— 2026-03-07</span>
-
-        <span class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-medium">
-          {gettext("Última versión")}
-        </span>
       </div>
 
       <h3 class="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider mt-4 mb-2">
@@ -38,9 +110,7 @@
         </li>
 
         <li>
-          {gettext(
-            "Página /docs rediseñada como LiveView con referencia API completa (74+ endpoints)."
-          )}
+          {gettext("Página /docs rediseñada como LiveView con referencia API completa.")}
         </li>
 
         <li>{gettext("Documentación de los 13 SDKs con ejemplos de código.")}</li>
