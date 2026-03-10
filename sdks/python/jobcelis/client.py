@@ -75,9 +75,11 @@ class JobcelisClient:
 
     # --- Webhooks ---
 
-    def create_webhook(self, url: str, **kwargs) -> dict:
+    def create_webhook(self, url: str, rate_limit: dict | None = None, **kwargs) -> dict:
         """Create a webhook."""
         body = {"url": url, **kwargs}
+        if rate_limit is not None:
+            body["rate_limit"] = rate_limit
         return self._post("/api/v1/webhooks", body)
 
     def get_webhook(self, webhook_id: str) -> dict:
@@ -88,9 +90,12 @@ class JobcelisClient:
         """List webhooks."""
         return self._get("/api/v1/webhooks", {"limit": limit, "cursor": cursor})
 
-    def update_webhook(self, webhook_id: str, **kwargs) -> dict:
+    def update_webhook(self, webhook_id: str, rate_limit: dict | None = None, **kwargs) -> dict:
         """Update a webhook."""
-        return self._patch(f"/api/v1/webhooks/{webhook_id}", kwargs)
+        body = {**kwargs}
+        if rate_limit is not None:
+            body["rate_limit"] = rate_limit
+        return self._patch(f"/api/v1/webhooks/{webhook_id}", body)
 
     def delete_webhook(self, webhook_id: str) -> None:
         """Deactivate a webhook."""

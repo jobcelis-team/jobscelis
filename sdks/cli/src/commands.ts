@@ -159,7 +159,7 @@ export async function webhooksList(args: string[]): Promise<void> {
 export async function webhooksCreate(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis webhooks create --url <url> --topics <t1,t2>\n\n" +
+      "Usage: jobcelis webhooks create --url <url> --topics <t1,t2> [--max-per-second <n>] [--max-per-minute <n>]\n\n" +
         "Create a new webhook subscription.\n"
     );
     return;
@@ -167,7 +167,16 @@ export async function webhooksCreate(args: string[]): Promise<void> {
   const url = requireFlag(args, "--url", "url");
   const topicsRaw = requireFlag(args, "--topics", "topics");
   const topics = topicsRaw.split(",").map((t) => t.trim());
-  const result = await api.post("/api/v1/webhooks", { url, topics });
+  const body: Record<string, unknown> = { url, topics };
+  const maxPerSecond = getFlag(args, "--max-per-second");
+  const maxPerMinute = getFlag(args, "--max-per-minute");
+  if (maxPerSecond || maxPerMinute) {
+    const rateLimit: Record<string, number> = {};
+    if (maxPerSecond) rateLimit.max_per_second = parseInt(maxPerSecond, 10);
+    if (maxPerMinute) rateLimit.max_per_minute = parseInt(maxPerMinute, 10);
+    body.rate_limit = rateLimit;
+  }
+  const result = await api.post("/api/v1/webhooks", body);
   printJson(result);
 }
 
@@ -198,7 +207,7 @@ export async function webhooksDelete(args: string[]): Promise<void> {
 export async function webhooksUpdate(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis webhooks update <id> [--url <url>] [--topics <t1,t2>]\n\n" +
+      "Usage: jobcelis webhooks update <id> [--url <url>] [--topics <t1,t2>] [--max-per-second <n>] [--max-per-minute <n>]\n\n" +
         "Update a webhook subscription.\n"
     );
     return;
@@ -209,6 +218,14 @@ export async function webhooksUpdate(args: string[]): Promise<void> {
   const topicsRaw = getFlag(args, "--topics");
   if (url) body.url = url;
   if (topicsRaw) body.topics = topicsRaw.split(",").map((t) => t.trim());
+  const maxPerSecond = getFlag(args, "--max-per-second");
+  const maxPerMinute = getFlag(args, "--max-per-minute");
+  if (maxPerSecond || maxPerMinute) {
+    const rateLimit: Record<string, number> = {};
+    if (maxPerSecond) rateLimit.max_per_second = parseInt(maxPerSecond, 10);
+    if (maxPerMinute) rateLimit.max_per_minute = parseInt(maxPerMinute, 10);
+    body.rate_limit = rateLimit;
+  }
   const result = await api.patch(`/api/v1/webhooks/${id}`, body);
   printJson(result);
 }

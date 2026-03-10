@@ -113,6 +113,14 @@ impl JobcelisClient {
     // -------------------------------------------------------------------------
 
     /// Create a webhook.
+    ///
+    /// Optional fields via `extra`: `topics`, `secret`, `headers`, `rate_limit`.
+    /// The `rate_limit` object accepts `max_per_second` and/or `max_per_minute`:
+    /// ```ignore
+    /// client.create_webhook("https://example.com/hook", Some(json!({
+    ///     "rate_limit": { "max_per_second": 10, "max_per_minute": 100 }
+    /// }))).await?;
+    /// ```
     pub async fn create_webhook(&self, url: &str, extra: Option<Value>) -> Result<Value, JobcelisError> {
         let mut body = json!({"url": url});
         if let Some(e) = extra {
@@ -136,6 +144,14 @@ impl JobcelisClient {
     }
 
     /// Update a webhook.
+    ///
+    /// The `data` object can include `url`, `topics`, `secret`, `headers`, `rate_limit`.
+    /// The `rate_limit` object accepts `max_per_second` and/or `max_per_minute`:
+    /// ```ignore
+    /// client.update_webhook("wh_123", json!({
+    ///     "rate_limit": { "max_per_second": 5, "max_per_minute": 60 }
+    /// })).await?;
+    /// ```
     pub async fn update_webhook(&self, webhook_id: &str, data: Value) -> Result<Value, JobcelisError> {
         self.patch(&format!("/api/v1/webhooks/{webhook_id}"), data).await
     }

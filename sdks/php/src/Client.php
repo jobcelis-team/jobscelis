@@ -153,10 +153,17 @@ class Client
 
     /**
      * Create a webhook.
+     *
+     * @param string     $url       Destination URL for webhook deliveries.
+     * @param array|null $rateLimit Optional rate limit: ['max_per_second' => int, 'max_per_minute' => int].
+     * @param array      $extra     Additional fields (topics, description, etc.).
      */
-    public function createWebhook(string $url, array $extra = []): array
+    public function createWebhook(string $url, ?array $rateLimit = null, array $extra = []): array
     {
         $body = array_merge(['url' => $url], $extra);
+        if ($rateLimit !== null) {
+            $body['rate_limit'] = $rateLimit;
+        }
         return $this->post('/api/v1/webhooks', $body);
     }
 
@@ -178,9 +185,16 @@ class Client
 
     /**
      * Update a webhook.
+     *
+     * @param string     $webhookId Webhook ID to update.
+     * @param array      $data      Fields to update (url, topics, description, etc.).
+     * @param array|null $rateLimit Optional rate limit: ['max_per_second' => int, 'max_per_minute' => int].
      */
-    public function updateWebhook(string $webhookId, array $data): array
+    public function updateWebhook(string $webhookId, array $data, ?array $rateLimit = null): array
     {
+        if ($rateLimit !== null) {
+            $data['rate_limit'] = $rateLimit;
+        }
         return $this->patch("/api/v1/webhooks/{$webhookId}", $data);
     }
 
