@@ -135,7 +135,8 @@ config :logger, :console,
     :threshold_hours,
     :channel_id,
     :event_type,
-    :errors
+    :errors,
+    :keys_cleared
   ]
 
 # ============================================
@@ -200,7 +201,8 @@ config :streamflix_core, Oban,
        {"*/5 * * * *", StreamflixCore.Platform.ObanUptimeWorker},
        {"*/5 * * * *", StreamflixCore.Platform.ObanBreachDetectionWorker},
        {"0 4 * * *", StreamflixCore.Platform.ObanSessionCleanupWorker},
-       {"0 5 1 * *", StreamflixCore.Platform.ObanBackupVerificationWorker}
+       {"0 5 1 * *", StreamflixCore.Platform.ObanBackupVerificationWorker},
+       {"0 6 * * *", StreamflixCore.Platform.ObanIdempotencyPurgeWorker}
      ]}
   ]
 
