@@ -23,7 +23,7 @@ defmodule StreamflixWebWeb.Layouts do
       <a
         href="/locale/es"
         data-locale="es"
-        onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000';"
+        onclick="localStorage.setItem('locale','es');document.cookie='locale=es;path=/;max-age=31536000;SameSite=Lax;Secure';"
         class={[
           "font-medium transition rounded px-1",
           (@locale == "es" && "text-slate-900 dark:text-slate-100 underline") ||
@@ -37,7 +37,7 @@ defmodule StreamflixWebWeb.Layouts do
       <a
         href="/locale/en"
         data-locale="en"
-        onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000';"
+        onclick="localStorage.setItem('locale','en');document.cookie='locale=en;path=/;max-age=31536000;SameSite=Lax;Secure';"
         class={[
           "font-medium transition rounded px-1",
           (@locale == "en" && "text-slate-900 dark:text-slate-100 underline") ||
@@ -404,6 +404,7 @@ defmodule StreamflixWebWeb.Layouts do
           <button
             id="cookie-accept-btn"
             type="button"
+            data-cookie-accept
             class="shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
           >
             {gettext("Entendido")}
