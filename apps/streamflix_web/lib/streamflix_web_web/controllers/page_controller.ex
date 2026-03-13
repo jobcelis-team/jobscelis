@@ -95,7 +95,12 @@ defmodule StreamflixWebWeb.PageController do
     path = path_from_referer(referer, conn)
     # Cookie ensures locale is available before session loads on next request
     conn
-    |> put_resp_cookie("locale", locale, path: "/", max_age: 365 * 24 * 60 * 60)
+    |> put_resp_cookie("locale", locale,
+      path: "/",
+      max_age: 365 * 24 * 60 * 60,
+      same_site: "Lax",
+      secure: true
+    )
     |> put_session("locale", locale)
     |> redirect(to: path)
   end
