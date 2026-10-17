@@ -24,6 +24,7 @@ defmodule StreamflixCore.GDPR do
       restriction_reason: reason
     })
     |> Repo.update()
+    |> invalidate_user_cache()
   end
 
   @doc """
@@ -38,6 +39,7 @@ defmodule StreamflixCore.GDPR do
       restriction_reason: nil
     })
     |> Repo.update()
+    |> invalidate_user_cache()
   end
 
   # ── Art. 21 — Right to object ────────────────────────────────────
@@ -50,6 +52,7 @@ defmodule StreamflixCore.GDPR do
     user
     |> Ecto.Changeset.change(%{processing_consent: false})
     |> Repo.update()
+    |> invalidate_user_cache()
   end
 
   @doc """
@@ -59,7 +62,18 @@ defmodule StreamflixCore.GDPR do
     user
     |> Ecto.Changeset.change(%{processing_consent: true})
     |> Repo.update()
+    |> invalidate_user_cache()
   end
+
+  # Sessions read users through a per-id cache (Guardian); drop it after a change
+  defp invalidate_user_cache({:ok, %{id: id}} = result) do
+    # Same keys as the sessions (Authentication) and API JWT (Guardian) caches
+    Cachex.del(@cache, {:auth_user, id})
+    Cachex.del(@cache, {:user, id})
+    result
+  end
+
+  defp invalidate_user_cache(error), do: error
 
   # ── Erasure (Right to be forgotten) ──────────────────────────────
 
@@ -131,6 +145,7 @@ defmodule StreamflixCore.GDPR do
     |> case do
       {:ok, result} ->
         Cachex.del(@cache, {:user, user_id})
+        Cachex.del(@cache, {:auth_user, user_id})
 
         Enum.each(project_ids, fn pid ->
           Cachex.del(@cache, {:active_webhooks, pid})
@@ -147,6 +162,9 @@ defmodule StreamflixCore.GDPR do
   # ── Consent management ───────────────────────────────────────────
 
   @purposes ~w(terms privacy data_processing marketing)
+
+  @doc "Whether a consent purpose is known."
+  def valid_purpose?(purpose), do: purpose in @purposes
 
   @doc "Grant a consent for a specific purpose. Idempotent: returns existing active consent if one exists."
   def grant_consent(user_id, purpose, opts \\ []) when purpose in @purposes do
@@ -414,6 +432,7 @@ defmodule StreamflixCore.GDPR do
         processing_consent: Map.get(user, :processing_consent, true),
         restricted_at: to_iso(Map.get(user, :restricted_at)),
         mfa_enabled: user.mfa_enabled || false,
+        timezone: Map.get(user, :timezone),
         email_verified_at: to_iso(user.email_verified_at),
         created_at: to_iso(user.inserted_at)
       },
@@ -517,6 +536,10 @@ defmodule StreamflixCore.GDPR do
 
   defp to_iso(nil), do: nil
   defp to_iso(%DateTime{} = dt), do: DateTime.to_iso8601(dt)
-  defp to_iso(%NaiveDateTime{} = ndt), do: NaiveDateTime.to_iso8601(ndt)
+  # Naive timestamps (users table, raw-table queries) are stored in UTC: emit them
+  # with an explicit "Z" so the export is unambiguous.
+  defp to_iso(%NaiveDateTime{} = ndt),
+    do: ndt |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_iso8601()
+
   defp to_iso(other), do: to_string(other)
 end

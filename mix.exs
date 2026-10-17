@@ -11,7 +11,24 @@ defmodule Streamflix.MixProject do
       releases: releases(),
       listeners: [Phoenix.CodeReloader],
       test_coverage: [tool: ExCoveralls],
-      dialyzer: [plt_add_apps: [:mix, :ex_unit]]
+      dialyzer: [plt_add_apps: [:mix, :ex_unit]],
+      # Advisories with no compatible fix that do not affect how we use the
+      # package (`mix hex.audit` fails on any other). Re-check on upgrades.
+      hex: [
+        ignore_advisories: [
+          # decimal: fix is 3.x, Ecto requires ~> 2.0; we never build Decimals
+          # from user input (only convert DB aggregates to floats).
+          "CVE-2026-97853",
+          "CVE-2026-32686",
+          # cloak: affects the AES-CTR cipher; our vault uses AES-GCM only.
+          "CVE-2026-95105",
+          # cloak_ecto: affects Cloak.Ecto.PBKDF2 fields, which we do not use.
+          "CVE-2026-94206",
+          # cowlib: structured-header escaping in Cowboy; the app is served by
+          # Bandit (Cowboy only runs the internal metrics endpoint).
+          "CVE-2026-43966"
+        ]
+      ]
     ]
   end
 

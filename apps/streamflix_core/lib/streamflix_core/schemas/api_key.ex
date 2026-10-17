@@ -9,7 +9,21 @@ defmodule StreamflixCore.Schemas.ApiKey do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
-  @valid_scopes ~w(* events:read events:write webhooks:read webhooks:write jobs:read jobs:write deliveries:read deliveries:retry)
+  @valid_scopes ~w(
+    *
+    events:read events:write
+    webhooks:read webhooks:write
+    jobs:read jobs:write
+    deliveries:read deliveries:retry
+    pipelines:read pipelines:write
+    dead_letters:read dead_letters:write
+    replays:read replays:write
+    sandbox:read sandbox:write
+    analytics:read audit:read
+    project:read project:write
+    embed:read embed:write
+    alerts:read alerts:write
+  )
 
   schema "api_keys" do
     field(:prefix, :string)

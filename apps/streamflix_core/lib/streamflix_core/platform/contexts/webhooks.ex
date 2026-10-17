@@ -115,7 +115,7 @@ defmodule StreamflixCore.Platform.Webhooks do
     |> Repo.all()
   end
 
-  def get_webhook(id), do: Repo.get(Webhook, id)
+  def get_webhook(id), do: Repo.get_uuid(Webhook, id)
   def get_webhook!(id), do: Repo.get!(Webhook, id)
 
   def update_webhook(%Webhook{} = webhook, attrs) do
@@ -170,7 +170,7 @@ defmodule StreamflixCore.Platform.Webhooks do
              |> where([w], w.project_id == ^project_id and w.status == "active")
              |> Repo.all()
 
-           {:commit, result, ttl: @webhooks_ttl}
+           {:commit, result, expire: @webhooks_ttl}
          end) do
       {:ok, webhooks} -> webhooks
       {:commit, webhooks} -> webhooks
@@ -321,7 +321,7 @@ defmodule StreamflixCore.Platform.Webhooks do
   def webhooks_health(project_id) do
     case Cachex.fetch(@cache, {:webhook_health, project_id}, fn _ ->
            health = do_calculate_webhooks_health_batch(project_id)
-           {:commit, health, ttl: :timer.seconds(60)}
+           {:commit, health, expire: :timer.seconds(60)}
          end) do
       {:ok, health} -> health
       {:commit, health} -> health
@@ -455,7 +455,7 @@ defmodule StreamflixCore.Platform.Webhooks do
       webhook ->
         test_payload = %{
           "type" => "webhook.test",
-          "message" => "This is a test ping from Streamflix",
+          "message" => "This is a test ping from Jobcelis",
           "timestamp" => DateTime.utc_now() |> DateTime.to_iso8601()
         }
 
@@ -476,15 +476,30 @@ defmodule StreamflixCore.Platform.Webhooks do
 
         start_time = System.monotonic_time(:millisecond)
 
-        case Req.post(webhook.url,
-               json: test_payload,
-               headers: headers,
-               receive_timeout: 10_000,
-               connect_options: [timeout: 5_000]
-             ) do
-          {:ok, %{status: status}} ->
-            latency_ms = System.monotonic_time(:millisecond) - start_time
-            {:ok, %{status: status, latency_ms: latency_ms, webhook_id: webhook.id}}
+        with :ok <- StreamflixCore.Platform.UrlGuard.check(webhook.url),
+             {:ok, %{status: status}} <-
+               Req.post(webhook.url,
+                 json: test_payload,
+                 headers: headers,
+                 receive_timeout: 10_000,
+                 connect_options: [timeout: 5_000],
+                 redirect: false,
+                 retry: false
+               ) do
+          latency_ms = System.monotonic_time(:millisecond) - start_time
+          result = %{status: status, latency_ms: latency_ms, webhook_id: webhook.id}
+
+          # Only a 2xx answer is a successful test
+          if status in 200..299,
+            do: {:ok, result},
+            else: {:error, Map.put(result, :reason, "HTTP #{status}")}
+        else
+          {:error, reason} when is_atom(reason) ->
+            {:error,
+             %{
+               reason: "destination " <> StreamflixCore.Platform.UrlGuard.message(reason),
+               webhook_id: webhook.id
+             }}
 
           {:error, reason} ->
             {:error, %{reason: inspect(reason), webhook_id: webhook.id}}

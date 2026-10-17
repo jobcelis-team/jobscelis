@@ -3,6 +3,12 @@ defmodule StreamflixWebWeb.Plugs.SessionTimeout do
   Plug that enforces session inactivity timeout.
   Clears session and redirects to /login if the user has been inactive
   for longer than the configured timeout (default 30 minutes).
+
+  Sessions started with "Remember me" are not subject to the inactivity
+  timeout (they last until the token expires or the session is revoked).
+  Activity is also recorded on the server-side session (user_sessions) so that
+  LiveView, which only sees the session as it was when the socket connected,
+  can tell an active user from an idle one (see `StreamflixWebWeb.LiveAuth`).
   """
   import Plug.Conn
   use Gettext, backend: StreamflixWebWeb.Gettext
@@ -27,7 +33,8 @@ defmodule StreamflixWebWeb.Plugs.SessionTimeout do
         # Session exists but no timestamp — set it now (backwards compat)
         put_session(conn, :last_activity_at, System.system_time(:second))
 
-      System.system_time(:second) - last_activity > timeout ->
+      get_session(conn, :remember_me) != true and
+          System.system_time(:second) - last_activity > timeout ->
         # Session expired
         conn
         |> configure_session(drop: true)
@@ -43,6 +50,7 @@ defmodule StreamflixWebWeb.Plugs.SessionTimeout do
         now = System.system_time(:second)
 
         if now - last_activity > 60 do
+          StreamflixAccounts.touch_session(get_session(conn, :current_jti))
           put_session(conn, :last_activity_at, now)
         else
           conn

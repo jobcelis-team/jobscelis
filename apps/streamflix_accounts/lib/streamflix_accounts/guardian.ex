@@ -26,7 +26,7 @@ defmodule StreamflixAccounts.Guardian do
     case Cachex.fetch(:platform_cache, {:user, id}, fn _key ->
            case Repo.get(User, id) do
              nil -> {:ignore, nil}
-             user -> {:commit, user, ttl: :timer.seconds(120)}
+             user -> {:commit, user, expire: :timer.seconds(120)}
            end
          end) do
       {:ok, user} -> {:ok, user}

@@ -43,18 +43,30 @@ defmodule StreamflixWebWeb.Schemas do
     OpenApiSpex.schema(%{
       title: "EventCreate",
       type: :object,
+      description:
+        "The request body is the event payload itself: every field except the " <>
+          "control fields (topic, deliver_at, idempotency_key) is stored and delivered as payload.",
       properties: %{
         topic: %Schema{type: :string, example: "order.created"},
-        payload: %Schema{type: :object, description: "Any JSON object"},
+        deliver_at: %Schema{
+          type: :string,
+          format: :"date-time",
+          nullable: true,
+          description:
+            "Optional ISO 8601 time to deliver the event (UTC if no offset). Invalid values are rejected with 422."
+        },
         idempotency_key: %Schema{
           type: :string,
           nullable: true,
-          description: "Optional deduplication key (unique per project)"
+          description:
+            "Optional deduplication key (unique per project). Also accepted as the X-Idempotency-Key header."
         }
       },
+      additionalProperties: true,
       example: %{
         topic: "order.created",
-        payload: %{order_id: "12345", customer: "john@example.com", amount: 99.99},
+        order_id: "12345",
+        amount: 99.99,
         idempotency_key: "order-12345-create"
       }
     })
@@ -71,7 +83,13 @@ defmodule StreamflixWebWeb.Schemas do
         payload_hash: %Schema{
           type: :string,
           description: "SHA-256 hex digest of the canonical payload"
-        }
+        },
+        deliver_at: %Schema{
+          type: :string,
+          format: :"date-time",
+          description: "Present for delayed events"
+        },
+        idempotency_key: %Schema{type: :string, description: "Present when one was given"}
       },
       example: %{
         event_id: "550e8400-e29b-41d4-a716-446655440000",

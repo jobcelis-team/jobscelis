@@ -55,6 +55,8 @@ defmodule StreamflixWebWeb.CoreComponents do
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
+      phx-hook="AutoDismissFlash"
+      data-timeout={if @kind == :error, do: "10000", else: "5000"}
       role="alert"
       class="toast toast-top toast-end z-50"
       {@rest}
@@ -79,6 +81,61 @@ defmodule StreamflixWebWeb.CoreComponents do
     </div>
     """
   end
+
+  @doc """
+  Renders a timestamp in the viewer's local timezone.
+
+  The server renders an explicit UTC fallback ("2026-10-17 17:24:44 UTC"); the
+  browser (see `localizeTimes` in app.js) rewrites it to the local timezone with
+  its abbreviation ("2026-10-17 12:24:44 GMT-5") and keeps the UTC value in the
+  tooltip. Timestamps are stored in UTC; naive values are treated as UTC.
+
+  ## Examples
+
+      <.local_time value={event.occurred_at} />
+      <.local_time value={job.inserted_at} format="date" />
+  """
+  attr :value, :any, required: true, doc: "DateTime, NaiveDateTime (UTC) or nil"
+
+  attr :format, :string,
+    default: "datetime",
+    values: ~w(datetime datetime_short date),
+    doc: "datetime = with seconds, datetime_short = without seconds, date = day only"
+
+  attr :class, :any, default: nil
+
+  def local_time(%{value: nil} = assigns) do
+    ~H"""
+    <span class={@class}>—</span>
+    """
+  end
+
+  def local_time(assigns) do
+    utc = to_utc_datetime(assigns.value)
+
+    assigns =
+      assigns
+      |> assign(:iso, DateTime.to_iso8601(utc))
+      |> assign(:fallback, utc_fallback(utc, assigns.format))
+
+    ~H"""
+    <time
+      datetime={@iso}
+      data-local-time={@format}
+      title={@fallback}
+      class={["whitespace-nowrap", @class]}
+    >
+      {@fallback}
+    </time>
+    """
+  end
+
+  defp to_utc_datetime(%DateTime{} = dt), do: DateTime.shift_zone!(dt, "Etc/UTC")
+  defp to_utc_datetime(%NaiveDateTime{} = ndt), do: DateTime.from_naive!(ndt, "Etc/UTC")
+
+  defp utc_fallback(dt, "date"), do: Calendar.strftime(dt, "%Y-%m-%d") <> " UTC"
+  defp utc_fallback(dt, "datetime_short"), do: Calendar.strftime(dt, "%Y-%m-%d %H:%M") <> " UTC"
+  defp utc_fallback(dt, _), do: Calendar.strftime(dt, "%Y-%m-%d %H:%M:%S") <> " UTC"
 
   @doc """
   Renders a button with navigation support.
@@ -294,6 +351,7 @@ defmodule StreamflixWebWeb.CoreComponents do
           {@rest}
         />
         <button
+          aria-label={gettext("Mostrar u ocultar contraseña")}
           type="button"
           data-pw-toggle-btn
           tabindex="-1"
@@ -629,7 +687,7 @@ defmodule StreamflixWebWeb.CoreComponents do
       >
       </div>
       <div
-        class="relative z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm mx-auto p-6 border border-slate-200/50 dark:border-slate-700"
+        class="relative z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm mx-auto p-6 text-left whitespace-normal border border-slate-200/50 dark:border-slate-700"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={"#{@id}-title"}

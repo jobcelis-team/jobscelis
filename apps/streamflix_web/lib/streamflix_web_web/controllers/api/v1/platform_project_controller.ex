@@ -2,6 +2,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
   use StreamflixWebWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  plug StreamflixWebWeb.Plugs.RequireScope,
+       "project:read" when action in [:show, :topics, :token, :retention, :preview_purge]
+
+  plug StreamflixWebWeb.Plugs.RequireScope,
+       "project:write" when action in [:update, :regenerate_token, :update_retention, :purge]
+
   alias StreamflixCore.Platform
   alias StreamflixWebWeb.Schemas
 

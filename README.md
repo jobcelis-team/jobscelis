@@ -242,7 +242,7 @@ jobcelis/
 
 Authentication header: `Authorization: Bearer <jwt_token>` or `X-Api-Key: <api_key>`
 
-Interactive docs: **https://jobcelis.com/docs** | Swagger UI: **https://jobcelis.com/api/swaggerui**
+Interactive docs: **https://jobcelis.com/docs** (Swagger UI at `/api/swaggerui` is available in local development only)
 
 ### Auth (Public)
 
@@ -635,8 +635,8 @@ Parameter `?format=csv|json&days=N` on all export endpoints.
 ## OpenAPI / Swagger
 
 - OpenAPI 3.0 spec generated from controller annotations
-- **Interactive Swagger UI**: `/api/swaggerui`
-- **JSON spec**: `/api/openapi`
+- **Interactive Swagger UI**: `/api/swaggerui` (development only)
+- **JSON spec**: `/api/openapi` (development only)
 - Two security schemes: `api_key` (X-Api-Key or Bearer) and `bearer` (JWT)
 - Tags: Events, Webhooks, Deliveries, Dead Letters, Replays, Analytics, Jobs, Pipelines, Sandbox, Audit, Auth, GDPR, System
 

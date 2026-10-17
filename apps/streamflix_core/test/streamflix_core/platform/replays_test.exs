@@ -25,6 +25,36 @@ defmodule StreamflixCore.Platform.ReplaysTest do
       assert {:ok, replay} = Platform.create_replay(project.id, user_id, filters)
       assert replay.total_events == 0
     end
+
+    test "rejects an unparseable date instead of replaying everything" do
+      project = insert(:project)
+
+      assert {:error, {:invalid_filter, "from_date"}} =
+               Platform.create_replay(project.id, Ecto.UUID.generate(), %{
+                 "from_date" => "yesterday"
+               })
+    end
+
+    test "rejects an inverted date range" do
+      project = insert(:project)
+
+      assert {:error, {:invalid_filter, "to_date"}} =
+               Platform.create_replay(project.id, Ecto.UUID.generate(), %{
+                 "from_date" => "2026-10-17T10:00:00Z",
+                 "to_date" => "2026-10-16T10:00:00Z"
+               })
+    end
+
+    test "rejects a webhook from another project or a malformed id" do
+      project = insert(:project)
+      other = insert(:project)
+      foreign = insert(:webhook, project_id: other.id)
+
+      for id <- [foreign.id, "not-a-uuid"] do
+        assert {:error, {:invalid_filter, "webhook_id"}} =
+                 Platform.create_replay(project.id, Ecto.UUID.generate(), %{"webhook_id" => id})
+      end
+    end
   end
 
   describe "list_replays/2" do

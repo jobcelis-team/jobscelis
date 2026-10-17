@@ -15,8 +15,12 @@ defmodule StreamflixWebWeb.PageController do
 
   def signup(conn, params) do
     plan = Map.get(params, "plan", "standard")
-    email = Map.get(params, "email", "")
-    render(conn, :signup, plan: plan, email: email)
+    prefill = get_session(conn, :signup_prefill) || %{}
+    email = prefill["email"] || Map.get(params, "email", "")
+
+    conn
+    |> delete_session(:signup_prefill)
+    |> render(:signup, plan: plan, email: email, name: prefill["name"] || "")
   end
 
   def terms(conn, _params) do

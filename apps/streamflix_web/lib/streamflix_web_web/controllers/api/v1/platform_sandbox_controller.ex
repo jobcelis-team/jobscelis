@@ -138,6 +138,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
       slug: ep.slug,
       name: ep.name,
       url: "/sandbox/#{ep.slug}",
+      full_url: StreamflixWebWeb.Endpoint.url() <> "/sandbox/#{ep.slug}",
       expires_at: ep.expires_at,
       inserted_at: ep.inserted_at
     }

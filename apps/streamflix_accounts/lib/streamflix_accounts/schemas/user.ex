@@ -30,12 +30,15 @@ defmodule StreamflixAccounts.Schemas.User do
 
     # Preferences
     field(:last_project_id, :binary_id)
+    # Display timezone (IANA name or "UTC"); nil = use the browser's timezone
+    field(:timezone, :string)
 
     # MFA / TOTP
     field(:mfa_enabled, :boolean, default: false)
     field(:mfa_secret, StreamflixCore.Encrypted.Binary)
     field(:mfa_backup_codes, {:array, :string}, default: [])
     field(:mfa_enabled_at, :utc_datetime)
+    field(:mfa_last_used_at, :utc_datetime)
 
     timestamps()
   end
@@ -77,6 +80,7 @@ defmodule StreamflixAccounts.Schemas.User do
     |> validate_inclusion(:status, ["active", "inactive", "restricted"])
     |> unique_constraint(:email_hash, message: "already registered")
     |> put_encrypted_email()
+    |> invalidate_cached_user()
   end
 
   @doc "Changeset for GDPR-specific operations (restriction, objection)."
@@ -84,6 +88,7 @@ defmodule StreamflixAccounts.Schemas.User do
     user
     |> cast(attrs, [:status, :processing_consent, :restricted_at, :restriction_reason])
     |> validate_inclusion(:status, ["active", "inactive", "restricted"])
+    |> invalidate_cached_user()
   end
 
   @doc """
@@ -96,8 +101,11 @@ defmodule StreamflixAccounts.Schemas.User do
     |> cast(attrs, [:email])
     |> validate_required([:email])
     |> validate_email()
+    # A new address is unverified until its owner confirms it
+    |> then(&if changed?(&1, :email), do: put_change(&1, :email_verified_at, nil), else: &1)
     |> unique_constraint(:email_hash, message: "already registered")
     |> put_encrypted_email()
+    |> invalidate_cached_user()
   end
 
   def registration_changeset(user, attrs) do
@@ -115,6 +123,19 @@ defmodule StreamflixAccounts.Schemas.User do
     |> validate_required([:password])
     |> validate_password()
     |> hash_password()
+    |> invalidate_cached_user()
+  end
+
+  # IANA zone names: "UTC", "America/Guayaquil", "America/Argentina/Buenos_Aires", "Etc/GMT+5"
+  @timezone_format ~r/\A(UTC|[A-Za-z]+(\/[A-Za-z0-9_+\-]+){1,2})\z/
+
+  @doc "Display timezone preference. Blank resets to automatic (browser timezone)."
+  def timezone_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:timezone], empty_values: ["", nil])
+    |> validate_length(:timezone, max: 64)
+    |> validate_format(:timezone, @timezone_format, message: "is not a valid timezone")
+    |> invalidate_cached_user()
   end
 
   @doc """
@@ -123,6 +144,7 @@ defmodule StreamflixAccounts.Schemas.User do
   def mfa_changeset(user, attrs) do
     user
     |> cast(attrs, [:mfa_enabled, :mfa_secret, :mfa_backup_codes, :mfa_enabled_at])
+    |> invalidate_cached_user()
   end
 
   # ============================================
@@ -169,6 +191,22 @@ defmodule StreamflixAccounts.Schemas.User do
         end
     end
   end
+
+  # The user is cached per id for web sessions ({:auth_user, id}, Authentication)
+  # and for API JWTs ({:user, id}, Guardian). Drop both when an existing user is
+  # persisted so sessions see the change at once (status, role, MFA, name,
+  # timezone…) instead of when the cache entry expires.
+  @doc false
+  def cache_keys(id), do: [{:auth_user, id}, {:user, id}]
+
+  defp invalidate_cached_user(%Ecto.Changeset{data: %{id: id}} = changeset) when is_binary(id) do
+    prepare_changes(changeset, fn cs ->
+      Enum.each(cache_keys(id), &Cachex.del(:platform_cache, &1))
+      cs
+    end)
+  end
+
+  defp invalidate_cached_user(changeset), do: changeset
 
   defp hash_password(changeset) do
     case get_change(changeset, :password) do

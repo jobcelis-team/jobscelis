@@ -6,6 +6,11 @@ defmodule StreamflixWebWeb.Api.V1.NotificationChannelsController do
   use StreamflixWebWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  plug StreamflixWebWeb.Plugs.RequireScope, "alerts:read" when action in [:show]
+
+  plug StreamflixWebWeb.Plugs.RequireScope,
+       "alerts:write" when action in [:upsert, :delete, :test]
+
   alias StreamflixCore.NotificationChannels
   alias StreamflixWebWeb.Schemas
 

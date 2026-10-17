@@ -17,6 +17,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
         <div
           class="absolute inset-0 bg-black/50 backdrop-blur-sm"
           phx-click="close_event_detail"
+          phx-window-keydown="close_event_detail"
+          phx-key="Escape"
           aria-hidden="true"
         >
         </div>
@@ -35,6 +37,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
               </p>
             </div>
             <button
+              aria-label={gettext("Cerrar")}
               type="button"
               phx-click="close_event_detail"
               class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
@@ -55,7 +58,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                 <span class="text-slate-500 dark:text-slate-400">{gettext("Estado")}</span>
                 <p>
                   <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                    {@event_detail.status}
+                    {status_label(@event_detail.status)}
                   </span>
                 </p>
               </div>
@@ -105,7 +108,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                               "px-2 py-0.5 rounded text-xs font-medium",
                               delivery_status_class(d.status)
                             ]}>
-                              {d.status}
+                              {status_label(d.status)}
                             </span>
                             <span class="text-xs text-slate-500 dark:text-slate-400">
                               {gettext("Intento")} #{d.attempt_number}
@@ -202,6 +205,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
         <div
           class="absolute inset-0 bg-black/50 backdrop-blur-sm"
           phx-click="close_replay_modal"
+          phx-window-keydown="close_replay_modal"
+          phx-key="Escape"
           aria-hidden="true"
         >
         </div>
@@ -221,6 +226,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
               </p>
             </div>
             <button
+              aria-label={gettext("Cerrar")}
               type="button"
               phx-click="close_replay_modal"
               class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
@@ -271,9 +277,13 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   {gettext("Desde")}
                 </label>
+                <input type="hidden" name="from_date" />
                 <input
                   type="datetime-local"
-                  name="from_date"
+                  id="replay-from-local"
+                  name="from_date_local"
+                  phx-hook="LocalToUtcInput"
+                  data-utc-target="from_date"
                   class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100"
                 />
               </div>
@@ -281,13 +291,20 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   {gettext("Hasta")}
                 </label>
+                <input type="hidden" name="to_date" />
                 <input
                   type="datetime-local"
-                  name="to_date"
+                  id="replay-to-local"
+                  name="to_date_local"
+                  phx-hook="LocalToUtcInput"
+                  data-utc-target="to_date"
                   class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100"
                 />
               </div>
             </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 -mt-1">
+              {gettext("Zona horaria")}: <span data-viewer-tz>UTC</span>
+            </p>
 
             <%!-- Warning --%>
             <div class="flex gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50">
@@ -332,6 +349,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
         <div
           class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
           phx-click="close_job_modal"
+          phx-window-keydown="close_job_modal"
+          phx-key="Escape"
           id="job-modal-backdrop"
           aria-hidden="true"
         >
@@ -561,6 +580,12 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                   <p class="text-xs text-slate-500 dark:text-slate-400">
                     <.icon name="hero-globe-alt" class="w-3.5 h-3.5 inline" />
                     {gettext("Todas las horas están en UTC.")}
+                    <% utc_hm =
+                      String.pad_leading(to_string(p["schedule_hour"] || "0"), 2, "0") <>
+                        ":" <> String.pad_leading(to_string(p["schedule_minute"] || "0"), 2, "0") %>
+                    {gettext("Equivale a")}
+                    <span class="font-medium" data-utc-hm={utc_hm}>{utc_hm} UTC</span>
+                    {gettext("en tu zona horaria.")}
                   </p>
                 <% end %>
 
@@ -642,8 +667,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                           {label, expr} <- [
                             {gettext("Cada hora"), "0 * * * *"},
                             {gettext("Cada 6h"), "0 */6 * * *"},
-                            {gettext("Medianoche"), "0 0 * * *"},
-                            {gettext("Lun-Vie 9am"), "0 9 * * 1-5"}
+                            {gettext("Medianoche UTC"), "0 0 * * *"},
+                            {gettext("Lun-Vie 9am UTC"), "0 9 * * 1-5"}
                           ]
                         }
                         type="button"
@@ -662,7 +687,10 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                         <ul class="space-y-0.5">
                           <%= for dt <- @cron_preview do %>
                             <li class="text-xs font-mono text-slate-600 dark:text-slate-300">
-                              {dt}
+                              {Calendar.strftime(dt, "%Y-%m-%d %H:%M")} UTC
+                              <span class="text-slate-400 dark:text-slate-500">
+                                · <.local_time value={dt} format="datetime_short" />
+                              </span>
                             </li>
                           <% end %>
                         </ul>
@@ -776,6 +804,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                     </label>
                     <input
                       type="url"
+                      autocomplete="off"
                       name="action_url"
                       value={p["action_url"]}
                       class="w-full border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -837,6 +866,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
         <div
           class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           phx-click="close_job_runs_modal"
+          phx-window-keydown="close_job_runs_modal"
+          phx-key="Escape"
           aria-hidden="true"
         >
         </div>
@@ -850,6 +881,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
               {gettext("Runs: %{name}", name: @job_runs_modal.job.name)}
             </h2>
             <button
+              aria-label={gettext("Cerrar")}
               type="button"
               phx-click="close_job_runs_modal"
               class="p-2 -m-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
@@ -886,7 +918,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                           else: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                         )
                       ]}>
-                        {r.status}
+                        {status_label(r.status)}
                       </span>
                     </td>
                     <td class="px-4 py-2 text-sm text-slate-600 dark:text-slate-400">
@@ -910,6 +942,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
         <div
           class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           phx-click="cancel_confirm_regenerate"
+          phx-window-keydown="cancel_confirm_regenerate"
+          phx-key="Escape"
           aria-hidden="true"
         >
         </div>

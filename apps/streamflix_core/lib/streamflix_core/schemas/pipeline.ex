@@ -10,6 +10,7 @@ defmodule StreamflixCore.Schemas.Pipeline do
   @foreign_key_type :binary_id
 
   @valid_statuses ~w(active inactive)
+  @transform_operations ~w(pick remove rename set template flatten)
 
   schema "pipelines" do
     field(:name, :string)
@@ -51,17 +52,29 @@ defmodule StreamflixCore.Schemas.Pipeline do
       steps ->
         valid_types = ~w(filter transform delay)
 
-        if Enum.all?(steps, fn step ->
-             is_map(step) and Map.get(step, "type") in valid_types
-           end) do
-          changeset
-        else
-          add_error(
-            changeset,
-            :steps,
-            "each step must have a valid type: filter, transform, delay"
-          )
+        cond do
+          not Enum.all?(steps, &(is_map(&1) and Map.get(&1, "type") in valid_types)) ->
+            add_error(
+              changeset,
+              :steps,
+              "each step must have a valid type: filter, transform, delay"
+            )
+
+          not Enum.all?(steps, &valid_transform?/1) ->
+            add_error(
+              changeset,
+              :steps,
+              "transform steps need an operation: #{Enum.join(@transform_operations, ", ")}"
+            )
+
+          true ->
+            changeset
         end
     end
   end
+
+  defp valid_transform?(%{"type" => "transform"} = step),
+    do: Map.get(step, "operation") in @transform_operations
+
+  defp valid_transform?(_), do: true
 end

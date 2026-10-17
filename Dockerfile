@@ -85,7 +85,9 @@ RUN mix release
 
 FROM elixir:1.17-otp-27-alpine AS prod
 
-RUN apk add --no-cache \
+# The base tag is rebuilt only occasionally: upgrade OS packages so security
+# fixes published since then are included (Trivy blocks HIGH/CRITICAL CVEs).
+RUN apk upgrade --no-cache && apk add --no-cache \
     libstdc++ \
     ca-certificates \
     postgresql-client \

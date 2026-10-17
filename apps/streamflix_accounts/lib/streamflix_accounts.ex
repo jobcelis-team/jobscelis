@@ -77,7 +77,20 @@ defmodule StreamflixAccounts do
           true ->
             case get_user_by_email(new_email) do
               nil ->
-                user |> User.email_changeset(%{email: new_email}) |> Repo.update()
+                with {:ok, updated} <-
+                       user |> User.email_changeset(%{email: new_email}) |> Repo.update() do
+                  # Links mailed to the previous address must not confirm the new one
+                  import Ecto.Query, only: [from: 2]
+
+                  Repo.delete_all(
+                    from(t in UserToken,
+                      where:
+                        t.user_id == ^user.id and t.context in ["confirm_email", "reset_password"]
+                    )
+                  )
+
+                  {:ok, updated}
+                end
 
               other when other.id == user.id ->
                 {:error, :same_email}
@@ -97,7 +110,11 @@ defmodule StreamflixAccounts do
   @doc """
   Changes the user's password. Requires the current password for authorization.
   """
-  def update_password(%User{} = user, current_password, new_password)
+  # On success every other session is revoked (pass the current one as
+  # `except_jti:` to keep it), so a stolen session dies with the old password.
+  def update_password(user, current_password, new_password, opts \\ [])
+
+  def update_password(%User{} = user, current_password, new_password, opts)
       when is_binary(current_password) and is_binary(new_password) do
     case Authentication.authenticate(user.email, current_password) do
       {:ok, _} ->
@@ -113,6 +130,7 @@ defmodule StreamflixAccounts do
                |> Repo.update() do
             {:ok, updated_user} ->
               save_password_to_history(user.id, old_hash)
+              revoke_all_sessions(user.id, except_jti: opts[:except_jti])
               {:ok, updated_user}
 
             error ->
@@ -125,7 +143,7 @@ defmodule StreamflixAccounts do
     end
   end
 
-  def update_password(_, _, _), do: {:error, :invalid}
+  def update_password(_, _, _, _), do: {:error, :invalid}
 
   def create_admin(attrs) do
     attrs =
@@ -166,7 +184,21 @@ defmodule StreamflixAccounts do
     end
   end
 
-  def get_user(id), do: Repo.get(User, id)
+  def get_user(id), do: Repo.get_uuid(User, id)
+
+  @doc "Set the display timezone (IANA name or \"UTC\"); nil or \"\" = automatic (browser)."
+  def update_user_timezone(%User{} = user, timezone) do
+    user
+    |> User.timezone_changeset(%{timezone: timezone})
+    |> Repo.update()
+  end
+
+  @doc "Users for the given ids (missing ids are skipped)."
+  def list_users_by_ids(ids) when is_list(ids) do
+    import Ecto.Query, only: [from: 2]
+    Repo.all(from(u in User, where: u.id in ^ids))
+  end
+
   def get_user!(id), do: Repo.get!(User, id)
 
   def get_user_by_email(email) do
@@ -179,7 +211,7 @@ defmodule StreamflixAccounts do
         # Re-seed the cache with the updated struct instead of deleting it.
         # This avoids a cache miss on the next verify_token call (e.g. after
         # the async last_login_at update races with the WS mount).
-        Cachex.put(:platform_cache, {:auth_user, user.id}, updated, ttl: :timer.seconds(60))
+        Cachex.put(:platform_cache, {:auth_user, user.id}, updated, expire: :timer.seconds(60))
         {:ok, updated}
 
       error ->
@@ -212,9 +244,38 @@ defmodule StreamflixAccounts do
     MFA.disable_mfa(user, password)
   end
 
-  @doc "Verify a 6-digit TOTP code for login."
+  @max_mfa_attempts 5
+  @mfa_attempts_window :timer.minutes(15)
+
+  @doc """
+  Verify a 6-digit TOTP code for login (each code can be used only once).
+
+  Wrong codes are counted per user on the server; after #{@max_mfa_attempts} the
+  user must start the login again. Returns `true`, `false` or `:too_many_attempts`.
+  """
   def verify_mfa_code(%User{} = user, code) do
-    MFA.verify_code(user.mfa_secret, code)
+    key = {:mfa_attempts, user.id}
+
+    cond do
+      mfa_attempts(key) >= @max_mfa_attempts ->
+        :too_many_attempts
+
+      MFA.verify_and_consume_code(user, code) ->
+        Cachex.del(:platform_cache, key)
+        true
+
+      true ->
+        {:ok, count} = Cachex.incr(:platform_cache, key, 1)
+        if count == 1, do: Cachex.expire(:platform_cache, key, @mfa_attempts_window)
+        if count >= @max_mfa_attempts, do: :too_many_attempts, else: false
+    end
+  end
+
+  defp mfa_attempts(key) do
+    case Cachex.get(:platform_cache, key) do
+      {:ok, n} when is_integer(n) -> n
+      _ -> 0
+    end
   end
 
   @doc "Verify a backup code (consumes it on success)."
@@ -291,6 +352,8 @@ defmodule StreamflixAccounts do
             {:ok, updated_user} ->
               save_password_to_history(user.id, old_hash)
               Repo.delete_all(UserToken.by_user_and_contexts_query(user, ["reset_password"]))
+              # A reset usually follows a compromise: end every existing session
+              revoke_all_sessions(user.id)
               {:ok, updated_user}
 
             {:error, changeset} ->
@@ -427,6 +490,32 @@ defmodule StreamflixAccounts do
     |> Repo.insert()
   end
 
+  @doc "Record activity for a session (used by the inactivity timeout)."
+  def touch_session(jti) when is_binary(jti) do
+    import Ecto.Query
+
+    from(s in UserSession, where: s.token_jti == ^jti and is_nil(s.revoked_at))
+    |> Repo.update_all(set: [last_activity_at: DateTime.utc_now()])
+
+    :ok
+  end
+
+  def touch_session(_), do: :ok
+
+  @doc "Last recorded activity (unix seconds) of a session, or nil."
+  def session_last_activity(jti) when is_binary(jti) do
+    import Ecto.Query
+
+    from(s in UserSession, where: s.token_jti == ^jti, select: s.last_activity_at)
+    |> Repo.one()
+    |> case do
+      %DateTime{} = dt -> DateTime.to_unix(dt)
+      _ -> nil
+    end
+  end
+
+  def session_last_activity(_), do: nil
+
   def list_sessions(user_id) do
     import Ecto.Query
 
@@ -445,9 +534,13 @@ defmodule StreamflixAccounts do
         {:error, :not_found}
 
       session ->
-        session
-        |> Ecto.Changeset.change(revoked_at: DateTime.utc_now())
-        |> Repo.update()
+        result =
+          session
+          |> Ecto.Changeset.change(revoked_at: DateTime.utc_now())
+          |> Repo.update()
+
+        mark_revoked([session.token_jti])
+        result
     end
   end
 
@@ -467,8 +560,26 @@ defmodule StreamflixAccounts do
         query
       end
 
-    {count, _} = Repo.update_all(query, set: [revoked_at: DateTime.utc_now()])
+    {count, jtis} =
+      query
+      |> select([s], s.token_jti)
+      |> Repo.update_all(set: [revoked_at: DateTime.utc_now()])
+
+    mark_revoked(jtis)
     {:ok, count}
+  end
+
+  # Revocation must apply at once: session_revoked?/1 caches its answer, and
+  # live (LiveView) connections of those sessions are dropped by the web app
+  # through the configured `:on_sessions_revoked` {module, function} hook.
+  defp mark_revoked(jtis) do
+    jtis = Enum.filter(jtis || [], &is_binary/1)
+    Enum.each(jtis, &Cachex.put(:platform_cache, {:session_revoked, &1}, true))
+
+    case Application.get_env(:streamflix_accounts, :on_sessions_revoked) do
+      {mod, fun} when jtis != [] -> apply(mod, fun, [jtis])
+      _ -> :ok
+    end
   end
 
   def revoke_session_by_jti(user_id, jti) when is_binary(jti) do
@@ -484,24 +595,28 @@ defmodule StreamflixAccounts do
           session |> Ecto.Changeset.change(revoked_at: DateTime.utc_now()) |> Repo.update()
       end
 
-    # Eagerly update cache so revocation takes effect immediately
-    Cachex.put(:platform_cache, {:session_revoked, jti}, true)
+    # Eagerly update cache (and drop live sockets) so revocation applies immediately
+    mark_revoked([jti])
     result
   end
 
   def revoke_session_by_jti(_user_id, _jti), do: :ok
 
-  def session_revoked?(nil), do: false
+  # Every access token is issued together with a user_sessions row (web login,
+  # signup, API login/register/MFA, refresh). A token without one (or without a
+  # jti) was not issued as an access token — e.g. an MFA challenge — and is
+  # treated as revoked.
+  def session_revoked?(nil), do: true
 
   def session_revoked?(jti) do
     case Cachex.fetch(:platform_cache, {:session_revoked, jti}, fn _ ->
            revoked =
              case UserSession |> UserSession.by_jti(jti) |> Repo.one() do
-               nil -> false
+               nil -> true
                session -> not is_nil(session.revoked_at)
              end
 
-           {:commit, revoked, ttl: :timer.seconds(120)}
+           {:commit, revoked, expire: :timer.seconds(120)}
          end) do
       {:ok, val} -> val
       {:commit, val} -> val
@@ -561,8 +676,14 @@ defmodule StreamflixAccounts do
 
   def deactivate_user(user_id) do
     case get_user(user_id) do
-      nil -> {:error, :not_found}
-      user -> user |> User.changeset(%{status: "inactive"}) |> Repo.update()
+      nil ->
+        {:error, :not_found}
+
+      user ->
+        with {:ok, updated} <- user |> User.changeset(%{status: "inactive"}) |> Repo.update() do
+          revoke_all_sessions(user.id)
+          {:ok, updated}
+        end
     end
   end
 
