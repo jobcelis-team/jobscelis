@@ -61,10 +61,25 @@ defmodule StreamflixWebWeb.LiveAuth do
     end
   end
 
+  # The session map here is the one captured when the socket connected, so its
+  # last_activity_at can be stale while the user keeps working in LiveView.
+  # Use the most recent of it and the server-side session activity.
   defp session_expired?(session) do
-    last_activity = session["last_activity_at"]
-    timeout = Application.get_env(:streamflix_web, :session_timeout_seconds, 1800)
-    is_integer(last_activity) and System.system_time(:second) - last_activity > timeout
+    if session["remember_me"] == true do
+      false
+    else
+      timeout = Application.get_env(:streamflix_web, :session_timeout_seconds, 1800)
+
+      last_activity =
+        [
+          session["last_activity_at"],
+          StreamflixAccounts.session_last_activity(session["current_jti"])
+        ]
+        |> Enum.filter(&is_integer/1)
+        |> Enum.max(fn -> nil end)
+
+      is_integer(last_activity) and System.system_time(:second) - last_activity > timeout
+    end
   end
 
   defp check_admin(user) do

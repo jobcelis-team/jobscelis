@@ -98,6 +98,7 @@ defmodule StreamflixCore.Schemas.NotificationChannel do
     if get_field(changeset, :meta_webhook_enabled) do
       validate_required(changeset, [:meta_webhook_url])
       |> validate_format(:meta_webhook_url, ~r{^https?://})
+      |> StreamflixCore.Platform.UrlGuard.validate_changeset(:meta_webhook_url)
     else
       changeset
     end

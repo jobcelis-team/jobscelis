@@ -104,6 +104,35 @@ defmodule StreamflixWebWeb.Docs.SectionConfiguration do
         {gettext("Métodos: GET, POST, PUT, PATCH, DELETE, OPTIONS.")}
       </p>
     </.docs_section>
+
+    <.docs_section
+      id="dates-timezones"
+      title={gettext("Fechas y zonas horarias")}
+      subtitle={gettext("Todas las fechas de la API están en UTC (ISO 8601).")}
+    >
+      <ul class="list-disc pl-5 space-y-2 text-slate-700 dark:text-slate-300 text-sm">
+        <li>
+          {gettext(
+            "Las respuestas devuelven fechas en UTC con formato ISO 8601 y sufijo Z, por ejemplo 2026-10-17T17:24:44.123456Z. Conviértelas a la zona horaria de tus usuarios al mostrarlas."
+          )}
+        </li>
+        <li>
+          {gettext(
+            "Al enviar fechas (deliver_at, rangos de replay, purgas) incluye el offset: 2026-10-17T09:00:00-05:00 o 2026-10-17T14:00:00Z. Una fecha sin offset se interpreta como UTC."
+          )}
+        </li>
+        <li>
+          {gettext(
+            "Los horarios de jobs (diarios, semanales, mensuales y cron) se evalúan en UTC. Las analíticas por día agrupan por día UTC."
+          )}
+        </li>
+        <li>
+          {gettext(
+            "El dashboard muestra las fechas en la zona horaria de tu navegador; pasa el cursor sobre una fecha para ver su valor en UTC."
+          )}
+        </li>
+      </ul>
+    </.docs_section>
     """
   end
 end

@@ -10,7 +10,10 @@
   </h1>
 
   <p class="text-slate-500 dark:text-slate-400 text-sm mb-8">
-    {gettext("Última actualización")}: {Date.utc_today() |> Calendar.strftime("%d/%m/%Y")}
+    {gettext("Última actualización")}:
+    <time datetime={Date.to_iso8601(legal_updated_on())}>
+      {Calendar.strftime(legal_updated_on(), "%d/%m/%Y")}
+    </time>
   </p>
 
   <div class="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-6">

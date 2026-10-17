@@ -155,14 +155,10 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
         name: user.name,
         email: user.email,
         role: user.role,
-        registered: format_date(user.inserted_at),
+        registered: user.inserted_at,
         active: user.status == "active"
       }
     end)
-  end
-
-  defp format_date(datetime) do
-    Calendar.strftime(datetime, "%d %b %Y")
   end
 
   @impl true
@@ -237,7 +233,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                   </td>
 
                   <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 dark:text-slate-400 hidden sm:table-cell">
-                    {user.registered}
+                    <.local_time value={user.registered} format="date" />
                   </td>
 
                   <td class="px-4 sm:px-6 py-3 sm:py-4">
@@ -306,6 +302,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
               </h2>
 
               <button
+                aria-label={gettext("Cerrar")}
                 phx-click="close_user_modal"
                 class="text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-300"
               >

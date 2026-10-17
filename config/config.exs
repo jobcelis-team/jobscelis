@@ -64,6 +64,10 @@ config :streamflix_web, StreamflixWebWeb.Mailer,
 # Secrets configured in runtime.exs
 # ============================================
 
+# Revoked sessions: the web app disconnects their live LiveView sockets
+config :streamflix_accounts,
+  on_sessions_revoked: {StreamflixWebWeb.SessionRevocation, :disconnect}
+
 config :streamflix_accounts, StreamflixAccounts.Guardian,
   issuer: "streamflix",
   secret_key: "configured_in_runtime",

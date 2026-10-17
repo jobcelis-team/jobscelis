@@ -25,10 +25,12 @@ defmodule StreamflixCore.Platform.Pagination do
       |> maybe_filter_topic(topic)
       |> order_by([e], desc: e.occurred_at, desc: e.id)
 
-    query = apply_cursor(query, cursor, :occurred_at)
-
-    items = query |> limit(^(limit + 1)) |> Repo.all()
-    build_page(items, limit)
+    with {:ok, query} <- apply_cursor(query, cursor, :occurred_at) do
+      items = query |> limit(^(limit + 1)) |> Repo.all()
+      build_page(items, limit)
+    else
+      :invalid -> empty_page()
+    end
   end
 
   @doc "Paginate deliveries with cursor-based pagination."
@@ -42,7 +44,6 @@ defmodule StreamflixCore.Platform.Pagination do
     query =
       Delivery
       |> maybe_where(:status, status)
-      |> maybe_where(:webhook_id, webhook_id)
       |> order_by([d], desc: d.inserted_at, desc: d.id)
 
     query =
@@ -53,15 +54,37 @@ defmodule StreamflixCore.Platform.Pagination do
         query
       end
 
-    query = apply_cursor(query, cursor, :inserted_at)
-
-    items = query |> limit(^(limit + 1)) |> preload([:event, :webhook]) |> Repo.all()
-    build_page(items, limit)
+    # Malformed ids (cursor / webhook filter) give an empty page, not a 500
+    with {:ok, query} <- maybe_where_uuid(query, :webhook_id, webhook_id),
+         {:ok, query} <- apply_cursor(query, cursor, :inserted_at) do
+      items = query |> limit(^(limit + 1)) |> preload([:event, :webhook]) |> Repo.all()
+      build_page(items, limit)
+    else
+      :invalid -> empty_page()
+    end
   end
 
-  defp apply_cursor(query, nil, _field), do: query
+  defp empty_page, do: %{data: [], has_next: false, next_cursor: nil}
+
+  defp maybe_where_uuid(query, _field, blank) when blank in [nil, ""], do: {:ok, query}
+
+  defp maybe_where_uuid(query, field, value) do
+    case Ecto.UUID.cast(value) do
+      {:ok, uuid} -> {:ok, where(query, [d], field(d, ^field) == ^uuid)}
+      :error -> :invalid
+    end
+  end
+
+  defp apply_cursor(query, blank, _field) when blank in [nil, ""], do: {:ok, query}
 
   defp apply_cursor(query, cursor, field) do
+    case Ecto.UUID.cast(cursor) do
+      {:ok, cursor} -> {:ok, apply_valid_cursor(query, cursor, field)}
+      :error -> :invalid
+    end
+  end
+
+  defp apply_valid_cursor(query, cursor, field) do
     case Repo.get(
            query
            |> exclude(:order_by)
@@ -85,8 +108,10 @@ defmodule StreamflixCore.Platform.Pagination do
   end
 
   defp parse_limit(opts) do
-    limit = Keyword.get(opts, :limit, @default_page_size)
-    min(max(limit, 1), @max_page_size)
+    case Keyword.get(opts, :limit, @default_page_size) do
+      limit when is_integer(limit) -> min(max(limit, 1), @max_page_size)
+      _ -> @default_page_size
+    end
   end
 
   defp build_page(items, limit) do

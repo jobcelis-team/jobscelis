@@ -120,6 +120,7 @@
               id="name"
               type="text"
               name="name"
+              value={@name}
               placeholder={gettext("Tu nombre")}
               required
               autocomplete="name"
@@ -227,7 +228,7 @@
               </div>
             </div>
             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
-              {gettext("Mínimo 8 caracteres")}
+              {gettext("Mínimo 8 caracteres, con mayúsculas, minúsculas y números.")}
             </p>
           </div>
 

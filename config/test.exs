@@ -38,3 +38,7 @@ config :streamflix_core, Oban, testing: :inline
 
 # Disable PromEx in test
 config :streamflix_web, StreamflixWeb.PromEx, disabled: true
+
+# SSRF guard (StreamflixCore.Platform.UrlGuard): allow localhost / private
+# destinations for local sandboxes and receivers. Never enable in production.
+config :streamflix_core, allow_private_destinations: true

@@ -82,13 +82,17 @@ defmodule StreamflixWebWeb.StatusLive do
     ~H"""
     <div class="min-h-screen bg-slate-50 py-12 px-4">
       <div class="max-w-2xl mx-auto">
+        <.link
+          navigate={~p"/"}
+          class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mb-6"
+        >
+          <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Inicio")}
+        </.link>
         <div class="text-center mb-8">
           <h1 class="text-3xl font-bold text-slate-900 mb-2">Jobcelis Status</h1>
           <p class="text-slate-500 text-sm">
             {gettext("Última verificación:")}
-            <time datetime={DateTime.to_iso8601(@checks.checked_at)}>
-              {Calendar.strftime(@checks.checked_at, "%Y-%m-%d %H:%M:%S UTC")}
-            </time>
+            <.local_time value={@checks.checked_at} />
           </p>
         </div>
 

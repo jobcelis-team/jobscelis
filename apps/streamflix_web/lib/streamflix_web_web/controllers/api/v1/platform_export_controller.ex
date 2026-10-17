@@ -10,6 +10,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformExportController do
   plug StreamflixWebWeb.Plugs.RequireScope, "events:read" when action in [:events]
   plug StreamflixWebWeb.Plugs.RequireScope, "deliveries:read" when action in [:deliveries]
   plug StreamflixWebWeb.Plugs.RequireScope, "jobs:read" when action in [:jobs]
+  plug StreamflixWebWeb.Plugs.RequireScope, "audit:read" when action in [:audit_log]
 
   @max_export 10_000
 

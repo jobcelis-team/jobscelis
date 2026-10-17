@@ -5,7 +5,8 @@ defmodule StreamflixCore.Platform.ObanScheduledJobWorker do
   use Oban.Worker,
     queue: :scheduled_job,
     max_attempts: 1,
-    unique: [period: 120, keys: [:job_id]]
+    # One run per job per scheduled minute, even with several nodes ticking
+    unique: [period: 300, keys: [:job_id, :slot]]
 
   @impl true
   def perform(%Oban.Job{args: args}) do

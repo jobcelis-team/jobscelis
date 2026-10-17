@@ -213,7 +213,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
                   </td>
 
                   <td class="hidden sm:table-cell px-4 py-3 text-sm text-gray-500 dark:text-slate-400">
-                    {Calendar.strftime(job.inserted_at, "%d/%m %H:%M")}
+                    <.local_time value={job.inserted_at} format="datetime_short" />
                   </td>
                 </tr>
               <% end %>

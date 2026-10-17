@@ -25,6 +25,10 @@ defmodule StreamflixCore.Platform.Transformer do
       "flatten" -> flatten_payload(payload)
       _ -> {:ok, payload}
     end
+  rescue
+    # Malformed step config (e.g. "fields" not a list) behaves like an unknown
+    # operation instead of crashing event ingestion.
+    _ in [FunctionClauseError, ArgumentError, Protocol.UndefinedError] -> {:ok, payload}
   end
 
   def apply_transform(_step, payload), do: {:ok, payload}
@@ -104,7 +108,8 @@ defmodule StreamflixCore.Platform.Transformer do
       case get_nested(payload, String.trim(path)) do
         nil -> ""
         val when is_binary(val) -> val
-        val -> inspect(val)
+        val when is_number(val) or is_boolean(val) -> to_string(val)
+        val -> Jason.encode!(val)
       end
     end)
   end
@@ -138,10 +143,15 @@ defmodule StreamflixCore.Platform.Transformer do
     do_put_nested(map, keys, value)
   end
 
-  defp do_put_nested(_map, [key], value), do: Map.put(%{}, key, value)
+  defp do_put_nested(map, [key], value), do: Map.put(map, key, value)
 
   defp do_put_nested(map, [key | rest], value) do
-    existing = Map.get(map, key, %{})
+    existing =
+      case Map.get(map, key) do
+        %{} = nested -> nested
+        _ -> %{}
+      end
+
     Map.put(map, key, do_put_nested(existing, rest, value))
   end
 

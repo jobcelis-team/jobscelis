@@ -228,4 +228,94 @@ defmodule StreamflixCore.Platform.EventsTest do
       assert topics == ["active.topic"]
     end
   end
+
+  describe "request control fields" do
+    test "deliver_at and idempotency_key are not stored in the payload" do
+      project = insert(:project)
+      deliver_at = DateTime.utc_now() |> DateTime.add(3600) |> DateTime.to_iso8601()
+
+      {:ok, event} =
+        Platform.create_event(project.id, %{
+          "topic" => "order.created",
+          "amount" => 1,
+          "deliver_at" => deliver_at,
+          "idempotency_key" => "k-1"
+        })
+
+      assert event.payload == %{"amount" => 1}
+      assert event.idempotency_key == "k-1"
+      assert event.deliver_at
+    end
+
+    test "deliver_at without offset is interpreted as UTC" do
+      project = insert(:project)
+      naive = NaiveDateTime.utc_now() |> NaiveDateTime.add(3600) |> NaiveDateTime.to_iso8601()
+
+      {:ok, event} =
+        Platform.create_event(project.id, %{"topic" => "t", "deliver_at" => naive})
+
+      assert %DateTime{time_zone: "Etc/UTC"} = event.deliver_at
+      assert DateTime.compare(event.deliver_at, DateTime.utc_now()) == :gt
+    end
+  end
+
+  describe "process_delayed_events/0" do
+    test "an event matching no webhook is dispatched only once" do
+      project = insert(:project)
+      past = DateTime.utc_now() |> DateTime.add(-60) |> DateTime.truncate(:microsecond)
+
+      insert(:webhook_event,
+        project_id: project.id,
+        topic: "nobody.listens",
+        deliver_at: past
+      )
+
+      assert {:ok, 1} = Platform.process_delayed_events()
+      assert {:ok, 0} = Platform.process_delayed_events()
+    end
+
+    test "a past deliver_at is dispatched at creation and not picked up again" do
+      project = insert(:project)
+      past = DateTime.utc_now() |> DateTime.add(-60) |> DateTime.to_iso8601()
+
+      {:ok, event} = Platform.create_event(project.id, %{"topic" => "t", "deliver_at" => past})
+
+      assert event.dispatched_at
+      assert {:ok, 0} = Platform.process_delayed_events()
+    end
+  end
+
+  describe "count_events_since/2" do
+    test "counts all recent active events, not just a capped list" do
+      project = insert(:project)
+      insert_list(25, :webhook_event, project_id: project.id)
+      insert(:webhook_event, project_id: project.id, status: "inactive")
+
+      old = DateTime.utc_now() |> DateTime.add(-2, :day) |> DateTime.truncate(:microsecond)
+      insert(:webhook_event, project_id: project.id, occurred_at: old)
+
+      since = DateTime.utc_now() |> DateTime.add(-24, :hour)
+      assert Platform.count_events_since(project.id, since) == 25
+    end
+  end
+
+  describe "success_rate_since/2" do
+    test "ignores pending deliveries and other projects" do
+      project = insert(:project)
+      webhook = insert(:webhook, project_id: project.id)
+      event = insert(:webhook_event, project_id: project.id)
+
+      for status <- ~w(success success failed pending) do
+        insert(:delivery, event_id: event.id, webhook_id: webhook.id, status: status)
+      end
+
+      other = insert(:project)
+      other_event = insert(:webhook_event, project_id: other.id)
+      other_webhook = insert(:webhook, project_id: other.id)
+      insert(:delivery, event_id: other_event.id, webhook_id: other_webhook.id, status: "failed")
+
+      since = DateTime.utc_now() |> DateTime.add(-24, :hour)
+      assert Platform.success_rate_since(project.id, since) == 66.7
+    end
+  end
 end

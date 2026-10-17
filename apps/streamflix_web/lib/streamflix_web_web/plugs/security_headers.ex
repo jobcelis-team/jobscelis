@@ -5,6 +5,8 @@ defmodule StreamflixWebWeb.Plugs.SecurityHeaders do
   """
   import Plug.Conn
 
+  @chart_js_origin "https://cdn.jsdelivr.net/npm/chart.js@4.4.7/"
+
   def init(opts), do: opts
 
   def call(%{request_path: "/api/" <> _} = conn, _opts) do
@@ -49,11 +51,12 @@ defmodule StreamflixWebWeb.Plugs.SecurityHeaders do
     csp =
       [
         "default-src 'self'",
-        "script-src 'self' 'nonce-#{nonce}' https://cdn.jsdelivr.net",
+        # Only the pinned Chart.js build, not every package on the CDN
+        "script-src 'self' 'nonce-#{nonce}' #{@chart_js_origin}",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https:",
         "font-src 'self'",
-        "connect-src 'self' wss: ws:",
+        "connect-src 'self' #{socket_origin()}",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'"
@@ -61,6 +64,13 @@ defmodule StreamflixWebWeb.Plugs.SecurityHeaders do
       |> Enum.join("; ")
 
     put_resp_header(conn, "content-security-policy", csp)
+  end
+
+  # LiveView socket on this app's own host only (was any ws:/wss: origin)
+  defp socket_origin do
+    StreamflixWebWeb.Endpoint.url()
+    |> String.replace_prefix("https://", "wss://")
+    |> String.replace_prefix("http://", "ws://")
   end
 
   defp generate_nonce do

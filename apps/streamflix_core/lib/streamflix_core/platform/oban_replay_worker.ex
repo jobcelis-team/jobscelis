@@ -9,6 +9,7 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
   alias StreamflixCore.Schemas.{Replay, WebhookEvent, Delivery}
   alias StreamflixCore.Platform
 
+  import Ecto.Query
   require Logger
 
   @impl Oban.Worker
@@ -31,112 +32,70 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
     end
   end
 
+  @batch_size 500
+
   defp run_replay(replay) do
+    run_replay!(replay)
+  rescue
+    e ->
+      Logger.error("Replay crashed",
+        worker: "ReplayWorker",
+        replay_id: replay.id,
+        error: Exception.message(e)
+      )
+
+      finish(replay, "failed", nil)
+      broadcast_progress(replay.project_id, replay.id, "failed", 0, replay.total_events)
+      {:error, Exception.message(e)}
+  end
+
+  defp run_replay!(replay) do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
-    replay
-    |> Replay.changeset(%{status: "running", started_at: now})
-    |> Repo.update!()
-
-    broadcast_progress(replay.project_id, replay.id, "running", 0, replay.total_events)
+    replay =
+      replay
+      |> Replay.changeset(%{status: "running", started_at: now})
+      |> Repo.update!()
 
     filters = replay.filters || %{}
     topic = filters["topic"]
     from_date = parse_datetime(filters["from_date"])
     to_date = parse_datetime(filters["to_date"])
-    webhook_id = filters["webhook_id"]
 
-    events = query_events(replay.project_id, topic, from_date, to_date)
-    total = length(events)
+    total = count_events(replay.project_id, topic, from_date, to_date)
 
     replay =
       replay
       |> Replay.changeset(%{total_events: total})
       |> Repo.update!()
 
-    webhooks =
-      if webhook_id do
-        case Platform.get_webhook(webhook_id) do
-          nil -> []
-          w -> if w.status == "active", do: [w], else: []
-        end
-      else
-        Platform.list_active_webhooks_for_project(replay.project_id)
+    broadcast_progress(replay.project_id, replay.id, "running", 0, total)
+
+    webhooks = target_webhooks(replay.project_id, filters["webhook_id"])
+    query = events_query(replay.project_id, topic, from_date, to_date)
+
+    {processed, status} = process_batches(replay, query, webhooks, total, nil, 0)
+
+    finish(replay, status, processed)
+    broadcast_progress(replay.project_id, replay.id, status, processed, total)
+
+    if status == "completed" do
+      project = Repo.get(StreamflixCore.Schemas.Project, replay.project_id)
+
+      if project && project.user_id do
+        StreamflixCore.Notifications.notify_replay_completed(
+          project.user_id,
+          project.id,
+          processed
+        )
       end
-
-    {processed, _} =
-      Enum.reduce(events, {0, replay}, fn event, {count, rep} ->
-        # Check if cancelled mid-replay
-        fresh = Repo.get(Replay, rep.id)
-
-        if fresh && fresh.status == "cancelled" do
-          {count, rep}
-        else
-          matching = Enum.filter(webhooks, &Platform.webhook_matches_event?(&1, event))
-
-          Enum.each(matching, fn w ->
-            case %Delivery{}
-                 |> Delivery.changeset(%{
-                   event_id: event.id,
-                   webhook_id: w.id,
-                   status: "pending",
-                   attempt_number: 0
-                 })
-                 |> Repo.insert() do
-              {:ok, delivery} ->
-                Oban.insert(
-                  StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id})
-                )
-
-              _ ->
-                :ok
-            end
-          end)
-
-          new_count = count + 1
-
-          # Update progress every 10 events or on the last one
-          if rem(new_count, 10) == 0 or new_count == total do
-            rep
-            |> Replay.changeset(%{processed_events: new_count})
-            |> Repo.update!()
-
-            broadcast_progress(rep.project_id, rep.id, "running", new_count, total)
-          end
-
-          {new_count, rep}
-        end
-      end)
-
-    # Final status
-    final_status = if processed == total, do: "completed", else: "completed"
-    completed_at = DateTime.utc_now() |> DateTime.truncate(:microsecond)
-
-    replay
-    |> Replay.changeset(%{
-      status: final_status,
-      processed_events: processed,
-      completed_at: completed_at
-    })
-    |> Repo.update!()
-
-    broadcast_progress(replay.project_id, replay.id, final_status, processed, total)
-
-    # Notify user
-    project = Repo.get(StreamflixCore.Schemas.Project, replay.project_id)
-
-    if project && project.user_id do
-      StreamflixCore.Notifications.notify_replay_completed(
-        project.user_id,
-        project.id,
-        processed
-      )
     end
 
-    Logger.info("Replay completed",
+    Logger.info("Replay finished",
       worker: "ReplayWorker",
       replay_id: replay.id,
       project_id: replay.project_id,
+      status: status,
       processed_events: processed,
       total_events: total
     )
@@ -144,19 +103,107 @@ defmodule StreamflixCore.Platform.ObanReplayWorker do
     :ok
   end
 
-  defp query_events(project_id, topic, from_date, to_date) do
-    import Ecto.Query
+  # Keyset pagination over (occurred_at, id) so large projects never load every
+  # event into memory at once. Cancellation is checked once per batch.
+  defp process_batches(replay, query, webhooks, total, cursor, count) do
+    if cancelled?(replay.id) do
+      {count, "cancelled"}
+    else
+      batch = query |> after_cursor(cursor) |> limit(@batch_size) |> Repo.all()
 
+      case batch do
+        [] ->
+          {count, "completed"}
+
+        events ->
+          Enum.each(events, &replay_event(&1, webhooks))
+          new_count = count + length(events)
+
+          replay
+          |> Replay.changeset(%{processed_events: new_count})
+          |> Repo.update!()
+
+          broadcast_progress(replay.project_id, replay.id, "running", new_count, total)
+
+          last = List.last(events)
+          process_batches(replay, query, webhooks, total, {last.occurred_at, last.id}, new_count)
+      end
+    end
+  end
+
+  defp replay_event(event, webhooks) do
+    webhooks
+    |> Enum.filter(&Platform.webhook_matches_event?(&1, event))
+    |> Enum.each(fn w ->
+      delivery =
+        %Delivery{}
+        |> Delivery.changeset(%{
+          event_id: event.id,
+          webhook_id: w.id,
+          status: "pending",
+          attempt_number: 0
+        })
+        |> Repo.insert!()
+
+      {:ok, _job} =
+        Oban.insert(StreamflixCore.Platform.ObanDeliveryWorker.new(%{delivery_id: delivery.id}))
+    end)
+  end
+
+  defp cancelled?(replay_id) do
+    Repo.one(from(r in Replay, where: r.id == ^replay_id, select: r.status)) == "cancelled"
+  end
+
+  # Never overwrite a cancellation that happened while the last batch was running.
+  defp finish(replay, status, processed) do
+    completed_at = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+    status = if cancelled?(replay.id), do: "cancelled", else: status
+
+    changes =
+      [status: status, completed_at: completed_at, updated_at: completed_at] ++
+        if(processed, do: [processed_events: processed], else: [])
+
+    Repo.update_all(from(r in Replay, where: r.id == ^replay.id), set: changes)
+  end
+
+  defp target_webhooks(project_id, webhook_id) when webhook_id in [nil, ""] do
+    Platform.list_active_webhooks_for_project(project_id)
+  end
+
+  defp target_webhooks(project_id, webhook_id) do
+    case Platform.get_webhook(webhook_id) do
+      %{project_id: ^project_id, status: "active"} = w -> [w]
+      _ -> []
+    end
+  end
+
+  defp events_query(project_id, topic, from_date, to_date) do
     query =
       WebhookEvent
       |> where([e], e.project_id == ^project_id and e.status == "active")
-      |> order_by([e], asc: e.occurred_at)
+      |> order_by([e], asc: e.occurred_at, asc: e.id)
 
     query = if topic && topic != "", do: where(query, [e], e.topic == ^topic), else: query
     query = if from_date, do: where(query, [e], e.occurred_at >= ^from_date), else: query
-    query = if to_date, do: where(query, [e], e.occurred_at <= ^to_date), else: query
+    if to_date, do: where(query, [e], e.occurred_at <= ^to_date), else: query
+  end
 
-    Repo.all(query)
+  defp after_cursor(query, nil), do: query
+
+  defp after_cursor(query, {occurred_at, id}) do
+    where(
+      query,
+      [e],
+      e.occurred_at > ^occurred_at or (e.occurred_at == ^occurred_at and e.id > ^id)
+    )
+  end
+
+  defp count_events(project_id, topic, from_date, to_date) do
+    project_id
+    |> events_query(topic, from_date, to_date)
+    |> exclude(:order_by)
+    |> select([e], count(e.id))
+    |> Repo.one()
   end
 
   defp parse_datetime(nil), do: nil

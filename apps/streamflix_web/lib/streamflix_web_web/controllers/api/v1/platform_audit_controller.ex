@@ -33,7 +33,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAuditController do
     project = conn.assigns.current_project
 
     opts = [
-      limit: min(safe_int(params["limit"], 50), 100),
+      limit: params["limit"] |> safe_int(50) |> max(1) |> min(100),
       action: params["action"],
       resource_type: params["resource_type"]
     ]
@@ -52,6 +52,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAuditController do
   end
 
   defp safe_int(val, _default) when is_integer(val), do: val
+  defp safe_int(_val, default), do: default
 
   defp audit_json(log) do
     %{

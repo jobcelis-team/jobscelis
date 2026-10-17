@@ -5,6 +5,7 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorkerTest do
   use StreamflixCore.DataCase, async: true
 
   alias StreamflixCore.Platform.ObanDeliveryWorker
+  alias StreamflixCore.Schemas.{DeadLetter, Delivery}
 
   describe "backoff/1 — exponential strategy" do
     test "attempt 1 returns ~base delay" do
@@ -108,19 +109,45 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorkerTest do
     end
   end
 
-  describe "perform/1 — max_attempts exceeded" do
-    test "returns :ok when attempt exceeds max" do
-      job = %Oban.Job{
-        args: %{
-          "delivery_id" => Ecto.UUID.generate(),
-          "retry_config" => %{"max_attempts" => 3}
-        },
-        attempt: 4
-      }
+  describe "perform/1 — failures are retried, then dead-lettered" do
+    test "an unknown delivery is cancelled, not retried" do
+      job = %Oban.Job{args: %{"delivery_id" => Ecto.UUID.generate()}, attempt: 1}
+      assert {:cancel, :not_found} = ObanDeliveryWorker.perform(job)
+    end
 
-      assert :ok = ObanDeliveryWorker.perform(job)
+    test "a failed delivery returns {:error, _} so Oban retries it" do
+      %{delivery: delivery} = failing_delivery(%{"max_attempts" => 3})
+
+      assert {:error, _} = ObanDeliveryWorker.perform(job_for(delivery))
+      assert %{status: "failed", attempt_number: 1} = Repo.get(Delivery, delivery.id)
+      refute Repo.get_by(DeadLetter, delivery_id: delivery.id)
+    end
+
+    test "the last allowed attempt moves the delivery to the DLQ and stops" do
+      %{delivery: delivery} = failing_delivery(%{"max_attempts" => 2})
+
+      assert {:error, _} = ObanDeliveryWorker.perform(job_for(delivery))
+      assert {:cancel, :dead_lettered} = ObanDeliveryWorker.perform(job_for(delivery))
+      assert Repo.get_by(DeadLetter, delivery_id: delivery.id)
     end
   end
+
+  # Webhook pointing to a closed local port: every attempt fails fast
+  defp failing_delivery(retry_config) do
+    project = insert(:project)
+
+    webhook =
+      insert(:webhook,
+        project_id: project.id,
+        url: "http://127.0.0.1:1/hook",
+        retry_config: retry_config
+      )
+
+    event = insert(:webhook_event, project_id: project.id)
+    %{delivery: insert(:delivery, event_id: event.id, webhook_id: webhook.id)}
+  end
+
+  defp job_for(delivery), do: %Oban.Job{args: %{"delivery_id" => delivery.id}, attempt: 1}
 
   defp build_job(strategy, base, max_delay, attempt) do
     %Oban.Job{

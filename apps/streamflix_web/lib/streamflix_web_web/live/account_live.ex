@@ -34,6 +34,7 @@ defmodule StreamflixWebWeb.AccountLive do
       |> assign(:mfa_setup_errors, [])
       |> assign(:mfa_disable_errors, [])
       |> assign(:show_mfa_disable_modal, false)
+      |> assign(:mfa_confirm_action, :disable)
       # Sessions
       |> assign(:sessions, StreamflixAccounts.list_sessions(user.id))
       |> assign(:current_jti, current_jti)
@@ -120,9 +121,16 @@ defmodule StreamflixWebWeb.AccountLive do
       true ->
         case StreamflixAccounts.update_email(user, new_email, current_password) do
           {:ok, updated_user} ->
+            send_verification_email(updated_user, socket.assigns[:locale] || "es")
+
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Correo actualizado correctamente."))
+             |> put_flash(
+               :info,
+               gettext(
+                 "Correo actualizado. Te enviamos un enlace de verificación a la nueva dirección."
+               )
+             )
              |> assign(:user, updated_user)
              |> assign(:email_form, to_form(email_form_params(), as: "email_change"))
              |> assign(:email_form_errors, [])
@@ -204,7 +212,9 @@ defmodule StreamflixWebWeb.AccountLive do
          ])}
 
       true ->
-        case StreamflixAccounts.update_password(user, current, new_pass) do
+        case StreamflixAccounts.update_password(user, current, new_pass,
+               except_jti: socket.assigns.current_jti
+             ) do
           {:ok, _} ->
             {:noreply,
              socket
@@ -298,6 +308,24 @@ defmodule StreamflixWebWeb.AccountLive do
     end
   end
 
+  # ── Timezone preference ───────────────────────────────────────────
+
+  @impl true
+  def handle_event("save_timezone", %{"timezone" => timezone}, socket) do
+    case StreamflixAccounts.update_user_timezone(socket.assigns.user, timezone) do
+      {:ok, updated_user} ->
+        {:noreply,
+         socket
+         |> assign(:user, updated_user)
+         # Re-render every date on the page in the new zone without a reload
+         |> push_event("timezone-changed", %{timezone: updated_user.timezone})
+         |> put_flash(:info, gettext("Zona horaria actualizada."))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Zona horaria no válida."))}
+    end
+  end
+
   # ── Delete account modal ──────────────────────────────────────────
 
   def handle_event("open_delete_modal", _, socket) do
@@ -318,8 +346,7 @@ defmodule StreamflixWebWeb.AccountLive do
       {:ok, %{delete_user: _}} ->
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Cuenta eliminada correctamente."))
-         |> redirect(to: "/logout")}
+         |> redirect(to: "/logout?reason=account_deleted")}
 
       {:error, :wrong_password} ->
         {:noreply,
@@ -544,19 +571,8 @@ defmodule StreamflixWebWeb.AccountLive do
     if user.email_verified_at do
       {:noreply, put_flash(socket, :info, gettext("Tu correo ya está verificado."))}
     else
-      case StreamflixAccounts.generate_email_confirmation_token(user) do
-        {:ok, token} ->
-          url = StreamflixWebWeb.Endpoint.url() <> "/confirm-email/#{token}"
-          locale = socket.assigns[:locale] || "es"
-
-          StreamflixWebWeb.Workers.ObanEmailWorker.new(%{
-            "type" => "email_confirmation",
-            "email" => user.email,
-            "url" => url,
-            "locale" => locale
-          })
-          |> Oban.insert()
-
+      case send_verification_email(user, socket.assigns[:locale] || "es") do
+        {:ok, _job} ->
           {:noreply, put_flash(socket, :info, gettext("Enlace de verificación enviado."))}
 
         {:error, :rate_limited} ->
@@ -571,10 +587,6 @@ defmodule StreamflixWebWeb.AccountLive do
           {:noreply, put_flash(socket, :error, gettext("No se pudo enviar el enlace."))}
       end
     end
-  end
-
-  def handle_event("logout", _, socket) do
-    {:noreply, redirect(socket, to: "/logout", external: true)}
   end
 
   # ── MFA Setup ────────────────────────────────────────────────────
@@ -647,22 +659,37 @@ defmodule StreamflixWebWeb.AccountLive do
      |> assign(:mfa_setup_errors, [])}
   end
 
-  def handle_event("show_mfa_backup_codes", _, socket) do
-    {:noreply, assign(socket, :mfa_step, :view_backup_codes)}
+  def handle_event("open_mfa_regenerate_modal", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_mfa_disable_modal, true)
+     |> assign(:mfa_confirm_action, :regenerate)
+     |> assign(:mfa_disable_errors, [])}
   end
 
-  def handle_event("regenerate_mfa_backup_codes", _, socket) do
-    case StreamflixAccounts.regenerate_backup_codes(socket.assigns.user) do
-      {:ok, updated_user, backup_codes} ->
+  # Re-entering the password is required: a hijacked session must not be able
+  # to mint fresh backup codes and keep second-factor access.
+  def handle_event("regenerate_mfa_backup_codes", %{"password" => password}, socket) do
+    user = socket.assigns.user
+
+    with {:ok, _} <- StreamflixAccounts.authenticate(user.email, password),
+         {:ok, updated_user, backup_codes} <- StreamflixAccounts.regenerate_backup_codes(user) do
+      {:noreply,
+       socket
+       |> assign(:show_mfa_disable_modal, false)
+       |> assign(:mfa_disable_errors, [])
+       |> assign(:user, updated_user)
+       |> assign(:mfa_step, :backup_codes)
+       |> assign(:mfa_backup_codes, backup_codes)
+       |> put_flash(:info, gettext("Códigos de recuperación regenerados."))}
+    else
+      {:error, reason} when reason in [:invalid_credentials, :account_locked] ->
         {:noreply,
-         socket
-         |> assign(:user, updated_user)
-         |> assign(:mfa_step, :backup_codes)
-         |> assign(:mfa_backup_codes, backup_codes)
-         |> put_flash(:info, gettext("Códigos de recuperación regenerados."))}
+         assign(socket, :mfa_disable_errors, [gettext("La contraseña no es correcta.")])}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("No se pudieron regenerar los códigos."))}
+        {:noreply,
+         assign(socket, :mfa_disable_errors, [gettext("No se pudieron regenerar los códigos.")])}
     end
   end
 
@@ -670,6 +697,7 @@ defmodule StreamflixWebWeb.AccountLive do
     {:noreply,
      socket
      |> assign(:show_mfa_disable_modal, true)
+     |> assign(:mfa_confirm_action, :disable)
      |> assign(:mfa_disable_errors, [])}
   end
 
@@ -1141,6 +1169,63 @@ defmodule StreamflixWebWeb.AccountLive do
         </div>
 
         <%!-- ══════════════════════════════════════════════════════════ --%>
+        <%!-- Timezone preference                                      --%>
+        <%!-- ══════════════════════════════════════════════════════════ --%>
+        <div
+          id="timezone"
+          class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden scroll-mt-24"
+        >
+          <div class="px-6 sm:px-8 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+            <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2.5">
+              <.icon name="hero-globe-alt" class="w-5 h-5 text-indigo-500" />
+              {gettext("Zona horaria")}
+            </h2>
+          </div>
+          <div class="p-6 sm:p-8 space-y-4">
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+              {gettext(
+                "Las fechas se guardan en UTC y se muestran en la zona horaria que elijas. En modo automático se usa la de tu navegador. Pasa el cursor sobre cualquier fecha para ver su valor en UTC."
+              )}
+            </p>
+            <form id="timezone-form" phx-change="save_timezone" class="max-w-md">
+              <label
+                for="timezone-select"
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+              >
+                {gettext("Mostrar las fechas en")}
+              </label>
+              <select
+                id="timezone-select"
+                name="timezone"
+                phx-hook="TimezoneSelect"
+                phx-update="ignore"
+                data-auto-label={gettext("Automática (navegador)")}
+                class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100"
+              >
+                <option value="" selected={is_nil(@user.timezone)}>
+                  {gettext("Automática (navegador)")}
+                </option>
+                <option value="UTC" selected={@user.timezone == "UTC"}>UTC</option>
+                <option
+                  :if={@user.timezone not in [nil, "UTC"]}
+                  value={@user.timezone}
+                  selected
+                >
+                  {@user.timezone}
+                </option>
+              </select>
+            </form>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              {gettext("Hora actual en esa zona:")}
+              <span class="font-medium text-slate-700 dark:text-slate-200">
+                <.local_time value={DateTime.utc_now()} format="datetime_short" />
+              </span>
+              · <span data-viewer-tz>UTC</span>
+            </p>
+          </div>
+        </div>
+
+        <%!-- ══════════════════════════════════════════════════════════ --%>
         <%!-- MFA / Two-Factor Authentication                          --%>
         <%!-- ══════════════════════════════════════════════════════════ --%>
         <div class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
@@ -1195,7 +1280,7 @@ defmodule StreamflixWebWeb.AccountLive do
                 <div class="flex flex-col sm:flex-row gap-2">
                   <button
                     type="button"
-                    phx-click="regenerate_mfa_backup_codes"
+                    phx-click="open_mfa_regenerate_modal"
                     class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1601,13 +1686,13 @@ defmodule StreamflixWebWeb.AccountLive do
                     </td>
                     <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">
                       <%= if session.last_activity_at do %>
-                        {Calendar.strftime(session.last_activity_at, "%d/%m/%Y %H:%M")}
+                        <.local_time value={session.last_activity_at} format="datetime_short" />
                       <% else %>
                         —
                       <% end %>
                     </td>
                     <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400">
-                      {Calendar.strftime(session.inserted_at, "%d/%m/%Y %H:%M")}
+                      <.local_time value={session.inserted_at} format="datetime_short" />
                     </td>
                     <td class="py-2.5 px-3 text-right">
                       <%= if @current_jti && session.token_jti == @current_jti do %>
@@ -1901,7 +1986,7 @@ defmodule StreamflixWebWeb.AccountLive do
                         </span>
                       </td>
                       <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">
-                        {Calendar.strftime(consent.granted_at, "%d/%m/%Y %H:%M")}
+                        <.local_time value={consent.granted_at} format="datetime_short" />
                       </td>
                       <td class="py-2.5 px-3">
                         <%= if is_nil(consent.revoked_at) do %>
@@ -1971,6 +2056,7 @@ defmodule StreamflixWebWeb.AccountLive do
           </div>
           <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8 dark:border dark:border-slate-700">
             <button
+              aria-label={gettext("Cerrar")}
               type="button"
               phx-click="close_restrict_modal"
               class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
@@ -2438,6 +2524,7 @@ defmodule StreamflixWebWeb.AccountLive do
                   {gettext("Editar nombre")}
                 </h2>
                 <button
+                  aria-label={gettext("Cerrar")}
                   type="button"
                   phx-click="close_name_modal"
                   class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-700"
@@ -2620,32 +2707,65 @@ defmodule StreamflixWebWeb.AccountLive do
           >
             <div class="px-6 pt-6 pb-4">
               <div class="flex items-start gap-3">
-                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                  <svg
-                    class="w-5 h-5 text-red-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                    />
-                  </svg>
+                <div class={[
+                  "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center",
+                  if(@mfa_confirm_action == :regenerate,
+                    do: "bg-indigo-100 dark:bg-indigo-900/30",
+                    else: "bg-red-100 dark:bg-red-900/30"
+                  )
+                ]}>
+                  <%= if @mfa_confirm_action == :regenerate do %>
+                    <.icon name="hero-arrow-path" class="w-5 h-5 text-indigo-600" />
+                  <% else %>
+                    <svg
+                      class="w-5 h-5 text-red-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                      />
+                    </svg>
+                  <% end %>
                 </div>
                 <div>
-                  <h2 class="text-lg font-semibold text-red-900 dark:text-red-400">
-                    {gettext("Desactivar MFA")}
+                  <h2 class={[
+                    "text-lg font-semibold",
+                    if(@mfa_confirm_action == :regenerate,
+                      do: "text-slate-900 dark:text-slate-100",
+                      else: "text-red-900 dark:text-red-400"
+                    )
+                  ]}>
+                    {if @mfa_confirm_action == :regenerate,
+                      do: gettext("Regenerar códigos"),
+                      else: gettext("Desactivar MFA")}
                   </h2>
                   <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                    {gettext("Tu cuenta quedará menos segura. Ingresa tu contraseña para confirmar.")}
+                    {if @mfa_confirm_action == :regenerate,
+                      do:
+                        gettext(
+                          "Los códigos anteriores dejarán de funcionar. Ingresa tu contraseña para confirmar."
+                        ),
+                      else:
+                        gettext(
+                          "Tu cuenta quedará menos segura. Ingresa tu contraseña para confirmar."
+                        )}
                   </p>
                 </div>
               </div>
             </div>
-            <form phx-submit="disable_mfa" class="px-6 pb-6">
+            <form
+              phx-submit={
+                if @mfa_confirm_action == :regenerate,
+                  do: "regenerate_mfa_backup_codes",
+                  else: "disable_mfa"
+              }
+              class="px-6 pb-6"
+            >
               <div>
                 <label
                   for="mfa_disable_password"
@@ -2684,10 +2804,22 @@ defmodule StreamflixWebWeb.AccountLive do
                 </button>
                 <button
                   type="submit"
-                  phx-disable-with={gettext("Desactivando...")}
-                  class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition"
+                  phx-disable-with={
+                    if @mfa_confirm_action == :regenerate,
+                      do: gettext("Regenerando..."),
+                      else: gettext("Desactivando...")
+                  }
+                  class={[
+                    "w-full sm:w-auto px-5 py-2.5 rounded-lg text-white text-sm font-medium transition",
+                    if(@mfa_confirm_action == :regenerate,
+                      do: "bg-indigo-600 hover:bg-indigo-700",
+                      else: "bg-red-600 hover:bg-red-700"
+                    )
+                  ]}
                 >
-                  {gettext("Desactivar MFA")}
+                  {if @mfa_confirm_action == :regenerate,
+                    do: gettext("Regenerar códigos"),
+                    else: gettext("Desactivar MFA")}
                 </button>
               </div>
             </form>
@@ -2696,5 +2828,17 @@ defmodule StreamflixWebWeb.AccountLive do
       <% end %>
     </Layouts.app>
     """
+  end
+
+  defp send_verification_email(user, locale) do
+    with {:ok, token} <- StreamflixAccounts.generate_email_confirmation_token(user) do
+      StreamflixWebWeb.Workers.ObanEmailWorker.new(%{
+        "type" => "email_confirmation",
+        "email" => user.email,
+        "url" => StreamflixWebWeb.Endpoint.url() <> "/confirm-email/#{token}",
+        "locale" => locale
+      })
+      |> Oban.insert()
+    end
   end
 end
