@@ -72,10 +72,12 @@ defmodule StreamflixCore.EmbedTokens do
   @doc """
   Revokes (deactivates) an embed token.
   """
-  def revoke(token_id) do
-    case Repo.get(EmbedToken, token_id) do
-      nil -> {:error, :not_found}
-      token -> token |> EmbedToken.changeset(%{status: "inactive"}) |> Repo.update()
+  def revoke(project_id, token_id) do
+    with {:ok, uuid} <- Ecto.UUID.cast(token_id),
+         %EmbedToken{} = token <- Repo.get_by(EmbedToken, id: uuid, project_id: project_id) do
+      token |> EmbedToken.changeset(%{status: "inactive"}) |> Repo.update()
+    else
+      _ -> {:error, :not_found}
     end
   end
 

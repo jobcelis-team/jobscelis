@@ -7,8 +7,13 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
 
   alias StreamflixCore.Platform
 
+  plug StreamflixWebWeb.Plugs.RequireScope, "pipelines:read" when action in [:index, :show]
+
+  plug StreamflixWebWeb.Plugs.RequireScope,
+       "pipelines:write" when action in [:create, :update, :delete, :test]
+
   def index(conn, _params) do
-    project_id = conn.assigns[:project_id]
+    project_id = conn.assigns.current_project.id
     pipelines = Platform.list_pipelines(project_id)
 
     json(conn, %{
@@ -29,7 +34,7 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
   end
 
   def create(conn, params) do
-    project_id = conn.assigns[:project_id]
+    project_id = conn.assigns.current_project.id
 
     case Platform.create_pipeline(project_id, params) do
       {:ok, pipeline} ->
@@ -59,7 +64,7 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
   end
 
   def show(conn, %{"id" => id}) do
-    case Platform.get_pipeline(id) do
+    case Platform.get_project_pipeline(conn.assigns.current_project.id, id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "Pipeline not found"})
 
@@ -80,7 +85,7 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
   end
 
   def update(conn, %{"id" => id} = params) do
-    case Platform.get_pipeline(id) do
+    case Platform.get_project_pipeline(conn.assigns.current_project.id, id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "Pipeline not found"})
 
@@ -112,7 +117,7 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
   end
 
   def delete(conn, %{"id" => id}) do
-    case Platform.get_pipeline(id) do
+    case Platform.get_project_pipeline(conn.assigns.current_project.id, id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "Pipeline not found"})
 
@@ -126,7 +131,7 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
 
   @doc "POST /api/v1/pipelines/:id/test — Test a pipeline with sample payload"
   def test(conn, %{"id" => id} = params) do
-    case Platform.get_pipeline(id) do
+    case Platform.get_project_pipeline(conn.assigns.current_project.id, id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "Pipeline not found"})
 

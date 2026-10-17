@@ -177,6 +177,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     {gettext("Resultado de simulación")}
                   </h3>
                   <button
+                    aria-label={gettext("Cerrar")}
                     type="button"
                     phx-click="close_simulation"
                     class="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 text-sm"
@@ -320,7 +321,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     </td>
                     <td class="px-3 sm:px-4 py-2 sm:py-3">
                       <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                        {e.status}
+                        {status_label(e.status)}
                       </span>
                       <%= if e.deliver_at && DateTime.compare(e.deliver_at, DateTime.utc_now()) == :gt do %>
                         <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
@@ -397,11 +398,18 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                           <span class={"w-2 h-2 rounded-full #{health_dot(health.score)}"}></span>
                           {health_label(health.score)}
                         </span>
+                      <% else %>
+                        <span
+                          class="text-xs text-slate-400 dark:text-slate-500"
+                          title={gettext("Sin entregas en las últimas 24h")}
+                        >
+                          —
+                        </span>
                       <% end %>
                     </td>
                     <td class="px-3 sm:px-4 py-2 sm:py-3">
                       <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                        {w.status}
+                        {status_label(w.status)}
                       </span>
                     </td>
                   </tr>
@@ -445,6 +453,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               </div>
               <%= if @search_query != "" do %>
                 <button
+                  aria-label={gettext("Limpiar búsqueda")}
                   type="button"
                   phx-click="clear_search"
                   class="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700 rounded-lg transition"
@@ -533,7 +542,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     </td>
                     <td class="px-3 sm:px-4 py-2 sm:py-3">
                       <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                        {e.status}
+                        {status_label(e.status)}
                       </span>
                       <%= if e.deliver_at && DateTime.compare(e.deliver_at, DateTime.utc_now()) == :gt do %>
                         <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
@@ -693,7 +702,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                       </td>
                       <td class="px-3 py-2">
                         <span class="px-2 py-0.5 rounded text-xs font-medium bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-400">
-                          {s.status}
+                          {status_label(s.status)}
                         </span>
                       </td>
                       <%= if can_manage_team?(@current_user_role) do %>
@@ -940,6 +949,13 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                           health.score
                         )}
                       </span>
+                    <% else %>
+                      <span
+                        class="text-xs text-slate-400 dark:text-slate-500"
+                        title={gettext("Sin entregas en las últimas 24h")}
+                      >
+                        —
+                      </span>
                     <% end %>
                   </td>
                   <td class="px-3 sm:px-4 py-2 sm:py-3">
@@ -952,7 +968,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                           else: "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
                         )
                       ]}>
-                        {w.status}
+                        {status_label(w.status)}
                       </span>
                       <%= if StreamflixCore.RateLimiter.throttled?(w.id, w.rate_limit || %{}) do %>
                         <span
@@ -1031,6 +1047,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
         <div
           class="absolute inset-0 bg-black/50 backdrop-blur-sm"
           phx-click="close_webhook_modal"
+          phx-window-keydown="close_webhook_modal"
+          phx-key="Escape"
           aria-hidden="true"
         >
         </div>
@@ -1052,6 +1070,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               </p>
             </div>
             <button
+              aria-label={gettext("Cerrar")}
               type="button"
               phx-click="close_webhook_modal"
               class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
@@ -1116,6 +1135,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                 </p>
                 <input
                   type="url"
+                  autocomplete="off"
                   name="webhook[url]"
                   value={@webhook_form["url"]}
                   required
@@ -1358,7 +1378,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                           )
                       )
                     ]}>
-                      {d.status}
+                      {status_label(d.status)}
                     </span>
                   </td>
                   <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 dark:text-slate-400 hidden lg:table-cell">
@@ -1621,10 +1641,10 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     {j.name}
                   </td>
                   <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
-                    {j.schedule_type}
+                    {schedule_type_label(j.schedule_type)}
                   </td>
                   <td class="px-3 sm:px-5 py-3 sm:py-4 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
-                    {j.action_type}
+                    {action_type_label(j.action_type)}
                   </td>
                   <td class="px-3 sm:px-5 py-3 sm:py-4">
                     <span class={[
@@ -1635,7 +1655,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                         else: "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                       )
                     ]}>
-                      {j.status}
+                      {status_label(j.status)}
                     </span>
                   </td>
                   <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
@@ -1778,7 +1798,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                         else: "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                       )
                     ]}>
-                      {p.status}
+                      {status_label(p.status)}
                     </span>
                   </td>
                   <td class="px-3 sm:px-5 py-3 sm:py-4 text-right">
@@ -1820,6 +1840,8 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           <div
             class="fixed inset-0 bg-black/50 backdrop-blur-sm"
             phx-click="close_pipeline_modal"
+            phx-window-keydown="close_pipeline_modal"
+            phx-key="Escape"
             aria-hidden="true"
           >
           </div>
@@ -1837,6 +1859,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                 </p>
               </div>
               <button
+                aria-label={gettext("Cerrar")}
                 type="button"
                 phx-click="close_pipeline_modal"
                 class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
@@ -1860,7 +1883,11 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               </div>
             </div>
 
-            <form phx-submit="save_pipeline" class="px-6 pb-6 pt-4 space-y-4">
+            <form
+              phx-submit="save_pipeline"
+              phx-change="pipeline_form_change"
+              class="px-6 pb-6 pt-4 space-y-4"
+            >
               <%= if @pipeline_modal not in [:new] do %>
                 <input type="hidden" name="pipeline_id" value={@pipeline_modal} />
               <% end %>
@@ -1919,6 +1946,39 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     "Separados por coma. Soporta wildcards: payment.* matchea payment.created, payment.failed, etc."
                   )}
                 </p>
+              </div>
+
+              <%!-- Target webhook --%>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  {gettext("Webhook de destino")}
+                </label>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-1.5">
+                  {gettext(
+                    "Los eventos procesados por este pipeline se entregan a este webhook en lugar de enviarse sin procesar."
+                  )}
+                </p>
+                <% active_webhooks = Enum.filter(@webhooks, &(&1.status == "active")) %>
+                <%= if active_webhooks == [] do %>
+                  <p class="text-xs text-amber-600 dark:text-amber-400">
+                    {gettext("Primero crea un webhook activo en la pestaña Webhooks.")}
+                  </p>
+                <% else %>
+                  <select
+                    name="webhook_id"
+                    required
+                    class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 font-mono focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  >
+                    <option value="">{gettext("Selecciona un webhook")}</option>
+                    <option
+                      :for={w <- active_webhooks}
+                      value={w.id}
+                      selected={@pipeline_form["webhook_id"] == w.id}
+                    >
+                      {w.url}
+                    </option>
+                  </select>
+                <% end %>
               </div>
 
               <%!-- Steps --%>
@@ -2009,23 +2069,23 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
       <div
         :for={
           {state, color} <- [
-            {"available", "emerald"},
-            {"scheduled", "blue"},
-            {"executing", "amber"},
-            {"retryable", "orange"},
-            {"completed", "slate"},
-            {"discarded", "red"},
-            {"cancelled", "zinc"}
+            {"available", "text-emerald-600"},
+            {"scheduled", "text-blue-600"},
+            {"executing", "text-amber-600"},
+            {"retryable", "text-orange-600"},
+            {"completed", "text-slate-600"},
+            {"discarded", "text-red-600"},
+            {"cancelled", "text-zinc-600"}
           ]
         }
         phx-click="oban_filter_state"
         phx-value-state={state}
         class={"cursor-pointer rounded-lg border p-3 text-center transition hover:shadow-md #{if @oban_filter_state == state, do: "ring-2 ring-indigo-500 border-indigo-300 dark:border-indigo-600", else: "border-slate-200 dark:border-slate-700"} bg-white dark:bg-slate-800"}
       >
-        <p class={"text-2xl font-bold text-#{color}-600"}>
+        <p class={["text-2xl font-bold", color]}>
           {Map.get(@oban_state_counts, state, 0)}
         </p>
-        <p class="text-xs text-slate-500 dark:text-slate-400 capitalize">{state}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">{oban_state_label(state)}</p>
       </div>
     </div>
 
@@ -2094,7 +2154,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
             :if={@oban_filter_state}
             class="ml-2 text-sm font-normal text-indigo-600 dark:text-indigo-400"
           >
-            ({@oban_filter_state})
+            ({oban_state_label(@oban_filter_state)})
           </span>
           <span
             :if={@oban_filter_queue}
@@ -2180,7 +2240,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               <td class="py-2 px-3 font-mono text-xs text-slate-500 dark:text-slate-400">{job.id}</td>
               <td class="py-2 px-3">
                 <span class={"inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium #{oban_state_badge(job.state)}"}>
-                  {job.state}
+                  {oban_state_label(job.state)}
                 </span>
               </td>
               <td class="py-2 px-3 text-slate-700 dark:text-slate-300">{job.queue}</td>
@@ -2191,7 +2251,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                 {job.attempt}/{job.max_attempts}
               </td>
               <td class="py-2 px-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
-                {Calendar.strftime(job.inserted_at, "%Y-%m-%d %H:%M:%S")}
+                <.local_time value={job.inserted_at} />
               </td>
               <td class="py-2 px-3 text-right space-x-1">
                 <button
@@ -2321,7 +2381,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           <div class="grid grid-cols-1 gap-4">
             <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-3">
               <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                {gettext("Eventos por día (30d)")}
+                {gettext("Eventos por día (30d, UTC)")}
               </h3>
               <div class="h-32 sm:h-40">
                 <canvas
@@ -2347,7 +2407,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
             </div>
             <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-3">
               <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                {gettext("Entregas por día (30d)")}
+                {gettext("Entregas por día (30d, UTC)")}
               </h3>
               <div class="h-32 sm:h-40">
                 <canvas
@@ -2511,7 +2571,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
             </h2>
           </div>
           <span class={"px-2 py-0.5 rounded text-xs font-medium #{member_role_class(@current_user_role)}"}>
-            {gettext("Tu rol: %{role}", role: @current_user_role || "—")}
+            {gettext("Tu rol: %{role}", role: role_label(@current_user_role))}
           </span>
         </div>
         <%= if can_manage_team?(@current_user_role) do %>
@@ -2584,16 +2644,16 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                 <%= for m <- @team_members do %>
                   <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition">
                     <td class="px-3 py-2 text-sm text-slate-700 dark:text-slate-300 font-mono truncate max-w-[6rem] sm:max-w-[10rem] lg:max-w-none">
-                      {String.slice(m.user_id, 0, 8)}...
+                      {m.label}
                     </td>
                     <td class="px-3 py-2">
                       <span class={"px-2 py-0.5 rounded text-xs font-medium #{member_role_class(m.role)}"}>
-                        {m.role}
+                        {role_label(m.role)}
                       </span>
                     </td>
                     <td class="px-3 py-2">
                       <span class={"px-2 py-0.5 rounded text-xs font-medium #{member_status_class(m.status)}"}>
-                        {m.status}
+                        {status_label(m.status)}
                       </span>
                     </td>
                     <%= if can_admin_team?(@current_user_role) do %>
@@ -2672,6 +2732,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               {gettext("Enviar prueba")}
             </button>
             <button
+              aria-label={gettext("Eliminar configuración de alertas")}
               type="button"
               phx-click="delete_notification_channel"
               phx-disable-with={gettext("Eliminando...")}
@@ -2756,6 +2817,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               </div>
               <input
                 type="url"
+                autocomplete="off"
                 name="slack_webhook_url"
                 value={@nc_form["slack_webhook_url"]}
                 placeholder="https://hooks.slack.com/services/..."
@@ -2791,6 +2853,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               </div>
               <input
                 type="url"
+                autocomplete="off"
                 name="discord_webhook_url"
                 value={@nc_form["discord_webhook_url"]}
                 placeholder="https://discord.com/api/webhooks/..."
@@ -2823,6 +2886,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               </div>
               <input
                 type="url"
+                autocomplete="off"
                 name="meta_webhook_url"
                 value={@nc_form["meta_webhook_url"]}
                 placeholder="https://myapp.com/jobcelis-alerts"
@@ -2853,7 +2917,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     class="rounded border-slate-300 text-amber-500 focus:ring-amber-500"
                   />
                   <span class="text-slate-700 dark:text-slate-300">
-                    {type |> String.replace("_", " ") |> String.capitalize()}
+                    {alert_type_label(type)}
                   </span>
                 </label>
               <% end %>
@@ -3016,10 +3080,14 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                 <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                   {gettext("Anteriores a")}
                 </label>
+                <input type="hidden" name="older_than" value={@purge_form["older_than"]} />
                 <input
                   type="date"
-                  name="older_than"
-                  value={@purge_form["older_than"]}
+                  id="purge-older-than-local"
+                  name="older_than_local"
+                  value={@purge_form["older_than_local"]}
+                  phx-hook="LocalToUtcInput"
+                  data-utc-target="older_than"
                   class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
                   required
                 />
@@ -3033,7 +3101,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                     type="text"
                     name="topic"
                     value={@purge_form["topic"]}
-                    placeholder="user.* o order.created"
+                    placeholder="order.created"
                     class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
                   />
                 </div>

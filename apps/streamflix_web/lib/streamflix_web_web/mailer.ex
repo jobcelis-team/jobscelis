@@ -152,7 +152,7 @@ defmodule StreamflixWebWeb.Mailer do
       send_via_resend(api_key, from_name, from_email, to, subject, html)
     else
       Logger.info(
-        "[Mailer] No RESEND_API_KEY — logging email instead\n  To: #{to}\n  Subject: #{subject}"
+        "[Mailer] No RESEND_API_KEY — logging email instead\n  To: #{mask(to)}\n  Subject: #{subject}"
       )
 
       :ok
@@ -179,11 +179,11 @@ defmodule StreamflixWebWeb.Mailer do
            retry: false
          ) do
       {:ok, %{status: status}} when status in 200..299 ->
-        Logger.info("[Mailer] Email sent to #{to} (#{subject})")
+        Logger.info("[Mailer] Email sent to #{mask(to)} (#{subject})")
         :ok
 
       {:ok, %{status: status, body: resp_body}} ->
-        Logger.error("[Mailer] Resend API error #{status}: #{inspect(resp_body)}")
+        Logger.error("[Mailer] Resend API error #{status} for #{mask(to)}: #{inspect(resp_body)}")
         {:error, {:resend_error, status, resp_body}}
 
       {:error, reason} ->
@@ -191,4 +191,14 @@ defmodule StreamflixWebWeb.Mailer do
         {:error, reason}
     end
   end
+
+  # Logs must not carry full addresses (PII): "jo***@example.com"
+  defp mask(email) when is_binary(email) do
+    case String.split(email, "@", parts: 2) do
+      [local, domain] -> String.slice(local, 0, 2) <> "***@" <> domain
+      _ -> "***"
+    end
+  end
+
+  defp mask(_), do: "***"
 end

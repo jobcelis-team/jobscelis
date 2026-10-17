@@ -5,6 +5,9 @@ defmodule StreamflixWebWeb.Api.V1.EmbedTokensController do
   """
   use StreamflixWebWeb, :controller
 
+  plug StreamflixWebWeb.Plugs.RequireScope, "embed:read" when action in [:index]
+  plug StreamflixWebWeb.Plugs.RequireScope, "embed:write" when action in [:create, :delete]
+
   alias StreamflixCore.EmbedTokens
 
   action_fallback StreamflixWebWeb.FallbackController
@@ -40,7 +43,7 @@ defmodule StreamflixWebWeb.Api.V1.EmbedTokensController do
   end
 
   def delete(conn, %{"id" => id}) do
-    case EmbedTokens.revoke(id) do
+    case EmbedTokens.revoke(conn.assigns.current_project.id, id) do
       {:ok, _token} -> json(conn, %{status: "revoked"})
       {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "Not found"})
     end

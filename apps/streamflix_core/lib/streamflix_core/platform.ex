@@ -51,9 +51,11 @@ defmodule StreamflixCore.Platform do
 
   # ---------- Events ----------
   defdelegate create_event(project_id, body), to: StreamflixCore.Platform.Events
+  defdelegate search_events_by_text(project_id, text), to: StreamflixCore.Platform.Events
   defdelegate create_events_batch(project_id, events), to: StreamflixCore.Platform.Events
   defdelegate list_events(project_id), to: StreamflixCore.Platform.Events
   defdelegate list_events(project_id, opts), to: StreamflixCore.Platform.Events
+  defdelegate count_events_since(project_id, since), to: StreamflixCore.Platform.Events
   defdelegate get_event(id), to: StreamflixCore.Platform.Events
   defdelegate get_event!(id), to: StreamflixCore.Platform.Events
   defdelegate list_topics_used(project_id), to: StreamflixCore.Platform.Events
@@ -66,11 +68,14 @@ defmodule StreamflixCore.Platform do
   # ---------- Deliveries ----------
   defdelegate list_deliveries(), to: StreamflixCore.Platform.Deliveries
   defdelegate list_deliveries(opts), to: StreamflixCore.Platform.Deliveries
+  defdelegate success_rate_since(project_id, since), to: StreamflixCore.Platform.Deliveries
   defdelegate get_delivery(id), to: StreamflixCore.Platform.Deliveries
   defdelegate get_delivery!(id), to: StreamflixCore.Platform.Deliveries
   defdelegate update_delivery_to_pending(delivery), to: StreamflixCore.Platform.Deliveries
   defdelegate retry_delivery(project_id, delivery_id), to: StreamflixCore.Platform.Deliveries
   defdelegate build_webhook_body(webhook, event), to: StreamflixCore.Platform.Deliveries
+  defdelegate batch_override(bodies), to: StreamflixCore.Platform.Deliveries
+  defdelegate delivery_body(webhook, event, override), to: StreamflixCore.Platform.Deliveries
 
   # ---------- Jobs ----------
   defdelegate create_job(project_id, attrs), to: StreamflixCore.Platform.Jobs
@@ -80,7 +85,8 @@ defmodule StreamflixCore.Platform do
   defdelegate get_job!(id), to: StreamflixCore.Platform.Jobs
   defdelegate update_job(job, attrs), to: StreamflixCore.Platform.Jobs
   defdelegate set_job_inactive(job), to: StreamflixCore.Platform.Jobs
-  defdelegate list_jobs_to_run_now(), to: StreamflixCore.Platform.Jobs
+  defdelegate list_jobs_to_run_now(at \\ DateTime.utc_now()), to: StreamflixCore.Platform.Jobs
+  defdelegate minute_slot(at), to: StreamflixCore.Platform.Jobs
   defdelegate next_cron_executions(cron_expr), to: StreamflixCore.Platform.Jobs
   defdelegate next_cron_executions(cron_expr, count), to: StreamflixCore.Platform.Jobs
   defdelegate list_job_runs(job_id), to: StreamflixCore.Platform.Jobs
@@ -144,6 +150,7 @@ defmodule StreamflixCore.Platform do
   defdelegate list_pipelines(project_id), to: StreamflixCore.Platform.Pipelines
   defdelegate list_pipelines(project_id, opts), to: StreamflixCore.Platform.Pipelines
   defdelegate get_pipeline(id), to: StreamflixCore.Platform.Pipelines
+  defdelegate get_project_pipeline(project_id, id), to: StreamflixCore.Platform.Pipelines
   defdelegate update_pipeline(pipeline, attrs), to: StreamflixCore.Platform.Pipelines
   defdelegate set_pipeline_inactive(pipeline), to: StreamflixCore.Platform.Pipelines
   defdelegate matching_pipelines(project_id, topic), to: StreamflixCore.Platform.Pipelines

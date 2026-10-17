@@ -17,11 +17,11 @@ defmodule StreamflixWebWeb.Docs.SectionAdvanced do
     <.docs_section
       id="topic-wildcards"
       title="Topic Wildcards"
-      subtitle={gettext("Patrones wildcard con * para filtrar múltiples topics en webhooks.")}
+      subtitle={gettext("Patrones wildcard con * y # para filtrar múltiples topics en webhooks.")}
     >
       <p class="text-slate-700 leading-relaxed mb-4">
         {gettext(
-          "Los topics de webhook soportan pattern matching con wildcards. El patrón order.* coincide con order.created, order.updated, order.deleted y topics similares bajo ese namespace."
+          "Los topics de webhook soportan pattern matching con wildcards. * coincide con exactamente un segmento (order.* coincide con order.created pero no con order.item.created). # coincide con uno o más segmentos (order.# coincide con ambos)."
         )}
       </p>
       <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 overflow-x-auto">
@@ -42,7 +42,11 @@ defmodule StreamflixWebWeb.Docs.SectionAdvanced do
               <td class="py-1">order.created, user.created</td>
             </tr>
             <tr>
-              <td class="py-1 font-mono text-xs">*</td>
+              <td class="py-1 font-mono text-xs">order.#</td>
+              <td class="py-1">order.created, order.item.created</td>
+            </tr>
+            <tr>
+              <td class="py-1 font-mono text-xs">#</td>
               <td class="py-1">{gettext("Todos los topics")}</td>
             </tr>
           </tbody>
@@ -92,7 +96,7 @@ defmodule StreamflixWebWeb.Docs.SectionAdvanced do
     </.docs_section>
 
     <.docs_section
-      id="cursor-págination"
+      id="cursor-pagination"
       title={gettext("Paginación cursor")}
       subtitle={
         gettext("Paginación eficiente basada en cursor para conjuntos de resultados extensos.")
@@ -105,7 +109,7 @@ defmodule StreamflixWebWeb.Docs.SectionAdvanced do
       </p>
       <.code_block
         code={"curl \"#{@base_url}/api/v1/events?limit=20&cursor=NEXT_CURSOR\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
-        copy_id="copy-cursor-págination"
+        copy_id="copy-cursor-pagination"
       />
     </.docs_section>
 

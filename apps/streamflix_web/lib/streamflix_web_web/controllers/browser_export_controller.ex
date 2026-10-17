@@ -41,7 +41,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
             id: e.id,
             topic: e.topic,
             status: e.status,
-            occurred_at: to_string(e.occurred_at),
+            occurred_at: iso8601(e.occurred_at),
             payload: Jason.encode!(e.payload || %{}),
             payload_hash: e.payload_hash || ""
           }
@@ -69,7 +69,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
             status: d.status,
             attempt_number: d.attempt_number,
             response_status: d.response_status,
-            inserted_at: to_string(d.inserted_at)
+            inserted_at: iso8601(d.inserted_at)
           }
         end)
 
@@ -100,7 +100,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
             status: j.status,
             schedule_type: j.schedule_type,
             action_type: j.action_type,
-            inserted_at: to_string(j.inserted_at)
+            inserted_at: iso8601(j.inserted_at)
           }
         end)
 
@@ -126,7 +126,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
             resource_id: l.resource_id,
             user_id: l.user_id,
             ip_address: l.ip_address,
-            inserted_at: to_string(l.inserted_at)
+            inserted_at: iso8601(l.inserted_at)
           }
         end)
 
@@ -182,6 +182,13 @@ defmodule StreamflixWebWeb.BrowserExportController do
     |> put_resp_header("content-disposition", "attachment; filename=\"#{filename}.json\"")
     |> json(%{data: rows, total: length(rows)})
   end
+
+  # Same format as the API: ISO 8601 in UTC with "Z"
+  defp iso8601(nil), do: nil
+  defp iso8601(%DateTime{} = dt), do: DateTime.to_iso8601(dt)
+
+  defp iso8601(%NaiveDateTime{} = ndt),
+    do: ndt |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_iso8601()
 
   defp csv_escape(value) do
     if String.contains?(value, [",", "\"", "\n"]) do

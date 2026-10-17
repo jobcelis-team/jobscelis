@@ -282,6 +282,237 @@ Hooks.CopyClipboard = {
   },
 };
 
+// ── Timezone-aware date rendering ───────────────────────────────────
+// Dates are stored and rendered by the server in UTC. In the browser they are
+// shown in the user's display timezone: the preference saved in Account
+// (<body data-timezone>), or the browser's timezone when set to automatic.
+//
+//   <time datetime="…Z" data-local-time="datetime|datetime_short|date">
+//       → "2026-10-17 12:24:44 GMT-5" (tooltip keeps the UTC value)
+//   <span data-utc-hm="09:00">   → local equivalent of a UTC wall-clock time
+//   <span data-viewer-tz>        → "America/Guayaquil (GMT-5)"
+const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+
+function isValidTimeZone(tz) {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+function preferredTimeZone() {
+  const pref = document.body && document.body.dataset.timezone;
+  return pref && isValidTimeZone(pref) ? pref : null;
+}
+
+function displayTimeZone() {
+  return preferredTimeZone() || browserTimeZone;
+}
+
+function dateParts(date, { time = true, seconds = false, timeZone = displayTimeZone() } = {}) {
+  const opts = { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hourCycle: "h23" };
+  if (time) Object.assign(opts, { hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
+  if (seconds) opts.second = "2-digit";
+  const parts = {};
+  new Intl.DateTimeFormat("en-US", opts).formatToParts(date).forEach((p) => (parts[p.type] = p.value));
+  return parts;
+}
+
+function formatInZone(date, format) {
+  const time = format !== "date";
+  const p = dateParts(date, { time, seconds: format === "datetime" });
+  let out = `${p.year}-${p.month}-${p.day}`;
+  if (time) out += ` ${p.hour}:${p.minute}` + (p.second ? `:${p.second}` : "") + ` ${p.timeZoneName}`;
+  return out;
+}
+
+function zoneLabel() {
+  const tz = displayTimeZone();
+  const abbr = dateParts(new Date(), { timeZone: tz }).timeZoneName;
+  return tz === "UTC" ? "UTC" : `${tz} (${abbr})`;
+}
+
+// Offset (ms) of a timezone at a given instant
+function zoneOffset(date, timeZone) {
+  const p = dateParts(date, { seconds: true, timeZone });
+  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+  return asUtc - Math.floor(date.getTime() / 1000) * 1000;
+}
+
+// Wall-clock "YYYY-MM-DDTHH:MM" in the display timezone → absolute Date
+function zonedWallTimeToDate(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(value || "");
+  if (!m) return null;
+  const tz = displayTimeZone();
+  const guess = Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+  // Two passes handle DST transitions around the target time
+  let ts = guess - zoneOffset(new Date(guess), tz);
+  ts = guess - zoneOffset(new Date(ts), tz);
+  return new Date(ts);
+}
+
+function localizeTimes(root, force) {
+  const tz = displayTimeZone();
+
+  root.querySelectorAll("time[data-local-time]").forEach((el) => {
+    const iso = el.getAttribute("datetime");
+    const key = `${iso}|${tz}`;
+    if (!iso || (!force && el.dataset.localized === key)) return;
+    const date = new Date(iso);
+    if (isNaN(date)) return;
+    const utc = date.toISOString().replace("T", " ").slice(0, 19) + " UTC";
+    el.textContent = formatInZone(date, el.dataset.localTime);
+    el.title = tz === "UTC" ? utc : `${tz} · ${utc}`;
+    el.dataset.localized = key;
+  });
+
+  root.querySelectorAll("[data-viewer-tz]").forEach((el) => {
+    const label = zoneLabel();
+    if (el.textContent !== label) el.textContent = label;
+  });
+
+  root.querySelectorAll("[data-utc-hm]").forEach((el) => {
+    const hm = el.dataset.utcHm;
+    const key = `${hm}|${tz}`;
+    if (!hm || (!force && el.dataset.localized === key)) return;
+    const [h, mi] = hm.split(":").map(Number);
+    if (isNaN(h) || isNaN(mi)) return;
+    const d = new Date();
+    d.setUTCHours(h, mi, 0, 0);
+    const p = dateParts(d);
+    el.textContent = `${p.hour}:${p.minute} ${p.timeZoneName}`;
+    el.dataset.localized = key;
+  });
+
+  // Keep date inputs' UTC mirrors in sync with the active zone
+  root.querySelectorAll("[data-utc-target]").forEach((el) => el._syncUtc && el._syncUtc());
+}
+
+let localizeScheduled = false;
+function scheduleLocalize() {
+  if (localizeScheduled) return;
+  localizeScheduled = true;
+  requestAnimationFrame(() => {
+    localizeScheduled = false;
+    localizeTimes(document, false);
+  });
+}
+
+function startLocalizer() {
+  localizeTimes(document, true);
+  // LiveView patches can restore the server (UTC) text: re-localize after changes
+  new MutationObserver(scheduleLocalize).observe(document.body, {
+    childList: true, subtree: true, characterData: true,
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startLocalizer);
+} else {
+  startLocalizer();
+}
+
+// Saved from Account: apply the new zone everywhere without reloading
+window.addEventListener("phx:timezone-changed", (e) => {
+  const tz = e.detail && e.detail.timezone;
+  if (tz) document.body.dataset.timezone = tz;
+  else delete document.body.dataset.timezone;
+  localizeTimes(document, true);
+});
+
+// <input type="datetime-local|date" data-utc-target="from_date"> holds a
+// wall-clock time in the display timezone; mirror it as an absolute UTC ISO
+// string into the hidden input named by data-utc-target, so the server never
+// guesses the timezone. A date (YYYY-MM-DD) means midnight in that zone.
+Hooks.LocalToUtcInput = {
+  mounted() {
+    this.el._syncUtc = () => {
+      const hidden = this.el.form && this.el.form.querySelector(`input[name="${this.el.dataset.utcTarget}"]`);
+      if (!hidden) return;
+      const date = this.el.value ? zonedWallTimeToDate(this.el.value) : null;
+      hidden.value = date && !isNaN(date) ? date.toISOString() : "";
+    };
+    this.el.addEventListener("input", this.el._syncUtc);
+    this.el.addEventListener("change", this.el._syncUtc);
+    this.el._syncUtc();
+  },
+  updated() {
+    this.el._syncUtc();
+  },
+};
+
+// Account → timezone select: fills every IANA zone supported by the browser
+Hooks.TimezoneSelect = {
+  mounted() {
+    const select = this.el;
+    const current = select.value;
+    const zones = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : [];
+    const auto = select.querySelector('option[value=""]');
+    if (auto) auto.textContent = `${select.dataset.autoLabel} — ${browserTimeZone}`;
+    const existing = new Set([...select.options].map((o) => o.value));
+    zones.forEach((tz) => {
+      if (existing.has(tz)) return;
+      const opt = document.createElement("option");
+      opt.value = tz;
+      const abbr = dateParts(new Date(), { timeZone: tz }).timeZoneName;
+      opt.textContent = `${tz.replace(/_/g, " ")} (${abbr})`;
+      select.appendChild(opt);
+    });
+    select.value = current;
+  },
+};
+
+// ── Session keepalive ───────────────────────────────────────────────
+// LiveView work does not produce full page requests, so the server-side
+// inactivity timeout would end the session of a user who is actively using the
+// dashboard. While the user interacts, ping the server at most every 2 minutes.
+(function sessionKeepalive() {
+  if (!document.body || document.body.dataset.authenticated !== "true") return;
+  const csrf = document.querySelector("meta[name='csrf-token']");
+  if (!csrf) return;
+  let lastPing = Date.now();
+  const ping = () => {
+    if (Date.now() - lastPing < 120000) return;
+    lastPing = Date.now();
+    fetch("/session/keepalive", {
+      method: "POST",
+      credentials: "same-origin",
+      redirect: "manual",
+      headers: { "x-csrf-token": csrf.getAttribute("content") },
+    }).then((res) => {
+      // Session already expired server-side: show the login page
+      if (res.type === "opaqueredirect" || res.status === 401) window.location.reload();
+    }).catch(() => {});
+  };
+  ["click", "keydown", "scroll", "touchstart"].forEach((evt) =>
+    window.addEventListener(evt, ping, { passive: true })
+  );
+})();
+
+// Auto-dismiss flash messages (clicking runs the flash's own clear + hide).
+// Hidden flashes (connection lost/server error) stay until reconnect.
+Hooks.AutoDismissFlash = {
+  mounted() {
+    this._schedule();
+  },
+  updated() {
+    this._schedule();
+  },
+  destroyed() {
+    clearTimeout(this._timer);
+  },
+  _schedule() {
+    clearTimeout(this._timer);
+    if (this.el.hasAttribute("hidden")) return;
+    const ms = parseInt(this.el.dataset.timeout || "5000", 10);
+    this._timer = setTimeout(() => {
+      if (!this.el.hasAttribute("hidden")) this.el.click();
+    }, ms);
+  },
+};
+
 // Chart.js hook for analytics charts
 Hooks.Chart = {
   mounted() {
@@ -316,19 +547,22 @@ Hooks.Chart = {
   },
   _createChart(type, labels, datasets) {
     const ctx = this.el.getContext("2d");
+    // Radial charts (doughnut/pie/polarArea) have no cartesian axes
+    const radial = ["doughnut", "pie", "polarArea"].includes(type);
+    const options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom", labels: { usePointStyle: true } },
+      },
+    };
+    if (!radial) {
+      options.scales = { y: { beginAtZero: true, ticks: { precision: 0 } } };
+    }
     this._chart = new Chart(ctx, {
       type: type,
       data: { labels: labels, datasets: datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: "bottom", labels: { usePointStyle: true } },
-        },
-        scales: {
-          y: { beginAtZero: true, ticks: { precision: 0 } },
-        },
-      },
+      options: options,
     });
   },
 };
@@ -608,22 +842,6 @@ Hooks.AutoResize = {
     const next = Math.min(ta.scrollHeight, this._maxPx);
     ta.style.height = next + 'px';
     ta.style.overflow = ta.scrollHeight > this._maxPx ? 'auto' : 'hidden';
-  },
-};
-
-// Infinite scroll hook for content lists
-Hooks.InfiniteScroll = {
-  mounted() {
-    this.observer = new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (entry.isIntersecting) {
-        this.pushEvent("load-more", {});
-      }
-    });
-    this.observer.observe(this.el);
-  },
-  destroyed() {
-    this.observer.disconnect();
   },
 };
 

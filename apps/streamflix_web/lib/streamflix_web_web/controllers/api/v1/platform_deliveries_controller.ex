@@ -73,6 +73,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
 
       {:error, :not_found} ->
         conn |> put_status(404) |> json(%{error: "Not found"})
+
+      {:error, :already_succeeded} ->
+        conn |> put_status(409) |> json(%{error: "Delivery already succeeded"})
+
+      {:error, _} ->
+        conn |> put_status(500) |> json(%{error: "Failed to queue retry"})
     end
   end
 

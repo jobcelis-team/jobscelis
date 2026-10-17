@@ -8,9 +8,13 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.Delivery
   alias StreamflixCore.Platform
+  alias StreamflixCore.Platform.UrlGuard
 
   @connect_timeout 5_000
   @receive_timeout 15_000
+
+  # Client errors that retrying cannot fix: dead-lettered on the first failure
+  @no_retry_statuses [400, 401, 403, 404, 422]
 
   @doc """
   Executes the delivery: POSTs to the webhook URL, updates status to success/failed.
@@ -58,7 +62,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
           delivery_id: delivery_id
         )
 
-        {:ok, delivery}
+        mark_skipped(delivery, "skipped: webhook inactive")
 
       d ->
         # GDPR: skip delivery if project owner has restricted/objected processing
@@ -70,7 +74,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
             delivery_id: delivery_id
           )
 
-          {:ok, delivery}
+          mark_skipped(d, "skipped: processing restricted (GDPR)")
         else
           case StreamflixCore.CircuitBreaker.check_circuit(d.webhook) do
             :ok -> do_deliver(d)
@@ -84,7 +88,8 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     %{event: event, webhook: webhook} = delivery
     url = webhook.url
 
-    body = Platform.build_webhook_body(webhook, event)
+    # Pipeline deliveries carry their transformed payload; batch deliveries all events
+    body = Platform.delivery_body(webhook, event, delivery.payload_override)
     body_json = Jason.encode!(body)
 
     headers = build_headers(webhook, body_json)
@@ -102,7 +107,8 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       headers: headers,
       receive_timeout: @receive_timeout,
       pool_timeout: @connect_timeout,
-      finch: StreamflixCore.Finch
+      finch: StreamflixCore.Finch,
+      redirect: false
     ]
 
     # Resolve destination IP before request
@@ -115,66 +121,87 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       destination_ip: destination_ip
     }
 
-    start_time = System.monotonic_time(:millisecond)
-
-    case Req.post(url, opts) do
-      {:ok, %{status: status} = resp} when status >= 200 and status < 300 ->
-        latency_ms = System.monotonic_time(:millisecond) - start_time
-
-        Logger.info("Delivery succeeded",
-          worker: "DeliveryWorker",
-          delivery_id: delivery.id,
-          webhook_id: webhook.id,
-          event_id: event.id,
-          status: status,
-          duration_ms: latency_ms
-        )
-
-        mark_success(delivery, status, resp, latency_ms, request_info)
-
-      {:ok, %{status: status} = resp} ->
-        latency_ms = System.monotonic_time(:millisecond) - start_time
-
-        Logger.warning("Delivery got non-2xx response",
-          worker: "DeliveryWorker",
-          delivery_id: delivery.id,
-          webhook_id: webhook.id,
-          event_id: event.id,
-          status: status,
-          duration_ms: latency_ms
-        )
-
-        resp_body = format_response_body(resp)
-
-        mark_failed(
-          delivery,
-          status,
-          resp_body,
-          latency_ms,
-          flatten_headers(resp.headers),
-          request_info
-        )
-
+    # SSRF guard: re-checked at send time (DNS may have changed since the URL
+    # was saved); redirects are never followed.
+    case UrlGuard.check(url) do
       {:error, reason} ->
-        latency_ms = System.monotonic_time(:millisecond) - start_time
-
-        Logger.error("Delivery failed with error",
+        Logger.warning("Delivery blocked: destination not allowed",
           worker: "DeliveryWorker",
           delivery_id: delivery.id,
-          webhook_id: webhook.id,
-          event_id: event.id,
-          error: inspect(reason),
-          duration_ms: latency_ms
+          webhook_id: webhook.id
         )
 
-        mark_failed(delivery, nil, inspect(reason), latency_ms, nil, request_info)
+        mark_blocked(delivery, "blocked: destination " <> UrlGuard.message(reason), request_info)
+
+      :ok ->
+        start_time = System.monotonic_time(:millisecond)
+
+        case Req.post(url, opts) do
+          {:ok, %{status: status} = resp} when status >= 200 and status < 300 ->
+            latency_ms = System.monotonic_time(:millisecond) - start_time
+
+            Logger.info("Delivery succeeded",
+              worker: "DeliveryWorker",
+              delivery_id: delivery.id,
+              webhook_id: webhook.id,
+              event_id: event.id,
+              status: status,
+              duration_ms: latency_ms
+            )
+
+            mark_success(delivery, status, resp, latency_ms, request_info)
+
+          {:ok, %{status: status} = resp} ->
+            latency_ms = System.monotonic_time(:millisecond) - start_time
+
+            Logger.warning("Delivery got non-2xx response",
+              worker: "DeliveryWorker",
+              delivery_id: delivery.id,
+              webhook_id: webhook.id,
+              event_id: event.id,
+              status: status,
+              duration_ms: latency_ms
+            )
+
+            resp_body = format_response_body(resp)
+
+            mark_failed(
+              delivery,
+              status,
+              resp_body,
+              latency_ms,
+              flatten_headers(resp.headers),
+              request_info
+            )
+
+          {:error, reason} ->
+            latency_ms = System.monotonic_time(:millisecond) - start_time
+
+            Logger.error("Delivery failed with error",
+              worker: "DeliveryWorker",
+              delivery_id: delivery.id,
+              webhook_id: webhook.id,
+              event_id: event.id,
+              error: inspect(reason),
+              duration_ms: latency_ms
+            )
+
+            mark_failed(delivery, nil, inspect(reason), latency_ms, nil, request_info)
+        end
     end
   end
 
+  # Headers the platform controls; custom webhook headers cannot override them
+  @reserved_headers ~w(content-type content-length host x-signature transfer-encoding connection)
+
   defp build_headers(webhook, body_json) do
-    base = [
-      {"content-type", "application/json"}
-    ]
+    custom =
+      (webhook.headers || %{})
+      |> Enum.filter(fn {k, v} -> is_binary(k) and is_binary(v) and k != "" end)
+      |> Enum.map(fn {k, v} -> {String.downcase(String.trim(k)), v} end)
+      |> Enum.reject(fn {k, _} -> k in @reserved_headers end)
+
+    base = [{"content-type", "application/json"} | custom]
 
     # Add HMAC-SHA256 signature header when webhook has a secret configured
     with secret when is_binary(secret) and secret != "" <- webhook.secret_encrypted,
@@ -291,23 +318,67 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
           )
         end
 
-        # Move to Dead Letter Queue if all retries exhausted
-        if new_attempt >= max_attempts do
+        # Dead-letter when retries are exhausted, or right away for client errors
+        # that retrying cannot fix. The caller stops retrying in that case.
+        if new_attempt >= max_attempts or status in @no_retry_statuses do
           move_to_dlq(d, status, reason)
+          {:error, {:dead_lettered, d}}
+        else
+          {:error, {:failed, d}}
         end
-
-        {:error, {:failed, d}}
 
       err ->
         err
     end
   end
 
-  defp get_max_attempts(delivery) do
-    case Repo.get(StreamflixCore.Schemas.Webhook, delivery.webhook_id) do
-      nil -> 5
-      w -> (w.retry_config || %{})["max_attempts"] || 5
+  # Destination rejected by the SSRF guard: nothing was sent and retrying will
+  # not help, so the delivery goes straight to the DLQ (owner gets notified).
+  defp mark_blocked(delivery, reason, request_info) do
+    changes =
+      Map.merge(
+        %{status: "failed", attempt_number: delivery.attempt_number + 1, response_body: reason},
+        Map.take(request_info, [:request_headers, :request_body])
+      )
+
+    case delivery |> Delivery.changeset(changes) |> Repo.update() do
+      {:ok, d} ->
+        broadcast_delivery(d)
+        move_to_dlq(d, nil, reason)
+        {:error, {:dead_lettered, d}}
+
+      error ->
+        error
     end
+  end
+
+  # Delivery intentionally not sent (webhook inactive, processing restricted):
+  # record why instead of leaving it "pending" forever. Not a webhook failure,
+  # so neither the circuit breaker nor the DLQ are involved.
+  defp mark_skipped(delivery, reason) do
+    case delivery
+         |> Delivery.changeset(%{status: "failed", response_body: reason})
+         |> Repo.update() do
+      {:ok, d} ->
+        broadcast_delivery(d)
+        {:ok, d}
+
+      error ->
+        error
+    end
+  end
+
+  # Capped at the Oban job max_attempts (20) so the DLQ is always reached
+  @oban_max_attempts 20
+
+  defp get_max_attempts(delivery) do
+    configured =
+      case Repo.get(StreamflixCore.Schemas.Webhook, delivery.webhook_id) do
+        nil -> 5
+        w -> (w.retry_config || %{})["max_attempts"] || 5
+      end
+
+    if is_integer(configured), do: configured |> max(1) |> min(@oban_max_attempts), else: 5
   end
 
   defp move_to_dlq(delivery, _status, reason) do
@@ -320,7 +391,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         delivery_id: delivery.id,
         event_id: delivery.event_id,
         webhook_id: delivery.webhook_id,
-        original_payload: event.payload || %{},
+        original_payload: delivery.payload_override || event.payload || %{},
         last_error: reason,
         last_response_status: delivery.response_status,
         attempts_exhausted: delivery.attempt_number

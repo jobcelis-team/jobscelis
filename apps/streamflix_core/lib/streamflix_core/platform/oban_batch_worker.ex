@@ -31,7 +31,11 @@ defmodule StreamflixCore.Platform.ObanBatchWorker do
       end)
 
     Enum.each(webhooks, fn webhook ->
-      process_webhook_batch(webhook, now)
+      try do
+        process_webhook_batch(webhook, now)
+      catch
+        :batch_flush_failed -> :ok
+      end
     end)
 
     :ok
@@ -76,29 +80,40 @@ defmodule StreamflixCore.Platform.ObanBatchWorker do
           Platform.build_webhook_body(webhook, item.event)
         end)
 
-      # Create a single delivery for the batch
+      # One delivery carries the whole batch: the payloads are persisted on the
+      # delivery itself so retries and the DLQ resend every event, not just the first.
       first_event = List.first(items).event
 
-      case %Delivery{}
-           |> Delivery.changeset(%{
-             event_id: first_event.id,
-             webhook_id: webhook.id,
-             status: "pending",
-             attempt_number: 0,
-             response_body: Jason.encode!(%{batch_size: length(payloads)})
-           })
-           |> Repo.insert() do
-        {:ok, delivery} ->
-          # Send the batch via the delivery worker mechanism
-          Oban.insert(
-            StreamflixCore.Platform.ObanDeliveryWorker.new(%{
-              delivery_id: delivery.id,
-              batch_payloads: payloads
-            })
+      result =
+        %Delivery{}
+        |> Delivery.changeset(%{
+          event_id: first_event.id,
+          webhook_id: webhook.id,
+          status: "pending",
+          attempt_number: 0,
+          payload_override: Platform.batch_override(payloads)
+        })
+        |> Repo.insert()
+
+      with {:ok, delivery} <- result,
+           {:ok, _job} <-
+             Oban.insert(
+               StreamflixCore.Platform.ObanDeliveryWorker.new(%{
+                 delivery_id: delivery.id,
+                 retry_config: webhook.retry_config || %{}
+               })
+             ) do
+        :ok
+      else
+        {:error, reason} ->
+          # Keep the items so the next run retries the flush instead of losing them
+          Logger.error("Batch flush failed",
+            worker: "BatchWorker",
+            webhook_id: webhook.id,
+            error: inspect(reason)
           )
 
-        _ ->
-          :ok
+          throw(:batch_flush_failed)
       end
 
       # Clean up processed batch items

@@ -125,6 +125,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         purge_form: %{
           "type" => "events",
           "older_than" => "",
+          "older_than_local" => "",
           "topic" => "",
           "status" => ""
         },
@@ -230,36 +231,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     with_permission(socket, :write, fn ->
       project = socket.assigns.project
 
-      payload =
-        case Jason.decode(payload_str) do
-          {:ok, map} when is_map(map) -> map
-          _ -> %{}
-        end
+      case decode_test_payload(payload_str) do
+        {:ok, payload} ->
+          body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
+          send_test_event(socket, project, body)
 
-      body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
-
-      result = Platform.create_event(project.id, body)
-
-      socket =
-        case result do
-          {:ok, event} ->
-            Audit.record("event.created",
-              user_id: socket.assigns.current_user.id,
-              project_id: project.id,
-              resource_type: "event",
-              resource_id: event.id
-            )
-
-            events = [event | Platform.list_events(project.id, limit: 19)]
-            put_flash(socket, :info, gettext("Evento enviado. ID: %{id}", id: event.id))
-            assign(socket, :events, events)
-
-          {:error, _} ->
-            put_flash(socket, :error, gettext("Error al enviar el evento"))
-            socket
-        end
-
-      {:noreply, socket}
+        :error ->
+          {:noreply,
+           put_flash(socket, :error, gettext("El payload debe ser un objeto JSON válido."))}
+      end
     end)
   end
 
@@ -434,20 +414,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("test_notification_channel", _params, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      case StreamflixCore.NotificationChannels.send_test(socket.assigns.project.id) do
+        {:ok, _jobs} ->
+          {:noreply, put_flash(socket, :info, gettext("Notificación de prueba enviada."))}
 
-    case socket.assigns.notification_channel do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("No hay canales configurados."))}
-
-      _channel ->
-        StreamflixCore.NotificationChannels.dispatch(project.id, "webhook_failing", %{
-          "message" => "This is a test notification from Jobcelis.",
-          "test" => true
-        })
-
-        {:noreply, put_flash(socket, :info, gettext("Notificación de prueba enviada."))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("No hay canales configurados."))}
+      end
+    end)
   end
 
   # Jobs: open create modal
@@ -543,10 +518,20 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     merged = Map.merge(current, params)
     errors = validate_job_form(merged)
 
+    # Keep an open cron preview in sync with the expression (typed or preset)
+    cron_preview =
+      if merged["schedule_cron"] != current["schedule_cron"] and
+           socket.assigns.cron_preview != [] do
+        format_cron_preview(merged["schedule_cron"])
+      else
+        socket.assigns.cron_preview
+      end
+
     {:noreply,
      socket
      |> assign(:job_form, to_form(merged))
-     |> assign(:job_form_errors, errors)}
+     |> assign(:job_form_errors, errors)
+     |> assign(:cron_preview, cron_preview)}
   end
 
   @impl true
@@ -587,7 +572,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
         socket =
           case result do
-            {:ok, _job} ->
+            {:ok, job} ->
+              action = if socket.assigns.job_modal == :new, do: "job.created", else: "job.updated"
+              audit(socket, action, "job", job.id, %{name: job.name})
               jobs = Platform.list_jobs(project.id, include_inactive: true)
 
               socket
@@ -609,14 +596,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   @impl true
-  def handle_event("preview_cron", %{"expression" => expr}, socket) when is_binary(expr) do
-    executions = Platform.next_cron_executions(expr, 5)
-    formatted = Enum.map(executions, &Calendar.strftime(&1, "%Y-%m-%d %H:%M UTC"))
-    {:noreply, assign(socket, :cron_preview, formatted)}
-  end
+  def handle_event("preview_cron", params, socket) do
+    # Prefer the server-side form value: the button's phx-value can be stale
+    # when a preset was clicked just before.
+    form_expr = socket.assigns.job_form && socket.assigns.job_form.params["schedule_cron"]
+    expr = form_expr || params["expression"]
 
-  def handle_event("preview_cron", _, socket) do
-    {:noreply, assign(socket, :cron_preview, [])}
+    {:noreply, assign(socket, :cron_preview, format_cron_preview(expr))}
   end
 
   @impl true
@@ -648,6 +634,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
       if job && job.project_id == project.id do
         Platform.set_job_inactive(job)
+        audit(socket, "job.deactivated", "job", job.id, %{name: job.name})
         jobs = Platform.list_jobs(project.id, include_inactive: true)
 
         {:noreply,
@@ -677,6 +664,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
           {:error, :not_found} ->
             {:noreply, put_flash(socket, :error, gettext("Entrega no encontrada."))}
+
+          {:error, :already_succeeded} ->
+            {:noreply,
+             put_flash(socket, :error, gettext("Esta entrega ya fue exitosa; no se reenvía."))}
+
+          {:error, _} ->
+            {:noreply, put_flash(socket, :error, gettext("No se pudo encolar el reintento."))}
         end
       else
         {:noreply, socket}
@@ -687,6 +681,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("toggle_notifications", _, socket) do
     {:noreply, assign(socket, :show_notifications, !socket.assigns.show_notifications)}
+  end
+
+  @impl true
+  def handle_event("close_notifications", _, socket) do
+    {:noreply, assign(socket, :show_notifications, false)}
   end
 
   @impl true
@@ -705,25 +704,33 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("mark_notification_read", %{"id" => id}, socket) do
-    Notifications.mark_as_read(id)
+    # Only an unread notification already loaded for this user can be marked
+    case Enum.find(socket.assigns.notifications, &(to_string(&1.id) == id and !&1.read)) do
+      nil ->
+        {:noreply, socket}
 
-    notifications =
-      Enum.map(socket.assigns.notifications, fn n ->
-        if to_string(n.id) == id, do: Map.put(n, :read, true), else: n
-      end)
+      _notification ->
+        Notifications.mark_as_read(id)
 
-    unread = max(socket.assigns.unread_count - 1, 0)
+        notifications =
+          Enum.map(socket.assigns.notifications, fn n ->
+            if to_string(n.id) == id, do: Map.put(n, :read, true), else: n
+          end)
 
-    {:noreply,
-     socket
-     |> assign(:notifications, notifications)
-     |> assign(:unread_count, unread)}
+        {:noreply,
+         socket
+         |> assign(:notifications, notifications)
+         |> assign(:unread_count, max(socket.assigns.unread_count - 1, 0))}
+    end
   end
 
   @impl true
   def handle_event("retry_dead_letter", %{"id" => id}, socket) do
     with_permission(socket, :write, fn ->
-      case Platform.retry_dead_letter(id) do
+      case fetch_owned(socket, &Platform.get_dead_letter/1, id) && Platform.retry_dead_letter(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Error al reintentar."))}
+
         {:ok, _} ->
           dead_letters = Platform.list_dead_letters(socket.assigns.project.id)
           deliveries = Platform.list_deliveries(project_id: socket.assigns.project.id, limit: 30)
@@ -746,7 +753,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("resolve_dead_letter", %{"id" => id}, socket) do
     with_permission(socket, :write, fn ->
-      case Platform.resolve_dead_letter(id) do
+      case fetch_owned(socket, &Platform.get_dead_letter/1, id) &&
+             Platform.resolve_dead_letter(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Error al resolver."))}
+
         {:ok, _} ->
           dead_letters = Platform.list_dead_letters(socket.assigns.project.id)
 
@@ -775,7 +786,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   def handle_event("edit_webhook", %{"id" => id}, socket) do
     with_permission(socket, :write, fn ->
-      case Platform.get_webhook(id) do
+      case fetch_owned(socket, &Platform.get_webhook/1, id) do
         nil ->
           {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
 
@@ -840,7 +851,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       case socket.assigns.webhook_modal do
         :new ->
           case Platform.create_webhook(project.id, attrs) do
-            {:ok, _} ->
+            {:ok, w} ->
+              audit(socket, "webhook.created", "webhook", w.id, %{url: w.url})
               webhooks = Platform.list_webhooks(project.id, include_inactive: true)
               webhook_health = Platform.webhooks_health(project.id)
 
@@ -859,7 +871,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
         {:edit, w} ->
           case Platform.update_webhook(w, attrs) do
-            {:ok, _} ->
+            {:ok, updated} ->
+              audit(socket, "webhook.updated", "webhook", updated.id, %{url: updated.url})
               webhooks = Platform.list_webhooks(project.id, include_inactive: true)
               webhook_health = Platform.webhooks_health(project.id)
 
@@ -886,12 +899,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     with_permission(socket, :write, fn ->
       project = socket.assigns.project
 
-      case Platform.get_webhook(id) do
+      case fetch_owned(socket, &Platform.get_webhook/1, id) do
         nil ->
           {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
 
         w ->
           {:ok, _} = Platform.set_webhook_inactive(w)
+          audit(socket, "webhook.deleted", "webhook", w.id, %{url: w.url})
           webhooks = Platform.list_webhooks(project.id, include_inactive: true)
           webhook_health = Platform.webhooks_health(project.id)
 
@@ -908,7 +922,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     with_permission(socket, :write, fn ->
       project = socket.assigns.project
 
-      case Platform.get_webhook(id) do
+      case fetch_owned(socket, &Platform.get_webhook/1, id) do
         nil ->
           {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
 
@@ -928,19 +942,28 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   def handle_event("send_webhook_test", %{"id" => id}, socket) do
     with_permission(socket, :write, fn ->
-      case Platform.test_webhook(id) do
-        {:ok, result} ->
-          msg =
-            gettext("Test enviado — Status: %{status}, Latencia: %{latency}ms",
-              status: result.status,
-              latency: result.latency_ms
-            )
+      case fetch_owned(socket, &Platform.get_webhook/1, id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
 
-          {:noreply, put_flash(socket, :info, msg)}
+        webhook ->
+          case Platform.test_webhook(webhook.id) do
+            {:ok, result} ->
+              msg =
+                gettext("Test enviado — Status: %{status}, Latencia: %{latency}ms",
+                  status: result.status,
+                  latency: result.latency_ms
+                )
 
-        {:error, result} ->
-          msg = gettext("Test fallido — %{reason}", reason: result.reason)
-          {:noreply, put_flash(socket, :error, msg)}
+              {:noreply, put_flash(socket, :info, msg)}
+
+            {:error, %{reason: reason}} ->
+              msg = gettext("Test fallido — %{reason}", reason: reason)
+              {:noreply, put_flash(socket, :error, msg)}
+
+            {:error, _} ->
+              {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
+          end
       end
     end)
   end
@@ -1008,6 +1031,17 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
            |> assign(:replays, replays)
            |> assign(:replay_modal, false)}
 
+        {:error, {:invalid_filter, "webhook_id"}} ->
+          {:noreply, put_flash(socket, :error, gettext("El webhook seleccionado no es válido."))}
+
+        {:error, {:invalid_filter, _}} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             gettext("Rango de fechas inválido: la fecha final debe ser posterior a la inicial.")
+           )}
+
         {:error, _} ->
           {:noreply, put_flash(socket, :error, gettext("Error al iniciar replay."))}
       end
@@ -1017,7 +1051,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("cancel_replay", %{"id" => id}, socket) do
     with_permission(socket, :write, fn ->
-      case Platform.cancel_replay(id) do
+      case fetch_owned(socket, &Platform.get_replay/1, id) && Platform.cancel_replay(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Error al cancelar replay."))}
+
         {:ok, _} ->
           replays = Platform.list_replays(socket.assigns.project.id, limit: 10)
 
@@ -1076,7 +1113,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("delete_sandbox", %{"id" => id}, socket) do
     with_permission(socket, :write, fn ->
-      Platform.delete_sandbox_endpoint(id)
+      if fetch_owned(socket, &Platform.get_sandbox_endpoint/1, id),
+        do: Platform.delete_sandbox_endpoint(id)
+
       endpoints = Platform.list_sandbox_endpoints(socket.assigns.project.id)
 
       active =
@@ -1113,113 +1152,105 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("new_pipeline", _, socket) do
-    {:noreply,
-     socket
-     |> assign(:pipeline_modal, :new)
-     |> assign(:pipeline_form, %{
-       "name" => "",
-       "topics" => "",
-       "description" => "",
-       "steps" => "[]"
-     })}
+    with_permission(socket, :write, fn ->
+      {:noreply,
+       socket
+       |> assign(:pipeline_modal, :new)
+       |> assign(:pipeline_form, %{
+         "name" => "",
+         "topics" => "",
+         "description" => "",
+         "webhook_id" => "",
+         "steps" => "[]"
+       })}
+    end)
   end
 
   @impl true
   def handle_event("edit_pipeline", %{"id" => id}, socket) do
-    case Platform.get_pipeline(id) do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("Pipeline no encontrado."))}
+    with_permission(socket, :write, fn ->
+      case fetch_owned(socket, &Platform.get_pipeline/1, id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Pipeline no encontrado."))}
 
-      pipeline ->
-        steps_json =
-          case Jason.encode(pipeline.steps || [], pretty: true) do
-            {:ok, json} -> json
-            _ -> "[]"
-          end
+        pipeline ->
+          steps_json =
+            case Jason.encode(pipeline.steps || [], pretty: true) do
+              {:ok, json} -> json
+              _ -> "[]"
+            end
 
-        {:noreply,
-         socket
-         |> assign(:pipeline_modal, pipeline.id)
-         |> assign(:pipeline_form, %{
-           "name" => pipeline.name,
-           "topics" => Enum.join(pipeline.topics || [], ", "),
-           "description" => pipeline.description || "",
-           "steps" => steps_json
-         })}
-    end
+          {:noreply,
+           socket
+           |> assign(:pipeline_modal, pipeline.id)
+           |> assign(:pipeline_form, %{
+             "name" => pipeline.name,
+             "topics" => Enum.join(pipeline.topics || [], ", "),
+             "description" => pipeline.description || "",
+             "webhook_id" => pipeline.webhook_id || "",
+             "steps" => steps_json
+           })}
+      end
+    end)
+  end
+
+  # Keep typed values server-side so re-renders (presets, errors) don't wipe them
+  @impl true
+  def handle_event("pipeline_form_change", params, socket) do
+    form =
+      Map.merge(
+        socket.assigns.pipeline_form || %{},
+        Map.take(params, ~w(name description topics webhook_id steps))
+      )
+
+    {:noreply, assign(socket, :pipeline_form, form)}
   end
 
   @impl true
   def handle_event("save_pipeline", params, socket) do
-    project = socket.assigns.project
+    with_permission(socket, :write, fn ->
+      project = socket.assigns.project
 
-    topics =
-      params["topics"]
-      |> String.split(",")
-      |> Enum.map(&String.trim/1)
-      |> Enum.reject(&(&1 == ""))
+      socket =
+        assign(socket, :pipeline_form, Map.merge(socket.assigns.pipeline_form || %{}, params))
 
-    steps =
       case Jason.decode(params["steps"] || "[]") do
-        {:ok, s} when is_list(s) -> s
-        _ -> []
+        {:ok, steps} when is_list(steps) ->
+          do_save_pipeline(socket, project, params, steps)
+
+        _ ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             gettext("Los pasos deben ser un arreglo JSON válido, por ejemplo [].")
+           )}
       end
-
-    attrs = %{
-      "name" => params["name"],
-      "description" => params["description"],
-      "topics" => topics,
-      "steps" => steps
-    }
-
-    result =
-      if socket.assigns.pipeline_modal == :new do
-        Platform.create_pipeline(project.id, attrs)
-      else
-        case Platform.get_pipeline(params["pipeline_id"]) do
-          nil -> {:error, :not_found}
-          pipeline -> Platform.update_pipeline(pipeline, attrs)
-        end
-      end
-
-    case result do
-      {:ok, _} ->
-        pipelines = Platform.list_pipelines(project.id)
-
-        {:noreply,
-         socket
-         |> assign(:pipelines, pipelines)
-         |> assign(:pipeline_modal, nil)
-         |> put_flash(:info, gettext("Pipeline guardado."))}
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, put_flash(socket, :error, format_changeset_errors(changeset))}
-
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al guardar pipeline."))}
-    end
+    end)
   end
 
   @impl true
   def handle_event("deactivate_pipeline", %{"id" => id}, socket) do
-    case Platform.get_pipeline(id) do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("Pipeline no encontrado."))}
+    with_permission(socket, :write, fn ->
+      case fetch_owned(socket, &Platform.get_pipeline/1, id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Pipeline no encontrado."))}
 
-      pipeline ->
-        case Platform.set_pipeline_inactive(pipeline) do
-          {:ok, _} ->
-            pipelines = Platform.list_pipelines(socket.assigns.project.id)
+        pipeline ->
+          case Platform.set_pipeline_inactive(pipeline) do
+            {:ok, _} ->
+              pipelines = Platform.list_pipelines(socket.assigns.project.id)
 
-            {:noreply,
-             socket
-             |> assign(:pipelines, pipelines)
-             |> put_flash(:info, gettext("Pipeline desactivado."))}
+              {:noreply,
+               socket
+               |> assign(:pipelines, pipelines)
+               |> put_flash(:info, gettext("Pipeline desactivado."))}
 
-          {:error, _} ->
-            {:noreply, put_flash(socket, :error, gettext("Error al desactivar pipeline."))}
-        end
-    end
+            {:error, _} ->
+              {:noreply, put_flash(socket, :error, gettext("Error al desactivar pipeline."))}
+          end
+      end
+    end)
   end
 
   @impl true
@@ -1229,22 +1260,34 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("pipeline_step_preset", %{"preset" => preset}, socket) do
-    example =
+    step =
       case preset do
         "filter" ->
-          ~s([{"type": "filter", "field": "status", "operator": "eq", "value": "paid"}])
+          %{"type" => "filter", "field" => "status", "operator" => "eq", "value" => "paid"}
 
         "transform" ->
-          ~s([{"type": "transform", "mapping": {"new_field": "payload.original_field"}}])
+          %{
+            "type" => "transform",
+            "operation" => "rename",
+            "mapping" => %{"original_field" => "new_field"}
+          }
 
         "delay" ->
-          ~s([{"type": "delay", "seconds": 60}])
+          %{"type" => "delay", "seconds" => 60}
 
         _ ->
-          "[]"
+          nil
       end
 
-    form = Map.put(socket.assigns.pipeline_form, "steps", example)
+    # Presets append to the current steps instead of replacing them
+    current =
+      case Jason.decode(socket.assigns.pipeline_form["steps"] || "[]") do
+        {:ok, list} when is_list(list) -> list
+        _ -> []
+      end
+
+    steps = if step, do: current ++ [step], else: current
+    form = Map.put(socket.assigns.pipeline_form, "steps", Jason.encode!(steps, pretty: true))
     {:noreply, assign(socket, :pipeline_form, form)}
   end
 
@@ -1357,7 +1400,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("show_event_detail", %{"id" => id}, socket) do
-    case Platform.get_event(id) do
+    case fetch_owned(socket, &Platform.get_event/1, id) do
       nil ->
         {:noreply, put_flash(socket, :error, gettext("Evento no encontrado."))}
 
@@ -1387,23 +1430,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     if query == "" do
       {:noreply, socket |> assign(:search_query, "") |> assign(:search_results, nil)}
     else
-      project_id = socket.assigns.project.id
-      # Search by topic first
-      results =
-        Platform.list_events(project_id, topic: query, limit: 50)
-
-      # If no results by exact topic, try partial match via listing all and filtering
-      results =
-        if results == [] do
-          Platform.list_events(project_id, limit: 100)
-          |> Enum.filter(fn e ->
-            (e.topic && String.contains?(String.downcase(e.topic), String.downcase(query))) ||
-              String.contains?(e.id, query)
-          end)
-          |> Enum.take(50)
-        else
-          results
-        end
+      results = Platform.search_events_by_text(socket.assigns.project.id, query)
 
       {:noreply,
        socket
@@ -1446,7 +1473,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_event("bulk_retry_dl", _, socket) do
     with_permission(socket, :write, fn ->
       results =
-        Enum.map(socket.assigns.selected_dead_letters, fn id ->
+        Enum.map(owned_selected_dead_letters(socket), fn id ->
           Platform.retry_dead_letter(id)
         end)
 
@@ -1469,7 +1496,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_event("bulk_resolve_dl", _, socket) do
     with_permission(socket, :write, fn ->
       results =
-        Enum.map(socket.assigns.selected_dead_letters, fn id ->
+        Enum.map(owned_selected_dead_letters(socket), fn id ->
           Platform.resolve_dead_letter(id)
         end)
 
@@ -1678,7 +1705,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               {:ok, member} ->
                 Notifications.notify_team_invite(target_user.id, project.id, role, member.id)
 
-                members = Teams.list_members(project.id)
+                members = list_team_members(project.id)
 
                 {:noreply,
                  socket
@@ -1696,9 +1723,12 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("remove_member", %{"id" => id}, socket) do
     with_permission(socket, :admin, fn ->
-      case Teams.remove_member(id) do
+      case fetch_owned(socket, &Teams.get_member/1, id) && Teams.remove_member(id) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Error al remover miembro."))}
+
         {:ok, _} ->
-          members = Teams.list_members(socket.assigns.project.id)
+          members = list_team_members(socket.assigns.project.id)
 
           {:noreply,
            socket
@@ -1717,14 +1747,21 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("update_member_role", %{"id" => id, "role" => role}, socket) do
     with_permission(socket, :admin, fn ->
-      case Teams.update_member_role(id, role) do
+      case fetch_owned(socket, &Teams.get_member/1, id) && Teams.update_member_role(id, role) do
+        nil ->
+          {:noreply, put_flash(socket, :error, gettext("Error al actualizar rol."))}
+
         {:ok, _} ->
-          members = Teams.list_members(socket.assigns.project.id)
+          members = list_team_members(socket.assigns.project.id)
 
           {:noreply,
            socket
            |> assign(:team_members, members)
            |> put_flash(:info, gettext("Rol actualizado."))}
+
+        {:error, :cannot_change_owner} ->
+          {:noreply,
+           put_flash(socket, :error, gettext("El rol del dueño no se puede cambiar ni asignar."))}
 
         {:error, _} ->
           {:noreply, put_flash(socket, :error, gettext("Error al actualizar rol."))}
@@ -1736,7 +1773,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_event("accept_invitation", %{"id" => member_id}, socket) do
     user = socket.assigns.current_user
 
-    case Teams.accept_invitation(member_id) do
+    case own_invitation?(user, member_id) && Teams.accept_invitation(member_id) do
+      false ->
+        {:noreply, put_flash(socket, :error, gettext("Error al aceptar invitación."))}
+
       {:ok, _} ->
         Notifications.mark_invite_read(user.id, member_id)
         projects = Teams.list_all_accessible_projects(user.id)
@@ -1761,7 +1801,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_event("reject_invitation", %{"id" => member_id}, socket) do
     user = socket.assigns.current_user
 
-    case Teams.reject_invitation(member_id) do
+    case own_invitation?(user, member_id) && Teams.reject_invitation(member_id) do
+      false ->
+        {:noreply, put_flash(socket, :error, gettext("Error al rechazar invitación."))}
+
       {:ok, _} ->
         Notifications.mark_invite_read(user.id, member_id)
         pending = Teams.list_pending_invitations(user.id)
@@ -1813,6 +1856,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     form = %{
       "type" => params["type"] || "events",
       "older_than" => params["older_than"] || "",
+      "older_than_local" => params["older_than_local"] || "",
       "topic" => params["topic"] || "",
       "status" => params["status"] || ""
     }
@@ -1835,6 +1879,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
       case Platform.preview_purge(project.id, params) do
         {:ok, result} ->
+          # Show the day the user picked (local), not the UTC instant sent to the server
+          result =
+            case form["older_than_local"] do
+              local when is_binary(local) and local != "" -> %{result | older_than: local}
+              _ -> result
+            end
+
           {:noreply, assign(socket, :purge_preview, result)}
 
         {:error, :invalid_type} ->
@@ -1930,7 +1981,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         Task.async(fn -> {:sandbox_endpoints, Platform.list_sandbox_endpoints(project.id)} end),
         Task.async(fn -> {:event_schemas, Platform.list_event_schemas(project.id)} end),
         Task.async(fn -> {:pipelines, Platform.list_pipelines(project.id)} end),
-        Task.async(fn -> {:team_members, Teams.list_members(project.id)} end),
+        Task.async(fn -> {:team_members, list_team_members(project.id)} end),
         Task.async(fn ->
           {:notification_channel, StreamflixCore.NotificationChannels.get_by_project(project.id)}
         end),
@@ -1979,8 +2030,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
        |> assign(:uptime_stats, Map.get(data, :uptime_stats, %{}))
        |> assign(:pending_invitations, Map.get(data, :pending_invitations, []))
        |> assign(:active_tab, "overview")
-       |> assign(:kpi_events_today, compute_kpi_events_today(Map.get(data, :events, [])))
-       |> assign(:kpi_success_rate, compute_kpi_success_rate(Map.get(data, :deliveries, [])))
+       |> assign_kpis(project)
        |> assign(:new_token, nil)
        |> assign(:token_source, nil)
        |> put_flash(:info, gettext("Proyecto cambiado a: %{name}", name: project.name))}
@@ -2011,7 +2061,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           Task.async(fn -> {:sandbox_endpoints, Platform.list_sandbox_endpoints(project.id)} end),
           Task.async(fn -> {:event_schemas, Platform.list_event_schemas(project.id)} end),
           Task.async(fn -> {:pipelines, Platform.list_pipelines(project.id)} end),
-          Task.async(fn -> {:team_members, Teams.list_members(project.id)} end),
+          Task.async(fn -> {:team_members, list_team_members(project.id)} end),
           Task.async(fn -> {:analytics, load_analytics(project.id)} end),
           Task.async(fn -> {:uptime_status, load_uptime_status()} end),
           Task.async(fn -> {:uptime_stats, load_uptime_stats()} end),
@@ -2047,14 +2097,16 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     project = socket.assigns.project
     events = Platform.list_events(project.id, limit: 20)
     deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
-    {:noreply, socket |> assign(:events, events) |> assign(:deliveries, deliveries)}
+
+    {:noreply,
+     socket |> assign(:events, events) |> assign(:deliveries, deliveries) |> assign_kpis(project)}
   end
 
   @impl true
   def handle_info({:delivery_updated, _delivery}, socket) do
     project = socket.assigns.project
     deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
-    {:noreply, assign(socket, :deliveries, deliveries)}
+    {:noreply, socket |> assign(:deliveries, deliveries) |> assign_kpis(project)}
   end
 
   @impl true
@@ -2206,6 +2258,24 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             </div>
           </div>
           <div class="flex items-center gap-1">
+            <%!-- Timezone in use for every date on the page --%>
+            <.link
+              navigate={~p"/account#timezone"}
+              class="hidden sm:inline-flex items-center gap-1.5 mr-1 px-2.5 py-1.5 rounded-lg text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition"
+              title={gettext("Las fechas se muestran en esta zona horaria. Clic para cambiarla.")}
+            >
+              <.icon name="hero-clock" class="w-4 h-4" />
+              <span>{gettext("Horas en")}:</span>
+              <span class="font-medium" data-viewer-tz>UTC</span>
+              <span class="text-indigo-600 dark:text-indigo-400">· {gettext("Cambiar")}</span>
+            </.link>
+            <.link
+              navigate={~p"/account#timezone"}
+              class="sm:hidden p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 rounded-lg"
+              title={gettext("Las fechas se muestran en esta zona horaria. Clic para cambiarla.")}
+            >
+              <.icon name="hero-clock" class="w-5 h-5" />
+            </.link>
             <%!-- Onboarding button --%>
             <button
               type="button"
@@ -2215,7 +2285,12 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             >
               <.icon name="hero-question-mark-circle" class="w-5 h-5" />
             </button>
-            <div class="relative">
+            <div
+              class="relative"
+              phx-click-away={@show_notifications && "close_notifications"}
+              phx-window-keydown={@show_notifications && "close_notifications"}
+              phx-key="Escape"
+            >
               <button
                 type="button"
                 phx-click="toggle_notifications"
@@ -2553,6 +2628,83 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     """
   end
 
+  defp format_cron_preview(expr) when is_binary(expr) and expr != "" do
+    Platform.next_cron_executions(expr, 5)
+  end
+
+  defp format_cron_preview(_), do: []
+
+  defp do_save_pipeline(socket, project, params, steps) do
+    topics =
+      (params["topics"] || "")
+      |> String.split(",")
+      |> Enum.map(&String.trim/1)
+      |> Enum.reject(&(&1 == ""))
+
+    attrs = %{
+      "name" => params["name"],
+      "description" => params["description"],
+      "topics" => topics,
+      "webhook_id" => blank_to_nil(params["webhook_id"]),
+      "steps" => steps
+    }
+
+    result =
+      if socket.assigns.pipeline_modal == :new do
+        Platform.create_pipeline(project.id, attrs)
+      else
+        case fetch_owned(socket, &Platform.get_pipeline/1, params["pipeline_id"]) do
+          nil -> {:error, :not_found}
+          pipeline -> Platform.update_pipeline(pipeline, attrs)
+        end
+      end
+
+    case result do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> assign(:pipelines, Platform.list_pipelines(project.id))
+         |> assign(:pipeline_modal, nil)
+         |> put_flash(:info, gettext("Pipeline guardado."))}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, put_flash(socket, :error, format_changeset_errors(changeset))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Error al guardar pipeline."))}
+    end
+  end
+
+  # An invitation can only be answered by the invited user
+  defp own_invitation?(user, member_id) do
+    with {:ok, uuid} <- Ecto.UUID.cast(member_id),
+         %{user_id: user_id} <- Teams.get_member(uuid) do
+      user_id == user.id
+    else
+      _ -> false
+    end
+  end
+
+  # Selected ids come from the client: keep only the project's own dead letters
+  defp owned_selected_dead_letters(socket) do
+    owned = MapSet.new(socket.assigns.dead_letters, &to_string(&1.id))
+    Enum.filter(socket.assigns.selected_dead_letters, &MapSet.member?(owned, to_string(&1)))
+  end
+
+  # Fetch a record by id only if it belongs to the current project. Event params
+  # come from the client, so ids must never be trusted without this check.
+  defp fetch_owned(socket, getter, id) do
+    project = socket.assigns.project
+
+    with %{id: project_id} <- project,
+         {:ok, uuid} <- Ecto.UUID.cast(id),
+         %{project_id: ^project_id} = record <- getter.(uuid) do
+      record
+    else
+      _ -> nil
+    end
+  end
+
   # ===== TAB DISPATCH =====
   alias StreamflixWebWeb.PlatformDashboard.TabComponents
 
@@ -2777,4 +2929,62 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   defp parse_event_types(_), do: nil
 
   # Helpers imported from StreamflixWebWeb.PlatformDashboard.Helpers
+
+  defp decode_test_payload(str) when str in [nil, ""], do: {:ok, %{}}
+
+  defp decode_test_payload(str) do
+    case Jason.decode(str) do
+      {:ok, map} when is_map(map) -> {:ok, map}
+      _ -> :error
+    end
+  end
+
+  defp send_test_event(socket, project, body) do
+    socket =
+      case Platform.create_event(project.id, body) do
+        {:ok, event} ->
+          Audit.record("event.created",
+            user_id: socket.assigns.current_user.id,
+            project_id: project.id,
+            resource_type: "event",
+            resource_id: event.id
+          )
+
+          events = [event | Platform.list_events(project.id, limit: 19)]
+
+          socket
+          |> put_flash(:info, gettext("Evento enviado. ID: %{id}", id: event.id))
+          |> assign(:events, events)
+
+        {:error, {:schema_validation, _}} ->
+          put_flash(
+            socket,
+            :error,
+            gettext("El payload no cumple el schema registrado para este topic.")
+          )
+
+        {:error, :processing_restricted} ->
+          put_flash(
+            socket,
+            :error,
+            gettext("El procesamiento de datos está restringido para esta cuenta.")
+          )
+
+        {:error, _} ->
+          put_flash(socket, :error, gettext("Error al enviar el evento"))
+      end
+
+    {:noreply, socket}
+  end
+
+  # Dashboard changes must land in the project's activity log like API ones
+  defp audit(socket, action, resource_type, resource_id, metadata) do
+    Audit.record(action,
+      user_id: socket.assigns.current_user.id,
+      project_id: socket.assigns.project.id,
+      resource_type: resource_type,
+      resource_id: resource_id,
+      metadata: metadata
+    )
+  end
 end

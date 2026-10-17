@@ -8,18 +8,18 @@ defmodule StreamflixWebWeb.AuthController do
   Handles user registration from web form.
   """
   def register(conn, params) do
+    plan = params["plan"] || "standard"
+
     case validate_auth_params(params) do
       {:ok, email, password, name} ->
-        do_register(conn, email, password, name, params["plan"] || "basic")
+        do_register(conn, email, password, name, plan, params)
 
       {:error, msg} ->
-        conn
-        |> put_flash(:error, msg)
-        |> redirect(to: ~p"/signup?plan=#{params["plan"] || "basic"}")
+        signup_error(conn, msg, plan, params)
     end
   end
 
-  defp do_register(conn, email, password, name, plan) do
+  defp do_register(conn, email, password, name, plan, params) do
     attrs = %{
       email: email,
       password: password,
@@ -35,22 +35,41 @@ defmodule StreamflixWebWeb.AuthController do
         do_register_success(conn, user, opts)
 
       {:error, :email_already_registered} ->
-        conn
-        |> put_flash(:error, gettext("Este correo ya está registrado. Usa otro o inicia sesión."))
-        |> redirect(to: ~p"/signup?plan=#{plan}")
+        signup_error(
+          conn,
+          gettext("Este correo ya está registrado. Usa otro o inicia sesión."),
+          plan,
+          params
+        )
 
       {:error, %Ecto.Changeset{} = changeset} ->
         errors = format_errors(changeset)
 
-        conn
-        |> put_flash(:error, gettext("Error al crear cuenta: %{details}", details: errors))
-        |> redirect(to: ~p"/signup?plan=#{plan}")
+        signup_error(
+          conn,
+          gettext("Error al crear cuenta: %{details}", details: errors),
+          plan,
+          params
+        )
 
       {:error, _reason} ->
-        conn
-        |> put_flash(:error, gettext("Error al crear cuenta"))
-        |> redirect(to: ~p"/signup")
+        signup_error(conn, gettext("Error al crear cuenta"), plan, params)
     end
+  end
+
+  # Keep what the user typed (never the password) so a validation error does
+  # not wipe the form. Stored in the session, not the URL, to keep the email
+  # out of logs and browser history.
+  defp signup_error(conn, message, plan, params) do
+    prefill = %{
+      "name" => params["name"] |> to_string() |> String.slice(0, 255),
+      "email" => params["email"] |> to_string() |> String.slice(0, 254)
+    }
+
+    conn
+    |> put_session(:signup_prefill, prefill)
+    |> put_flash(:error, message)
+    |> redirect(to: ~p"/signup?plan=#{plan}")
   end
 
   @doc """
@@ -117,8 +136,8 @@ defmodule StreamflixWebWeb.AuthController do
       user_agent: audit_opts[:user_agent]
     )
 
-    Cachex.put(:platform_cache, {:auth_user, user.id}, user, ttl: :timer.seconds(60))
-    Cachex.put(:platform_cache, {:session_revoked, jti}, false, ttl: :timer.seconds(120))
+    Cachex.put(:platform_cache, {:auth_user, user.id}, user, expire: :timer.seconds(60))
+    Cachex.put(:platform_cache, {:session_revoked, jti}, false, expire: :timer.seconds(120))
 
     # Update last_login_at async — non-critical, shouldn't block redirect
     Task.Supervisor.start_child(StreamflixCore.TaskSupervisor, fn ->
@@ -130,9 +149,11 @@ defmodule StreamflixWebWeb.AuthController do
       |> delete_session(:mfa_user_id)
       |> delete_session(:mfa_remember)
       |> delete_session(:mfa_started_at)
+      |> configure_session(renew: true)
       |> put_session(:user_token, token)
       |> put_session(:user_id, user.id)
       |> put_session(:current_jti, jti)
+      |> put_session(:live_socket_id, StreamflixWebWeb.SessionRevocation.socket_id(jti))
       |> put_session(:last_activity_at, System.system_time(:second))
       |> put_flash(:info, gettext("Bienvenido, %{name}.", name: user.name || user.email))
 
@@ -168,18 +189,44 @@ defmodule StreamflixWebWeb.AuthController do
   @doc """
   Handles user logout.
   """
-  def logout(conn, _params) do
-    user_id = get_session(conn, :user_id)
-    current_jti = get_session(conn, :current_jti)
+  def logout(conn, params) do
+    if cross_site_get?(conn) do
+      # GET /logout requested by another site (image tag, link): ignore it,
+      # logging users out must not be triggerable cross-site.
+      redirect(conn, to: "/")
+    else
+      user_id = get_session(conn, :user_id)
+      current_jti = get_session(conn, :current_jti)
 
-    if user_id && current_jti do
-      StreamflixAccounts.revoke_session_by_jti(user_id, current_jti)
+      if user_id && current_jti do
+        StreamflixAccounts.revoke_session_by_jti(user_id, current_jti)
+      end
+
+      message =
+        if params["reason"] == "account_deleted",
+          do: gettext("Cuenta eliminada correctamente."),
+          else: gettext("Has cerrado sesión correctamente")
+
+      conn
+      |> clear_session()
+      |> configure_session(renew: true)
+      |> put_flash(:info, message)
+      |> redirect(to: "/")
     end
+  end
 
-    conn
-    |> clear_session()
-    |> put_flash(:info, gettext("Has cerrado sesión correctamente"))
-    |> redirect(to: "/")
+  @doc """
+  POST /session/keepalive — called by the browser while the user is active, so
+  long LiveView-only sessions are not ended by the inactivity timeout (the
+  SessionTimeout plug records the activity). 204, or 401 when not logged in.
+  """
+  def keepalive(conn, _params) do
+    status = if get_session(conn, :user_token), do: 204, else: 401
+    send_resp(conn, status, "")
+  end
+
+  defp cross_site_get?(conn) do
+    conn.method == "GET" and get_req_header(conn, "sec-fetch-site") == ["cross-site"]
   end
 
   # ---------- PASSWORD RESET ----------
@@ -298,17 +345,9 @@ defmodule StreamflixWebWeb.AuthController do
     end
   end
 
-  defp build_url(conn, path) do
-    scheme = if conn.scheme == :https, do: "https", else: "http"
-    port = conn.port
-
-    port_str =
-      if (scheme == "https" and port == 443) or (scheme == "http" and port == 80),
-        do: "",
-        else: ":#{port}"
-
-    "#{scheme}://#{conn.host}#{port_str}#{path}"
-  end
+  # Links sent by email always use the configured public URL, never the
+  # request's Host header (a forged Host would send the token elsewhere).
+  defp build_url(_conn, path), do: StreamflixWebWeb.Endpoint.url() <> path
 
   defp do_register_success(conn, user) do
     do_register_success(conn, user, [])
@@ -344,9 +383,12 @@ defmodule StreamflixWebWeb.AuthController do
 
     conn =
       conn
+      |> configure_session(renew: true)
       |> put_session(:user_token, token)
       |> put_session(:user_id, user.id)
       |> put_session(:current_jti, jti)
+      |> put_session(:live_socket_id, StreamflixWebWeb.SessionRevocation.socket_id(jti))
+      |> put_session(:last_activity_at, System.system_time(:second))
       |> put_flash(:info, gettext("Cuenta creada. Revisa tu correo para verificar tu email."))
 
     conn =

@@ -117,7 +117,7 @@ defmodule StreamflixWebWeb.Docs.SectionApiReference do
           />
           <.response_block
             code={
-              ~s|{\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "sha256:a3f2b8c1d4e5..."\n}|
+              ~s|{\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "a3f2b8c1d4e5..."\n}|
             }
             copy_id="copy-events-create-response"
             status="202 Accepted"
@@ -140,7 +140,7 @@ defmodule StreamflixWebWeb.Docs.SectionApiReference do
           />
           <.response_block
             code={
-              ~s|{\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "sha256:a3f2b8c1d4e5..."\n}|
+              ~s|{\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "a3f2b8c1d4e5..."\n}|
             }
             copy_id="copy-send-event-response"
             status="202 Accepted"
@@ -159,7 +159,7 @@ defmodule StreamflixWebWeb.Docs.SectionApiReference do
           />
           <.response_block
             code={
-              ~s|{\n  "events": [\n    {\n      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "topic": "order.created",\n      "payload": {"order_id": "12345", "amount": 99.99},\n      "status": "active",\n      "occurred_at": "2026-01-15T10:30:00Z",\n      "deliver_at": null,\n      "payload_hash": "sha256:a3f2b8c1d4e5...",\n      "idempotency_key": null,\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ],\n  "has_next": true,\n  "next_cursor": "c3d4e5f6-a7b8-9012-cdef-123456789012"\n}|
+              ~s|{\n  "events": [\n    {\n      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n      "topic": "order.created",\n      "payload": {"order_id": "12345", "amount": 99.99},\n      "status": "active",\n      "occurred_at": "2026-01-15T10:30:00Z",\n      "deliver_at": null,\n      "payload_hash": "a3f2b8c1d4e5...",\n      "idempotency_key": null,\n      "inserted_at": "2026-01-15T10:30:00Z"\n    }\n  ],\n  "has_next": true,\n  "next_cursor": "c3d4e5f6-a7b8-9012-cdef-123456789012"\n}|
             }
             copy_id="copy-events-list-response"
             status="200 OK"
@@ -178,7 +178,7 @@ defmodule StreamflixWebWeb.Docs.SectionApiReference do
           />
           <.response_block
             code={
-              ~s|{\n  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "topic": "order.created",\n  "payload": {"order_id": "12345", "amount": 99.99},\n  "status": "active",\n  "occurred_at": "2026-01-15T10:30:00Z",\n  "deliver_at": null,\n  "payload_hash": "sha256:a3f2b8c1d4e5...",\n  "idempotency_key": null,\n  "inserted_at": "2026-01-15T10:30:00Z",\n  "deliveries": [\n    {"id": "d4e5f6a7-b8c9-0123-defg-234567890123", "status": "success", "attempt_number": 1}\n  ]\n}|
+              ~s|{\n  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "topic": "order.created",\n  "payload": {"order_id": "12345", "amount": 99.99},\n  "status": "active",\n  "occurred_at": "2026-01-15T10:30:00Z",\n  "deliver_at": null,\n  "payload_hash": "a3f2b8c1d4e5...",\n  "idempotency_key": null,\n  "inserted_at": "2026-01-15T10:30:00Z",\n  "deliveries": [\n    {"id": "d4e5f6a7-b8c9-0123-defg-234567890123", "status": "success", "attempt_number": 1}\n  ]\n}|
             }
             copy_id="copy-events-show-response"
             status="200 OK"
