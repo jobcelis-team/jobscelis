@@ -40,7 +40,7 @@ defmodule StreamflixCore.Platform.Projects do
     end
   end
 
-  def get_project(id), do: Repo.get(Project, id)
+  def get_project(id), do: Repo.get_uuid(Project, id)
   def get_project!(id), do: Repo.get!(Project, id)
 
   def get_default_project_for_user(user_id) do
@@ -55,7 +55,7 @@ defmodule StreamflixCore.Platform.Projects do
           |> limit(1)
           |> Repo.one()
 
-        if result, do: Cachex.put(@cache, cache_key, result, ttl: @project_ttl)
+        if result, do: Cachex.put(@cache, cache_key, result, expire: @project_ttl)
         result
 
       {:ok, cached} ->

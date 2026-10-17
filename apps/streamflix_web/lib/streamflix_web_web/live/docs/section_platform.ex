@@ -455,7 +455,7 @@ defmodule StreamflixWebWeb.Docs.SectionPlatform do
           id="analytics-events"
           method="GET"
           path="/api/v1/analytics/events-per-day"
-          description={gettext("Volumen de eventos por día.")}
+          description={gettext("Volumen de eventos por día (días en UTC).")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/analytics/events-per-day\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}
@@ -473,7 +473,7 @@ defmodule StreamflixWebWeb.Docs.SectionPlatform do
           id="analytics-deliveries"
           method="GET"
           path="/api/v1/analytics/deliveries-per-day"
-          description={gettext("Volumen de entregas por día.")}
+          description={gettext("Volumen de entregas por día (días en UTC).")}
         >
           <.code_block
             code={"curl \"#{@base_url}/api/v1/analytics/deliveries-per-day\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\""}

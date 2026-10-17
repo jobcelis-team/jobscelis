@@ -184,7 +184,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
                   </td>
 
                   <td class="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 dark:text-slate-400 text-sm hidden sm:table-cell">
-                    {format_date(p.inserted_at)}
+                    <.local_time value={p.inserted_at} format="datetime_short" />
                   </td>
 
                   <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
@@ -244,7 +244,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
                 <div class="p-3 text-sm">
                   <span class="font-mono text-gray-600 dark:text-slate-400">{e.topic || "—"}</span>
                   <span class="text-gray-400 dark:text-slate-500 ml-2">
-                    {format_date(e.occurred_at)}
+                    <.local_time value={e.occurred_at} format="datetime_short" />
                   </span>
                 </div>
               <% end %>
@@ -316,7 +316,9 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
                   <span class="text-gray-500 dark:text-slate-400">
                     {if d.response_status, do: d.response_status, else: "—"}
                   </span>
-                  <span class="text-gray-400 dark:text-slate-500">{format_date(d.inserted_at)}</span>
+                  <span class="text-gray-400 dark:text-slate-500">
+                    <.local_time value={d.inserted_at} format="datetime_short" />
+                  </span>
                 </div>
               <% end %>
 
@@ -338,7 +340,4 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
   end
 
   defp admin_layout(assigns), do: StreamflixWebWeb.Admin.DashboardLive.admin_layout(assigns)
-
-  defp format_date(nil), do: "—"
-  defp format_date(datetime), do: Calendar.strftime(datetime, "%d %b %Y %H:%M")
 end

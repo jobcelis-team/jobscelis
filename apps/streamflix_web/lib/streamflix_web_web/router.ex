@@ -159,6 +159,7 @@ defmodule StreamflixWebWeb.Router do
     post "/mfa/verify-backup", MfaController, :verify_backup
     delete "/logout", AuthController, :logout
     get "/logout", AuthController, :logout
+    post "/session/keepalive", AuthController, :keepalive
     get "/forgot-password", PageController, :forgot_password
     post "/forgot-password", AuthController, :forgot_password
     get "/reset-password/:token", PageController, :reset_password

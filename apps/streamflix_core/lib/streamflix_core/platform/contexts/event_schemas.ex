@@ -24,7 +24,7 @@ defmodule StreamflixCore.Platform.EventSchemas do
     |> Repo.all()
   end
 
-  def get_event_schema(id), do: Repo.get(EventSchema, id)
+  def get_event_schema(id), do: Repo.get_uuid(EventSchema, id)
 
   def update_event_schema(%EventSchema{} = schema, attrs) do
     schema

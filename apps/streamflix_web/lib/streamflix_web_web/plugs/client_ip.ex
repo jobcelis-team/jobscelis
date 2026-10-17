@@ -1,7 +1,12 @@
 defmodule StreamflixWebWeb.Plugs.ClientIp do
   @moduledoc """
   Extracts the real client IP from the connection.
-  Checks X-Forwarded-For header first (for reverse proxies), then falls back to conn.remote_ip.
+
+  Behind the Azure front end, X-Forwarded-For arrives as "<client-supplied>, ...,
+  <real client ip:port>": the proxy APPENDS the address it saw. Only the
+  right-most entry is trustworthy — the left-most can be forged by the client,
+  which would defeat per-IP rate limits and API key IP allowlists. Falls back to
+  conn.remote_ip when there is no proxy header.
   Strips port numbers if present (e.g. "45.71.114.31:53421" → "45.71.114.31").
   """
 
@@ -9,8 +14,9 @@ defmodule StreamflixWebWeb.Plugs.ClientIp do
   def get_client_ip(conn) do
     raw_ip =
       case Plug.Conn.get_req_header(conn, "x-forwarded-for") do
-        [forwarded | _] ->
-          forwarded |> String.split(",") |> List.first() |> String.trim()
+        [_ | _] = values ->
+          # Several headers are treated as one comma-separated list
+          values |> Enum.join(",") |> String.split(",") |> List.last() |> String.trim()
 
         _ ->
           conn.remote_ip |> :inet.ntoa() |> to_string()

@@ -96,3 +96,7 @@ config :phoenix_live_view,
 
 # Enable dev routes for dashboard
 config :streamflix_web, dev_routes: true
+
+# SSRF guard (StreamflixCore.Platform.UrlGuard): allow localhost / private
+# destinations for local sandboxes and receivers. Never enable in production.
+config :streamflix_core, allow_private_destinations: true

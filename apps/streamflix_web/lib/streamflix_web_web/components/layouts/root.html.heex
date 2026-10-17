@@ -129,7 +129,11 @@
     </script>
   </head>
 
-  <body>
+  <%!-- Display timezone preference (nil = browser timezone), read by app.js --%>
+  <body
+    data-timezone={assigns[:current_user] && @current_user.timezone}
+    data-authenticated={assigns[:current_user] && "true"}
+  >
     {@inner_content}
   </body>
 </html>

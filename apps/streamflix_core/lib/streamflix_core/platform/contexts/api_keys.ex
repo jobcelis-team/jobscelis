@@ -50,7 +50,7 @@ defmodule StreamflixCore.Platform.ApiKeys do
 
            case result do
              nil -> {:ignore, nil}
-             api_key -> {:commit, api_key, ttl: @api_key_ttl}
+             api_key -> {:commit, api_key, expire: @api_key_ttl}
            end
          end) do
       {:ok, api_key} -> api_key
@@ -74,13 +74,18 @@ defmodule StreamflixCore.Platform.ApiKeys do
     allowed_ips = if current_key, do: current_key.allowed_ips || [], else: []
 
     # Deactivate existing keys for this project
-    ApiKey
-    |> where([k], k.project_id == ^project_id)
-    |> Repo.update_all(
-      set: [status: "inactive", updated_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)]
-    )
+    {_, old_hashes} =
+      ApiKey
+      |> where([k], k.project_id == ^project_id)
+      |> select([k], k.key_hash)
+      |> Repo.update_all(
+        set: [
+          status: "inactive",
+          updated_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)
+        ]
+      )
 
-    invalidate_api_key_cache()
+    invalidate_api_key_cache(old_hashes)
     create_api_key(project_id, %{name: "Default", scopes: scopes, allowed_ips: allowed_ips})
   end
 
@@ -92,7 +97,9 @@ defmodule StreamflixCore.Platform.ApiKeys do
     :crypto.hash(:sha256, raw) |> Base.encode64(padding: false)
   end
 
-  defp invalidate_api_key_cache() do
-    Cachex.clear(@cache)
+  # Only the project's old keys: clearing the whole shared cache also dropped
+  # every other project's keys, sessions and rate-limit counters.
+  defp invalidate_api_key_cache(key_hashes) do
+    Enum.each(key_hashes, &Cachex.del(@cache, {:api_key, &1}))
   end
 end

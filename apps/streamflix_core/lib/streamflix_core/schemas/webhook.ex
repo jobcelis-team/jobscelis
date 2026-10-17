@@ -53,6 +53,23 @@ defmodule StreamflixCore.Schemas.Webhook do
     |> validate_required([:project_id, :url])
     |> validate_inclusion(:status, ~w(active inactive))
     |> validate_format(:url, ~r|^https?://|, message: "must be http or https")
+    |> StreamflixCore.Platform.UrlGuard.validate_changeset(:url)
+    |> validate_headers()
     |> foreign_key_constraint(:project_id)
+  end
+
+  # Custom headers are sent with every delivery: string names/values only and
+  # no CR/LF (header injection).
+  defp validate_headers(changeset) do
+    validate_change(changeset, :headers, fn :headers, headers ->
+      valid? =
+        is_map(headers) and
+          Enum.all?(headers, fn {k, v} ->
+            is_binary(k) and is_binary(v) and k =~ ~r/\A[A-Za-z0-9!#$%&'*+.^_`|~-]+\z/ and
+              not String.contains?(v, ["\r", "\n"])
+          end)
+
+      if valid?, do: [], else: [headers: "must be a map of valid header names to string values"]
+    end)
   end
 end

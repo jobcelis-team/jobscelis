@@ -11,6 +11,7 @@ defmodule StreamflixCore.Platform.Pipelines do
   def create_pipeline(project_id, attrs) do
     %Pipeline{}
     |> Pipeline.changeset(Map.put(attrs, "project_id", project_id))
+    |> validate_webhook_in_project()
     |> Repo.insert()
   end
 
@@ -27,14 +28,37 @@ defmodule StreamflixCore.Platform.Pipelines do
 
   @doc "Get a pipeline by ID."
   def get_pipeline(id) do
-    Repo.get(Pipeline, id)
+    Repo.get_uuid(Pipeline, id)
+  end
+
+  @doc "Get a pipeline by ID only if it belongs to the given project."
+  def get_project_pipeline(project_id, id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} -> Repo.get_by(Pipeline, id: uuid, project_id: project_id)
+      :error -> nil
+    end
   end
 
   @doc "Update a pipeline."
   def update_pipeline(%Pipeline{} = pipeline, attrs) do
     pipeline
-    |> Pipeline.changeset(attrs)
+    |> Pipeline.changeset(Map.drop(attrs, ["project_id", :project_id]))
+    |> validate_webhook_in_project()
     |> Repo.update()
+  end
+
+  # The target webhook must belong to the pipeline's project
+  defp validate_webhook_in_project(changeset) do
+    webhook_id = Ecto.Changeset.get_field(changeset, :webhook_id)
+    project_id = Ecto.Changeset.get_field(changeset, :project_id)
+
+    with true <- changeset.valid? and is_binary(webhook_id),
+         %{project_id: ^project_id} <- Repo.get(StreamflixCore.Schemas.Webhook, webhook_id) do
+      changeset
+    else
+      false -> changeset
+      _ -> Ecto.Changeset.add_error(changeset, :webhook_id, "does not belong to this project")
+    end
   end
 
   @doc "Soft-delete a pipeline (set inactive)."
@@ -52,22 +76,27 @@ defmodule StreamflixCore.Platform.Pipelines do
     Pipeline
     |> where([p], p.project_id == ^project_id and p.status == "active")
     |> Repo.all()
-    |> Enum.filter(fn pipeline ->
-      pipeline.topics == [] or
-        Enum.any?(pipeline.topics, &topic_matches?(&1, topic))
+    |> Enum.filter(&StreamflixCore.Platform.Webhooks.topic_matches?(&1.topics || [], topic))
+  end
+
+  # Upper bound for pipeline delay steps (7 days)
+  @max_delay_seconds 7 * 24 * 3600
+
+  @doc "Total delay in seconds declared by the pipeline's delay steps."
+  def total_delay_seconds(steps) when is_list(steps) do
+    steps
+    |> Enum.filter(&match?(%{"type" => "delay"}, &1))
+    |> Enum.map(fn step ->
+      case step["seconds"] do
+        s when is_integer(s) and s > 0 -> s
+        _ -> 0
+      end
     end)
+    |> Enum.sum()
+    |> min(@max_delay_seconds)
   end
 
-  defp topic_matches?(pattern, topic) do
-    regex =
-      pattern
-      |> String.replace(".", "\\.")
-      |> String.replace("*", "[^.]+")
-      |> then(&("^" <> &1 <> "$"))
-      |> Regex.compile!()
-
-    Regex.match?(regex, topic)
-  end
+  def total_delay_seconds(_), do: 0
 
   @doc """
   Execute pipeline steps on a payload. Returns the transformed payload

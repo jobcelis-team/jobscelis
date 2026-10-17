@@ -2,7 +2,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
   use StreamflixWebWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias StreamflixCore.Platform
+  alias StreamflixCore.{Audit, Platform}
   alias StreamflixWebWeb.Schemas
 
   plug StreamflixWebWeb.Plugs.RequireScope,
@@ -100,8 +100,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
     }
 
     case Platform.create_job(project.id, attrs) do
-      {:ok, job} -> conn |> put_status(:created) |> json(job_json(job))
-      {:error, changeset} -> conn |> put_status(422) |> json(%{errors: format_errors(changeset)})
+      {:ok, job} ->
+        audit(project, "job.created", job)
+        conn |> put_status(:created) |> json(job_json(job))
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -154,6 +158,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
 
           case Platform.update_job(job, attrs) do
             {:ok, updated} ->
+              audit(project, "job.updated", updated)
               json(conn, job_json(updated))
 
             {:error, changeset} ->
@@ -189,6 +194,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
           send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
         else
           {:ok, _} = Platform.set_job_inactive(job)
+          audit(project, "job.deactivated", job)
           send_resp(conn, 200, Jason.encode!(%{status: "inactive"}))
         end
     end
@@ -224,7 +230,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
         if job.project_id != project.id do
           send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
         else
-          limit = min(parse_int(params["limit"], 20), 100)
+          limit = params["limit"] |> parse_int(20) |> max(1) |> min(100)
           runs = Platform.list_job_runs(job.id, limit: limit)
           json(conn, %{runs: Enum.map(runs, &run_json/1)})
         end
@@ -273,4 +279,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
   end
 
   defp parse_int(_, default), do: default
+
+  defp audit(project, action, job) do
+    Audit.record(action,
+      user_id: project.user_id,
+      project_id: project.id,
+      resource_type: "job",
+      resource_id: job.id,
+      metadata: %{name: job.name, source: "api"}
+    )
+  end
 end

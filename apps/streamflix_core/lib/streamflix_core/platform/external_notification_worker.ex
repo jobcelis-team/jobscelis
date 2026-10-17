@@ -14,11 +14,12 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
 
   @impl true
   def perform(%Oban.Job{
-        args: %{
-          "channel_id" => channel_id,
-          "event_type" => event_type,
-          "payload" => payload
-        }
+        args:
+          %{
+            "channel_id" => channel_id,
+            "event_type" => event_type,
+            "payload" => payload
+          } = args
       }) do
     case Repo.get(NotificationChannel, channel_id) do
       nil ->
@@ -30,36 +31,41 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
         :ok
 
       channel ->
-        deliver_to_channels(channel, event_type, payload)
+        deliver_to_channels(channel, event_type, payload, args_kind(args))
     end
   end
 
-  defp deliver_to_channels(channel, event_type, payload) do
+  # Jobs carry the channel kind they are for; older jobs (no "kind") deliver to all.
+  defp args_kind(%{"kind" => kind}) when is_binary(kind), do: kind
+  defp args_kind(_), do: nil
+
+  defp deliver_to_channels(channel, event_type, payload, only) do
+    want? = fn kind -> is_nil(only) or only == kind end
     results = []
 
     results =
-      if channel.email_enabled and channel.email_address do
+      if want?.("email") and channel.email_enabled and channel.email_address do
         [deliver_email(channel, event_type, payload) | results]
       else
         results
       end
 
     results =
-      if channel.slack_enabled and channel.slack_webhook_url do
+      if want?.("slack") and channel.slack_enabled and channel.slack_webhook_url do
         [deliver_slack(channel.slack_webhook_url, event_type, payload) | results]
       else
         results
       end
 
     results =
-      if channel.discord_enabled and channel.discord_webhook_url do
+      if want?.("discord") and channel.discord_enabled and channel.discord_webhook_url do
         [deliver_discord(channel.discord_webhook_url, event_type, payload) | results]
       else
         results
       end
 
     results =
-      if channel.meta_webhook_enabled and channel.meta_webhook_url do
+      if want?.("meta_webhook") and channel.meta_webhook_enabled and channel.meta_webhook_url do
         [deliver_meta_webhook(channel, event_type, payload) | results]
       else
         results
@@ -167,7 +173,7 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
         ]
       })
 
-    case Req.post(webhook_url,
+    case guarded_post(webhook_url,
            body: body,
            headers: [{"content-type", "application/json"}],
            receive_timeout: @receive_timeout,
@@ -210,7 +216,7 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
         ]
       })
 
-    case Req.post(webhook_url,
+    case guarded_post(webhook_url,
            body: body,
            headers: [{"content-type", "application/json"}],
            receive_timeout: @receive_timeout,
@@ -251,7 +257,7 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
         headers
       end
 
-    case Req.post(channel.meta_webhook_url,
+    case guarded_post(channel.meta_webhook_url,
            body: body,
            headers: headers,
            receive_timeout: @receive_timeout,
@@ -268,7 +274,28 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
     end
   end
 
+  # User-supplied alert URLs: SSRF guard and no redirects
+  defp guarded_post(url, opts) do
+    case StreamflixCore.Platform.UrlGuard.check(url) do
+      :ok ->
+        Req.post(url, Keyword.put(opts, :redirect, false))
+
+      {:error, reason} ->
+        {:error, "blocked destination: " <> StreamflixCore.Platform.UrlGuard.message(reason)}
+    end
+  end
+
   # --- Formatting ---
+
+  defp html_escape(value) do
+    value
+    |> to_string()
+    |> String.replace("&", "&amp;")
+    |> String.replace("<", "&lt;")
+    |> String.replace(">", "&gt;")
+    |> String.replace("\"", "&quot;")
+    |> String.replace("'", "&#39;")
+  end
 
   defp format_event_type(type) do
     type
@@ -278,8 +305,10 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
   end
 
   defp build_alert_email(event_type, payload, project_name) do
-    title = format_event_type(event_type)
-    message = Map.get(payload, "message", "")
+    # Values come from user data (project name, webhook URLs): escape for HTML
+    title = event_type |> format_event_type() |> html_escape()
+    message = payload |> Map.get("message", "") |> html_escape()
+    project_name = html_escape(project_name)
     year = Date.utc_today().year
 
     """

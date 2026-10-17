@@ -20,6 +20,8 @@ defmodule StreamflixCore.Schemas.Delivery do
     field(:request_headers, :map)
     field(:request_body, :string)
     field(:destination_ip, :string)
+    # Pipeline-processed payload; nil = deliver the event payload unchanged
+    field(:payload_override, :map)
 
     belongs_to(:event, StreamflixCore.Schemas.WebhookEvent)
     belongs_to(:webhook, StreamflixCore.Schemas.Webhook)
@@ -41,7 +43,8 @@ defmodule StreamflixCore.Schemas.Delivery do
       :next_retry_at,
       :request_headers,
       :request_body,
-      :destination_ip
+      :destination_ip,
+      :payload_override
     ])
     |> validate_required([:event_id, :webhook_id])
     |> validate_inclusion(:status, ~w(pending success failed circuit_open))

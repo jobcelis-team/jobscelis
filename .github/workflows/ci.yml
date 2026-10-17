@@ -78,8 +78,10 @@ jobs:
       - name: Run Sobelow (security)
         run: mix sobelow --exit low --app-dir apps/streamflix_web
 
+      # decimal (GHSA-rhv4-8758-jx7v): no compatible fix; see the `hex:` ignore
+      # list in mix.exs for why it does not affect this project.
       - name: Audit dependencies (CVEs)
-        run: mix deps.audit
+        run: mix deps.audit --ignore-advisory-ids GHSA-rhv4-8758-jx7v
 
       - name: Check retired packages
         run: mix hex.audit
