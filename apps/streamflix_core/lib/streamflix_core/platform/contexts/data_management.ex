@@ -51,7 +51,7 @@ defmodule StreamflixCore.Platform.DataManagement do
 
   Options:
   - type: "events" | "deliveries" | "audit_logs" | "dead_letters"
-  - older_than: Date string "YYYY-MM-DD" (required)
+  - older_than: ISO 8601 datetime with offset, or "YYYY-MM-DD" (= 00:00 UTC) (required)
   - topic: optional topic filter (for events/deliveries)
   - status: optional status filter (for deliveries: "success", "failed")
 
@@ -64,9 +64,7 @@ defmodule StreamflixCore.Platform.DataManagement do
     status = Map.get(params, "status")
 
     with true <- type in @valid_types,
-         {:ok, older_than} <- parse_date(older_than_str) do
-      cutoff = DateTime.new!(older_than, ~T[00:00:00], "Etc/UTC")
-
+         {:ok, cutoff} <- parse_cutoff(older_than_str) do
       count =
         case type do
           "events" -> purge_events(project_id, cutoff, topic)
@@ -101,9 +99,7 @@ defmodule StreamflixCore.Platform.DataManagement do
     status = Map.get(params, "status")
 
     with true <- type in @valid_types,
-         {:ok, older_than} <- parse_date(older_than_str) do
-      cutoff = DateTime.new!(older_than, ~T[00:00:00], "Etc/UTC")
-
+         {:ok, cutoff} <- parse_cutoff(older_than_str) do
       count =
         case type do
           "events" -> count_events(project_id, cutoff, topic)
@@ -207,14 +203,27 @@ defmodule StreamflixCore.Platform.DataManagement do
     |> Repo.one()
   end
 
-  defp parse_date(str) when is_binary(str) do
-    case Date.from_iso8601(str) do
-      {:ok, date} -> {:ok, date}
+  # Cutoff instant. Accepts an ISO 8601 datetime with offset (the dashboard sends
+  # the viewer's local midnight converted to UTC) or a plain "YYYY-MM-DD",
+  # which is interpreted as midnight UTC.
+  defp parse_cutoff(str) when is_binary(str) do
+    with {:error, _} <- datetime_cutoff(str),
+         {:ok, date} <- Date.from_iso8601(str) do
+      {:ok, DateTime.new!(date, ~T[00:00:00], "Etc/UTC")}
+    else
+      {:ok, %DateTime{}} = ok -> ok
       _ -> {:error, :invalid_date}
     end
   end
 
-  defp parse_date(_), do: {:error, :invalid_date}
+  defp parse_cutoff(_), do: {:error, :invalid_date}
+
+  defp datetime_cutoff(str) do
+    case DateTime.from_iso8601(str) do
+      {:ok, dt, _offset} -> {:ok, DateTime.truncate(dt, :microsecond)}
+      error -> error
+    end
+  end
 
   defp topic_pattern(topic) do
     topic

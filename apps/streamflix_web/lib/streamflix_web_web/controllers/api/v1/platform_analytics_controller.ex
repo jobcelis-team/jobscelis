@@ -25,7 +25,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
   def events_per_day(conn, params) do
     project = conn.assigns.current_project
     days = safe_int(params["days"], 30)
-    data = Platform.events_per_day(project.id, min(days, 90))
+    data = Platform.events_per_day(project.id, days |> max(1) |> min(90))
     json(conn, %{data: data})
   end
 
@@ -42,7 +42,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
   def deliveries_per_day(conn, params) do
     project = conn.assigns.current_project
     days = safe_int(params["days"], 30)
-    data = Platform.deliveries_per_day(project.id, min(days, 90))
+    data = Platform.deliveries_per_day(project.id, days |> max(1) |> min(90))
     json(conn, %{data: data})
   end
 
@@ -66,7 +66,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
   def top_topics(conn, params) do
     project = conn.assigns.current_project
     limit = safe_int(params["limit"], 10)
-    data = Platform.top_topics(project.id, min(limit, 50))
+    data = Platform.top_topics(project.id, limit |> max(1) |> min(50))
     json(conn, %{data: data})
   end
 
@@ -94,6 +94,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformAnalyticsController do
   end
 
   defp safe_int(val, _default) when is_integer(val), do: val
+  defp safe_int(_val, default), do: default
 
   def webhook_stats(conn, _params) do
     project = conn.assigns.current_project

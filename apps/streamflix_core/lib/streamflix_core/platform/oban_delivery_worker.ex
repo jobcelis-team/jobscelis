@@ -14,10 +14,6 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
 
   @default_base_delay 10
   @default_max_delay 3600
-  @default_max_attempts 5
-
-  # Client errors that should not be retried
-  @no_retry_statuses [400, 401, 403, 404, 422]
 
   @impl true
   def backoff(%Oban.Job{args: args, attempt: attempt}) do
@@ -67,27 +63,23 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
   end
 
   @impl true
-  def perform(%Oban.Job{args: args, attempt: attempt}) do
+  def perform(%Oban.Job{args: args}) do
     delivery_id = args["delivery_id"] || args[:delivery_id]
-    config = args["retry_config"] || %{}
-    max = config["max_attempts"] || @default_max_attempts
 
-    if attempt > max do
-      :ok
-    else
-      # Check outbound rate limit before delivering
-      case check_outbound_rate_limit(delivery_id) do
-        {:error, :rate_limited} ->
-          Logger.info("Delivery rate limited, snoozing",
-            worker: "ObanDeliveryWorker",
-            delivery_id: delivery_id
-          )
+    # Attempts are counted on the delivery (attempt_number) by DeliveryWorker,
+    # which dead-letters it when retry_config.max_attempts is reached. Oban's own
+    # attempt counter is not used: snoozes (rate limit / circuit open) inflate it.
+    case check_outbound_rate_limit(delivery_id) do
+      {:error, :rate_limited} ->
+        Logger.info("Delivery rate limited, snoozing",
+          worker: "ObanDeliveryWorker",
+          delivery_id: delivery_id
+        )
 
-          {:snooze, 5}
+        {:snooze, 5}
 
-        :ok ->
-          execute_delivery(delivery_id)
-      end
+      :ok ->
+        execute_delivery(delivery_id)
     end
   end
 
@@ -118,23 +110,24 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
     end
   end
 
+  # Oban only retries on {:error, _} (a bare :error is treated as success).
   defp execute_delivery(delivery_id) do
-    try do
-      case StreamflixCore.Platform.DeliveryWorker.run(delivery_id) do
-        {:ok, _} -> :ok
-        {:error, :circuit_open} -> {:snooze, 300}
-        {:error, {:failed, %{response_status: status}}} when status in @no_retry_statuses -> :ok
-        {:error, _} -> :error
-      end
-    rescue
-      e ->
-        Logger.error("DeliveryWorker crashed",
-          worker: "ObanDeliveryWorker",
-          delivery_id: delivery_id,
-          error: Exception.message(e)
-        )
-
-        :error
+    case StreamflixCore.Platform.DeliveryWorker.run(delivery_id) do
+      {:ok, _} -> :ok
+      {:error, :circuit_open} -> {:snooze, 300}
+      {:error, {:dead_lettered, _}} -> {:cancel, :dead_lettered}
+      {:error, reason} when reason in [:not_found, :invalid_id] -> {:cancel, reason}
+      {:error, {:failed, d}} -> {:error, "delivery failed (HTTP #{d.response_status || "error"})"}
+      {:error, reason} -> {:error, reason}
     end
+  rescue
+    e ->
+      Logger.error("DeliveryWorker crashed",
+        worker: "ObanDeliveryWorker",
+        delivery_id: delivery_id,
+        error: Exception.message(e)
+      )
+
+      {:error, Exception.message(e)}
   end
 end

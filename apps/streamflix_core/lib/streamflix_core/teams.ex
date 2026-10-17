@@ -80,6 +80,13 @@ defmodule StreamflixCore.Teams do
       nil ->
         {:error, :not_found}
 
+      # Ownership is not transferable through role changes
+      %{role: "owner"} ->
+        {:error, :cannot_change_owner}
+
+      _member when role == "owner" ->
+        {:error, :cannot_change_owner}
+
       member ->
         member
         |> ProjectMember.changeset(%{role: role})
@@ -102,7 +109,15 @@ defmodule StreamflixCore.Teams do
     |> Repo.all()
   end
 
-  def get_member(id), do: Repo.get(ProjectMember, id)
+  def get_member(id), do: Repo.get_uuid(ProjectMember, id)
+
+  @doc "Get a membership only if it belongs to the given project."
+  def get_project_member(project_id, member_id) do
+    case Ecto.UUID.cast(member_id) do
+      {:ok, uuid} -> Repo.get_by(ProjectMember, id: uuid, project_id: project_id)
+      :error -> nil
+    end
+  end
 
   def get_member_role(project_id, user_id) do
     ProjectMember

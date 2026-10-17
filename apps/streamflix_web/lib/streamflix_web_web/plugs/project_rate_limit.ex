@@ -37,7 +37,7 @@ defmodule StreamflixWebWeb.Plugs.ProjectRateLimit do
     reset_at = (minute_bucket + 1) * 60
     retry_after = max(reset_at - now, 1)
 
-    case Cachex.incr(@cache, cache_key, 1, ttl: :timer.seconds(120)) do
+    case Cachex.incr(@cache, cache_key, 1) do
       {:ok, count} ->
         remaining = max(limit - count, 0)
 

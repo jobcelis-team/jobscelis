@@ -2,7 +2,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
   use StreamflixWebWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias StreamflixCore.Platform
+  alias StreamflixCore.{Audit, Platform}
   alias StreamflixWebWeb.Schemas
 
   plug StreamflixWebWeb.Plugs.RequireScope,
@@ -91,8 +91,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
     }
 
     case Platform.create_webhook(project.id, attrs) do
-      {:ok, w} -> conn |> put_status(:created) |> json(webhook_json(w))
-      {:error, changeset} -> conn |> put_status(422) |> json(%{errors: format_errors(changeset)})
+      {:ok, w} ->
+        audit(project, "webhook.created", w)
+        conn |> put_status(:created) |> json(webhook_json(w))
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -140,6 +144,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
 
           case Platform.update_webhook(w, attrs) do
             {:ok, updated} ->
+              audit(project, "webhook.updated", updated)
               json(conn, webhook_json(updated))
 
             {:error, changeset} ->
@@ -175,6 +180,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
           send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
         else
           {:ok, _} = Platform.set_webhook_inactive(w)
+          audit(project, "webhook.deleted", w)
           send_resp(conn, 200, Jason.encode!(%{status: "inactive"}))
         end
     end
@@ -251,10 +257,19 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
                 webhook_id: result.webhook_id
               })
 
-            {:error, result} ->
+            {:error, %{} = result} ->
               conn
               |> put_status(:unprocessable_entity)
-              |> json(%{success: false, reason: result.reason, webhook_id: result.webhook_id})
+              |> json(%{
+                success: false,
+                reason: result.reason,
+                status: Map.get(result, :status),
+                latency_ms: Map.get(result, :latency_ms),
+                webhook_id: result.webhook_id
+              })
+
+            {:error, _} ->
+              conn |> put_status(:not_found) |> json(%{error: "webhook not found"})
           end
         end
     end
@@ -266,4 +281,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
   end
 
   defp format_errors(c), do: Ecto.Changeset.traverse_errors(c, fn {msg, _} -> msg end)
+
+  defp audit(project, action, webhook) do
+    Audit.record(action,
+      user_id: project.user_id,
+      project_id: project.id,
+      resource_type: "webhook",
+      resource_id: webhook.id,
+      metadata: %{url: webhook.url, source: "api"}
+    )
+  end
 end

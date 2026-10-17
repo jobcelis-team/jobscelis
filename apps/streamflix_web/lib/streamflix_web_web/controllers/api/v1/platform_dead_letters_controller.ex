@@ -99,6 +99,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
             {:error, :webhook_inactive} ->
               conn |> put_status(422) |> json(%{error: "Webhook is inactive"})
 
+            {:error, :invalid_payload} ->
+              conn |> put_status(422) |> json(%{error: "payload must be a JSON object"})
+
             {:error, _} ->
               conn |> put_status(500) |> json(%{error: "Failed to retry"})
           end

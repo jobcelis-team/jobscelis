@@ -112,7 +112,15 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
     if Teams.user_can_write?(project_id, user.id) do
       role = params["role"]
 
-      case Teams.update_member_role(id, role) do
+      case Teams.get_project_member(project_id, id) && Teams.update_member_role(id, role) do
+        nil ->
+          conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+
+        {:error, :cannot_change_owner} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> json(%{error: "The owner role cannot be changed or assigned"})
+
         {:ok, updated} ->
           json(conn, %{data: member_json(updated)})
 
@@ -142,7 +150,10 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
     user = conn.assigns.current_user
 
     if Teams.user_can_write?(project_id, user.id) do
-      case Teams.remove_member(id) do
+      case Teams.get_project_member(project_id, id) && Teams.remove_member(id) do
+        nil ->
+          conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+
         {:ok, _} ->
           json(conn, %{ok: true})
 

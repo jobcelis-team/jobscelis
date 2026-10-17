@@ -107,4 +107,70 @@ defmodule StreamflixCore.Platform.JobsTest do
       end)
     end)
   end
+
+  describe "schedule matching" do
+    alias StreamflixCore.Platform.Jobs
+    alias StreamflixCore.Schemas.Job
+
+    defp job(type, cfg), do: %Job{schedule_type: type, schedule_config: cfg}
+
+    test "cron uses the real year (day-of-week) and does not crash on Feb 29" do
+      # 2028-02-29 is a Tuesday
+      at = ~U[2028-02-29 10:15:00Z]
+      assert Jobs.job_due?(job("cron", %{"expr" => "15 10 * * 2"}), at)
+      refute Jobs.job_due?(job("cron", %{"expr" => "15 10 * * 1"}), at)
+    end
+
+    test "monthly day 31 runs on the last day of shorter months" do
+      cfg = %{"day_of_month" => 31, "hour" => 9, "minute" => 0}
+      assert Jobs.job_due?(job("monthly", cfg), ~U[2026-02-28 09:00:30Z])
+      assert Jobs.job_due?(job("monthly", cfg), ~U[2026-04-30 09:00:00Z])
+      refute Jobs.job_due?(job("monthly", cfg), ~U[2026-03-30 09:00:00Z])
+    end
+
+    test "daily matches exactly one minute" do
+      cfg = %{"hour" => 8, "minute" => 0}
+      assert Jobs.job_due?(job("daily", cfg), ~U[2026-10-17 08:00:59Z])
+      refute Jobs.job_due?(job("daily", cfg), ~U[2026-10-17 07:59:30Z])
+      refute Jobs.job_due?(job("daily", cfg), ~U[2026-10-17 08:01:00Z])
+    end
+
+    test "weekly accepts 0 and 7 for Sunday" do
+      sunday = ~U[2026-10-18 12:00:00Z]
+      assert Jobs.job_due?(job("weekly", %{"day_of_week" => 0, "hour" => 12}), sunday)
+      assert Jobs.job_due?(job("weekly", %{"day_of_week" => 7, "hour" => 12}), sunday)
+    end
+
+    test "invalid schedules are rejected at save time" do
+      project = insert(:project)
+
+      for {type, cfg} <- [
+            {"cron", %{"expr" => "not a cron"}},
+            {"daily", %{"hour" => 25}},
+            {"monthly", %{"day_of_month" => 0}}
+          ] do
+        assert {:error, _} =
+                 Platform.create_job(project.id, %{
+                   "name" => "x",
+                   "schedule_type" => type,
+                   "schedule_config" => cfg,
+                   "action_type" => "emit_event",
+                   "action_config" => %{"topic" => "t"}
+                 })
+      end
+    end
+  end
+
+  describe "scheduler catch-up" do
+    alias StreamflixCore.Platform.Scheduler
+
+    test "a skipped minute is still processed" do
+      last = ~U[2026-10-17 10:00:00Z]
+
+      assert Scheduler.slots_to_run(~U[2026-10-17 10:02:00Z], last) ==
+               [~U[2026-10-17 10:01:00Z], ~U[2026-10-17 10:02:00Z]]
+
+      assert Scheduler.slots_to_run(last, last) == []
+    end
+  end
 end

@@ -39,7 +39,7 @@ defmodule StreamflixCore.Platform.Sandbox do
     |> Repo.one()
   end
 
-  def get_sandbox_endpoint(id), do: Repo.get(SandboxEndpoint, id)
+  def get_sandbox_endpoint(id), do: Repo.get_uuid(SandboxEndpoint, id)
 
   def delete_sandbox_endpoint(id) do
     case Repo.get(SandboxEndpoint, id) do

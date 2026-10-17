@@ -33,25 +33,68 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
 
     case Platform.create_event(job.project_id, body) do
       {:ok, event} -> record_run(job, "success", %{event_id: event.id})
-      {:error, _} -> record_run(job, "failed", %{})
+      {:error, reason} -> record_run(job, "failed", %{error: format_error(reason)})
     end
   end
+
+  @http_methods %{
+    "GET" => :get,
+    "POST" => :post,
+    "PUT" => :put,
+    "PATCH" => :patch,
+    "DELETE" => :delete
+  }
 
   defp run_post_url(job) do
     cfg = job.action_config || %{}
     url = cfg["url"]
-    payload = cfg["payload"] || %{}
-    payload = maybe_substitute_date(payload)
+    payload = maybe_substitute_date(cfg["payload"] || %{})
+    method = Map.get(@http_methods, String.upcase(to_string(cfg["method"] || "POST")), :post)
 
-    if is_binary(url) and url != "" do
-      case Req.post(url, json: payload, receive_timeout: 15_000, finch: StreamflixCore.Finch) do
-        {:ok, %{status: status}} -> record_run(job, "success", %{response_status: status})
-        {:error, reason} -> record_run(job, "failed", %{error: inspect(reason)})
-      end
+    with true <- is_binary(url) and url != "",
+         :ok <- StreamflixCore.Platform.UrlGuard.check(url) do
+      request(job, method, url, payload)
     else
-      record_run(job, "failed", %{error: "missing url"})
+      false ->
+        record_run(job, "failed", %{error: "missing url"})
+
+      {:error, reason} ->
+        record_run(job, "failed", %{
+          error: "url " <> StreamflixCore.Platform.UrlGuard.message(reason)
+        })
     end
   end
+
+  defp request(job, method, url, payload) do
+    opts =
+      [
+        method: method,
+        url: url,
+        receive_timeout: 15_000,
+        finch: StreamflixCore.Finch,
+        redirect: false,
+        retry: false
+      ] ++ if(method in [:get, :delete], do: [], else: [json: payload])
+
+    case Req.request(opts) do
+      {:ok, %{status: status}} when status in 200..299 ->
+        record_run(job, "success", %{response_status: status})
+
+      {:ok, %{status: status}} ->
+        record_run(job, "failed", %{response_status: status, error: "HTTP #{status}"})
+
+      {:error, reason} ->
+        record_run(job, "failed", %{error: Exception.message(reason)})
+    end
+  rescue
+    # e.g. malformed URL: record the failure instead of crashing the worker
+    e -> record_run(job, "failed", %{error: Exception.message(e)})
+  end
+
+  defp format_error(%Ecto.Changeset{} = cs),
+    do: inspect(Ecto.Changeset.traverse_errors(cs, fn {msg, _} -> msg end))
+
+  defp format_error(reason), do: inspect(reason)
 
   defp maybe_substitute_date(payload) when is_map(payload) do
     now = DateTime.utc_now() |> DateTime.to_iso8601()

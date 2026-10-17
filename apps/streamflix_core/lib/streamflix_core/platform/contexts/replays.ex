@@ -4,32 +4,73 @@ defmodule StreamflixCore.Platform.Replays do
   """
   import Ecto.Query
   alias StreamflixCore.Repo
-  alias StreamflixCore.Schemas.{Replay, WebhookEvent}
+  alias StreamflixCore.Schemas.{Replay, Webhook, WebhookEvent}
 
+  @doc """
+  Creates a replay and enqueues its worker.
+
+  Returns `{:error, {:invalid_filter, field}}` when a date cannot be parsed, the
+  range is inverted, or `webhook_id` does not belong to the project — instead of
+  silently dropping the filter and replaying every event.
+  """
   def create_replay(project_id, user_id, filters) do
-    # Count matching events
-    topic = filters["topic"]
-    from_date = parse_replay_datetime(filters["from_date"])
-    to_date = parse_replay_datetime(filters["to_date"])
+    with {:ok, from_date} <- parse_filter(filters, "from_date"),
+         {:ok, to_date} <- parse_filter(filters, "to_date"),
+         :ok <- validate_range(from_date, to_date),
+         :ok <- validate_webhook(project_id, filters["webhook_id"]) do
+      total = count_events_for_replay(project_id, filters["topic"], from_date, to_date)
 
-    total = count_events_for_replay(project_id, topic, from_date, to_date)
+      attrs = %{
+        project_id: project_id,
+        created_by: user_id,
+        status: "pending",
+        filters: normalize_filters(filters),
+        total_events: total
+      }
 
-    attrs = %{
-      project_id: project_id,
-      created_by: user_id,
-      status: "pending",
-      filters: filters,
-      total_events: total
-    }
+      with {:ok, replay} <- %Replay{} |> Replay.changeset(attrs) |> Repo.insert() do
+        case Oban.insert(StreamflixCore.Platform.ObanReplayWorker.new(%{replay_id: replay.id})) do
+          {:ok, _job} ->
+            {:ok, replay}
 
-    case %Replay{} |> Replay.changeset(attrs) |> Repo.insert() do
-      {:ok, replay} ->
-        Oban.insert(StreamflixCore.Platform.ObanReplayWorker.new(%{replay_id: replay.id}))
-        {:ok, replay}
-
-      error ->
-        error
+          {:error, reason} ->
+            replay |> Replay.changeset(%{status: "failed"}) |> Repo.update()
+            {:error, reason}
+        end
+      end
     end
+  end
+
+  defp parse_filter(filters, key) do
+    case filters[key] do
+      blank when blank in [nil, ""] ->
+        {:ok, nil}
+
+      value ->
+        case parse_replay_datetime(value) do
+          nil -> {:error, {:invalid_filter, key}}
+          dt -> {:ok, dt}
+        end
+    end
+  end
+
+  defp validate_range(%DateTime{} = from, %DateTime{} = to) do
+    if DateTime.compare(from, to) == :gt, do: {:error, {:invalid_filter, "to_date"}}, else: :ok
+  end
+
+  defp validate_range(_from, _to), do: :ok
+
+  defp validate_webhook(_project_id, blank) when blank in [nil, ""], do: :ok
+
+  defp validate_webhook(project_id, webhook_id) do
+    case Repo.get_uuid(Webhook, webhook_id) do
+      %Webhook{project_id: ^project_id} -> :ok
+      _ -> {:error, {:invalid_filter, "webhook_id"}}
+    end
+  end
+
+  defp normalize_filters(filters) do
+    Map.new(filters, fn {k, v} -> {k, if(v == "", do: nil, else: v)} end)
   end
 
   def list_replays(project_id, opts \\ []) do
@@ -42,10 +83,10 @@ defmodule StreamflixCore.Platform.Replays do
     |> Repo.all()
   end
 
-  def get_replay(id), do: Repo.get(Replay, id)
+  def get_replay(id), do: Repo.get_uuid(Replay, id)
 
   def cancel_replay(id) do
-    case Repo.get(Replay, id) do
+    case Repo.get_uuid(Replay, id) do
       nil ->
         {:error, :not_found}
 

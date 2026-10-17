@@ -4,13 +4,22 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
   """
   use StreamflixWebWeb, :verified_routes
   use Gettext, backend: StreamflixWebWeb.Gettext
+  use Phoenix.Component
 
   alias StreamflixCore.{Platform, Teams, Uptime}
 
   # ── Formatting ──────────────────────────────────────────────────────
 
+  # Rendered as <.local_time>: shown in the viewer's timezone, UTC in the tooltip
   def format_dt(nil), do: "—"
-  def format_dt(dt), do: Calendar.strftime(dt, "%Y-%m-%d %H:%M:%S")
+
+  def format_dt(dt) do
+    assigns = %{dt: dt}
+
+    ~H"""
+    <StreamflixWebWeb.CoreComponents.local_time value={@dt} />
+    """
+  end
 
   def to_str(v) when is_binary(v), do: v
   def to_str(v) when is_integer(v), do: Integer.to_string(v)
@@ -84,6 +93,56 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
 
   def format_json_preview(body), do: inspect(body)
 
+  @doc "Translated label for a stored status value (they are English enums)."
+  def status_label("active"), do: gettext("Activo")
+  def status_label("inactive"), do: gettext("Inactivo")
+  def status_label("pending"), do: gettext("Pendiente")
+  def status_label("success"), do: gettext("Exitoso")
+  def status_label("failed"), do: gettext("Fallido")
+  def status_label("circuit_open"), do: gettext("Circuito abierto")
+  def status_label("running"), do: gettext("Ejecutando")
+  def status_label("completed"), do: gettext("Completado")
+  def status_label("cancelled"), do: gettext("Cancelado")
+  def status_label("removed"), do: gettext("Eliminado")
+  def status_label("healthy"), do: gettext("Saludable")
+  def status_label("degraded"), do: gettext("Degradado")
+  def status_label("unhealthy"), do: gettext("Con fallos")
+  def status_label(nil), do: "—"
+  def status_label(other), do: other
+
+  def oban_state_label("available"), do: gettext("Disponible")
+  def oban_state_label("scheduled"), do: gettext("Programado")
+  def oban_state_label("executing"), do: gettext("Ejecutando")
+  def oban_state_label("retryable"), do: gettext("Por reintentar")
+  def oban_state_label("completed"), do: gettext("Completado")
+  def oban_state_label("discarded"), do: gettext("Descartado")
+  def oban_state_label("cancelled"), do: gettext("Cancelado")
+  def oban_state_label(other), do: other
+
+  def alert_type_label("webhook_failing"), do: gettext("Webhook fallando")
+  def alert_type_label("circuit_open"), do: gettext("Circuito abierto")
+  def alert_type_label("circuit_closed"), do: gettext("Circuito cerrado")
+  def alert_type_label("dlq_entry"), do: gettext("Entrega movida a DLQ")
+  def alert_type_label("job_failed"), do: gettext("Job fallido")
+  def alert_type_label("replay_completed"), do: gettext("Replay completado")
+  def alert_type_label(other), do: other
+
+  def role_label("owner"), do: gettext("Propietario")
+  def role_label("editor"), do: gettext("Editor")
+  def role_label("viewer"), do: gettext("Viewer")
+  def role_label(nil), do: "—"
+  def role_label(other), do: other
+
+  def schedule_type_label("daily"), do: gettext("Diario")
+  def schedule_type_label("weekly"), do: gettext("Semanal")
+  def schedule_type_label("monthly"), do: gettext("Mensual")
+  def schedule_type_label("cron"), do: gettext("Cron")
+  def schedule_type_label(other), do: other
+
+  def action_type_label("emit_event"), do: gettext("Emitir evento")
+  def action_type_label("post_url"), do: gettext("Llamar URL")
+  def action_type_label(other), do: other
+
   def replay_status_class("pending"), do: "bg-slate-100 text-slate-700"
   def replay_status_class("running"), do: "bg-blue-100 text-blue-800"
   def replay_status_class("completed"), do: "bg-emerald-100 text-emerald-800"
@@ -102,7 +161,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
 
   def audit_action_label("webhook.created"), do: gettext("Webhook creado")
   def audit_action_label("webhook.updated"), do: gettext("Webhook actualizado")
-  def audit_action_label("webhook.deleted"), do: gettext("Webhook eliminado")
+  def audit_action_label("webhook.deleted"), do: gettext("Webhook desactivado")
   def audit_action_label("event.created"), do: gettext("Evento enviado")
   def audit_action_label("job.created"), do: gettext("Job creado")
   def audit_action_label("job.updated"), do: gettext("Job actualizado")
@@ -150,7 +209,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
 
   # ── Sandbox ────────────────────────────────────────────────────────
 
-  def sandbox_url(endpoint), do: "/sandbox/#{endpoint.slug}"
+  def sandbox_url(endpoint), do: StreamflixWebWeb.Endpoint.url() <> "/sandbox/#{endpoint.slug}"
 
   # ── HTTP Method Colors ─────────────────────────────────────────────
 
@@ -188,23 +247,38 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
 
   # ── KPI ────────────────────────────────────────────────────────────
 
-  def compute_kpi_events_today(events) do
-    cutoff = DateTime.utc_now() |> DateTime.add(-24, :hour)
+  @doc "Project members with a human-readable label (name/email) instead of the raw user id."
+  def list_team_members(project_id) do
+    members = Teams.list_members(project_id)
 
-    Enum.count(events, fn e ->
-      e.occurred_at && DateTime.compare(e.occurred_at, cutoff) == :gt
+    users =
+      members
+      |> Enum.map(& &1.user_id)
+      |> StreamflixAccounts.list_users_by_ids()
+      |> Map.new(&{&1.id, &1})
+
+    Enum.map(members, fn m ->
+      label =
+        case users[m.user_id] do
+          %{name: name, email: email} when is_binary(name) and name != "" -> "#{name} (#{email})"
+          %{email: email} when is_binary(email) -> email
+          _ -> String.slice(m.user_id, 0, 8) <> "..."
+        end
+
+      m |> Map.from_struct() |> Map.put(:label, label)
     end)
   end
 
-  def compute_kpi_success_rate(deliveries) do
-    total = length(deliveries)
+  # KPIs are computed in the database over the last 24h. The loaded event and
+  # delivery lists are capped (20/30 rows), so counting them under-reports.
+  def assign_kpis(socket, nil), do: socket
 
-    if total > 0 do
-      success = Enum.count(deliveries, &(&1.status == "success"))
-      Float.round(success / total * 100, 1)
-    else
-      0.0
-    end
+  def assign_kpis(socket, project) do
+    since = DateTime.utc_now() |> DateTime.add(-24, :hour)
+
+    socket
+    |> Phoenix.Component.assign(:kpi_events_today, Platform.count_events_since(project.id, since))
+    |> Phoenix.Component.assign(:kpi_success_rate, Platform.success_rate_since(project.id, since))
   end
 
   # ── Uptime ─────────────────────────────────────────────────────────
@@ -240,7 +314,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
            ]
 
            stats = safe_await_many(tasks) |> Enum.reject(&is_nil/1) |> Map.new()
-           {:commit, stats, ttl: :timer.minutes(5)}
+           {:commit, stats, expire: :timer.minutes(5)}
          end) do
       {:ok, stats} -> stats
       {:commit, stats} -> stats
@@ -334,7 +408,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
              |> Enum.reject(&is_nil/1)
              |> Map.new()
 
-           {:commit, data, ttl: :timer.minutes(5)}
+           {:commit, data, expire: :timer.minutes(5)}
          end) do
       {:ok, data} -> data
       {:commit, data} -> data
@@ -381,8 +455,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
     |> Phoenix.Component.assign(:webhooks, webhooks)
     |> Phoenix.Component.assign(:deliveries, deliveries)
     |> Phoenix.Component.assign(:current_user_role, current_user_role)
-    |> Phoenix.Component.assign(:kpi_events_today, compute_kpi_events_today(events))
-    |> Phoenix.Component.assign(:kpi_success_rate, compute_kpi_success_rate(deliveries))
+    |> assign_kpis(project)
     |> Phoenix.Component.assign(:new_token, new_token)
     |> Phoenix.Component.assign(:token_source, token_source)
     |> Phoenix.Component.assign(:pipelines, pipelines)

@@ -11,6 +11,8 @@ defmodule StreamflixCore.CircuitBreaker do
   alias StreamflixCore.Notifications
 
   @failure_threshold 5
+  # Early warning before the circuit opens
+  @failing_threshold 3
   @base_reset_seconds 300
   @max_reset_seconds 7200
 
@@ -61,34 +63,50 @@ defmodule StreamflixCore.CircuitBreaker do
 
   @doc """
   Record a failed delivery. Increments failure count and opens circuit if threshold reached.
+
+  The counter is incremented atomically in the database: the webhook struct a
+  delivery loaded can be stale when several deliveries fail concurrently.
   """
   def record_failure(%Webhook{} = webhook) do
-    new_failures = (webhook.consecutive_failures || 0) + 1
+    import Ecto.Query
 
-    if new_failures >= @failure_threshold do
-      now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
-
-      webhook
-      |> Webhook.changeset(%{
-        circuit_state: "open",
-        consecutive_failures: new_failures,
-        circuit_opened_at: now
-      })
-      |> Repo.update()
-
-      Logger.warning(
-        "[CircuitBreaker] Circuit opened for webhook #{webhook.id} after #{new_failures} failures"
+    {_, [%{failures: new_failures, state: state}]} =
+      from(w in Webhook,
+        where: w.id == ^webhook.id,
+        select: %{failures: w.consecutive_failures, state: w.circuit_state}
       )
+      |> Repo.update_all(inc: [consecutive_failures: 1])
 
-      StreamflixCore.TelemetryEvents.circuit_opened(webhook.project_id, webhook.id)
-      notify_circuit_open(webhook)
-    else
-      webhook
-      |> Webhook.changeset(%{consecutive_failures: new_failures})
-      |> Repo.update()
+    if new_failures == @failing_threshold, do: notify_webhook_failing(webhook)
+
+    cond do
+      # A failed half-open probe re-opens the circuit without alerting again
+      state == "half_open" ->
+        open_circuit(webhook)
+
+      state != "open" and new_failures >= @failure_threshold ->
+        open_circuit(webhook)
+
+        Logger.warning(
+          "[CircuitBreaker] Circuit opened for webhook #{webhook.id} after #{new_failures} failures"
+        )
+
+        StreamflixCore.TelemetryEvents.circuit_opened(webhook.project_id, webhook.id)
+        notify_circuit_open(webhook)
+
+      true ->
+        :ok
     end
 
     :ok
+  end
+
+  defp open_circuit(webhook) do
+    import Ecto.Query
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    from(w in Webhook, where: w.id == ^webhook.id)
+    |> Repo.update_all(set: [circuit_state: "open", circuit_opened_at: now, updated_at: now])
   end
 
   defp circuit_expired?(%Webhook{circuit_opened_at: nil}), do: true
@@ -109,8 +127,18 @@ defmodule StreamflixCore.CircuitBreaker do
       webhook,
       "circuit_open",
       "Circuit breaker opened",
-      "Webhook #{webhook.url} has been paused after #{@failure_threshold} consecutive failures. Will retry in #{div(@base_reset_seconds, 60)} minutes."
+      "Webhook #{webhook.url} has been paused after #{@failure_threshold} consecutive failures. Deliveries are retried automatically and resume once it recovers."
     )
+  end
+
+  defp notify_webhook_failing(webhook) do
+    case Repo.get(StreamflixCore.Schemas.Project, webhook.project_id) do
+      %{user_id: user_id} = project when not is_nil(user_id) ->
+        Notifications.notify_webhook_failing(user_id, project.id, webhook.url)
+
+      _ ->
+        :ok
+    end
   end
 
   defp notify_circuit_closed(webhook) do

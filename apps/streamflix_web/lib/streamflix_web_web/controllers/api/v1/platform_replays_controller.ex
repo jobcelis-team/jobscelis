@@ -57,10 +57,15 @@ defmodule StreamflixWebWeb.Api.V1.PlatformReplaysController do
         |> put_status(:created)
         |> json(replay_json(replay))
 
-      {:error, changeset} ->
+      {:error, {:invalid_filter, field}} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> json(%{error: "Failed to create replay", details: inspect(changeset)})
+        |> json(%{error: "Invalid replay filter", field: field})
+
+      {:error, _reason} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "Failed to create replay"})
     end
   end
 
