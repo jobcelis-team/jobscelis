@@ -1078,6 +1078,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
       case Platform.create_sandbox_endpoint(project.id, params["name"]) do
         {:ok, endpoint} ->
+          audit(socket, "sandbox.created", "sandbox_endpoint", endpoint.id, %{slug: endpoint.slug})
+
           endpoints = Platform.list_sandbox_endpoints(project.id)
           requests = Platform.list_sandbox_requests(endpoint.id)
 
