@@ -24,7 +24,7 @@ defmodule StreamflixCore.Platform.Jobs do
     |> Repo.all()
   end
 
-  def get_job(id), do: Repo.get(Job, id)
+  def get_job(id), do: Repo.get_uuid(Job, id)
   def get_job!(id), do: Repo.get!(Job, id)
 
   def update_job(%Job{} = job, attrs) do
@@ -37,71 +37,79 @@ defmodule StreamflixCore.Platform.Jobs do
     update_job(job, %{status: "inactive"})
   end
 
-  def list_jobs_to_run_now() do
-    now = DateTime.utc_now()
-    today_sec = now.hour * 3600 + now.minute * 60 + now.second
-    date = DateTime.to_date(now)
-    day_of_week = Date.day_of_week(date)
-    day_of_month = date.day
-    month = date.month
-    minute = now.minute
-    hour = now.hour
+  @doc """
+  Active jobs due in the minute containing `at` (UTC). Matching is done per whole
+  minute; the scheduler calls this once for every minute, catching up on any it
+  missed, so exact matching never skips or double-fires a run.
+  """
+  def list_jobs_to_run_now(at \\ DateTime.utc_now()) do
+    slot = minute_slot(at)
 
     Job
     |> where([j], j.status == "active")
     |> Repo.all()
-    |> Enum.filter(fn j ->
-      cfg = j.schedule_config || %{}
-      type = j.schedule_type || "daily"
-
-      case type do
-        "daily" ->
-          h = Map.get(cfg, "hour", 0)
-          m = Map.get(cfg, "minute", 0)
-          target_sec = h * 3600 + m * 60
-          target_sec == today_sec or abs(target_sec - today_sec) < 60
-
-        "weekly" ->
-          dow = Map.get(cfg, "day_of_week")
-          h = Map.get(cfg, "hour", 0)
-          min_cfg = Map.get(cfg, "minute", 0)
-          dow_ok = dow == nil or dow == day_of_week or (dow == 0 and day_of_week == 7)
-          time_ok = h == hour and min_cfg == minute
-          dow_ok and time_ok
-
-        "monthly" ->
-          dom = Map.get(cfg, "day_of_month")
-          h = Map.get(cfg, "hour", 0)
-          min_cfg = Map.get(cfg, "minute", 0)
-          dom_ok = dom == nil or dom == day_of_month
-          time_ok = h == hour and min_cfg == minute
-          dom_ok and time_ok
-
-        "cron" ->
-          expr = Map.get(cfg, "expr") || Map.get(cfg, "expression")
-          cron_matches?(expr, minute, hour, day_of_month, month, day_of_week)
-
-        _ ->
-          false
-      end
-    end)
+    |> Enum.filter(&job_due?(&1, slot))
   end
 
-  def cron_matches?(nil, _min, _h, _dom, _mon, _dow), do: false
+  @doc "Truncates a datetime to the start of its minute (UTC)."
+  def minute_slot(%DateTime{} = at) do
+    %{DateTime.truncate(at, :second) | second: 0}
+  end
 
-  def cron_matches?(expr, min, hour, day_of_month, month, _day_of_week) when is_binary(expr) do
-    case Crontab.CronExpression.Parser.parse(expr) do
-      {:ok, cron} ->
-        naive = NaiveDateTime.new!(Date.new!(2026, month, day_of_month), Time.new!(hour, min, 0))
+  @doc false
+  def job_due?(%Job{} = job, %DateTime{} = slot) do
+    cfg = job.schedule_config || %{}
+    date = DateTime.to_date(slot)
+    time_ok = cfg_int(cfg, "hour", 0) == slot.hour and cfg_int(cfg, "minute", 0) == slot.minute
 
-        Crontab.DateChecker.matches_date?(cron, naive)
+    case job.schedule_type || "daily" do
+      "daily" ->
+        time_ok
 
-      {:error, _} ->
+      "weekly" ->
+        dow = cfg_int(cfg, "day_of_week", nil)
+        # Accept both 0 and 7 for Sunday
+        dow_ok = dow == nil or rem(dow, 7) == rem(Date.day_of_week(date), 7)
+        dow_ok and time_ok
+
+      "monthly" ->
+        # Day 29-31 runs on the last day of shorter months instead of being skipped
+        dom = cfg_int(cfg, "day_of_month", nil)
+        dom_ok = dom == nil or min(dom, Date.days_in_month(date)) == date.day
+        dom_ok and time_ok
+
+      "cron" ->
+        cron_matches?(Map.get(cfg, "expr") || Map.get(cfg, "expression"), slot)
+
+      _ ->
         false
     end
   end
 
-  def cron_matches?(_, _min, _h, _dom, _mon, _dow), do: false
+  defp cfg_int(cfg, key, default) do
+    case Map.get(cfg, key) do
+      n when is_integer(n) ->
+        n
+
+      s when is_binary(s) ->
+        case Integer.parse(s) do
+          {n, ""} -> n
+          _ -> default
+        end
+
+      _ ->
+        default
+    end
+  end
+
+  def cron_matches?(expr, %DateTime{} = at) when is_binary(expr) do
+    case Crontab.CronExpression.Parser.parse(expr) do
+      {:ok, cron} -> Crontab.DateChecker.matches_date?(cron, DateTime.to_naive(minute_slot(at)))
+      {:error, _} -> false
+    end
+  end
+
+  def cron_matches?(_expr, _at), do: false
 
   @doc """
   Calculate next N execution times for a cron expression.

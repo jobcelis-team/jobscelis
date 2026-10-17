@@ -84,7 +84,8 @@ defmodule StreamflixWebWeb.DocsLive do
         items: [
           %{id: "base-url", label: "Base URL"},
           %{id: "auth", label: gettext("Autenticación")},
-          %{id: "cors", label: "CORS"}
+          %{id: "cors", label: "CORS"},
+          %{id: "dates-timezones", label: gettext("Fechas y zonas horarias")}
         ]
       },
       %{
@@ -126,7 +127,7 @@ defmodule StreamflixWebWeb.DocsLive do
           %{id: "topic-wildcards", label: "Topic Wildcards"},
           %{id: "delayed-events", label: gettext("Eventos diferidos")},
           %{id: "batch-events", label: "Batch Events"},
-          %{id: "cursor-págination", label: gettext("Paginación cursor")},
+          %{id: "cursor-pagination", label: gettext("Paginación cursor")},
           %{id: "webhook-templates", label: gettext("Plantillas webhook")},
           %{id: "ip-allowlist", label: "IP Allowlist"},
           %{id: "simulate", label: gettext("Simulador")},
@@ -163,7 +164,7 @@ defmodule StreamflixWebWeb.DocsLive do
           %{id: "uptime-monitoring", label: gettext("Monitoreo")},
           %{id: "backups", label: gettext("Backups")},
           %{id: "data-protection", label: gettext("GDPR / RGPD")},
-          %{id: "consent-versióning", label: gettext("Consentimientos")}
+          %{id: "consent-versioning", label: gettext("Consentimientos")}
         ]
       },
       %{

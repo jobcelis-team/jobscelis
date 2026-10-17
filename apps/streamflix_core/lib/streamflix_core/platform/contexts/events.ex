@@ -3,6 +3,7 @@ defmodule StreamflixCore.Platform.Events do
   Event management: create, list, idempotency, delayed events, schema validation.
   """
   import Ecto.Query
+  require Logger
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.{WebhookEvent, Delivery, BatchItem}
 
@@ -18,17 +19,25 @@ defmodule StreamflixCore.Platform.Events do
         Map.get(body, "idempotency_key") || Map.get(body, :idempotency_key)
 
       # Idempotency: return existing event if key already used
-      if idempotency_key do
-        case Repo.one(
-               from(e in WebhookEvent,
-                 where: e.project_id == ^project_id and e.idempotency_key == ^idempotency_key
-               )
-             ) do
-          %WebhookEvent{} = existing -> {:ok, existing}
-          nil -> do_create_event(project_id, body, idempotency_key)
-        end
-      else
-        do_create_event(project_id, body, nil)
+      cond do
+        not (is_nil(idempotency_key) or (is_binary(idempotency_key) and idempotency_key != "")) ->
+          {:error, :invalid_idempotency_key}
+
+        match?({:error, _}, parse_deliver_at(body)) ->
+          {:error, :invalid_deliver_at}
+
+        idempotency_key ->
+          case Repo.one(
+                 from(e in WebhookEvent,
+                   where: e.project_id == ^project_id and e.idempotency_key == ^idempotency_key
+                 )
+               ) do
+            %WebhookEvent{} = existing -> {:ok, existing}
+            nil -> do_create_event(project_id, body, idempotency_key)
+          end
+
+        true ->
+          do_create_event(project_id, body, nil)
       end
     end
   end
@@ -45,13 +54,16 @@ defmodule StreamflixCore.Platform.Events do
       {:error, _} = err -> throw(err)
     end
 
-    # Parse deliver_at for delayed events
-    deliver_at = parse_deliver_at(body)
+    # Parse deliver_at for delayed events (already validated in create_event/2)
+    {:ok, deliver_at} = parse_deliver_at(body)
 
     # Compute SHA256 hash of canonical payload
     payload_hash =
       :crypto.hash(:sha256, Jason.encode!(payload))
       |> Base.encode16(case: :lower)
+
+    deliver_now? =
+      is_nil(deliver_at) or DateTime.compare(deliver_at, DateTime.utc_now()) != :gt
 
     attrs = %{
       project_id: project_id,
@@ -60,13 +72,15 @@ defmodule StreamflixCore.Platform.Events do
       status: "active",
       occurred_at: occurred_at,
       deliver_at: deliver_at,
+      # A past deliver_at is dispatched right away: keep the delayed worker off it
+      dispatched_at: if(deliver_at && deliver_now?, do: occurred_at),
       payload_hash: payload_hash,
       idempotency_key: idempotency_key
     }
 
     with {:ok, event} <- insert_event(attrs) do
       # Skip immediate delivery if future deliver_at
-      if is_nil(deliver_at) or DateTime.compare(deliver_at, DateTime.utc_now()) != :gt do
+      if deliver_now? do
         create_deliveries_for_event(event)
       end
 
@@ -78,35 +92,49 @@ defmodule StreamflixCore.Platform.Events do
     {:error, {:schema_validation, _errors}} = err -> err
   end
 
+  # An unparseable deliver_at is an error: silently ignoring it would deliver a
+  # scheduled event immediately.
   defp parse_deliver_at(body) do
-    raw = Map.get(body, "deliver_at") || Map.get(body, :deliver_at)
-
-    case raw do
-      nil ->
-        nil
-
-      str when is_binary(str) ->
-        case DateTime.from_iso8601(str) do
-          {:ok, dt, _} -> DateTime.truncate(dt, :microsecond)
-          _ -> nil
-        end
-
-      _ ->
-        nil
+    case Map.get(body, "deliver_at") || Map.get(body, :deliver_at) do
+      nil -> {:ok, nil}
+      str when is_binary(str) -> parse_iso_datetime(str)
+      _ -> {:error, :invalid_deliver_at}
     end
   end
 
-  @doc false
-  def extract_topic_and_payload(body) do
-    case Map.get(body, "topic") || Map.get(body, :topic) do
-      nil ->
-        {nil, body}
+  defp parse_iso_datetime(str) do
+    case DateTime.from_iso8601(str) do
+      {:ok, dt, _} ->
+        {:ok, DateTime.truncate(dt, :microsecond)}
 
-      t when is_binary(t) ->
-        {t, Map.delete(Map.new(body, fn {k, v} -> {to_string(k), v} end), "topic")}
+      # Timestamps without offset (e.g. Python's naive isoformat()) are treated as UTC
+      {:error, :missing_offset} ->
+        case NaiveDateTime.from_iso8601(str) do
+          {:ok, naive} ->
+            {:ok, naive |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:microsecond)}
+
+          _ ->
+            {:error, :invalid_deliver_at}
+        end
 
       _ ->
-        {nil, body}
+        {:error, :invalid_deliver_at}
+    end
+  end
+
+  # Request-level control fields: they configure the event, they are not part of its payload.
+  @control_fields ~w(topic deliver_at idempotency_key)
+
+  @doc false
+  def extract_topic_and_payload(body) do
+    string_body = Map.new(body, fn {k, v} -> {to_string(k), v} end)
+
+    case Map.get(string_body, "topic") do
+      t when is_binary(t) ->
+        {t, Map.drop(string_body, @control_fields)}
+
+      _ ->
+        {nil, Map.drop(string_body, @control_fields -- ["topic"])}
     end
   end
 
@@ -117,45 +145,84 @@ defmodule StreamflixCore.Platform.Events do
   end
 
   defp create_deliveries_for_event(event) do
-    alias StreamflixCore.Schemas.Delivery, as: DeliverySchema
+    alias StreamflixCore.Platform.{Pipelines, Webhooks}
 
-    webhooks = StreamflixCore.Platform.Webhooks.list_active_webhooks_for_project(event.project_id)
+    webhooks = Webhooks.list_active_webhooks_for_project(event.project_id)
+    webhooks_by_id = Map.new(webhooks, &{&1.id, &1})
 
-    matching =
-      Enum.filter(webhooks, &StreamflixCore.Platform.Webhooks.webhook_matches_event?(&1, event))
+    # Pipelines whose topics match and whose target webhook is active take over
+    # delivery for that webhook: the event goes through the pipeline steps instead.
+    pipelines =
+      event.project_id
+      |> Pipelines.matching_pipelines(event.topic)
+      |> Enum.filter(&Map.has_key?(webhooks_by_id, &1.webhook_id))
 
-    Enum.each(matching, fn w ->
-      batch_config = w.batch_config || %{}
+    piped_webhook_ids = MapSet.new(pipelines, & &1.webhook_id)
 
-      if batch_config["enabled"] == true do
-        # Add to batch queue instead of immediate delivery
-        %BatchItem{}
-        |> BatchItem.changeset(%{webhook_id: w.id, event_id: event.id})
-        |> Repo.insert()
-      else
-        case %DeliverySchema{}
-             |> DeliverySchema.changeset(%{
-               event_id: event.id,
-               webhook_id: w.id,
-               status: "pending",
-               attempt_number: 0
-             })
-             |> Repo.insert() do
-          {:ok, delivery} ->
-            Oban.insert(
-              StreamflixCore.Platform.ObanDeliveryWorker.new(%{
-                delivery_id: delivery.id,
-                retry_config: w.retry_config || %{}
-              })
-            )
+    webhooks
+    |> Enum.reject(&MapSet.member?(piped_webhook_ids, &1.id))
+    |> Enum.filter(&Webhooks.webhook_matches_event?(&1, event))
+    |> Enum.each(&deliver_direct(event, &1))
 
-          _ ->
-            :ok
-        end
-      end
-    end)
+    Enum.each(pipelines, &deliver_through_pipeline(event, &1, webhooks_by_id[&1.webhook_id]))
 
     :ok
+  end
+
+  defp deliver_direct(event, webhook) do
+    batch_config = webhook.batch_config || %{}
+
+    if batch_config["enabled"] == true do
+      # Add to batch queue instead of immediate delivery
+      %BatchItem{}
+      |> BatchItem.changeset(%{webhook_id: webhook.id, event_id: event.id})
+      |> Repo.insert()
+    else
+      enqueue_delivery(event, webhook, nil, 0)
+    end
+  end
+
+  defp deliver_through_pipeline(event, pipeline, webhook) do
+    alias StreamflixCore.Platform.Pipelines
+
+    case Pipelines.execute_steps(pipeline.steps || [], event.payload || %{}) do
+      {:ok, payload} ->
+        override = if payload == event.payload, do: nil, else: payload
+        enqueue_delivery(event, webhook, override, Pipelines.total_delay_seconds(pipeline.steps))
+
+      {:filtered, _reason} ->
+        :skipped
+    end
+  end
+
+  defp enqueue_delivery(event, webhook, payload_override, delay_seconds) do
+    alias StreamflixCore.Schemas.Delivery, as: DeliverySchema
+
+    case %DeliverySchema{}
+         |> DeliverySchema.changeset(%{
+           event_id: event.id,
+           webhook_id: webhook.id,
+           status: "pending",
+           attempt_number: 0,
+           payload_override: payload_override
+         })
+         |> Repo.insert() do
+      {:ok, delivery} ->
+        job_opts = if delay_seconds > 0, do: [schedule_in: delay_seconds], else: []
+
+        %{delivery_id: delivery.id, retry_config: webhook.retry_config || %{}}
+        |> StreamflixCore.Platform.ObanDeliveryWorker.new(job_opts)
+        |> Oban.insert()
+
+      {:error, changeset} ->
+        Logger.error("Failed to create delivery",
+          event_id: event.id,
+          webhook_id: webhook.id,
+          error: inspect(changeset.errors)
+        )
+
+        {:error, changeset}
+    end
   end
 
   def list_events(project_id, opts \\ []) do
@@ -170,6 +237,14 @@ defmodule StreamflixCore.Platform.Events do
     |> order_by([e], desc: e.occurred_at)
     |> limit(^limit)
     |> Repo.all()
+  end
+
+  @doc "Number of active events of a project that occurred since the given datetime."
+  def count_events_since(project_id, %DateTime{} = since) do
+    WebhookEvent
+    |> where([e], e.project_id == ^project_id and e.status == "active")
+    |> where([e], e.occurred_at >= ^since)
+    |> Repo.aggregate(:count)
   end
 
   defp maybe_filter_topic(query, nil), do: query
@@ -198,7 +273,28 @@ defmodule StreamflixCore.Platform.Events do
     |> Repo.all()
   end
 
-  def get_event(id), do: Repo.get(WebhookEvent, id)
+  @doc """
+  Dashboard search: an exact event ID, or a case-insensitive partial topic match
+  over all of the project's active events (not only the most recent ones).
+  """
+  def search_events_by_text(project_id, text, limit \\ 50) when is_binary(text) do
+    base =
+      WebhookEvent
+      |> where([e], e.project_id == ^project_id and e.status == "active")
+      |> order_by([e], desc: e.occurred_at)
+      |> limit(^limit)
+
+    case Ecto.UUID.cast(text) do
+      {:ok, id} ->
+        base |> where([e], e.id == ^id) |> Repo.all()
+
+      :error ->
+        pattern = "%" <> String.replace(text, ["\\", "%", "_"], &("\\" <> &1)) <> "%"
+        base |> where([e], ilike(e.topic, ^pattern)) |> Repo.all()
+    end
+  end
+
+  def get_event(id), do: Repo.get_uuid(WebhookEvent, id)
   def get_event!(id), do: Repo.get!(WebhookEvent, id)
 
   def list_topics_used(project_id) do
@@ -279,16 +375,30 @@ defmodule StreamflixCore.Platform.Events do
       from(e in WebhookEvent,
         as: :event,
         where: not is_nil(e.deliver_at) and e.deliver_at <= ^now and e.status == "active",
+        where: is_nil(e.dispatched_at),
         where: not exists(from(d in Delivery, where: d.event_id == parent_as(:event).id))
       )
       |> Repo.all()
 
-    Enum.each(events, fn event ->
-      create_deliveries_for_event(event)
-      broadcast(event.project_id, {:delayed_event_delivered, event})
-    end)
+    dispatched =
+      Enum.count(events, fn event ->
+        # Claim the event first: events matching no webhook (or batch-only
+        # webhooks) produce no Delivery rows and would otherwise be re-processed
+        # on every run. The conditional update also prevents double dispatch.
+        {claimed, _} =
+          from(e in WebhookEvent, where: e.id == ^event.id and is_nil(e.dispatched_at))
+          |> Repo.update_all(set: [dispatched_at: now])
 
-    {:ok, length(events)}
+        if claimed == 1 do
+          create_deliveries_for_event(event)
+          broadcast(event.project_id, {:delayed_event_delivered, event})
+          true
+        else
+          false
+        end
+      end)
+
+    {:ok, dispatched}
   end
 
   # ---------- GDPR ----------

@@ -205,11 +205,27 @@ defmodule StreamflixWebWeb.Docs.SectionReference do
             </code>
             — {gettext("Crear/editar jobs")}
           </div>
-          <div>
+          <div :for={
+            {scope, label} <- [
+              {"deliveries:read", gettext("Leer entregas")},
+              {"deliveries:retry", gettext("Reintentar entregas")},
+              {"pipelines:read", gettext("Leer pipelines")},
+              {"pipelines:write", gettext("Crear/editar pipelines")},
+              {"dead_letters:read", gettext("Leer dead letters")},
+              {"dead_letters:write", gettext("Reintentar/resolver dead letters")},
+              {"replays:read", gettext("Leer replays")},
+              {"replays:write", gettext("Crear/cancelar replays")},
+              {"sandbox:read", gettext("Leer sandbox")},
+              {"sandbox:write", gettext("Crear/eliminar sandbox")},
+              {"analytics:read", gettext("Leer analytics")},
+              {"audit:read", gettext("Leer audit log")},
+              {"*", gettext("Acceso total")}
+            ]
+          }>
             <code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs dark:text-slate-200">
-              admin
+              {scope}
             </code>
-            — {gettext("Acceso total")}
+            — {label}
           </div>
         </div>
       </div>

@@ -291,7 +291,7 @@ defmodule StreamflixWebWeb.Docs.SectionSecurity do
     </.docs_section>
 
     <.docs_section
-      id="consent-versióning"
+      id="consent-versioning"
       title={gettext("Consentimientos")}
       subtitle={gettext("Gestión versionada de consentimientos GDPR.")}
     >

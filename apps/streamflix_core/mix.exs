@@ -34,7 +34,7 @@ defmodule StreamflixCore.MixProject do
       {:phoenix_pubsub, "~> 2.2"},
       {:oban, "~> 2.20"},
       {:jason, "~> 1.4"},
-      {:req, "~> 0.5"},
+      {:req, "~> 0.7"},
       {:uuid, "~> 1.1"},
       {:cachex, "~> 4.0"},
       {:cloak_ecto, "~> 1.3"},

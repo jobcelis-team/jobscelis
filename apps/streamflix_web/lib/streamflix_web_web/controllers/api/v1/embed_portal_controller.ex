@@ -51,7 +51,8 @@ defmodule StreamflixWebWeb.Api.V1.EmbedPortalController do
     attrs = %{
       "url" => params["url"],
       "topics" => params["topics"] || [],
-      "secret" => params["secret"]
+      # The schema stores the signing secret in secret_encrypted
+      "secret_encrypted" => params["secret"]
     }
 
     case Platform.create_webhook(project.id, attrs) do
@@ -72,7 +73,10 @@ defmodule StreamflixWebWeb.Api.V1.EmbedPortalController do
         params
         |> Map.take(["url", "topics", "secret", "status"])
         |> Enum.reject(fn {_k, v} -> is_nil(v) end)
-        |> Map.new()
+        |> Map.new(fn
+          {"secret", v} -> {"secret_encrypted", v}
+          kv -> kv
+        end)
 
       case Platform.update_webhook(webhook, attrs) do
         {:ok, updated} ->
@@ -105,10 +109,15 @@ defmodule StreamflixWebWeb.Api.V1.EmbedPortalController do
 
   def list_deliveries(conn, params) do
     project = conn.assigns.current_project
-    limit = min(String.to_integer(params["limit"] || "50"), 100)
+
+    limit =
+      case Integer.parse(to_string(params["limit"] || "50")) do
+        {n, _} -> n |> max(1) |> min(100)
+        :error -> 50
+      end
 
     opts =
-      [project_id: project.id, limit: limit]
+      [project_id: project.id, limit: limit, cursor: params["cursor"]]
       |> maybe_add(:webhook_id, params["webhook_id"])
       |> maybe_add(:status, params["status"])
 
@@ -130,6 +139,12 @@ defmodule StreamflixWebWeb.Api.V1.EmbedPortalController do
 
       {:error, :not_found} ->
         conn |> put_status(:not_found) |> json(%{error: "Delivery not found"})
+
+      {:error, :already_succeeded} ->
+        conn |> put_status(:conflict) |> json(%{error: "Delivery already succeeded"})
+
+      {:error, _} ->
+        conn |> put_status(500) |> json(%{error: "Failed to queue retry"})
     end
   end
 

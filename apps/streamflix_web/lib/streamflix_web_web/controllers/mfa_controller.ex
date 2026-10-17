@@ -29,29 +29,15 @@ defmodule StreamflixWebWeb.MfaController do
       {:ok, user_id} ->
         user = StreamflixAccounts.get_user(user_id)
 
-        if user && StreamflixAccounts.verify_mfa_code(user, String.trim(code)) do
-          Audit.record("user.mfa_verified",
-            user_id: user.id,
-            resource_type: "user",
-            resource_id: user.id,
-            metadata: %{method: "totp"}
-          )
+        result = user && StreamflixAccounts.verify_mfa_code(user, String.trim(code))
 
-          remember = get_session(conn, :mfa_remember) || false
-          StreamflixWebWeb.AuthController.complete_login(conn, user, remember)
-        else
-          if user do
-            Audit.record("user.mfa_failed",
-              user_id: user.id,
-              resource_type: "user",
-              resource_id: user.id,
-              metadata: %{method: "totp"}
-            )
-          end
-
+        if result == :too_many_attempts do
           conn
-          |> put_flash(:error, gettext("Código incorrecto. Inténtalo de nuevo."))
-          |> redirect(to: "/mfa/verify")
+          |> clear_mfa_session()
+          |> put_flash(:error, gettext("Demasiados intentos. Inicia sesión nuevamente."))
+          |> redirect(to: "/login")
+        else
+          verify_result(conn, user, result)
         end
 
       :expired ->
@@ -116,6 +102,33 @@ defmodule StreamflixWebWeb.MfaController do
   end
 
   # ── Helpers ────────────────────────────────────────────────────────
+
+  defp verify_result(conn, user, true) do
+    Audit.record("user.mfa_verified",
+      user_id: user.id,
+      resource_type: "user",
+      resource_id: user.id,
+      metadata: %{method: "totp"}
+    )
+
+    remember = get_session(conn, :mfa_remember) || false
+    StreamflixWebWeb.AuthController.complete_login(conn, user, remember)
+  end
+
+  defp verify_result(conn, user, _invalid) do
+    if user do
+      Audit.record("user.mfa_failed",
+        user_id: user.id,
+        resource_type: "user",
+        resource_id: user.id,
+        metadata: %{method: "totp"}
+      )
+    end
+
+    conn
+    |> put_flash(:error, gettext("Código incorrecto. Inténtalo de nuevo."))
+    |> redirect(to: "/mfa/verify")
+  end
 
   defp validate_mfa_session(conn) do
     user_id = get_session(conn, :mfa_user_id)

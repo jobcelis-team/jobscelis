@@ -6,7 +6,7 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
 
   @doc "GET /api/v1/me/consents — List consents with version status"
   def consent_status(conn, _params) do
-    user_id = conn.assigns[:current_user_id]
+    user_id = current_user_id(conn)
     consents = GDPR.list_active_consents(user_id)
     outdated = GDPR.outdated_consents(user_id)
     versions = GDPR.current_consent_versions()
@@ -28,10 +28,15 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
 
   @doc "POST /api/v1/me/consents/:purpose/accept — Re-accept a consent with current version"
   def accept_consent(conn, %{"purpose" => purpose}) do
-    user_id = conn.assigns[:current_user_id]
-    ip = to_string(:inet.ntoa(conn.remote_ip))
+    user_id = current_user_id(conn)
+    ip = StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
 
-    case GDPR.re_accept_consent(user_id, purpose, ip_address: ip) do
+    result =
+      if GDPR.valid_purpose?(purpose),
+        do: GDPR.re_accept_consent(user_id, purpose, ip_address: ip),
+        else: {:error, :invalid_purpose}
+
+    case result do
       {:ok, consent} ->
         json(conn, %{
           consent: %{
@@ -51,7 +56,7 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
 
   @doc "GET /api/v1/me/data — Export all personal data (DSAR)"
   def export_my_data(conn, _params) do
-    user_id = conn.assigns[:current_user_id]
+    user_id = current_user_id(conn)
     user = StreamflixAccounts.get_user(user_id)
 
     if user do
@@ -64,7 +69,7 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
 
   @doc "POST /api/v1/me/restrict — Restrict processing (Art. 18)"
   def restrict(conn, %{"password" => password}) do
-    user = StreamflixAccounts.get_user(conn.assigns[:current_user_id])
+    user = StreamflixAccounts.get_user(current_user_id(conn))
 
     case StreamflixAccounts.restrict_user(user, password) do
       {:ok, updated} ->
@@ -93,7 +98,7 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
 
   @doc "DELETE /api/v1/me/restrict — Lift restriction"
   def lift_restriction(conn, _params) do
-    user = StreamflixAccounts.get_user(conn.assigns[:current_user_id])
+    user = StreamflixAccounts.get_user(current_user_id(conn))
 
     case StreamflixAccounts.lift_restriction(user) do
       {:ok, updated} ->
@@ -114,7 +119,7 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
 
   @doc "POST /api/v1/me/object — Object to processing (Art. 21)"
   def object(conn, _params) do
-    user = StreamflixAccounts.get_user(conn.assigns[:current_user_id])
+    user = StreamflixAccounts.get_user(current_user_id(conn))
 
     case StreamflixAccounts.object_to_processing(user) do
       {:ok, updated} ->
@@ -135,7 +140,7 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
 
   @doc "DELETE /api/v1/me/object — Restore processing consent"
   def restore_consent(conn, _params) do
-    user = StreamflixAccounts.get_user(conn.assigns[:current_user_id])
+    user = StreamflixAccounts.get_user(current_user_id(conn))
 
     case StreamflixAccounts.restore_processing_consent(user) do
       {:ok, updated} ->
@@ -151,6 +156,14 @@ defmodule StreamflixWebWeb.Api.V1.GDPRController do
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{error: "Could not restore consent"})
+    end
+  end
+
+  # Plugs.Auth assigns the authenticated user as :current_user
+  defp current_user_id(conn) do
+    case conn.assigns[:current_user] do
+      %{id: id} -> id
+      _ -> nil
     end
   end
 end

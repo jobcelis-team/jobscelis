@@ -78,6 +78,28 @@ defmodule StreamflixCore.TeamsTest do
       assert {:ok, updated} = Teams.update_member_role(member.id, "editor")
       assert updated.role == "editor"
     end
+
+    test "cannot change the owner's role", %{project: project, user: user} do
+      {:ok, owner} = Teams.create_owner_member(project.id, user.id)
+      assert {:error, :cannot_change_owner} = Teams.update_member_role(owner.id, "viewer")
+    end
+
+    test "cannot assign the owner role", %{project: project, user2: user2} do
+      {:ok, member} = Teams.invite_member(project.id, user2.id, "viewer")
+      assert {:error, :cannot_change_owner} = Teams.update_member_role(member.id, "owner")
+    end
+  end
+
+  describe "get_project_member/2" do
+    test "only returns members of the given project", %{project: project, user2: user2} do
+      {:ok, member} = Teams.invite_member(project.id, user2.id)
+      other_project = insert(:project)
+
+      assert %{id: id} = Teams.get_project_member(project.id, member.id)
+      assert id == member.id
+      assert Teams.get_project_member(other_project.id, member.id) == nil
+      assert Teams.get_project_member(project.id, "not-a-uuid") == nil
+    end
   end
 
   describe "list_members/1" do

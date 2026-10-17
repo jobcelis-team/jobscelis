@@ -1,6 +1,8 @@
 defmodule StreamflixWebWeb.Api.V1.PlatformSSEController do
   use StreamflixWebWeb, :controller
 
+  plug StreamflixWebWeb.Plugs.RequireScope, "events:read"
+
   def stream(conn, _params) do
     project = conn.assigns.current_project
 

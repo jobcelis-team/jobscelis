@@ -4,6 +4,8 @@ defmodule StreamflixAccounts.Services.MFA do
   Uses nimble_totp for TOTP operations.
   """
 
+  import Ecto.Query
+
   alias StreamflixAccounts.Schemas.User
   alias StreamflixCore.Repo
   alias StreamflixCore.Audit
@@ -34,6 +36,37 @@ defmodule StreamflixAccounts.Services.MFA do
 
   def verify_code(_, _), do: false
 
+  @period 30
+
+  @doc """
+  Verify a login TOTP code and consume its time step, so the same code (or an
+  older one) cannot be replayed within its validity window. The consume step is
+  a conditional update, which also makes two concurrent uses of one code fail.
+  """
+  def verify_and_consume_code(%User{mfa_secret: secret} = user, code)
+      when is_binary(secret) and is_binary(code) do
+    now = System.system_time(:second)
+
+    # Current step first, then one step of clock drift
+    case Enum.find([now, now - @period], &NimbleTOTP.valid?(secret, code, time: &1)) do
+      nil -> false
+      matched -> consume_step(user, DateTime.from_unix!(matched - rem(matched, @period)))
+    end
+  end
+
+  def verify_and_consume_code(_, _), do: false
+
+  defp consume_step(user, step_start) do
+    {count, _} =
+      from(u in User,
+        where: u.id == ^user.id,
+        where: is_nil(u.mfa_last_used_at) or u.mfa_last_used_at < ^step_start
+      )
+      |> Repo.update_all(set: [mfa_last_used_at: step_start])
+
+    count == 1
+  end
+
   # ── Backup codes ──────────────────────────────────────────────────
 
   @doc "Generate a list of random alphanumeric backup codes."
@@ -61,25 +94,36 @@ defmodule StreamflixAccounts.Services.MFA do
   def verify_backup_code(%User{} = user, code) when is_binary(code) do
     hashed = hash_code(code)
 
-    if hashed in user.mfa_backup_codes do
-      remaining = List.delete(user.mfa_backup_codes, hashed)
+    # Removed atomically (array_remove guarded by the code still being present):
+    # two concurrent logins with the same backup code cannot both succeed.
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
 
-      case user |> User.mfa_changeset(%{mfa_backup_codes: remaining}) |> Repo.update() do
-        {:ok, updated_user} ->
-          Audit.record("user.mfa_backup_used",
-            user_id: user.id,
-            resource_type: "user",
-            resource_id: user.id,
-            metadata: %{remaining_codes: length(remaining)}
-          )
+    {count, rows} =
+      from(u in User,
+        where: u.id == ^user.id and fragment("? = ANY(?)", ^hashed, u.mfa_backup_codes),
+        select: u.mfa_backup_codes,
+        update: [
+          set: [
+            mfa_backup_codes: fragment("array_remove(?, ?)", u.mfa_backup_codes, ^hashed),
+            updated_at: ^now
+          ]
+        ]
+      )
+      |> Repo.update_all([])
 
-          {:ok, updated_user}
+    case {count, rows} do
+      {1, [remaining]} ->
+        Audit.record("user.mfa_backup_used",
+          user_id: user.id,
+          resource_type: "user",
+          resource_id: user.id,
+          metadata: %{remaining_codes: length(remaining)}
+        )
 
-        error ->
-          error
-      end
-    else
-      {:error, :invalid_code}
+        {:ok, %{user | mfa_backup_codes: remaining}}
+
+      _ ->
+        {:error, :invalid_code}
     end
   end
 

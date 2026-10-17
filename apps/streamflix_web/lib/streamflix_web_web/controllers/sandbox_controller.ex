@@ -14,7 +14,7 @@ defmodule StreamflixWebWeb.SandboxController do
         |> json(%{error: "Sandbox endpoint not found or expired"})
 
       endpoint ->
-        {:ok, body, conn} = read_body(conn)
+        body = captured_body(conn)
 
         headers =
           conn.req_headers
@@ -34,6 +34,34 @@ defmodule StreamflixWebWeb.SandboxController do
         conn
         |> put_status(:ok)
         |> json(%{status: "received", endpoint: slug})
+    end
+  end
+
+  # Plug.Parsers (in the :api pipeline) already consumed JSON / urlencoded /
+  # multipart bodies, so read_body/1 returns "" for them. Rebuild the body from
+  # the parsed params in that case; other content types still arrive raw.
+  defp captured_body(conn) do
+    case read_body(conn) do
+      {:ok, raw, _conn} when raw != "" ->
+        raw
+
+      _ ->
+        case conn.body_params do
+          %Plug.Conn.Unfetched{} -> nil
+          params when params == %{} -> nil
+          params -> encode_params(conn, params)
+        end
+    end
+  end
+
+  # Parsers wrap non-object JSON (arrays, scalars) under "_json"
+  defp encode_params(conn, %{"_json" => value}) when map_size(conn.body_params) == 1,
+    do: Jason.encode!(value)
+
+  defp encode_params(_conn, params) do
+    case Jason.encode(params) do
+      {:ok, json} -> json
+      _ -> inspect(params)
     end
   end
 end

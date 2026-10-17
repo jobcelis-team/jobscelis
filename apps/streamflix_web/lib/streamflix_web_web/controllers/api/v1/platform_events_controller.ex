@@ -64,7 +64,22 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
         |> put_status(:unprocessable_entity)
         |> json(%{error: "Invalid payload"})
 
-      {:error, changeset} ->
+      {:error, :processing_restricted} ->
+        conn
+        |> put_status(:forbidden)
+        |> json(%{error: "Processing restricted"})
+
+      {:error, :invalid_idempotency_key} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "idempotency_key must be a non-empty string"})
+
+      {:error, :invalid_deliver_at} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "deliver_at must be an ISO 8601 datetime"})
+
+      {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{errors: format_errors(changeset)})
