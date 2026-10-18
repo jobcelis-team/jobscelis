@@ -131,12 +131,20 @@ defmodule StreamflixCore.Platform.Events do
 
     case Map.get(string_body, "topic") do
       t when is_binary(t) ->
-        {t, Map.drop(string_body, @control_fields)}
+        {t, unwrap_envelope(Map.drop(string_body, @control_fields))}
 
       _ ->
-        {nil, Map.drop(string_body, @control_fields -- ["topic"])}
+        {nil, unwrap_envelope(Map.drop(string_body, @control_fields -- ["topic"]))}
     end
   end
+
+  # The SDKs and the CLI send {"topic": ..., "payload": {...}}, while raw API calls send the
+  # fields flat. Accept both: a body whose only field is a "payload" object is that object.
+  defp unwrap_envelope(%{"payload" => payload} = body)
+       when is_map(payload) and map_size(body) == 1,
+       do: payload
+
+  defp unwrap_envelope(body), do: body
 
   defp insert_event(attrs) do
     %WebhookEvent{}
