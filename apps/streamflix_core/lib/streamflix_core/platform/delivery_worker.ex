@@ -186,10 +186,30 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
               duration_ms: latency_ms
             )
 
-            mark_failed(delivery, nil, inspect(reason), latency_ms, nil, request_info)
+            mark_failed(delivery, nil, describe_error(reason), latency_ms, nil, request_info)
         end
     end
   end
+
+  # Human-readable reason for a request that got no HTTP response. It is shown in the
+  # dashboard and the DLQ, so raw structs like %Req.TransportError{} are avoided.
+  @transport_reasons %{
+    timeout: "timeout (no response from the endpoint)",
+    econnrefused: "connection refused",
+    nxdomain: "host not found (DNS lookup failed)",
+    closed: "connection closed by the endpoint",
+    ehostunreach: "host unreachable",
+    enetunreach: "network unreachable"
+  }
+
+  @doc false
+  def describe_error(%Req.TransportError{reason: reason} = error) do
+    "Connection error: " <> Map.get(@transport_reasons, reason, Exception.message(error))
+  end
+
+  def describe_error(error) when is_exception(error), do: Exception.message(error)
+  def describe_error(error) when is_binary(error), do: error
+  def describe_error(error), do: inspect(error)
 
   # Headers the platform controls; custom webhook headers cannot override them
   @reserved_headers ~w(content-type content-length host x-signature transfer-encoding connection)
