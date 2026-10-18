@@ -38,7 +38,7 @@ publishing {
                 artifactId = "jobcelis-kotlin"
                 name.set("Jobcelis Kotlin SDK")
                 description.set("Official Kotlin SDK for the Jobcelis Event Infrastructure Platform")
-                url.set("https://github.com/vladimirCeli/jobcelis-kotlin")
+                url.set("https://github.com/jobcelis-team/jobcelis-kotlin")
                 licenses {
                     license {
                         name.set("Business Source License 1.1")
@@ -47,14 +47,14 @@ publishing {
                 }
                 developers {
                     developer {
-                        id.set("vladimirCeli")
+                        id.set("jobcelis-team")
                         name.set("Vladimir Celi")
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/vladimirCeli/jobcelis-kotlin.git")
-                    developerConnection.set("scm:git:ssh://github.com/vladimirCeli/jobcelis-kotlin.git")
-                    url.set("https://github.com/vladimirCeli/jobcelis-kotlin")
+                    connection.set("scm:git:git://github.com/jobcelis-team/jobcelis-kotlin.git")
+                    developerConnection.set("scm:git:ssh://github.com/jobcelis-team/jobcelis-kotlin.git")
+                    url.set("https://github.com/jobcelis-team/jobcelis-kotlin")
                 }
             }
         }
