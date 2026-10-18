@@ -67,6 +67,41 @@ defmodule StreamflixCore.Platform.ApiKeys do
     |> Repo.one()
   end
 
+  @doc """
+  Limits the project's active key to the given scopes and/or client IPs
+  (an empty IP list means any IP). Applies immediately: the cached key is dropped.
+  """
+  def update_restrictions(project_id, attrs) do
+    case get_api_key_for_project(project_id) do
+      nil ->
+        {:error, :not_found}
+
+      key ->
+        changes =
+          %{}
+          |> put_list(attrs, "scopes")
+          |> put_list(attrs, "allowed_ips")
+
+        with {:ok, updated} <- key |> ApiKey.changeset(changes) |> Repo.update() do
+          invalidate_api_key_cache([key.key_hash])
+          {:ok, updated}
+        end
+    end
+  end
+
+  defp put_list(changes, attrs, field) do
+    case Map.get(attrs, field, Map.get(attrs, String.to_existing_atom(field))) do
+      list when is_list(list) ->
+        values =
+          list |> Enum.map(&(&1 |> to_string() |> String.trim())) |> Enum.reject(&(&1 == ""))
+
+        Map.put(changes, String.to_existing_atom(field), Enum.uniq(values))
+
+      _ ->
+        changes
+    end
+  end
+
   def regenerate_api_key(project_id) do
     # Preserve scopes and allowed_ips from current active key
     current_key = get_api_key_for_project(project_id)
