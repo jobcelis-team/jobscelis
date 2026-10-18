@@ -2068,7 +2068,11 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           Task.async(fn -> {:uptime_status, load_uptime_status()} end),
           Task.async(fn -> {:uptime_stats, load_uptime_stats()} end),
           Task.async(fn -> {:pending_invitations, Teams.list_pending_invitations(user.id)} end),
-          Task.async(fn -> {:retention_policy, project.retention_policy || %{}} end)
+          Task.async(fn -> {:retention_policy, project.retention_policy || %{}} end),
+          Task.async(fn ->
+            {:notification_channel,
+             StreamflixCore.NotificationChannels.get_by_project(project.id)}
+          end)
         ]
 
         # Only load queue data for superadmins
@@ -2084,7 +2088,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             tasks
           end
 
-        safe_await_many(tasks) |> Enum.reject(&is_nil/1) |> Map.new()
+        data = safe_await_many(tasks) |> Enum.reject(&is_nil/1) |> Map.new()
+
+        # The alerts form must show the saved channel, or saving it would wipe the config
+        Map.put(data, :nc_form, nc_form_from_channel(Map.get(data, :notification_channel)))
       else
         %{}
       end
