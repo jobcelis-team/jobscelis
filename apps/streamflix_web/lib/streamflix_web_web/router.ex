@@ -251,6 +251,7 @@ defmodule StreamflixWebWeb.Router do
     get "/topics", PlatformProjectController, :topics
     get "/token", PlatformProjectController, :token
     post "/token/regenerate", PlatformProjectController, :regenerate_token
+    patch "/token", PlatformProjectController, :update_token
 
     get "/retention", PlatformProjectController, :retention
     patch "/retention", PlatformProjectController, :update_retention
