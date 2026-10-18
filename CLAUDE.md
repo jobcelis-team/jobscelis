@@ -128,21 +128,9 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 
 ## SDKs and External Repos
 
-### Monorepo SDK sources (canonical code lives here)
-- `sdks/node/` — Node.js/TypeScript SDK (`@jobcelis/sdk` on npm)
-- `sdks/cli/` — CLI tool (`@jobcelis/cli` on npm)
-- `sdks/python/` — Python SDK (`jobcelis` on PyPI)
-- `sdks/go/` — Go SDK (synced to external repo)
-- `sdks/php/` — PHP SDK (`jobcelis/sdk` on Packagist)
-- `sdks/ruby/` — Ruby SDK (`jobcelis` on RubyGems)
-- `sdks/elixir/` — Elixir SDK (`jobcelis` on Hex.pm)
-- `sdks/dotnet/` — C# / .NET SDK (`Jobcelis` on NuGet)
-- `sdks/rust/` — Rust SDK (`jobcelis` on crates.io)
-- `sdks/swift/` — Swift SDK (via Swift Package Manager, GitHub repo URL)
-- `sdks/java/` — Java SDK (`com.jobcelis:jobcelis` on Maven Central)
-- `sdks/dart/` — Dart/Flutter SDK (`jobcelis` on pub.dev)
-- `sdks/kotlin/` — Kotlin SDK (`com.jobcelis:jobcelis` on Maven Central)
-- `sdks/github-action/` — GitHub Action (used directly from this repo)
+### SDK sources (each SDK lives in exactly one place)
+- In this repo, `sdks/`: Node.js/TypeScript (`@jobcelis/sdk`), CLI (`@jobcelis/cli`), Python (`jobcelis`) and the GitHub Action
+- Go, PHP, Ruby, Elixir, .NET, Rust, Swift, Java, Dart, Kotlin: only in their own repos (below). There is no copy here.
 
 ### External repos (required by their registries)
 - **Go SDK**: `github.com/jobcelis-team/go-jobcelis` — pkg.go.dev requires own repo with `go.mod` at root
@@ -157,22 +145,15 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **Kotlin SDK**: `github.com/jobcelis-team/jobcelis-kotlin` — Maven Central requires own repo for publishing
 - **Terraform Provider**: `github.com/jobcelis-team/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
 
-### SDK publishing rules
-- **npm**: Requires granular token with `@jobcelis` scope + "bypass 2FA" enabled. GitHub secret: `NPM_TOKEN`
-- **PyPI**: Uses `__token__` auth. GitHub secret: `PYPI_TOKEN`. `setup.py` must include `long_description` from README
-- **Go**: Tag-based (`git tag v1.x.0 && git push origin v1.x.0`). No token needed for public repos
-- **Terraform**: GoReleaser on tag push. Requires `GPG_PRIVATE_KEY` secret for signing
-- **RubyGems**: GitHub secret: `RUBYGEMS_API_KEY`. Version in `lib/jobcelis.rb` and `jobcelis.gemspec`
-- **Packagist**: Auto-sync via GitHub webhook — register package on packagist.org, no CI secret needed
-- **Hex.pm (Elixir)**: Requires `HEX_API_KEY` secret. Publish with `mix hex.publish` from external repo
-- **NuGet (.NET)**: Requires `NUGET_API_KEY` secret. Publish with `dotnet nuget push` from external repo
-- **Swift (SPM)**: No registry — users add GitHub repo URL directly. Tag releases with `git tag 1.0.0 && git push origin 1.0.0`
-- **Maven Central (Java)**: Requires Sonatype OSSRH account + GPG signing. Publish with `mvn deploy` from external repo
-- **pub.dev (Dart)**: Requires Google account. Publish with `dart pub publish` from external repo
-- **Maven Central (Kotlin)**: Same as Java — Sonatype OSSRH + GPG signing. Namespace `com.jobcelis` already verified
-- **GitHub Action**: No publishing — used directly from repo with `uses: jobcelis-team/jobscelis/sdks/github-action@main`
-- **Workflow**: `.github/workflows/publish-sdks.yml` — manual trigger with package choice
-- Always bump version in `package.json`/`setup.py`/`gemspec` before publishing — registries reject duplicate versions
+### SDK publishing (automatic)
+- Every SDK publishes itself when its version changes on `main`; changes without a version bump publish nothing
+- Node, CLI, Python: `.github/workflows/release-sdks.yml` in this repo (secrets `NPM_TOKEN`, `PYPI_TOKEN`)
+- Each external repo: `.github/workflows/release.yml` (reads the version, checks the registry, publishes, tags `vX.Y.Z`; Swift tags `X.Y.Z`)
+  - Go, PHP, Swift: version in `VERSION`; the tag is the release (pkg.go.dev, Packagist, SwiftPM)
+  - Ruby `RUBYGEMS_API_KEY`, Elixir `HEX_API_KEY`, .NET `NUGET_API_KEY`, Rust `CRATES_TOKEN`, Dart `PUB_CREDENTIALS_JSON`
+  - Java and Kotlin: `MAVEN_USERNAME`/`MAVEN_PASSWORD` (Central Portal user token), `GPG_PRIVATE_KEY`, `GPG_PASSPHRASE`
+- A missing secret makes the workflow warn and publish nothing; add it and re-run the workflow
+- Registries reject duplicate versions: always bump the version to release
 
 ### SDK code conventions
 - TypeScript SDKs need `@types/node` in devDependencies and `"types": ["node"]` in tsconfig
@@ -188,20 +169,17 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - Java SDK: uses HttpURLConnection + Gson, Java 11+, `JsonObject` returns, checked exceptions
 - Dart SDK: uses package:http + package:crypto, Dart 3.0+, `Map<String, dynamic>` returns, async/await
 - Kotlin SDK: uses OkHttp + Gson + Kotlin Coroutines, Kotlin 1.9+, `suspend` functions, `JsonObject` returns, `Closeable`
-- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs (Node, Python, Go, PHP, Ruby, Elixir, .NET, Rust, Swift, Java, Dart, Kotlin, CLI)
+- All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs: Node, Python and CLI here, and Go, PHP, Ruby, Elixir, .NET, Rust, Swift, Java, Dart, Kotlin in their repos
 
-### Syncing external repos
-When updating Go SDK or Terraform provider:
-1. Make changes in `sdks/go/` or local clone of terraform repo
-2. Copy files to external repo: `cp sdks/go/* /path/to/go-jobcelis/`
-3. Commit, tag, and push the external repo
-4. For Go: `git tag v1.x.0 && git push origin v1.x.0`
-5. For Terraform: same tag pattern, GoReleaser handles the release
+### Changing an SDK in its own repo
+1. Clone the SDK repo, make the change, bump its version
+2. Merge to `main`: its Release workflow publishes it
+3. A new API route must be added to every SDK repo and to `sdks/node`, `sdks/python` and `sdks/cli`
 
 ### Full publishing guide
 - See `SDK_PUBLISHING_GUIDE.md` (gitignored, local only) for complete step-by-step instructions
-- Covers: version bumping, automated + manual publishing, Maven Central bundle process, GPG key management, external repo sync, troubleshooting
-- Maven Central (Java/Kotlin) requires manual bundle ZIP upload to https://central.sonatype.com/publishing
+- Covers: version bumping, GPG key management, registry accounts, troubleshooting
+- Maven Central (Java/Kotlin) is published by the Release workflow through the Central Portal API (no manual ZIP upload)
 - GPG key must be on keyservers (keyserver.ubuntu.com, keys.openpgp.org, pgp.mit.edu) with email verified on openpgp.org
 
 ## Migrations
