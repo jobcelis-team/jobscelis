@@ -118,9 +118,12 @@ defmodule StreamflixCore.Platform.Jobs do
   def next_cron_executions(cron_expr, count \\ 5) when is_binary(cron_expr) do
     case Crontab.CronExpression.Parser.parse(cron_expr) do
       {:ok, cron} ->
-        now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+        # Start at the next whole minute: the current minute has already begun, and starting
+        # from "now" could return it as a run time that is already in the past.
+        now = NaiveDateTime.utc_now()
+        next_minute = %{now | second: 0, microsecond: {0, 0}} |> NaiveDateTime.add(60)
 
-        Crontab.Scheduler.get_next_run_dates(cron, now)
+        Crontab.Scheduler.get_next_run_dates(cron, next_minute)
         |> Enum.take(count)
         |> Enum.map(&DateTime.from_naive!(&1, "Etc/UTC"))
 

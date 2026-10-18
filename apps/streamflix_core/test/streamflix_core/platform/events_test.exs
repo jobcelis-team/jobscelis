@@ -259,6 +259,69 @@ defmodule StreamflixCore.Platform.EventsTest do
     end
   end
 
+  describe "SDK envelope" do
+    test "a {topic, payload} body stores the payload fields, not a nested payload" do
+      project = insert(:project)
+
+      {:ok, event} =
+        Platform.create_event(project.id, %{
+          "topic" => "order.created",
+          "payload" => %{"order_id" => "ord_1", "amount" => 10},
+          "idempotency_key" => "sdk-1"
+        })
+
+      assert event.payload == %{"order_id" => "ord_1", "amount" => 10}
+      assert event.idempotency_key == "sdk-1"
+    end
+
+    test "schema validation applies to the unwrapped payload" do
+      project = insert(:project)
+
+      insert(:event_schema,
+        project_id: project.id,
+        topic: "payment.completed",
+        schema: %{"type" => "object", "required" => ["amount"]}
+      )
+
+      assert {:ok, _} =
+               Platform.create_event(project.id, %{
+                 "topic" => "payment.completed",
+                 "payload" => %{"amount" => 5}
+               })
+
+      assert {:error, {:schema_validation, _}} =
+               Platform.create_event(project.id, %{
+                 "topic" => "payment.completed",
+                 "payload" => %{"currency" => "USD"}
+               })
+    end
+
+    test "a payload field next to other fields is kept as a regular field" do
+      project = insert(:project)
+
+      {:ok, event} =
+        Platform.create_event(project.id, %{
+          "topic" => "t",
+          "payload" => %{"a" => 1},
+          "source" => "api"
+        })
+
+      assert event.payload == %{"payload" => %{"a" => 1}, "source" => "api"}
+    end
+
+    test "batch items in SDK shape are unwrapped too" do
+      project = insert(:project)
+
+      {:ok, %{accepted: 1}} =
+        Platform.create_events_batch(project.id, [
+          %{"topic" => "order.created", "payload" => %{"order_id" => "ord_2"}}
+        ])
+
+      [event] = Platform.list_events(project.id)
+      assert event.payload == %{"order_id" => "ord_2"}
+    end
+  end
+
   describe "process_delayed_events/0" do
     test "an event matching no webhook is dispatched only once" do
       project = insert(:project)
