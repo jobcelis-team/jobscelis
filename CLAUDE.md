@@ -147,7 +147,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 
 ### SDK publishing (automatic)
 - Every SDK publishes itself when its version changes on `main`; changes without a version bump publish nothing
-- Node, CLI, Python: `.github/workflows/release-sdks.yml` in this repo (secrets `NPM_TOKEN`, `PYPI_TOKEN`)
+- Node, CLI, Python: `.github/workflows/release-sdks.yml` in this repo (npm: trusted publishing, no token; PyPI: secret `PYPI_TOKEN`)
 - Each external repo: `.github/workflows/release.yml` (reads the version, checks the registry, publishes, tags `vX.Y.Z`; Swift tags `X.Y.Z`)
   - Go, PHP, Swift: version in `VERSION`; the tag is the release (pkg.go.dev, Packagist, SwiftPM)
   - Ruby `RUBYGEMS_API_KEY`, Elixir `HEX_API_KEY`, .NET `NUGET_API_KEY`, Rust `CRATES_TOKEN`, Dart `PUB_CREDENTIALS_JSON`

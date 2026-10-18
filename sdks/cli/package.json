@@ -7,7 +7,7 @@
   "homepage": "https://jobcelis.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vladimirCeli/jobscelis",
+    "url": "git+https://github.com/jobcelis-team/jobscelis.git",
     "directory": "sdks/cli"
   },
   "engines": { "node": ">=18" },

@@ -11,7 +11,7 @@ setup(
     description="Official Python SDK for the Jobcelis Event Infrastructure Platform",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/vladimirCeli/jobscelis",
+    url="https://github.com/jobcelis-team/jobscelis",
     author="Jobcelis",
     author_email="support@jobcelis.com",
     packages=find_packages(),
@@ -25,6 +25,6 @@ setup(
     ],
     project_urls={
         "Documentation": "https://jobcelis.com/docs",
-        "Source": "https://github.com/vladimirCeli/jobscelis/tree/main/sdks/python",
+        "Source": "https://github.com/jobcelis-team/jobscelis/tree/main/sdks/python",
     },
 )
