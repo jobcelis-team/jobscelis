@@ -8,7 +8,7 @@ on:
       - "docs/**"
       - "sdks/**"
       - "LICENSE"
-      - ".github/workflows/publish-sdks.yml"
+      - ".github/workflows/release-sdks.yml"
       - ".github/workflows/release.yml"
 
 env:
