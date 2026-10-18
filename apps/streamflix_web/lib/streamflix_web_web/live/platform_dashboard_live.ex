@@ -2766,12 +2766,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     Enum.reverse(errors)
   end
 
+  # Random-looking id for template payloads, e.g. "ord_3f9a1c07" (8 hex chars, no padding)
+  defp template_id(prefix),
+    do: prefix <> "_" <> Base.encode16(:crypto.strong_rand_bytes(4), case: :lower)
+
   defp test_event_template("user_signup") do
     {"user.signup",
      Jason.encode!(
        %{
-         user_id:
-           "usr_#{:crypto.strong_rand_bytes(4) |> Base.hex_encode32(case: :lower) |> binary_part(0, 8)}",
+         user_id: template_id("usr"),
          email: "jane@example.com",
          plan: "free",
          source: "web"
@@ -2784,8 +2787,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     {"order.created",
      Jason.encode!(
        %{
-         order_id:
-           "ord_#{:crypto.strong_rand_bytes(4) |> Base.hex_encode32(case: :lower) |> binary_part(0, 8)}",
+         order_id: template_id("ord"),
          amount: 49.99,
          currency: "USD",
          items: 3
@@ -2798,8 +2800,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     {"payment.completed",
      Jason.encode!(
        %{
-         payment_id:
-           "pay_#{:crypto.strong_rand_bytes(4) |> Base.hex_encode32(case: :lower) |> binary_part(0, 8)}",
+         payment_id: template_id("pay"),
          amount: 149.00,
          currency: "USD",
          method: "card",
@@ -2813,8 +2814,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     {"invoice.paid",
      Jason.encode!(
        %{
-         invoice_id:
-           "inv_#{:crypto.strong_rand_bytes(4) |> Base.hex_encode32(case: :lower) |> binary_part(0, 8)}",
+         invoice_id: template_id("inv"),
          total: 299.00,
          currency: "USD",
          customer: "cus_abc123"
