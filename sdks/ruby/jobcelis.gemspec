@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.add_dependency "base64", "~> 0.2"
   s.metadata = {
     "homepage_uri" => "https://jobcelis.com",
-    "source_code_uri" => "https://github.com/vladimirCeli/jobcelis-ruby",
+    "source_code_uri" => "https://github.com/jobcelis-team/jobcelis-ruby",
     "documentation_uri" => "https://jobcelis.com/docs"
   }
 end

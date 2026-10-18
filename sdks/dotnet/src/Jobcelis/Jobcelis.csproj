@@ -13,7 +13,7 @@
     <Description>Official .NET SDK for the Jobcelis Event Infrastructure Platform</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://jobcelis.com</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/vladimirCeli/jobcelis-dotnet</RepositoryUrl>
+    <RepositoryUrl>https://github.com/jobcelis-team/jobcelis-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>jobcelis;webhooks;events;sdk;api</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
