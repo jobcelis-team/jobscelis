@@ -174,8 +174,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
 
     page = Platform.paginate_events(project.id, opts)
 
+    events = Enum.map(page.data, &event_json/1)
+
+    # Also under "data", like the other list endpoints: the SDKs read "data"
     json(conn, %{
-      events: Enum.map(page.data, &event_json/1),
+      events: events,
+      data: events,
       has_next: page.has_next,
       next_cursor: page.next_cursor
     })

@@ -183,6 +183,10 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
   def audit_action_label("job.updated"), do: gettext("Job actualizado")
   def audit_action_label("job.deactivated"), do: gettext("Job desactivado")
   def audit_action_label("api_key.regenerated"), do: gettext("Token regenerado")
+
+  def audit_action_label("api_key.restricted"),
+    do: gettext("Restricciones del token actualizadas")
+
   def audit_action_label("project.updated"), do: gettext("Proyecto actualizado")
   def audit_action_label("delivery.retried"), do: gettext("Entrega reintentada")
   def audit_action_label("dead_letter.retried"), do: gettext("DLQ reintentado")

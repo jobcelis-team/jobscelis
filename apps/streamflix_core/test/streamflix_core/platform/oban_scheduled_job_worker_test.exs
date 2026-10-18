@@ -75,4 +75,38 @@ defmodule StreamflixCore.Platform.ObanScheduledJobWorkerTest do
       assert hd(runs).status == "failed"
     end
   end
+
+  describe "job failure alerts" do
+    defp job_failed_count(user) do
+      StreamflixCore.Schemas.Notification
+      |> Ecto.Query.where([n], n.user_id == ^user.id and n.type == "job_failed")
+      |> Repo.aggregate(:count)
+    end
+
+    test "alert once when a job starts failing, again after it recovers",
+         %{project: project, user: user} do
+      job =
+        insert(:job,
+          project_id: project.id,
+          action_type: "post_url",
+          action_config: %{"payload" => %{}},
+          status: "active"
+        )
+
+      run = fn -> ObanScheduledJobWorker.perform(%Oban.Job{args: %{"job_id" => job.id}}) end
+
+      for _ <- 1..3, do: run.()
+      assert job_failed_count(user) == 1
+
+      Repo.insert!(%JobRun{
+        job_id: job.id,
+        status: "success",
+        executed_at: DateTime.utc_now() |> DateTime.add(1) |> DateTime.truncate(:microsecond)
+      })
+
+      Process.sleep(5)
+      run.()
+      assert job_failed_count(user) == 2
+    end
+  end
 end

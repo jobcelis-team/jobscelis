@@ -34,7 +34,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
     project = conn.assigns.current_project
     opts = [resolved: params["resolved"] == "true", limit: 50]
     dead_letters = Platform.list_dead_letters(project.id, opts)
-    json(conn, %{dead_letters: Enum.map(dead_letters, &dl_json/1)})
+    items = Enum.map(dead_letters, &dl_json/1)
+    # Also under "data", like the other list endpoints: the SDKs read "data"
+    json(conn, %{dead_letters: items, data: items})
   end
 
   operation(:show,

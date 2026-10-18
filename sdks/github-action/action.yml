@@ -36,22 +36,40 @@ runs:
     - name: Send event to Jobcelis
       id: send
       shell: bash
+      # Inputs are passed as environment variables, never interpolated into the
+      # script: a topic or payload containing quotes or $(...) cannot run commands.
+      env:
+        JOBCELIS_API_KEY: ${{ inputs.api-key }}
+        JOBCELIS_TOPIC: ${{ inputs.topic }}
+        JOBCELIS_PAYLOAD: ${{ inputs.payload }}
+        JOBCELIS_BASE_URL: ${{ inputs.base-url }}
       run: |
+        BODY_JSON=$(python3 -c '
+        import json, os, sys
+        try:
+            payload = json.loads(os.environ.get("JOBCELIS_PAYLOAD") or "{}")
+        except ValueError as e:
+            sys.exit(f"payload is not valid JSON: {e}")
+        if not isinstance(payload, dict):
+            sys.exit("payload must be a JSON object")
+        print(json.dumps({"topic": os.environ["JOBCELIS_TOPIC"], **payload}))
+        ') || exit 1
+
         RESPONSE=$(curl -s -w "\n%{http_code}" \
-          -X POST "${{ inputs.base-url }}/api/v1/events" \
+          -X POST "${JOBCELIS_BASE_URL}/api/v1/events" \
           -H "Content-Type: application/json" \
-          -H "X-Api-Key: ${{ inputs.api-key }}" \
-          -d '{"topic": "${{ inputs.topic }}", "payload": ${{ inputs.payload }}}')
+          -H "X-Api-Key: ${JOBCELIS_API_KEY}" \
+          --data-binary "$BODY_JSON")
 
         HTTP_CODE=$(echo "$RESPONSE" | tail -1)
         BODY=$(echo "$RESPONSE" | sed '$d')
 
-        echo "status=$HTTP_CODE" >> $GITHUB_OUTPUT
+        echo "status=$HTTP_CODE" >> "$GITHUB_OUTPUT"
 
         if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-          EVENT_ID=$(echo "$BODY" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null || echo "")
-          echo "event_id=$EVENT_ID" >> $GITHUB_OUTPUT
-          echo "Event sent successfully (topic: ${{ inputs.topic }})"
+          EVENT_ID=$(echo "$BODY" | python3 -c "import sys,json; print(json.load(sys.stdin).get('event_id',''))" 2>/dev/null || echo "")
+          echo "event_id=$EVENT_ID" >> "$GITHUB_OUTPUT"
+          echo "Event sent successfully (topic: ${JOBCELIS_TOPIC})"
           echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
         else
           echo "Failed to send event (HTTP $HTTP_CODE)"
