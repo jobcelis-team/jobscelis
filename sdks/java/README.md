@@ -231,6 +231,9 @@ client.updateProject(Map.of("name", "My Project v2"));
 var topics = client.listTopics();
 var token = client.getToken();
 var newToken = client.regenerateToken();
+
+// Limit the token to scopes and client IPs (empty allowedIps = any IP)
+client.updateTokenRestrictions(List.of("events:read"), List.of("203.0.113.10"));
 ```
 
 ## Multi-Project Management
