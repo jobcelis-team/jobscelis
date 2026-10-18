@@ -1,12 +1,24 @@
+# Creates the web release automatically when VERSION changes on main:
+#   1. reads the version from VERSION
+#   2. if the tag vX.Y.Z does not exist yet, tags the commit
+#   3. creates the GitHub Release with the commits since the previous release
+# Bump VERSION to release; any other change releases nothing. Pushing a vX.Y.Z
+# tag by hand still works: the release is created for that tag.
+# The SDKs in this repo tag themselves as node-v*, cli-v*, python-v* (release-sdks.yml).
 name: Create Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -16,16 +28,40 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Which release?
+        id: v
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          TAG="v$(tr -d '[:space:]' < VERSION)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "$TAG already exists: nothing to do"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Tag the release
+        if: steps.v.outputs.release == 'true' && github.ref_type != 'tag'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.v.outputs.tag }}" -m "${{ steps.v.outputs.tag }}"
+          git push origin "${{ steps.v.outputs.tag }}"
+
       - name: Generate release notes
         id: notes
+        if: steps.v.outputs.release == 'true'
         run: |
-          # Get previous tag
-          PREV_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
-          TAG=${GITHUB_REF#refs/tags/}
+          TAG="${{ steps.v.outputs.tag }}"
+          PREV_TAG=$(git tag --list 'v*' --sort=-v:refname | grep -vx "$TAG" | head -1)
 
-          if [ "$PREV_TAG" = "$TAG" ]; then
-            # First tag, use all commits
-            COMMITS=$(git log --pretty=format:"- %s" HEAD)
+          if [ -z "$PREV_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s" "$TAG")
           else
             COMMITS=$(git log --pretty=format:"- %s" "${PREV_TAG}..${TAG}")
           fi
@@ -41,8 +77,10 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
+        if: steps.v.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          name: "${{ github.ref_name }}"
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: ${{ steps.v.outputs.tag }}
           body: ${{ steps.notes.outputs.notes }}
           generate_release_notes: false

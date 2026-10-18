@@ -93,7 +93,8 @@ jobcelis/
     ├── ci.yml                 # Tests, format, Credo, Sobelow, Dialyzer, Trivy
     ├── deploy.yml             # Production deploy
     ├── deploy-staging.yml     # Staging deploy
-    └── release-sdks.yml       # Publishes the Node, CLI and Python SDKs on version bump
+    ├── release.yml            # Tags vX.Y.Z and creates the GitHub Release when VERSION changes
+    └── release-sdks.yml       # Publishes and tags the Node, CLI and Python SDKs on version bump
 ```
 
 ---
