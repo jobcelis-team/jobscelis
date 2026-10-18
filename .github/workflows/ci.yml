@@ -8,6 +8,7 @@ on:
       - "docs/**"
       - "sdks/**"
       - "LICENSE"
+      - "VERSION"
       - ".github/workflows/release-sdks.yml"
       - ".github/workflows/release.yml"
 

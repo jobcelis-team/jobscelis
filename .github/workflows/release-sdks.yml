@@ -1,7 +1,8 @@
 # Publishes the SDKs that live in this repo (Node, CLI, Python) automatically when
 # their version changes on main. Bump "version" in sdks/node/package.json,
 # sdks/cli/package.json or sdks/python/setup.py to release; other changes publish
-# nothing. The other SDKs live in their own repos and publish themselves the same way.
+# nothing. Each release is tagged node-vX.Y.Z, cli-vX.Y.Z or python-vX.Y.Z (the web
+# uses vX.Y.Z). The other SDKs live in their own repos and publish themselves the same way.
 name: Release SDKs
 
 on:
@@ -23,11 +24,13 @@ jobs:
         include:
           - package: "@jobcelis/sdk"
             dir: sdks/node
+            tag: node
           - package: "@jobcelis/cli"
             dir: sdks/cli
+            tag: cli
     # npm trusted publishing: npmjs.com trusts this workflow, no token needed
     permissions:
-      contents: read
+      contents: write
       id-token: write
     defaults:
       run:
@@ -45,6 +48,7 @@ jobs:
         id: check
         run: |
           VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if npm view "${{ matrix.package }}@$VERSION" version >/dev/null 2>&1; then
             echo "${{ matrix.package }}@$VERSION is already published: nothing to do"
             echo "release=false" >> "$GITHUB_OUTPUT"
@@ -60,9 +64,24 @@ jobs:
         if: steps.check.outputs.release == 'true'
         run: npm publish --access public
 
+      - name: Tag the release
+        if: steps.check.outputs.release == 'true'
+        run: |
+          TAG="${{ matrix.tag }}-v${{ steps.check.outputs.version }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            echo "Tag $TAG already exists"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "$TAG"
+            git push origin "$TAG"
+          fi
+
   pypi:
     name: PyPI jobcelis
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: sdks/python
@@ -79,6 +98,7 @@ jobs:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           VERSION=$(grep -m1 -oE 'version="[^"]+"' setup.py | cut -d'"' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://pypi.org/pypi/jobcelis/$VERSION/json")
           if [ -z "$PYPI_TOKEN" ]; then
             echo "::warning::Not publishing: add the PYPI_TOKEN repository secret."
@@ -100,3 +120,16 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: twine upload dist/*
+
+      - name: Tag the release
+        if: steps.check.outputs.release == 'true'
+        run: |
+          TAG="python-v${{ steps.check.outputs.version }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            echo "Tag $TAG already exists"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "$TAG"
+            git push origin "$TAG"
+          fi
