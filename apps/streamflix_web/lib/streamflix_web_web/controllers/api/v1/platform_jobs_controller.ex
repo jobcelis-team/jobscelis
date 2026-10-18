@@ -39,7 +39,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
     project = conn.assigns.current_project
     opts = [include_inactive: params["include"] == "inactive"]
     jobs = Platform.list_jobs(project.id, opts)
-    json(conn, %{jobs: Enum.map(jobs, &job_json/1)})
+    items = Enum.map(jobs, &job_json/1)
+    # Also under "data", like the other list endpoints: the SDKs read "data"
+    json(conn, %{jobs: items, data: items})
   end
 
   operation(:show,
@@ -90,6 +92,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
 
   def create(conn, params) do
     project = conn.assigns.current_project
+    params = normalize_job_params(params)
 
     attrs = %{
       "name" => params["name"],
@@ -145,6 +148,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
         else
           attrs =
             params
+            |> normalize_job_params()
             |> Map.take([
               "name",
               "schedule_type",
@@ -232,7 +236,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
         else
           limit = params["limit"] |> parse_int(20) |> max(1) |> min(100)
           runs = Platform.list_job_runs(job.id, limit: limit)
-          json(conn, %{runs: Enum.map(runs, &run_json/1)})
+          items = Enum.map(runs, &run_json/1)
+          # Also under "data", like the other list endpoints: the SDKs read "data"
+          json(conn, %{runs: items, data: items})
         end
     end
   end
@@ -250,6 +256,54 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
   def cron_preview(conn, _) do
     conn |> put_status(422) |> json(%{error: "Missing 'expression' parameter"})
   end
+
+  # The SDKs, the CLI and the Terraform provider describe jobs with shorthand fields
+  # ("cron_expression", "cron" or "schedule" for a cron schedule; "topic" / "payload"
+  # or "url" for the action; "queue", which has no meaning here). Map them to the
+  # canonical fields so those jobs run as asked instead of defaulting to a daily job
+  # that does nothing. Canonical fields, when present, win.
+  defp normalize_job_params(params) do
+    params
+    |> put_shorthand_schedule()
+    |> put_shorthand_action()
+  end
+
+  defp put_shorthand_schedule(%{"schedule_type" => _} = params), do: params
+
+  defp put_shorthand_schedule(params) do
+    case params["cron_expression"] || params["cron"] || params["schedule"] do
+      preset when preset in ~w(daily weekly monthly) ->
+        Map.put(params, "schedule_type", preset)
+
+      expr when is_binary(expr) and expr != "" ->
+        Map.merge(params, %{"schedule_type" => "cron", "schedule_config" => %{"expr" => expr}})
+
+      _ ->
+        params
+    end
+  end
+
+  defp put_shorthand_action(%{"action_config" => _} = params), do: params
+
+  defp put_shorthand_action(%{"url" => url} = params) when is_binary(url) and url != "" do
+    Map.merge(params, %{
+      "action_type" => "post_url",
+      "action_config" => %{
+        "url" => url,
+        "method" => params["method"] || "POST",
+        "payload" => params["payload"] || %{}
+      }
+    })
+  end
+
+  defp put_shorthand_action(%{"topic" => topic} = params) when is_binary(topic) and topic != "" do
+    Map.merge(params, %{
+      "action_type" => "emit_event",
+      "action_config" => %{"topic" => topic, "payload" => params["payload"] || %{}}
+    })
+  end
+
+  defp put_shorthand_action(params), do: params
 
   defp job_json(j) do
     %{
