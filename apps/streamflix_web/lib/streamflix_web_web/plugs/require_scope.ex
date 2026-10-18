@@ -15,10 +15,10 @@ defmodule StreamflixWebWeb.Plugs.RequireScope do
     if "*" in scopes or required_scope in scopes do
       conn
     else
+      # Same error shape as the rest of the API, naming the scope the key lacks
       conn
       |> put_status(:forbidden)
-      |> put_view(json: StreamflixWebWeb.ErrorJSON)
-      |> render(:"403")
+      |> json(%{error: "API key is missing the #{required_scope} scope"})
       |> halt()
     end
   end

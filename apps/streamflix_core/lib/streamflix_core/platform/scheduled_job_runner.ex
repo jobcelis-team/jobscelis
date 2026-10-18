@@ -2,6 +2,7 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
   @moduledoc """
   Runs one platform scheduled job: emit_event or post_url.
   """
+  import Ecto.Query
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.{Job, JobRun}
   alias StreamflixCore.Platform
@@ -113,7 +114,21 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
 
   defp maybe_substitute_date(v), do: v
 
+  defp last_run_status(job_id) do
+    from(r in JobRun,
+      where: r.job_id == ^job_id,
+      order_by: [desc: r.executed_at],
+      limit: 1,
+      select: r.status
+    )
+    |> Repo.one()
+  end
+
   defp record_run(job, status, result) do
+    # Alert when a job starts failing, not on every failed run: a job running every
+    # minute would otherwise send an alert per minute (same rule as failing webhooks).
+    already_failing = status == "failed" and last_run_status(job.id) == "failed"
+
     run_result =
       JobRun.changeset(%JobRun{}, %{
         job_id: job.id,
@@ -123,7 +138,7 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
       })
       |> Repo.insert()
 
-    if status == "failed" and job.project do
+    if status == "failed" and not already_failing and job.project do
       project = job.project
 
       if project.user_id do

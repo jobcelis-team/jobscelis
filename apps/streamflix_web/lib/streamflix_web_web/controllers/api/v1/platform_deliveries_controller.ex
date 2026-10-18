@@ -43,8 +43,12 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeliveriesController do
 
     page = Platform.paginate_deliveries(opts)
 
+    deliveries = Enum.map(page.data, &delivery_json/1)
+
+    # Also under "data", like the other list endpoints: the SDKs read "data"
     json(conn, %{
-      deliveries: Enum.map(page.data, &delivery_json/1),
+      deliveries: deliveries,
+      data: deliveries,
       has_next: page.has_next,
       next_cursor: page.next_cursor
     })

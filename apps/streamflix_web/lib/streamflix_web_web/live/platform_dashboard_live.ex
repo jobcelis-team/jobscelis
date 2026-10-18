@@ -86,6 +86,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         webhook_form: %{"url" => "", "topics" => "", "secret" => ""},
         webhook_form_errors: [],
         confirm_regenerate_token: false,
+        editing_key_restrictions: false,
+        key_restrictions_error: nil,
         uptime_status: %{status: "unknown", checks: %{}},
         uptime_stats: %{
           last_24h: %{uptime_percent: 0.0},
@@ -296,6 +298,61 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("cancel_confirm_regenerate", _params, socket) do
     {:noreply, assign(socket, :confirm_regenerate_token, false)}
+  end
+
+  @impl true
+  def handle_event("edit_key_restrictions", _params, socket) do
+    with_permission(socket, :admin, fn ->
+      {:noreply, assign(socket, editing_key_restrictions: true, key_restrictions_error: nil)}
+    end)
+  end
+
+  @impl true
+  def handle_event("cancel_key_restrictions", _params, socket) do
+    {:noreply, assign(socket, editing_key_restrictions: false, key_restrictions_error: nil)}
+  end
+
+  @impl true
+  def handle_event("save_key_restrictions", params, socket) do
+    with_permission(socket, :admin, fn ->
+      project = socket.assigns.project
+
+      attrs = %{
+        "scopes" => Map.get(params, "scopes", []),
+        "allowed_ips" => params |> Map.get("allowed_ips", "") |> String.split([",", "\n", " "])
+      }
+
+      case Platform.update_api_key_restrictions(project.id, attrs) do
+        {:ok, api_key} ->
+          Audit.record("api_key.restricted",
+            user_id: socket.assigns.current_user.id,
+            project_id: project.id,
+            resource_type: "api_key",
+            resource_id: api_key.id,
+            metadata: %{scopes: api_key.scopes, allowed_ips: api_key.allowed_ips}
+          )
+
+          {:noreply,
+           socket
+           |> assign(
+             api_key: api_key,
+             editing_key_restrictions: false,
+             key_restrictions_error: nil
+           )
+           |> put_flash(:info, gettext("Restricciones del token actualizadas."))}
+
+        {:error, %Ecto.Changeset{} = cs} ->
+          message =
+            cs
+            |> Ecto.Changeset.traverse_errors(fn {msg, _} -> msg end)
+            |> Enum.map_join("; ", fn {field, msgs} -> "#{field}: #{Enum.join(msgs, ", ")}" end)
+
+          {:noreply, assign(socket, :key_restrictions_error, message)}
+
+        {:error, _} ->
+          {:noreply, assign(socket, :key_restrictions_error, gettext("No hay un token activo."))}
+      end
+    end)
   end
 
   @impl true
