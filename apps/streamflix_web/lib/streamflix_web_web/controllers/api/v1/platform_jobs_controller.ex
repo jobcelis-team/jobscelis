@@ -237,8 +237,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
     end
   end
 
-  def cron_preview(conn, %{"expression" => expr}) when is_binary(expr) do
-    executions = Platform.next_cron_executions(expr, 5)
+  def cron_preview(conn, %{"expression" => expr} = params) when is_binary(expr) do
+    count = params["count"] |> parse_int(5) |> max(1) |> min(50)
+    executions = Platform.next_cron_executions(expr, count)
 
     json(conn, %{
       expression: expr,
