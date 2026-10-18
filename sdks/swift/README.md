@@ -10,14 +10,14 @@ Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/vladimirCeli/jobcelis-swift.git", from: "1.0.0")
+    .package(url: "https://github.com/jobcelis-team/jobcelis-swift.git", from: "1.0.0")
 ]
 ```
 
 Or in Xcode: **File > Add Package Dependencies** and enter:
 
 ```
-https://github.com/vladimirCeli/jobcelis-swift
+https://github.com/jobcelis-team/jobcelis-swift
 ```
 
 ## Requirements

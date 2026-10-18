@@ -10,7 +10,7 @@
   "autoload": {"psr-4": {"Jobcelis\\": "src/"}},
   "minimum-stability": "stable",
   "support": {
-    "source": "https://github.com/vladimirCeli/jobcelis-php",
+    "source": "https://github.com/jobcelis-team/jobcelis-php",
     "docs": "https://jobcelis.com/docs"
   }
 }
