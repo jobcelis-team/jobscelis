@@ -994,7 +994,7 @@ resource "jobcelis_job" "daily_report" {
 
 ### API Coverage per SDK
 
-All SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cover all 98 API routes:
+All SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cover all 99 API routes:
 
 - **Auth**: register, login, refresh, MFA verify
 - **Events**: send, batch, list, get, delete, simulate
@@ -1007,7 +1007,7 @@ All SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart,
 - **Event Schemas**: CRUD, validate
 - **Sandbox**: CRUD, requests
 - **Analytics**: events/day, deliveries/day, top topics, webhook stats
-- **Project**: get, update, topics, token, regenerate
+- **Project**: get, update, topics, token, regenerate, restrict token (scopes, IPs)
 - **Projects (multi)**: CRUD, set default
 - **Teams**: list, add, update, remove members
 - **Invitations**: pending, accept, reject

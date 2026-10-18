@@ -238,6 +238,9 @@ client = Jobcelis.set_auth_token(client, new_session["token"])
 # API token
 {:ok, token} = Jobcelis.get_token(client)
 {:ok, new_token} = Jobcelis.regenerate_token(client)
+
+# Limit the token to scopes and client IPs (empty allowed_ips = any IP)
+{:ok, _} = Jobcelis.update_token_restrictions(client, scopes: ["events:read"], allowed_ips: ["203.0.113.10"])
 ```
 
 ## Multi-Project Management
