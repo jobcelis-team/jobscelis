@@ -38,6 +38,7 @@ defmodule StreamflixWeb.MixProject do
       {:phoenix_html, "~> 4.2"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:phoenix_live_view, "~> 1.1.33"},
+      {:lazy_html, "~> 0.1.13", only: :test},
       {:phoenix_live_dashboard, "~> 0.8"},
 
       # Assets
