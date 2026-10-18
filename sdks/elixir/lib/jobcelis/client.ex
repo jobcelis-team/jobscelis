@@ -553,7 +553,7 @@ defmodule Jobcelis.Client do
     request(client, :delete, path)
   end
 
-  defp get_raw(%__MODULE__{} = client, path, params \\ []) do
+  defp get_raw(%__MODULE__{} = client, path, params) do
     request_raw(client, :get, path, params: params)
   end
 
@@ -601,7 +601,7 @@ defmodule Jobcelis.Client do
     end
   end
 
-  defp request_raw(%__MODULE__{} = client, method, path, opts \\ []) do
+  defp request_raw(%__MODULE__{} = client, method, path, opts) do
     params = Keyword.get(opts, :params, [])
     url = build_url(client, path, params)
     headers = build_headers(client)
