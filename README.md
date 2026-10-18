@@ -93,7 +93,7 @@ jobcelis/
     ├── ci.yml                 # Tests, format, Credo, Sobelow, Dialyzer, Trivy
     ├── deploy.yml             # Production deploy
     ├── deploy-staging.yml     # Staging deploy
-    └── publish-sdks.yml       # SDK publishing
+    └── release-sdks.yml       # Publishes the Node, CLI and Python SDKs on version bump
 ```
 
 ---
@@ -1020,7 +1020,7 @@ The **CLI** covers all routes. The **Terraform Provider** covers 5 resources wit
 
 ### External Repositories
 
-The following SDKs live in separate repositories (required by their registries):
+The following SDKs live in their own repositories:
 
 | Repo | URL | Reason |
 |------|-----|--------|
@@ -1036,7 +1036,7 @@ The following SDKs live in separate repositories (required by their registries):
 | **Kotlin** | [jobcelis-kotlin](https://github.com/vladimirCeli/jobcelis-kotlin) | Maven Central requires own repo for publishing |
 | **Terraform** | [terraform-provider-jobcelis](https://github.com/vladimirCeli/terraform-provider-jobcelis) | Terraform Registry requires `terraform-provider-*` naming |
 
-> Canonical source code for all SDKs is in `sdks/` of this monorepo. External repos are synced manually.
+> Each of these repos is the source of truth for its SDK and publishes itself: bump the version and merge to `main`, and its Release workflow publishes it to its registry and tags it. The Node, CLI and Python SDKs live in `sdks/` of this repo and publish the same way (`.github/workflows/release-sdks.yml`).
 
 ---
 
