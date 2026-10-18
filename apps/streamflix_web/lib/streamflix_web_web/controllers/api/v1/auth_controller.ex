@@ -174,6 +174,11 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
   @doc """
   Verify MFA code for API login. Accepts mfa_token + code.
   """
+  # The docs send "mfa_token"; the SDKs and the CLI send "token". Accept both.
+  def verify_mfa(conn, %{"token" => token, "code" => code} = params)
+      when not is_map_key(params, "mfa_token"),
+      do: verify_mfa(conn, %{"mfa_token" => token, "code" => code})
+
   def verify_mfa(conn, %{"mfa_token" => mfa_token, "code" => code}) do
     case StreamflixAccounts.Guardian.decode_and_verify(mfa_token) do
       {:ok, %{"type" => "mfa_challenge"} = claims} ->
@@ -269,7 +274,11 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
   @doc """
   Refreshes an authentication token.
   """
-  def refresh(conn, %{"token" => token}) do
+  # The docs and the CLI send "token"; the SDKs send "refresh_token". Accept both.
+  def refresh(conn, %{"refresh_token" => token}) when is_binary(token),
+    do: refresh(conn, %{"token" => token})
+
+  def refresh(conn, %{"token" => token}) when is_binary(token) do
     case StreamflixAccounts.Services.Authentication.refresh_token(
            token,
            conn_audit_opts(conn, "api")
@@ -284,5 +293,11 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
         |> put_status(:unauthorized)
         |> json(%{error: "Invalid or expired token"})
     end
+  end
+
+  def refresh(conn, _params) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{error: "Missing 'token' (or 'refresh_token') parameter"})
   end
 end

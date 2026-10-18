@@ -8620,3 +8620,43 @@ msgstr "Propietario"
 #, elixir-autogen, elixir-format
 msgid "Webhook desactivado"
 msgstr "Webhook desactivado"
+
+#: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex
+#, elixir-autogen, elixir-format
+msgid "Scopes permitidos"
+msgstr "Scopes permitidos"
+
+#: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex
+#, elixir-autogen, elixir-format
+msgid "* (acceso total)"
+msgstr "* (acceso total)"
+
+#: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex
+#, elixir-autogen, elixir-format
+msgid "IPs permitidas (una por línea, vacío = cualquier IP)"
+msgstr "IPs permitidas (una por línea, vacío = cualquier IP)"
+
+#: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex
+#, elixir-autogen, elixir-format
+msgid "Guardar restricciones"
+msgstr "Guardar restricciones"
+
+#: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex
+#, elixir-autogen, elixir-format
+msgid "Editar restricciones"
+msgstr "Editar restricciones"
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Restricciones del token actualizadas."
+msgstr "Restricciones del token actualizadas."
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "No hay un token activo."
+msgstr "No hay un token activo."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Restricciones del token actualizadas"
+msgstr "Restricciones del token actualizadas"

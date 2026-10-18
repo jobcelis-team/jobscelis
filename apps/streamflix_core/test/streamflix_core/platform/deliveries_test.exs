@@ -191,5 +191,50 @@ defmodule StreamflixCore.Platform.DeliveriesTest do
       assert body["data"] == "value"
       assert body["event_id"] == "event-123"
     end
+
+    test "custom mode renders the Slack template exactly, without extra fields" do
+      slack = Enum.find(Platform.webhook_templates(), &(&1.id == "slack"))
+      webhook = %{body_config: slack.body_config}
+
+      event = %{
+        id: "event-123",
+        topic: "inventory.low",
+        payload: %{"sku" => "SKU-1", "stock" => 2},
+        occurred_at: ~U[2026-03-05 12:00:00Z]
+      }
+
+      body = Platform.build_webhook_body(webhook, event)
+      assert body["text"] == "New event: inventory.low"
+      [%{"text" => %{"text" => block}}] = body["blocks"]
+      assert block =~ "*inventory.low*"
+      assert block =~ ~s("sku": "SKU-1")
+      assert Map.keys(body) |> Enum.sort() == ["blocks", "text"]
+    end
+
+    test "custom mode supports payload fields and keeps unknown placeholders" do
+      webhook = %{
+        body_config: %{
+          "body_mode" => "custom",
+          "template" => %{
+            "chat_id" => "{{CHAT_ID}}",
+            "text" => "Order {{payload.order_id}} for {{ payload.amount }} ({{event_id}})",
+            "count" => 3
+          }
+        }
+      }
+
+      event = %{
+        id: "event-9",
+        topic: "order.created",
+        payload: %{"order_id" => "ord_1", "amount" => 49.5},
+        occurred_at: ~U[2026-03-05 12:00:00Z]
+      }
+
+      assert Platform.build_webhook_body(webhook, event) == %{
+               "chat_id" => "{{CHAT_ID}}",
+               "text" => "Order ord_1 for 49.5 (event-9)",
+               "count" => 3
+             }
+    end
   end
 end

@@ -18,6 +18,7 @@ defmodule StreamflixWebWeb.SandboxController do
 
         headers =
           conn.req_headers
+          |> Enum.reject(fn {name, _} -> proxy_header?(name) end)
           |> Enum.into(%{})
 
         attrs = %{
@@ -35,6 +36,18 @@ defmodule StreamflixWebWeb.SandboxController do
         |> put_status(:ok)
         |> json(%{status: "received", endpoint: slug})
     end
+  end
+
+  # Headers added by our own reverse proxy / hosting front end, not by the sender.
+  # They repeat the client IP and expose internal hosting details, so they are not
+  # shown as part of the captured request (the sender IP is kept in its own field).
+  @proxy_headers ~w(client-ip x-client-ip x-forwarded-for x-forwarded-host x-forwarded-proto
+                    x-forwarded-port x-forwarded-tlsversion x-original-url x-real-ip
+                    disguised-host was-default-hostname max-forwards x-site-deployment-id)
+  @proxy_header_prefixes ~w(x-arr- x-appservice- x-waws- x-ms- x-azure-)
+
+  defp proxy_header?(name) do
+    name in @proxy_headers or String.starts_with?(name, @proxy_header_prefixes)
   end
 
   # Plug.Parsers (in the :api pipeline) already consumed JSON / urlencoded /

@@ -1150,6 +1150,75 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
               </span>
             <% end %>
           </div>
+          <%= if can_admin_team?(@current_user_role) do %>
+            <%= if @editing_key_restrictions do %>
+              <form
+                id="key-restrictions-form"
+                phx-submit="save_key_restrictions"
+                class="space-y-3 pt-2"
+              >
+                <div>
+                  <p class="text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                    {gettext("Scopes permitidos")}
+                  </p>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                    <%= for scope <- StreamflixCore.Schemas.ApiKey.valid_scopes() do %>
+                      <label class="flex items-center gap-1.5 text-xs font-mono text-slate-700 dark:text-slate-300">
+                        <input
+                          type="checkbox"
+                          name="scopes[]"
+                          value={scope}
+                          checked={scope in (@api_key.scopes || ["*"])}
+                          class="rounded border-slate-300 dark:border-slate-600"
+                        />
+                        {if scope == "*", do: gettext("* (acceso total)"), else: scope}
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+                <div>
+                  <label
+                    for="key-allowed-ips"
+                    class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1"
+                  >
+                    {gettext("IPs permitidas (una por línea, vacío = cualquier IP)")}
+                  </label>
+                  <textarea
+                    id="key-allowed-ips"
+                    name="allowed_ips"
+                    rows="3"
+                    class="w-full font-mono text-xs border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2"
+                  >{Enum.join(@api_key.allowed_ips || [], "\n")}</textarea>
+                </div>
+                <%= if @key_restrictions_error do %>
+                  <p class="text-xs text-red-600 dark:text-red-400">{@key_restrictions_error}</p>
+                <% end %>
+                <div class="flex gap-2">
+                  <button
+                    type="submit"
+                    class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium"
+                  >
+                    {gettext("Guardar restricciones")}
+                  </button>
+                  <button
+                    type="button"
+                    phx-click="cancel_key_restrictions"
+                    class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-medium"
+                  >
+                    {gettext("Cancelar")}
+                  </button>
+                </div>
+              </form>
+            <% else %>
+              <button
+                type="button"
+                phx-click="edit_key_restrictions"
+                class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
+                {gettext("Editar restricciones")}
+              </button>
+            <% end %>
+          <% end %>
         </div>
       <% else %>
         <div class="text-center py-4 mb-3">
