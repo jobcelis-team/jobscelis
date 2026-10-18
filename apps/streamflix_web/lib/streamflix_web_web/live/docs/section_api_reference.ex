@@ -612,6 +612,28 @@ defmodule StreamflixWebWeb.Docs.SectionApiReference do
             )}
           </.callout>
         </.api_endpoint>
+        <.api_endpoint
+          id="project-token-restrict"
+          method="PATCH"
+          path="/api/v1/token"
+          description={
+            gettext(
+              "Limita el API token a ciertos scopes y direcciones IP. Los campos omitidos no cambian; una lista de IPs vacía permite cualquier IP."
+            )
+          }
+        >
+          <.code_block
+            code={"curl -X PATCH \"#{@base_url}/api/v1/token\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"scopes\":[\"events:read\",\"events:write\"],\"allowed_ips\":[\"203.0.113.10\"]}'"}
+            copy_id="copy-project-token-restrict"
+          />
+          <.response_block
+            code={
+              ~s|{\n  "prefix": "wh_AbCdEf123456",\n  "scopes": ["events:read", "events:write"],\n  "allowed_ips": ["203.0.113.10"]\n}|
+            }
+            copy_id="copy-project-token-restrict-response"
+            status="200 OK"
+          />
+        </.api_endpoint>
       </div>
     </.docs_section>
 

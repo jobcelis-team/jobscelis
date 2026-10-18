@@ -228,6 +228,9 @@ client.update_project(json!({"name": "My Project v2"})).await?;
 let topics = client.list_topics().await?;
 let token = client.get_token().await?;
 let new_token = client.regenerate_token().await?;
+
+// Limit the token to scopes and client IPs (empty allowed_ips = any IP)
+client.update_token_restrictions(Some(vec!["events:read".into()]), Some(vec!["203.0.113.10".into()])).await?;
 ```
 
 ## Multi-Project Management

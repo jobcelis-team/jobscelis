@@ -230,6 +230,9 @@ $topics = $client->listTopics();
 // API token
 $token = $client->getToken();
 $newToken = $client->regenerateToken();
+
+// Limit the token to scopes and client IPs (empty allowedIps = any IP)
+$client->updateTokenRestrictions(['events:read', 'events:write'], ['203.0.113.10']);
 ```
 
 ## Multi-Project Management

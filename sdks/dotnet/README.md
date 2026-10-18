@@ -234,6 +234,9 @@ var topics = await client.ListTopicsAsync();
 // API token
 var token = await client.GetTokenAsync();
 var newToken = await client.RegenerateTokenAsync();
+
+// Limit the token to scopes and client IPs (empty allowedIps = any IP)
+await client.UpdateTokenRestrictionsAsync(new[] { "events:read" }, new[] { "203.0.113.10" });
 ```
 
 ## Multi-Project Management

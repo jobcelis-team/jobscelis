@@ -241,6 +241,9 @@ client.updateProject(mapOf("name" to "My Project v2"))
 val topics = client.listTopics()
 val token = client.getToken()
 val newToken = client.regenerateToken()
+
+// Limit the token to scopes and client IPs (empty allowedIps = any IP)
+client.updateTokenRestrictions(scopes = listOf("events:read"), allowedIps = listOf("203.0.113.10"))
 ```
 
 ## Multi-Project Management

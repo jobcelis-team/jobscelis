@@ -483,6 +483,18 @@ public class JobcelisClient {
         return post("/api/v1/token/regenerate", Map.of());
     }
 
+    /**
+     * Limit the API token to scopes and client IPs. A {@code null} argument is left
+     * unchanged; an empty {@code allowedIps} list means any IP.
+     */
+    public JsonObject updateTokenRestrictions(List<String> scopes, List<String> allowedIps)
+            throws JobcelisException, IOException {
+        Map<String, Object> body = new LinkedHashMap<>();
+        if (scopes != null) body.put("scopes", scopes);
+        if (allowedIps != null) body.put("allowed_ips", allowedIps);
+        return patch("/api/v1/token", body);
+    }
+
     // ── Projects (multi) ──────────────────────────────────────────────────
 
     /** List all projects. */

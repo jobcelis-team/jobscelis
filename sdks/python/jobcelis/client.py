@@ -309,6 +309,16 @@ class JobcelisClient:
         """Regenerate the API token."""
         return self._post("/api/v1/token/regenerate", {})
 
+    def update_token_restrictions(
+        self, scopes: list[str] | None = None, allowed_ips: list[str] | None = None
+    ) -> dict:
+        """Limit the API token to scopes and client IPs.
+
+        Omitted arguments are left unchanged; an empty ``allowed_ips`` list means any IP.
+        """
+        body = {k: v for k, v in {"scopes": scopes, "allowed_ips": allowed_ips}.items() if v is not None}
+        return self._patch("/api/v1/token", body)
+
     # --- Projects (multi) ---
 
     def list_projects(self) -> dict:

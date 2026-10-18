@@ -515,6 +515,12 @@ fmt.Printf("Token: %s\n", token.Token)
 
 // Regenerate the API token (invalidates the current one)
 newToken, err := client.RegenerateToken(ctx)
+
+// Limit the token to scopes and client IPs (empty AllowedIPs = any IP)
+_, err = client.UpdateTokenRestrictions(ctx, jobcelis.TokenRestrictions{
+	Scopes:     []string{"events:read", "events:write"},
+	AllowedIPs: []string{"203.0.113.10"},
+})
 fmt.Printf("New token: %s\n", newToken.Token)
 // Important: update the client with the new API key
 client.APIKey = newToken.Token
@@ -797,6 +803,7 @@ if err != nil {
 | | `ListTopics(ctx)` | API Key | List project topics |
 | | `GetToken(ctx)` | API Key | Get API token metadata |
 | | `RegenerateToken(ctx)` | API Key | Regenerate API token |
+| | `UpdateTokenRestrictions(ctx, req)` | API Key | Limit token scopes and client IPs |
 | **Projects** | `ListProjects(ctx)` | Bearer | List all projects |
 | | `CreateProject(ctx, req)` | Bearer | Create a project |
 | | `GetProjectByID(ctx, id)` | Bearer | Get project by ID |

@@ -336,6 +336,16 @@ defmodule Jobcelis.Client do
     post(client, "/api/v1/token/regenerate", %{})
   end
 
+  @doc """
+  Limits the API token to scopes and client IPs.
+
+  Options: `:scopes` and `:allowed_ips` (lists). Omitted options are left unchanged;
+  an empty `:allowed_ips` list means any IP.
+  """
+  def update_token_restrictions(%__MODULE__{} = client, opts) do
+    patch(client, "/api/v1/token", opts |> Map.new() |> Map.take([:scopes, :allowed_ips]))
+  end
+
   # ---------------------------------------------------------------------------
   # Projects (multi)
   # ---------------------------------------------------------------------------
@@ -553,7 +563,7 @@ defmodule Jobcelis.Client do
     request(client, :delete, path)
   end
 
-  defp get_raw(%__MODULE__{} = client, path, params \\ []) do
+  defp get_raw(%__MODULE__{} = client, path, params) do
     request_raw(client, :get, path, params: params)
   end
 
@@ -601,7 +611,7 @@ defmodule Jobcelis.Client do
     end
   end
 
-  defp request_raw(%__MODULE__{} = client, method, path, opts \\ []) do
+  defp request_raw(%__MODULE__{} = client, method, path, opts) do
     params = Keyword.get(opts, :params, [])
     url = build_url(client, path, params)
     headers = build_headers(client)

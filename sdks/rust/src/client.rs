@@ -447,6 +447,23 @@ impl JobcelisClient {
         self.post("/api/v1/token/regenerate", json!({})).await
     }
 
+    /// Limit the API token to scopes and client IPs. `None` leaves a field unchanged;
+    /// an empty `allowed_ips` list means any IP.
+    pub async fn update_token_restrictions(
+        &self,
+        scopes: Option<Vec<String>>,
+        allowed_ips: Option<Vec<String>>,
+    ) -> Result<Value, JobcelisError> {
+        let mut body = serde_json::Map::new();
+        if let Some(s) = scopes {
+            body.insert("scopes".into(), json!(s));
+        }
+        if let Some(ips) = allowed_ips {
+            body.insert("allowed_ips".into(), json!(ips));
+        }
+        self.patch("/api/v1/token", Value::Object(body)).await
+    }
+
     // -------------------------------------------------------------------------
     // Projects (multi)
     // -------------------------------------------------------------------------
