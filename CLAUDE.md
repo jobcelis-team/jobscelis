@@ -147,13 +147,21 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 
 ### SDK publishing (automatic)
 - Every SDK publishes itself when its version changes on `main`; changes without a version bump publish nothing
-- Node, CLI, Python: `.github/workflows/release-sdks.yml` in this repo (npm: trusted publishing, no token; PyPI: secret `PYPI_TOKEN`)
+- Node, CLI, Python: `.github/workflows/release-sdks.yml` in this repo (npm: trusted publishing, no token; PyPI: secret `PYPI_TOKEN`); tags `node-vX.Y.Z`, `cli-vX.Y.Z`, `python-vX.Y.Z`
 - Each external repo: `.github/workflows/release.yml` (reads the version, checks the registry, publishes, tags `vX.Y.Z`; Swift tags `X.Y.Z`)
   - Go, PHP, Swift: version in `VERSION`; the tag is the release (pkg.go.dev, Packagist, SwiftPM)
-  - Ruby `RUBYGEMS_API_KEY`, Elixir `HEX_API_KEY`, .NET `NUGET_API_KEY`, Rust `CRATES_TOKEN`, Dart `PUB_CREDENTIALS_JSON`
+  - Ruby `RUBYGEMS_API_KEY`, Elixir `HEX_API_KEY`, .NET `NUGET_API_KEY`, Rust `CRATES_TOKEN`
+  - Dart: pub.dev automated publishing (no token); `release.yml` tags, then starts `publish.yml` on the tag
   - Java and Kotlin: `MAVEN_USERNAME`/`MAVEN_PASSWORD` (Central Portal user token), `GPG_PRIVATE_KEY`, `GPG_PASSPHRASE`
 - A missing secret makes the workflow warn and publish nothing; add it and re-run the workflow
 - Registries reject duplicate versions: always bump the version to release
+- Java and Kotlin also run `check-release.yml` on pull requests (builds and validates the Maven Central bundle without uploading); every other SDK repo runs `ci.yml`
+
+### Web releases (automatic)
+- The web version lives in `VERSION` at the repo root
+- Bump it and merge to `main`: `.github/workflows/release.yml` tags `vX.Y.Z` and creates the GitHub Release with the commits since the previous `v*` tag
+- Without a bump nothing is released; pushing a `vX.Y.Z` tag by hand also creates its release
+- Changing only `VERSION` does not redeploy (it is in the deploy paths-ignore)
 
 ### SDK code conventions
 - TypeScript SDKs need `@types/node` in devDependencies and `"types": ["node"]` in tsconfig
