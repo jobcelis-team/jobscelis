@@ -11,7 +11,7 @@
 
     <name>Jobcelis Java SDK</name>
     <description>Official Java SDK for the Jobcelis Event Infrastructure Platform</description>
-    <url>https://github.com/vladimirCeli/jobcelis-java</url>
+    <url>https://github.com/jobcelis-team/jobcelis-java</url>
 
     <licenses>
         <license>
@@ -22,15 +22,15 @@
 
     <developers>
         <developer>
-            <id>vladimirCeli</id>
+            <id>jobcelis-team</id>
             <name>Vladimir Celi</name>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/vladimirCeli/jobcelis-java.git</connection>
-        <developerConnection>scm:git:ssh://github.com/vladimirCeli/jobcelis-java.git</developerConnection>
-        <url>https://github.com/vladimirCeli/jobcelis-java</url>
+        <connection>scm:git:git://github.com/jobcelis-team/jobcelis-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com/jobcelis-team/jobcelis-java.git</developerConnection>
+        <url>https://github.com/jobcelis-team/jobcelis-java</url>
     </scm>
 
     <properties>
