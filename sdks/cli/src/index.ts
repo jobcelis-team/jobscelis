@@ -2,7 +2,9 @@
 
 import * as commands from "./commands";
 
-const VERSION = "2.0.1";
+// Read from package.json (shipped with the package) so the version shown never drifts
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { version: VERSION } = require("../package.json") as { version: string };
 
 const HELP_TEXT = `
 jobcelis - CLI for the Jobcelis Event Infrastructure Platform (v${VERSION})

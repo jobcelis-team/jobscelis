@@ -792,25 +792,25 @@ Multi-stage Dockerfile:
 
 ## SDKs & Tools
 
-All SDKs cover **100% of the API** (98+ endpoints) with full documentation.
+All SDKs cover **100% of the API** (99 endpoints) with full documentation.
 
 ### Published Packages
 
 | Package | Registry | Install | Version |
 |---------|----------|---------|---------|
-| **Node.js/TypeScript** | [npm](https://www.npmjs.com/package/@jobcelis/sdk) | `npm install @jobcelis/sdk` | v1.5.0 |
-| **CLI** | [npm](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.0.2 |
-| **Python** | [PyPI](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.4.0 |
-| **Go** | [GitHub](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.1.0 |
-| **PHP** | [Packagist](https://packagist.org/packages/jobcelis/sdk) | `composer require jobcelis/sdk` | v1.0.0 |
-| **Ruby** | [RubyGems](https://rubygems.org/gems/jobcelis) | `gem install jobcelis` | v1.0.0 |
-| **Elixir** | [Hex](https://hex.pm/packages/jobcelis) · [Docs](https://hexdocs.pm/jobcelis) | `{:jobcelis, "~> 1.0"}` | v1.0.0 |
-| **C# / .NET** | [NuGet](https://www.nuget.org/packages/Jobcelis) | `dotnet add package Jobcelis` | v1.0.0 |
-| **Rust** | [crates.io](https://crates.io/crates/jobcelis) · [Docs](https://docs.rs/jobcelis) | `cargo add jobcelis` | v1.0.0 |
-| **Swift** | [GitHub](https://github.com/vladimirCeli/jobcelis-swift) | `.package(url: "...jobcelis-swift", from: "1.0.0")` | v1.0.0 |
-| **Java** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis/1.0.0/) | `com.jobcelis:jobcelis:1.0.0` | v1.0.0 |
-| **Dart/Flutter** | [pub.dev](https://pub.dev/packages/jobcelis) | `dart pub add jobcelis` | v1.0.0 |
-| **Kotlin** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis-kotlin/1.0.0/) | `com.jobcelis:jobcelis-kotlin:1.0.0` | v1.0.0 |
+| **Node.js/TypeScript** | [npm](https://www.npmjs.com/package/@jobcelis/sdk) | `npm install @jobcelis/sdk` | v1.9.0 |
+| **CLI** | [npm](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.2.0 |
+| **Python** | [PyPI](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.6.0 |
+| **Go** | [GitHub](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.4.0 |
+| **PHP** | [Packagist](https://packagist.org/packages/jobcelis/sdk) | `composer require jobcelis/sdk` | v1.3.0 |
+| **Ruby** | [RubyGems](https://rubygems.org/gems/jobcelis) | `gem install jobcelis` | v1.3.0 |
+| **Elixir** | [Hex](https://hex.pm/packages/jobcelis) · [Docs](https://hexdocs.pm/jobcelis) | `{:jobcelis, "~> 1.0"}` | v1.3.0 |
+| **C# / .NET** | [NuGet](https://www.nuget.org/packages/Jobcelis) | `dotnet add package Jobcelis` | v1.3.0 |
+| **Rust** | [crates.io](https://crates.io/crates/jobcelis) · [Docs](https://docs.rs/jobcelis) | `cargo add jobcelis` | v1.3.0 |
+| **Swift** | [GitHub](https://github.com/vladimirCeli/jobcelis-swift) | `.package(url: "...jobcelis-swift", from: "1.0.0")` | v1.3.0 |
+| **Java** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis/1.0.0/) | `com.jobcelis:jobcelis:1.3.0` | v1.3.0 |
+| **Dart/Flutter** | [pub.dev](https://pub.dev/packages/jobcelis) | `dart pub add jobcelis` | v1.3.0 |
+| **Kotlin** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis-kotlin/1.0.0/) | `com.jobcelis:jobcelis-kotlin:1.3.0` | v1.3.0 |
 | **Terraform** | [Registry](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | See `required_providers` block | v1.0.0 |
 | **GitHub Action** | This monorepo | `uses: vladimirCeli/jobscelis/sdks/github-action@main` | — |
 

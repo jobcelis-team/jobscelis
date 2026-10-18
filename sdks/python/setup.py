@@ -7,7 +7,7 @@ with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="jobcelis",
-    version="1.5.1",
+    version="1.6.0",
     description="Official Python SDK for the Jobcelis Event Infrastructure Platform",
     long_description=long_description,
     long_description_content_type="text/markdown",

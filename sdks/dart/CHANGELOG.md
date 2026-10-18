@@ -1,3 +1,7 @@
+## 1.3.0
+
+- Added `updateTokenRestrictions()` to limit the API token to scopes and client IPs
+
 ## 1.0.1
 
 - Added example file for pub.dev scoring
