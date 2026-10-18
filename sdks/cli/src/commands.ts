@@ -953,6 +953,26 @@ export async function projectRegenerateToken(args: string[]): Promise<void> {
   printJson(result);
 }
 
+export async function projectRestrictToken(args: string[]): Promise<void> {
+  if (hasFlag(args, "--help")) {
+    process.stdout.write(
+      "Usage: jobcelis project restrict-token [--scopes <s1,s2>] [--ips <ip1,ip2>]\n\n" +
+        "Limit the API token to scopes and client IPs. Omitted flags are left unchanged;\n" +
+        'use --ips "" to allow any IP again.\n'
+    );
+    return;
+  }
+  const list = (value: string | undefined) =>
+    value === undefined ? undefined : value.split(",").map((v) => v.trim()).filter(Boolean);
+  const body: Record<string, unknown> = {};
+  const scopes = list(getFlag(args, "--scopes"));
+  const ips = list(getFlag(args, "--ips"));
+  if (scopes !== undefined) body.scopes = scopes;
+  if (ips !== undefined) body.allowed_ips = ips;
+  const result = await api.patch("/api/v1/token", body);
+  printJson(result);
+}
+
 // ---------------------------------------------------------------------------
 // Projects (multi)
 // ---------------------------------------------------------------------------

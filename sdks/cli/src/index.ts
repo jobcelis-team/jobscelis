@@ -102,6 +102,7 @@ Commands:
     project topics                                    List project topics
     project token                                     Get API token info
     project regenerate-token                          Regenerate API token
+    project restrict-token [--scopes s] [--ips ip]    Limit token scopes / IPs
 
   Projects (multi):
     projects list                                     List all projects
@@ -274,6 +275,7 @@ const COMMAND_MAP: Record<string, Record<string, CommandHandler>> = {
     topics: commands.projectTopics,
     token: commands.projectToken,
     "regenerate-token": commands.projectRegenerateToken,
+    "restrict-token": commands.projectRestrictToken,
   },
   projects: {
     list: commands.projectsList,

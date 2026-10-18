@@ -236,6 +236,9 @@ let updated = try await client.updateProject(["name": "My Project v2"])
 let topics = try await client.listTopics()
 let token = try await client.getToken()
 let newToken = try await client.regenerateToken()
+
+// Limit the token to scopes and client IPs (empty allowedIps = any IP)
+_ = try await client.updateTokenRestrictions(scopes: ["events:read"], allowedIps: ["203.0.113.10"])
 ```
 
 ## Multi-Project Management

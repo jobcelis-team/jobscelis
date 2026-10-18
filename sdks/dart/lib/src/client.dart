@@ -387,6 +387,18 @@ class JobcelisClient {
     return _post('/api/v1/token/regenerate', {});
   }
 
+  /// Limit the API token to scopes and client IPs. A null argument is left
+  /// unchanged; an empty [allowedIps] list means any IP.
+  Future<Map<String, dynamic>> updateTokenRestrictions({
+    List<String>? scopes,
+    List<String>? allowedIps,
+  }) async {
+    return _patch('/api/v1/token', {
+      if (scopes != null) 'scopes': scopes,
+      if (allowedIps != null) 'allowed_ips': allowedIps,
+    });
+  }
+
   // ── Projects (multi) ──────────────────────────────────────────────────
 
   /// List all projects.

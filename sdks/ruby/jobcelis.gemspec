@@ -10,6 +10,8 @@ Gem::Specification.new do |s|
   s.files       = Dir["lib/**/*.rb"] + ["README.md", "LICENSE"]
   s.required_ruby_version = ">= 3.0"
   s.add_dependency "net-http"
+  # Not a default gem since Ruby 3.4: Bundler apps fail to load the SDK without it
+  s.add_dependency "base64", "~> 0.2"
   s.metadata = {
     "homepage_uri" => "https://jobcelis.com",
     "source_code_uri" => "https://github.com/vladimirCeli/jobcelis-ruby",

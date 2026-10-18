@@ -378,6 +378,19 @@ public class JobcelisClient : IDisposable
     public Task<JsonElement> RegenerateTokenAsync()
         => PostAsync("/api/v1/token/regenerate", new { });
 
+    /// <summary>
+    /// Limit the API token to scopes and client IPs. A null argument is left unchanged;
+    /// an empty <paramref name="allowedIps"/> list means any IP.
+    /// </summary>
+    public Task<JsonElement> UpdateTokenRestrictionsAsync(
+        IEnumerable<string>? scopes = null, IEnumerable<string>? allowedIps = null)
+    {
+        var body = new Dictionary<string, object>();
+        if (scopes != null) body["scopes"] = scopes.ToArray();
+        if (allowedIps != null) body["allowed_ips"] = allowedIps.ToArray();
+        return PatchAsync("/api/v1/token", body);
+    }
+
     // -------------------------------------------------------------------------
     // Projects (multi)
     // -------------------------------------------------------------------------

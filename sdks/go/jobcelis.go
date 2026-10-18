@@ -103,8 +103,11 @@ type Invitation struct {
 
 // Token represents an API token.
 type Token struct {
-	Token     string `json:"token"`
-	CreatedAt string `json:"created_at,omitempty"`
+	Token      string   `json:"token,omitempty"`
+	Prefix     string   `json:"prefix,omitempty"`
+	Scopes     []string `json:"scopes,omitempty"`
+	AllowedIPs []string `json:"allowed_ips,omitempty"`
+	CreatedAt  string   `json:"created_at,omitempty"`
 }
 
 // Topic represents a topic used in the current project.
@@ -1078,6 +1081,20 @@ func (c *Client) GetToken(ctx context.Context) (*Token, error) {
 func (c *Client) RegenerateToken(ctx context.Context) (*Token, error) {
 	var resp Token
 	err := c.doRequest(ctx, http.MethodPost, "/api/v1/token/regenerate", nil, &resp)
+	return &resp, err
+}
+
+// TokenRestrictions limits the project API token. A nil field is left unchanged;
+// an empty AllowedIPs slice means any IP.
+type TokenRestrictions struct {
+	Scopes     []string `json:"scopes"`
+	AllowedIPs []string `json:"allowed_ips"`
+}
+
+// UpdateTokenRestrictions limits the project API token to scopes and client IPs.
+func (c *Client) UpdateTokenRestrictions(ctx context.Context, req TokenRestrictions) (*Token, error) {
+	var resp Token
+	err := c.doRequest(ctx, http.MethodPatch, "/api/v1/token", req, &resp)
 	return &resp, err
 }
 

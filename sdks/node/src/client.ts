@@ -288,6 +288,17 @@ export class JobcelisClient {
     return this.post('/api/v1/token/regenerate', {});
   }
 
+  /**
+   * Limit the API token to scopes and client IPs. Omitted fields are left unchanged;
+   * an empty allowed_ips list means any IP.
+   */
+  async updateTokenRestrictions(restrictions: {
+    scopes?: string[];
+    allowed_ips?: string[];
+  }): Promise<{ prefix: string; scopes: string[]; allowed_ips: string[] }> {
+    return this.patch('/api/v1/token', restrictions);
+  }
+
   // --- Projects (multi) ---
 
   async listProjects(): Promise<{ data: Project[] }> {

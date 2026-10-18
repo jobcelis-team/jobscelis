@@ -8660,3 +8660,8 @@ msgstr "There is no active token."
 #, elixir-autogen, elixir-format
 msgid "Restricciones del token actualizadas"
 msgstr "Token restrictions updated"
+
+#: lib/streamflix_web_web/live/docs/section_api_reference.ex
+#, elixir-autogen, elixir-format
+msgid "Limita el API token a ciertos scopes y direcciones IP. Los campos omitidos no cambian; una lista de IPs vacía permite cualquier IP."
+msgstr "Limit the API token to specific scopes and IP addresses. Omitted fields are left unchanged; an empty IP list allows any IP."

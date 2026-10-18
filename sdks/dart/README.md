@@ -228,6 +228,9 @@ await client.updateProject({'name': 'My Project v2'});
 final topics = await client.listTopics();
 final token = await client.getToken();
 final newToken = await client.regenerateToken();
+
+// Limit the token to scopes and client IPs (empty allowedIps = any IP)
+await client.updateTokenRestrictions(scopes: ['events:read'], allowedIps: ['203.0.113.10']);
 ```
 
 ## Multi-Project Management

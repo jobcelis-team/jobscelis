@@ -248,6 +248,9 @@ topics = client.list_topics
 # API token
 token = client.get_token
 new_token = client.regenerate_token
+
+# Limit the token to scopes and client IPs (empty allowed_ips = any IP)
+client.update_token_restrictions(scopes: ["events:read", "events:write"], allowed_ips: ["203.0.113.10"])
 ```
 
 ## Multi-Project Management
