@@ -49,6 +49,7 @@ defmodule StreamflixWebWeb.SandboxControllerTest do
     |> put_req_header("x-forwarded-for", "203.0.113.7")
     |> put_req_header("was-default-hostname", "internal.example.net")
     |> put_req_header("x-arr-ssl", "on")
+    |> put_req_header("x-client-port", "51000")
     |> post("/sandbox/#{ep.slug}", "{}")
     |> json_response(200)
 
@@ -59,5 +60,6 @@ defmodule StreamflixWebWeb.SandboxControllerTest do
     refute Map.has_key?(headers, "x-forwarded-for")
     refute Map.has_key?(headers, "was-default-hostname")
     refute Map.has_key?(headers, "x-arr-ssl")
+    refute Map.has_key?(headers, "x-client-port")
   end
 end
