@@ -7,10 +7,6 @@ name: Release SDKs
 on:
   push:
     branches: [main]
-    paths:
-      - "sdks/node/**"
-      - "sdks/cli/**"
-      - "sdks/python/**"
   workflow_dispatch:
 
 concurrency:
@@ -29,6 +25,10 @@ jobs:
             dir: sdks/node
           - package: "@jobcelis/cli"
             dir: sdks/cli
+    # npm trusted publishing: npmjs.com trusts this workflow, no token needed
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: ${{ matrix.dir }}
@@ -37,19 +37,15 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # trusted publishing needs npm 11.5.1+, which ships with Node 24
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
       - name: Already released?
         id: check
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "::warning::Not publishing: add the NPM_TOKEN repository secret."
-            echo "release=false" >> "$GITHUB_OUTPUT"
-          elif npm view "${{ matrix.package }}@$VERSION" version >/dev/null 2>&1; then
+          if npm view "${{ matrix.package }}@$VERSION" version >/dev/null 2>&1; then
             echo "${{ matrix.package }}@$VERSION is already published: nothing to do"
             echo "release=false" >> "$GITHUB_OUTPUT"
           else
@@ -62,8 +58,6 @@ jobs:
 
       - name: Publish
         if: steps.check.outputs.release == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
 
   pypi:
