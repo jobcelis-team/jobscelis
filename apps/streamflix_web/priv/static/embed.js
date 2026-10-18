@@ -138,18 +138,38 @@
 
   JobcelisPortal.prototype.loadWebhooks = function () {
     var self = this;
-    this.api("GET", "/webhooks").then(function (res) {
-      self.webhooks = res.data || [];
-      self.renderContent();
-    });
+    this.api("GET", "/webhooks")
+      .then(function (res) {
+        self.webhooks = res.data || [];
+        self.renderContent();
+      })
+      .catch(function (err) {
+        self.showLoadError(err);
+      });
   };
 
   JobcelisPortal.prototype.loadDeliveries = function () {
     var self = this;
-    this.api("GET", "/deliveries?limit=20").then(function (res) {
-      self.deliveries = res.data || [];
-      self.renderContent();
-    });
+    this.api("GET", "/deliveries?limit=20")
+      .then(function (res) {
+        self.deliveries = res.data || [];
+        self.renderContent();
+      })
+      .catch(function (err) {
+        self.showLoadError(err);
+      });
+  };
+
+  // Replace the "Loading..." placeholder with the error, so a failed request never hangs
+  JobcelisPortal.prototype.showLoadError = function (err) {
+    var content = document.getElementById("jc-portal-content");
+    if (!content) return;
+    content.innerHTML = "";
+    var box = document.createElement("div");
+    box.style.cssText =
+      "padding:24px;text-align:center;color:#b91c1c;font-size:14px;";
+    box.textContent = this.t.error + (err && err.message ? ": " + err.message : "");
+    content.appendChild(box);
   };
 
   JobcelisPortal.prototype.render = function () {

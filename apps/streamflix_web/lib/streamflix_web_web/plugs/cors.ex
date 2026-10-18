@@ -39,7 +39,7 @@ defmodule StreamflixWebWeb.Plugs.CORS do
         )
         |> put_resp_header(
           "access-control-allow-headers",
-          "Authorization, X-Api-Key, Content-Type, Accept"
+          "Authorization, X-Api-Key, X-Embed-Token, Content-Type, Accept"
         )
         |> put_resp_header("access-control-max-age", "86400")
         |> maybe_vary_origin()

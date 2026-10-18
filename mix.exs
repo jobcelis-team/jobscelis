@@ -6,6 +6,9 @@ defmodule Streamflix.MixProject do
       apps_path: "apps",
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
+      # Umbrella test runs share one VM: protocols consolidated without test-only deps
+      # (e.g. LazyHTML for LiveView tests) would be missing their implementations
+      consolidate_protocols: Mix.env() != :test,
       deps: deps(),
       aliases: aliases(),
       releases: releases(),
