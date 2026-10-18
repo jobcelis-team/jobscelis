@@ -39,7 +39,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
     project = conn.assigns.current_project
     opts = [include_inactive: params["include"] == "inactive"]
     webhooks = Platform.list_webhooks(project.id, opts)
-    json(conn, %{webhooks: Enum.map(webhooks, &webhook_json/1)})
+    items = Enum.map(webhooks, &webhook_json/1)
+    # Also under "data", like the other list endpoints: the SDKs read "data"
+    json(conn, %{webhooks: items, data: items})
   end
 
   operation(:show,

@@ -6,7 +6,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
        "project:read" when action in [:show, :topics, :token, :retention, :preview_purge]
 
   plug StreamflixWebWeb.Plugs.RequireScope,
-       "project:write" when action in [:update, :regenerate_token, :update_retention, :purge]
+       "project:write"
+       when action in [:update, :regenerate_token, :update_token, :update_retention, :purge]
 
   alias StreamflixCore.Platform
   alias StreamflixWebWeb.Schemas
@@ -126,8 +127,61 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
 
     json(conn, %{
       prefix: if(api_key, do: api_key.prefix, else: nil),
+      scopes: if(api_key, do: api_key.scopes || ["*"], else: []),
+      allowed_ips: if(api_key, do: api_key.allowed_ips || [], else: []),
       message: "Use Authorization: Bearer <your_key>. Regenerate from dashboard to get a new key."
     })
+  end
+
+  operation(:update_token,
+    summary: "Restrict the project API token to scopes and client IPs",
+    request_body:
+      {"Restrictions", "application/json",
+       %OpenApiSpex.Schema{
+         type: :object,
+         properties: %{
+           scopes: %OpenApiSpex.Schema{type: :array, items: %OpenApiSpex.Schema{type: :string}},
+           allowed_ips: %OpenApiSpex.Schema{
+             type: :array,
+             items: %OpenApiSpex.Schema{type: :string}
+           }
+         }
+       }},
+    responses: [
+      ok: {"Token restrictions", "application/json", %OpenApiSpex.Schema{type: :object}},
+      unprocessable_entity: {"Invalid scopes or IPs", "application/json", Schemas.ErrorResponse}
+    ]
+  )
+
+  def update_token(conn, params) do
+    project = conn.assigns.current_project
+
+    case Platform.update_api_key_restrictions(
+           project.id,
+           Map.take(params, ["scopes", "allowed_ips"])
+         ) do
+      {:ok, api_key} ->
+        StreamflixCore.Audit.record("api_key.restricted",
+          project_id: project.id,
+          resource_type: "api_key",
+          resource_id: api_key.id,
+          metadata: %{scopes: api_key.scopes, allowed_ips: api_key.allowed_ips, source: "api"}
+        )
+
+        json(conn, %{
+          prefix: api_key.prefix,
+          scopes: api_key.scopes,
+          allowed_ips: api_key.allowed_ips
+        })
+
+      {:error, %Ecto.Changeset{} = cs} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: Ecto.Changeset.traverse_errors(cs, fn {msg, _} -> msg end)})
+
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "No active API token"})
+    end
   end
 
   operation(:regenerate_token,

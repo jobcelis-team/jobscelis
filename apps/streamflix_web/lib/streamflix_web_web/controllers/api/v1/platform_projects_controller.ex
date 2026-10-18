@@ -16,7 +16,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectsController do
 
   def index(conn, _params) do
     user = conn.assigns.current_user
-    projects = Platform.list_projects_for_user(user.id)
+    # Own projects and the ones shared through a team, like the dashboard
+    projects = StreamflixCore.Teams.list_all_accessible_projects(user.id)
     json(conn, %{data: Enum.map(projects, &project_json/1)})
   end
 

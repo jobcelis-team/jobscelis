@@ -37,16 +37,16 @@ defmodule StreamflixWebWeb.Plugs.ValidateAuthParams do
 
       cond do
         byte_size(email) > @max_email_len ->
-          reject(conn, "Email demasiado largo")
+          reject(conn, "Email is too long")
 
         byte_size(password) < @min_password_len ->
-          reject(conn, "La contraseña debe tener al menos #{@min_password_len} caracteres")
+          reject(conn, "Password must be at least #{@min_password_len} characters")
 
         byte_size(password) > @max_password_len ->
-          reject(conn, "Contraseña demasiado larga")
+          reject(conn, "Password is too long")
 
         not email_valid?(email) ->
-          reject(conn, "Email no válido")
+          reject(conn, "Invalid email")
 
         true ->
           safe = %{}
@@ -61,7 +61,7 @@ defmodule StreamflixWebWeb.Plugs.ValidateAuthParams do
           %{conn | params: safe, body_params: safe}
       end
     else
-      reject(conn, "Faltan email o contraseña")
+      reject(conn, "Email and password are required")
     end
   end
 
@@ -69,6 +69,7 @@ defmodule StreamflixWebWeb.Plugs.ValidateAuthParams do
     String.length(email) >= 3 and String.match?(email, @email_regex)
   end
 
+  # API-only plug: messages in English, like the rest of the API errors
   defp reject(conn, message) do
     conn
     |> put_resp_content_type("application/json")

@@ -44,7 +44,22 @@ defmodule StreamflixCore.Schemas.ApiKey do
     |> validate_required([:project_id, :prefix, :key_hash])
     |> validate_inclusion(:status, ~w(active inactive))
     |> validate_scopes()
+    |> validate_allowed_ips()
     |> foreign_key_constraint(:project_id)
+  end
+
+  # Exact addresses (IPv4 or IPv6), matched against the client IP of each request
+  defp validate_allowed_ips(changeset) do
+    validate_change(changeset, :allowed_ips, fn :allowed_ips, ips ->
+      invalid =
+        Enum.reject(ips, fn ip ->
+          match?({:ok, _}, ip |> to_string() |> String.to_charlist() |> :inet.parse_address())
+        end)
+
+      if invalid == [],
+        do: [],
+        else: [allowed_ips: "invalid IP address(es): #{Enum.join(invalid, ", ")}"]
+    end)
   end
 
   defp validate_scopes(changeset) do
@@ -53,10 +68,10 @@ defmodule StreamflixCore.Schemas.ApiKey do
         changeset
 
       scopes ->
-        if Enum.all?(scopes, &(&1 in @valid_scopes)) do
-          changeset
-        else
-          add_error(changeset, :scopes, "contains invalid scope(s)")
+        cond do
+          scopes == [] -> add_error(changeset, :scopes, "must include at least one scope")
+          Enum.all?(scopes, &(&1 in @valid_scopes)) -> changeset
+          true -> add_error(changeset, :scopes, "contains invalid scope(s)")
         end
     end
   end
