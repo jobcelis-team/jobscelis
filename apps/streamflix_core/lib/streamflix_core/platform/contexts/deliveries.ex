@@ -151,6 +151,53 @@ defmodule StreamflixCore.Platform.Deliveries do
 
   def build_webhook_body(webhook, event) do
     config = webhook.body_config || %{}
+
+    case config do
+      %{"body_mode" => "custom", "template" => template} when is_map(template) ->
+        render_template(template, event)
+
+      _ ->
+        build_mapped_body(config, event)
+    end
+  end
+
+  # Custom bodies (Slack, Discord, Telegram templates…) are sent exactly as the
+  # template describes, so no extra fields are added. Supported placeholders:
+  # {{topic}}, {{event_id}}, {{occurred_at}}, {{payload}} (JSON) and
+  # {{payload.<field>}}. Unknown placeholders are left as they are.
+  defp render_template(value, event) when is_map(value),
+    do: Map.new(value, fn {k, v} -> {k, render_template(v, event)} end)
+
+  defp render_template(value, event) when is_list(value),
+    do: Enum.map(value, &render_template(&1, event))
+
+  defp render_template(value, event) when is_binary(value) do
+    Regex.replace(~r/\{\{\s*([\w.]+)\s*\}\}/, value, fn whole, name ->
+      case placeholder(name, event) do
+        nil -> whole
+        text -> text
+      end
+    end)
+  end
+
+  defp render_template(value, _event), do: value
+
+  defp placeholder("topic", event), do: event.topic || ""
+  defp placeholder("event_id", event), do: to_string(event.id)
+  defp placeholder("occurred_at", event), do: to_string(event.occurred_at)
+  defp placeholder("payload", event), do: Jason.encode!(event.payload || %{}, pretty: true)
+
+  defp placeholder("payload." <> field, event) do
+    case Map.fetch(event.payload || %{}, field) do
+      {:ok, v} when is_binary(v) -> v
+      {:ok, v} -> Jason.encode!(v)
+      :error -> nil
+    end
+  end
+
+  defp placeholder(_name, _event), do: nil
+
+  defp build_mapped_body(config, event) do
     mode = config["body_mode"] || "full"
     payload = event.payload || %{}
 
