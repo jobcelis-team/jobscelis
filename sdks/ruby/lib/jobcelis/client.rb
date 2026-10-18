@@ -389,6 +389,12 @@ module Jobcelis
       post("/api/v1/token/regenerate", {})
     end
 
+    # Limit the API token to scopes and client IPs. Omitted arguments are left
+    # unchanged; an empty allowed_ips list means any IP.
+    def update_token_restrictions(scopes: nil, allowed_ips: nil)
+      patch("/api/v1/token", { scopes: scopes, allowed_ips: allowed_ips }.compact)
+    end
+
     # ------------------------------------------------------------------
     # Projects (multi)
     # ------------------------------------------------------------------

@@ -256,11 +256,15 @@ const stats = await client.webhookStats();
 - `listTopics()` -- List all topics in the project
 - `getToken()` -- Get current API token info
 - `regenerateToken()` -- Regenerate the API token
+- `updateTokenRestrictions({ scopes, allowed_ips })` -- Limit the token to scopes and client IPs
 
 ```typescript
 const project = await client.getProject();
 const topics = await client.listTopics();
 const { token } = await client.regenerateToken();
+
+// Limit the token to scopes and client IPs (empty allowed_ips = any IP)
+await client.updateTokenRestrictions({ scopes: ['events:read', 'events:write'], allowed_ips: ['203.0.113.10'] });
 ```
 
 ### Projects (Multi-project)

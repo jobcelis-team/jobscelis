@@ -380,6 +380,15 @@ public class JobcelisClient {
         try await post("/api/v1/token/regenerate", body: [:])
     }
 
+    /// Limit the API token to scopes and client IPs. `nil` leaves a field unchanged;
+    /// an empty `allowedIps` list means any IP.
+    public func updateTokenRestrictions(scopes: [String]? = nil, allowedIps: [String]? = nil) async throws -> [String: Any] {
+        var body: [String: Any] = [:]
+        if let scopes { body["scopes"] = scopes }
+        if let allowedIps { body["allowed_ips"] = allowedIps }
+        return try await patch("/api/v1/token", body: body)
+    }
+
     // MARK: - Projects (multi)
 
     /// List all projects.

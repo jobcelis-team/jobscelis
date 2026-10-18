@@ -346,6 +346,17 @@ class JobcelisClient(
     suspend fun regenerateToken(): JsonObject =
         post("/api/v1/token/regenerate", emptyMap())
 
+    /**
+     * Limit the API token to scopes and client IPs. A `null` argument is left
+     * unchanged; an empty [allowedIps] list means any IP.
+     */
+    suspend fun updateTokenRestrictions(scopes: List<String>? = null, allowedIps: List<String>? = null): JsonObject {
+        val body = mutableMapOf<String, Any>()
+        scopes?.let { body["scopes"] = it }
+        allowedIps?.let { body["allowed_ips"] = it }
+        return patch("/api/v1/token", body)
+    }
+
     // ── Projects (multi) ──────────────────────────────────────────────────
 
     /** List all projects. */

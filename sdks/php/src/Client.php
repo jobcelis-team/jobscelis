@@ -628,6 +628,22 @@ class Client
         return $this->post('/api/v1/token/regenerate', []);
     }
 
+    /**
+     * Limit the API token to scopes and client IPs. A null argument is left
+     * unchanged; an empty $allowedIps list means any IP.
+     */
+    public function updateTokenRestrictions(?array $scopes = null, ?array $allowedIps = null): array
+    {
+        $body = [];
+        if ($scopes !== null) {
+            $body['scopes'] = array_values($scopes);
+        }
+        if ($allowedIps !== null) {
+            $body['allowed_ips'] = array_values($allowedIps);
+        }
+        return $this->patch('/api/v1/token', $body);
+    }
+
     // -------------------------------------------------------------------------
     // Projects (multi)
     // -------------------------------------------------------------------------

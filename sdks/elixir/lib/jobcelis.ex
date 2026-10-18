@@ -266,6 +266,9 @@ defmodule Jobcelis do
   @doc "Regenerate the API token."
   defdelegate regenerate_token(client), to: Client
 
+  @doc "Limit the API token to scopes and client IPs (`:scopes`, `:allowed_ips`)."
+  defdelegate update_token_restrictions(client, opts), to: Client
+
   # ---------------------------------------------------------------------------
   # Projects (multi)
   # ---------------------------------------------------------------------------

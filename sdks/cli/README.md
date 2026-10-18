@@ -263,6 +263,9 @@ jobcelis project token
 
 # Regenerate API token
 jobcelis project regenerate-token
+
+# Limit the token to scopes and client IPs (--ips "" = any IP)
+jobcelis project restrict-token --scopes events:read,events:write --ips 203.0.113.10
 ```
 
 ### Projects (multi)
