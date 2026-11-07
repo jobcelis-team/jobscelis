@@ -150,6 +150,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - Node, CLI, Python: `.github/workflows/release-sdks.yml` in this repo (npm: trusted publishing, no token; PyPI: secret `PYPI_TOKEN`); tags `node-vX.Y.Z`, `cli-vX.Y.Z`, `python-vX.Y.Z`
 - Each external repo: `.github/workflows/release.yml` (reads the version, checks the registry, publishes, tags `vX.Y.Z`; Swift tags `X.Y.Z`)
   - Go, PHP, Swift: version in `VERSION`; the tag is the release (pkg.go.dev, Packagist, SwiftPM)
+  - Terraform: version in `VERSION`; GoReleaser signs the release with `GPG_PRIVATE_KEY` (key `4FFC8F1D4A902EEA`, registered for the `jobcelis-team` namespace) and the Terraform Registry picks it up as `jobcelis-team/jobcelis`. The old `vladimirCeli/jobcelis` stays frozen at 1.0.0
   - Ruby `RUBYGEMS_API_KEY`, Elixir `HEX_API_KEY`, .NET `NUGET_API_KEY`, Rust `CRATES_TOKEN`
   - Dart: pub.dev automated publishing (no token); `release.yml` tags, then starts `publish.yml` on the tag
   - Java and Kotlin: `MAVEN_USERNAME`/`MAVEN_PASSWORD` (Central Portal user token), `GPG_PRIVATE_KEY`, `GPG_PASSPHRASE`
