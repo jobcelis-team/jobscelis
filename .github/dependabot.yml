@@ -1,0 +1,47 @@
+# Keeps dependencies current, so a security advisory arrives as a pull request
+# instead of a failing CI run. Pull requests target develop (staging first),
+# one grouped pull request per ecosystem. The web app's Elixir deps are checked
+# weekly; the SDKs, actions and the Docker base image monthly.
+version: 2
+updates:
+  - package-ecosystem: mix
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    groups:
+      dependencies:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directories: ["/sdks/node", "/sdks/cli"]
+    target-branch: develop
+    schedule:
+      interval: monthly
+    groups:
+      dependencies:
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: /sdks/python
+    target-branch: develop
+    schedule:
+      interval: monthly
+    groups:
+      dependencies:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: monthly
