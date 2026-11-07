@@ -5,7 +5,6 @@ defmodule StreamflixCore.RateLimiter do
   """
   use GenServer
 
-
   @table :webhook_rate_limiter
   @default_max_per_second 50
   @default_max_per_minute 3_000
