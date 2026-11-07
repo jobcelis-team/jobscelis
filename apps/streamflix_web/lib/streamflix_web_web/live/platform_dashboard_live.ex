@@ -2396,8 +2396,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                         phx-value-id={notif.id}
                       >
                         <div class="flex items-start gap-2">
-                          <span class={"mt-1 w-2 h-2 rounded-full shrink-0 #{if !notif.read, do: "bg-indigo-500", else: "bg-transparent"}"}>
-                          </span>
+                          <span class={"mt-1 w-2 h-2 rounded-full shrink-0 #{if !notif.read, do: "bg-indigo-500", else: "bg-transparent"}"}></span>
                           <div class="min-w-0 flex-1">
                             <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                               {notification_title(notif)}
