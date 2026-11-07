@@ -611,8 +611,7 @@ defmodule StreamflixWebWeb.CoreComponents do
           "absolute left-1/2 -translate-x-1/2 border-4 border-transparent",
           @position == "top" && "top-full border-t-slate-800 dark:border-t-slate-700",
           @position == "bottom" && "bottom-full border-b-slate-800 dark:border-b-slate-700"
-        ]}>
-        </span>
+        ]}></span>
       </span>
     </span>
     """
