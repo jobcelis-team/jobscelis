@@ -812,7 +812,7 @@ All SDKs cover **100% of the API** (99 endpoints) with full documentation.
 | **Java** | [Maven Central](https://central.sonatype.com/artifact/com.jobcelis/jobcelis) | `com.jobcelis:jobcelis:1.3.1` | v1.3.1 |
 | **Dart/Flutter** | [pub.dev](https://pub.dev/packages/jobcelis) | `dart pub add jobcelis` | v1.3.0 |
 | **Kotlin** | [Maven Central](https://central.sonatype.com/artifact/com.jobcelis/jobcelis-kotlin) | `com.jobcelis:jobcelis-kotlin:1.3.1` | v1.3.1 |
-| **Terraform** | [Registry](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | See `required_providers` block | v1.0.0 |
+| **Terraform** | [Registry](https://registry.terraform.io/providers/jobcelis-team/jobcelis/latest) | See `required_providers` block | v1.3.0 |
 | **GitHub Action** | This monorepo | `uses: jobcelis-team/jobscelis/sdks/github-action@main` | — |
 
 ### Quick Start Examples
@@ -972,7 +972,8 @@ fun main() = runBlocking {
 terraform {
   required_providers {
     jobcelis = {
-      source = "vladimirCeli/jobcelis"
+      source  = "jobcelis-team/jobcelis"
+      version = "~> 1.3"
     }
   }
 }
