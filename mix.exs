@@ -14,7 +14,7 @@ defmodule Streamflix.MixProject do
       releases: releases(),
       listeners: [Phoenix.CodeReloader],
       test_coverage: [tool: ExCoveralls],
-      dialyzer: [plt_add_apps: [:mix, :ex_unit]],
+      dialyzer: [plt_add_apps: [:mix, :ex_unit], ignore_warnings: ".dialyzer_ignore.exs"],
       # Advisories with no compatible fix that do not affect how we use the
       # package (`mix hex.audit` fails on any other). Re-check on upgrades.
       hex: [
