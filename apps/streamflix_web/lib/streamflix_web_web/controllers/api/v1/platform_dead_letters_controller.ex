@@ -51,13 +51,13 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
   def show(conn, %{"id" => id}) do
     case Platform.get_dead_letter(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       dl ->
         project = conn.assigns.current_project
 
         if dl.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           json(conn, dl_json(dl))
         end
@@ -88,11 +88,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
 
     case Platform.get_dead_letter(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       dl ->
         if dl.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           case Platform.retry_dead_letter(id, modified_payload) do
             {:ok, delivery} ->
@@ -130,11 +130,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
 
     case Platform.get_dead_letter(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       dl ->
         if dl.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           case Platform.resolve_dead_letter(id) do
             {:ok, _} -> json(conn, %{status: "resolved"})

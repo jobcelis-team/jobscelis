@@ -37,7 +37,7 @@ defmodule StreamflixWeb.MixProject do
       {:phoenix, "~> 1.8"},
       {:phoenix_html, "~> 4.2"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
-      {:phoenix_live_view, "~> 1.1.33"},
+      {:phoenix_live_view, "~> 1.2.13"},
       {:lazy_html, "~> 0.1.13", only: :test},
       {:phoenix_live_dashboard, "~> 0.8"},
 
@@ -46,7 +46,7 @@ defmodule StreamflixWeb.MixProject do
       {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
-       tag: "v2.1.5",
+       tag: "v2.2.0",
        sparse: "optimized",
        app: false,
        compile: false,
@@ -64,7 +64,7 @@ defmodule StreamflixWeb.MixProject do
       {:prom_ex, "~> 1.11"},
 
       # i18n
-      {:gettext, "~> 0.26"},
+      {:gettext, "~> 1.0"},
 
       # QR code generation (MFA setup)
       {:eqrcode, "~> 0.2"},
