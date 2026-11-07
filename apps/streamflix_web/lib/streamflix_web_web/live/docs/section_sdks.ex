@@ -64,7 +64,7 @@ defmodule StreamflixWebWeb.Docs.SectionSdks do
           <.sdk_link
             label="Swift"
             registry="SPM"
-            url="https://github.com/vladimirCeli/jobcelis-swift"
+            url="https://github.com/jobcelis-team/jobcelis-swift"
           />
           <.sdk_link
             label="Java"

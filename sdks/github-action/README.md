@@ -7,7 +7,7 @@ Send events to the [Jobcelis Event Infrastructure Platform](https://jobcelis.com
 ### Basic usage
 
 ```yaml
-- uses: vladimirCeli/jobscelis/sdks/github-action@main
+- uses: jobcelis-team/jobscelis/sdks/github-action@main
   with:
     api-key: ${{ secrets.JOBCELIS_API_KEY }}
     topic: deploy.completed
@@ -16,7 +16,7 @@ Send events to the [Jobcelis Event Infrastructure Platform](https://jobcelis.com
 ### With payload
 
 ```yaml
-- uses: vladimirCeli/jobscelis/sdks/github-action@main
+- uses: jobcelis-team/jobscelis/sdks/github-action@main
   with:
     api-key: ${{ secrets.JOBCELIS_API_KEY }}
     topic: deploy.completed
@@ -41,7 +41,7 @@ jobs:
         run: echo "Deploying..."
 
       - name: Notify Jobcelis
-        uses: vladimirCeli/jobscelis/sdks/github-action@main
+        uses: jobcelis-team/jobscelis/sdks/github-action@main
         with:
           api-key: ${{ secrets.JOBCELIS_API_KEY }}
           topic: deploy.completed
@@ -63,7 +63,7 @@ jobs:
 
 - name: Notify test results
   if: always()
-  uses: vladimirCeli/jobscelis/sdks/github-action@main
+  uses: jobcelis-team/jobscelis/sdks/github-action@main
   with:
     api-key: ${{ secrets.JOBCELIS_API_KEY }}
     topic: test.${{ job.status }}

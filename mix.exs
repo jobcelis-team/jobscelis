@@ -19,17 +19,16 @@ defmodule Streamflix.MixProject do
       # package (`mix hex.audit` fails on any other). Re-check on upgrades.
       hex: [
         ignore_advisories: [
-          # decimal: fix is 3.x, Ecto requires ~> 2.0; we never build Decimals
-          # from user input (only convert DB aggregates to floats).
-          "CVE-2026-97853",
-          "CVE-2026-32686",
           # cloak: affects the AES-CTR cipher; our vault uses AES-GCM only.
           "CVE-2026-95105",
           # cloak_ecto: affects Cloak.Ecto.PBKDF2 fields, which we do not use.
           "CVE-2026-94206",
-          # cowlib: structured-header escaping in Cowboy; the app is served by
-          # Bandit (Cowboy only runs the internal metrics endpoint).
-          "CVE-2026-43966"
+          # cowboy/cowlib: no fixed release yet. The app is served by Bandit;
+          # Cowboy only runs the PromEx metrics server on port 4021, which the
+          # container does not expose (only 4000).
+          "CVE-2026-43966",
+          "CVE-2026-115701",
+          "CVE-2026-113431"
         ]
       ]
     ]
