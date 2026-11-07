@@ -824,6 +824,8 @@ defmodule StreamflixWebWeb.AccountLive do
   # ── Render ──────────────────────────────────────────────────────────
 
   @impl true
+  # @mfa_qr_svg is the SVG EQRCode renders server-side from the TOTP URI.
+  # sobelow_skip ["XSS.Raw"]
   def render(assigns) do
     assigns =
       assign(

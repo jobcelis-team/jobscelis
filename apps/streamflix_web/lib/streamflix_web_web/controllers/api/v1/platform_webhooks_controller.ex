@@ -58,11 +58,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
 
     case Platform.get_webhook(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       w ->
         if w.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           json(conn, webhook_json(w))
         end
@@ -118,11 +118,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
 
     case Platform.get_webhook(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       w ->
         if w.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           attrs =
             Map.take(params, [
@@ -175,15 +175,15 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
 
     case Platform.get_webhook(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       w ->
         if w.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           {:ok, _} = Platform.set_webhook_inactive(w)
           audit(project, "webhook.deleted", w)
-          send_resp(conn, 200, Jason.encode!(%{status: "inactive"}))
+          json(conn, %{status: "inactive"})
         end
     end
   end
@@ -202,11 +202,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
 
     case Platform.get_webhook(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       w ->
         if w.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           health = Platform.webhook_health(w.id)
           json(conn, %{webhook_id: w.id, url: w.url, health: health})
