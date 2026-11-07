@@ -212,7 +212,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
         })
 
       {:error, _} ->
-        send_resp(conn, 500, Jason.encode!(%{error: "Failed to regenerate token"}))
+        conn |> put_status(500) |> json(%{error: "Failed to regenerate token"})
     end
   end
 

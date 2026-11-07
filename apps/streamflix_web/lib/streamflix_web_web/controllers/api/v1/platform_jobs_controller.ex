@@ -58,11 +58,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
 
     case Platform.get_job(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       job ->
         if job.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           runs = Platform.list_job_runs(job.id, limit: 10)
           json(conn, job_json(job) |> Map.put(:recent_runs, Enum.map(runs, &run_json/1)))
@@ -140,11 +140,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
 
     case Platform.get_job(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       job ->
         if job.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           attrs =
             params
@@ -191,15 +191,15 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
 
     case Platform.get_job(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       job ->
         if job.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           {:ok, _} = Platform.set_job_inactive(job)
           audit(project, "job.deactivated", job)
-          send_resp(conn, 200, Jason.encode!(%{status: "inactive"}))
+          json(conn, %{status: "inactive"})
         end
     end
   end
@@ -228,11 +228,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
 
     case Platform.get_job(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       job ->
         if job.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           limit = params["limit"] |> parse_int(20) |> max(1) |> min(100)
           runs = Platform.list_job_runs(job.id, limit: limit)
