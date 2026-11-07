@@ -1,8 +1,13 @@
-# Publishes the SDKs that live in this repo (Node, CLI, Python) automatically when
-# their version changes on main. Bump "version" in sdks/node/package.json,
-# sdks/cli/package.json or sdks/python/setup.py to release; other changes publish
-# nothing. Each release is tagged node-vX.Y.Z, cli-vX.Y.Z or python-vX.Y.Z (the web
-# uses vX.Y.Z). The other SDKs live in their own repos and publish themselves the same way.
+# Publishes the SDKs that live in this repo (Node, CLI, Python) on every push to
+# main that changes them:
+#   1. next-version (jobcelis-team/.github) picks the version: the last release
+#      tag plus a patch, or the version in the manifest when it was raised by hand
+#      (sdks/node/package.json, sdks/cli/package.json, sdks/python/setup.py).
+#      Docs, tests and CI release nothing.
+#   2. writes it into the manifest for the build (main is protected, so it is not
+#      committed: the version lives in the node-vX.Y.Z, cli-vX.Y.Z, python-vX.Y.Z tags)
+#   3. builds and publishes it, then tags the commit
+# The other SDKs live in their own repos and publish themselves the same way.
 name: Release SDKs
 
 on:
@@ -37,6 +42,9 @@ jobs:
         working-directory: ${{ matrix.dir }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # full history and tags: next-version compares with the last release
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -44,14 +52,29 @@ jobs:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Read version
+        id: current
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Next version
+        id: v
+        uses: jobcelis-team/.github/actions/next-version@main
+        with:
+          current: ${{ steps.current.outputs.version }}
+          tag-prefix: ${{ matrix.tag }}-v
+          scope: ${{ matrix.dir }}
+
+      - name: Write the version
+        if: steps.v.outputs.release == 'true'
+        run: npm version "${{ steps.v.outputs.version }}" --no-git-tag-version --allow-same-version
+
       - name: Already released?
         id: check
+        if: steps.v.outputs.release == 'true'
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          if npm view "${{ matrix.package }}@$VERSION" version >/dev/null 2>&1; then
-            echo "${{ matrix.package }}@$VERSION is already published: nothing to do"
-            echo "release=false" >> "$GITHUB_OUTPUT"
+          if npm view "${{ matrix.package }}@${{ steps.v.outputs.version }}" version >/dev/null 2>&1; then
+            echo "${{ matrix.package }}@${{ steps.v.outputs.version }} is already published"
+            echo "published=true" >> "$GITHUB_OUTPUT"
           else
             echo "release=true" >> "$GITHUB_OUTPUT"
           fi
@@ -65,17 +88,11 @@ jobs:
         run: npm publish --access public
 
       - name: Tag the release
-        if: steps.check.outputs.release == 'true'
-        run: |
-          TAG="${{ matrix.tag }}-v${{ steps.check.outputs.version }}"
-          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
-            echo "Tag $TAG already exists"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "$TAG"
-            git push origin "$TAG"
-          fi
+        if: steps.v.outputs.release == 'true' && (steps.check.outputs.release == 'true' || steps.check.outputs.published == 'true')
+        uses: jobcelis-team/.github/actions/push-release@main
+        with:
+          tag: ${{ steps.v.outputs.tag }}
+          push-commit: "false"
 
   pypi:
     name: PyPI jobcelis
@@ -87,25 +104,43 @@ jobs:
         working-directory: sdks/python
     steps:
       - uses: actions/checkout@v4
+        with:
+          # full history and tags: next-version compares with the last release
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      - name: Read version
+        id: current
+        run: echo "version=$(grep -m1 -oE 'version="[^"]+"' setup.py | cut -d'"' -f2)" >> "$GITHUB_OUTPUT"
+
+      - name: Next version
+        id: v
+        uses: jobcelis-team/.github/actions/next-version@main
+        with:
+          current: ${{ steps.current.outputs.version }}
+          tag-prefix: python-v
+          scope: sdks/python
+
+      - name: Write the version
+        if: steps.v.outputs.release == 'true'
+        run: sed -i -E 's/version="[^"]+"/version="${{ steps.v.outputs.version }}"/' setup.py
+
       - name: Already released?
         id: check
+        if: steps.v.outputs.release == 'true'
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
-          VERSION=$(grep -m1 -oE 'version="[^"]+"' setup.py | cut -d'"' -f2)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          VERSION="${{ steps.v.outputs.version }}"
           CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://pypi.org/pypi/jobcelis/$VERSION/json")
-          if [ -z "$PYPI_TOKEN" ]; then
+          if [ "$CODE" = "200" ]; then
+            echo "jobcelis $VERSION is already on PyPI"
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          elif [ -z "$PYPI_TOKEN" ]; then
             echo "::warning::Not publishing: add the PYPI_TOKEN repository secret."
-            echo "release=false" >> "$GITHUB_OUTPUT"
-          elif [ "$CODE" = "200" ]; then
-            echo "jobcelis $VERSION is already on PyPI: nothing to do"
-            echo "release=false" >> "$GITHUB_OUTPUT"
           else
             echo "release=true" >> "$GITHUB_OUTPUT"
           fi
@@ -122,14 +157,8 @@ jobs:
         run: twine upload dist/*
 
       - name: Tag the release
-        if: steps.check.outputs.release == 'true'
-        run: |
-          TAG="python-v${{ steps.check.outputs.version }}"
-          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
-            echo "Tag $TAG already exists"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "$TAG"
-            git push origin "$TAG"
-          fi
+        if: steps.v.outputs.release == 'true' && (steps.check.outputs.release == 'true' || steps.check.outputs.published == 'true')
+        uses: jobcelis-team/.github/actions/push-release@main
+        with:
+          tag: ${{ steps.v.outputs.tag }}
+          push-commit: "false"
