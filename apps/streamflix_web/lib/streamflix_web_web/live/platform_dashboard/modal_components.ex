@@ -139,7 +139,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.ModalComponents do
                             <%= if d.response_body && d.response_body != "" do %>
                               —
                               <span class="text-red-600 dark:text-red-400 truncate">
-                                {String.slice(d.response_body || "", 0, 100)}
+                                {String.slice(d.response_body, 0, 100)}
                               </span>
                             <% end %>
                           </p>
