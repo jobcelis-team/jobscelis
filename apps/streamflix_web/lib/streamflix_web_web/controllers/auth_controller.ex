@@ -187,6 +187,12 @@ defmodule StreamflixWebWeb.AuthController do
   end
 
   @doc """
+  GET /logout, used by the logout links. Same as `logout/2`, which ignores
+  the request when another site triggers it (image tag, link).
+  """
+  def logout_link(conn, params), do: logout(conn, params)
+
+  @doc """
   Handles user logout.
   """
   def logout(conn, params) do

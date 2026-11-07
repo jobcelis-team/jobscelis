@@ -45,6 +45,8 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
     end
   end
 
+  # The 429 body is a fixed message, sent as JSON (API) or text/plain.
+  # sobelow_skip ["XSS.ContentType", "XSS.SendResp"]
   defp apply_limit(conn, key, now, window_sec, max) do
     case check_and_inc(@table, key, now, window_sec, max) do
       :allow ->

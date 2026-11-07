@@ -87,7 +87,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
   end
 
   def create(conn, _),
-    do: send_resp(conn, 422, Jason.encode!(%{error: "Body must be a JSON object"}))
+    do: conn |> put_status(422) |> json(%{error: "Body must be a JSON object"})
 
   operation(:batch,
     summary: "Send a batch of events",
@@ -200,11 +200,11 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
 
     case Platform.get_event(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       event ->
         if event.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           deliveries = Platform.list_deliveries(event_id: event.id)
 
@@ -236,14 +236,14 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
 
     case Platform.get_event(id) do
       nil ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+        conn |> put_status(404) |> json(%{error: "Not found"})
 
       event ->
         if event.project_id != project.id do
-          send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
+          conn |> put_status(404) |> json(%{error: "Not found"})
         else
           {:ok, _} = Platform.set_event_inactive(event)
-          send_resp(conn, 200, Jason.encode!(%{status: "inactive"}))
+          json(conn, %{status: "inactive"})
         end
     end
   end
@@ -286,7 +286,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
   end
 
   def simulate(conn, _),
-    do: send_resp(conn, 422, Jason.encode!(%{error: "Body must be a JSON object"}))
+    do: conn |> put_status(422) |> json(%{error: "Body must be a JSON object"})
 
   defp event_json(e) do
     %{
