@@ -1,0 +1,70 @@
+# Builds the SDKs that live in this repo (Node, CLI, Python) on every pull request
+# that touches sdks/, Dependabot's included. ci.yml ignores sdks/**, so without this
+# a broken SDK would only fail when release-sdks.yml publishes it on main.
+name: SDKs CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "sdks/**"
+      - ".github/workflows/sdks-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  npm:
+    name: Build ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: "@jobcelis/sdk"
+            dir: sdks/node
+          - package: "@jobcelis/cli"
+            dir: sdks/cli
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # same Node as release-sdks.yml
+          node-version: "24"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Check the package contents
+        run: npm pack --dry-run
+
+  python:
+    name: Build jobcelis (Python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdks/python
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # same Python as release-sdks.yml
+          python-version: "3.12"
+
+      - name: Build
+        run: pip install build twine && python -m build
+
+      - name: Check the package metadata
+        run: twine check dist/*
+
+      - name: Install and import
+        run: pip install dist/*.whl && python -c "import jobcelis"
