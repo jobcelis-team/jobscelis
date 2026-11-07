@@ -3,7 +3,7 @@
 # Elixir 1.17 / OTP 27
 # ============================================
 
-FROM elixir:1.17-otp-27-alpine AS base
+FROM elixir:1.20.4-otp-29-alpine AS base
 
 RUN apk add --no-cache \
     build-base \
@@ -83,7 +83,7 @@ RUN mix release
 # libs con las que se compiló Erlang coincidan. Con alpine:3.20 suelto sale:
 # "EVP_MD_CTX_get_size_ex: symbol not found" (incompatibilidad crypto/OpenSSL).
 
-FROM elixir:1.17-otp-27-alpine AS prod
+FROM elixir:1.20.4-otp-29-alpine AS prod
 
 # The base tag is rebuilt only occasionally: upgrade OS packages so security
 # fixes published since then are included (Trivy blocks HIGH/CRITICAL CVEs).
