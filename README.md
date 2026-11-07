@@ -94,7 +94,7 @@ jobcelis/
     ├── deploy.yml             # Production deploy
     ├── deploy-staging.yml     # Staging deploy
     ├── release.yml            # Tags vX.Y.Z and creates the GitHub Release when VERSION changes
-    └── release-sdks.yml       # Publishes and tags the Node, CLI and Python SDKs on version bump
+    └── release-sdks.yml       # Publishes and tags the Node, CLI and Python SDKs on every change
 ```
 
 ---
@@ -1038,7 +1038,7 @@ The following SDKs live in their own repositories:
 | **Kotlin** | [jobcelis-kotlin](https://github.com/jobcelis-team/jobcelis-kotlin) | Maven Central requires own repo for publishing |
 | **Terraform** | [terraform-provider-jobcelis](https://github.com/jobcelis-team/terraform-provider-jobcelis) | Terraform Registry requires `terraform-provider-*` naming |
 
-> Each of these repos is the source of truth for its SDK and publishes itself: bump the version and merge to `main`, and its Release workflow publishes it to its registry and tags it. The Node, CLI and Python SDKs live in `sdks/` of this repo and publish the same way (`.github/workflows/release-sdks.yml`).
+> Each of these repos is the source of truth for its SDK and publishes itself: merge a change to `main` and its Release workflow publishes the next patch version to its registry and tags it (raise the version by hand only for a minor or major release). The Node, CLI and Python SDKs live in `sdks/` of this repo and publish the same way (`.github/workflows/release-sdks.yml`).
 
 ---
 

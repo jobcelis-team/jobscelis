@@ -239,8 +239,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
             <span class={[
               "inline-block w-3 h-3 rounded-full",
               uptime_dot_color(@uptime_status)
-            ]}>
-            </span>
+            ]}></span>
             <h2 class="text-base lg:text-lg font-semibold text-slate-900 dark:text-slate-100">
               {gettext("Estado del sistema")}
             </h2>
@@ -2401,8 +2400,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                       }
                     ])
                   }
-                >
-                </canvas>
+                ></canvas>
               </div>
             </div>
             <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-3">
@@ -2431,8 +2429,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                       }
                     ])
                   }
-                >
-                </canvas>
+                ></canvas>
               </div>
             </div>
           </div>
@@ -3226,8 +3223,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                   }
                 ])
               }
-            >
-            </canvas>
+            ></canvas>
           </div>
         </section>
         <section class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6">

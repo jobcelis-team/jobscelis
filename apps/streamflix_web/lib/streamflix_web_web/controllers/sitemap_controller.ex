@@ -5,6 +5,8 @@ defmodule StreamflixWebWeb.SitemapController do
   Sirve sitemap.xml para SEO (Google Search Console, etc.).
   """
 
+  # XML built from the app's own public paths, sent as application/xml.
+  # sobelow_skip ["XSS.SendResp"]
   def index(conn, _params) do
     base_url = build_base_url(conn)
 
