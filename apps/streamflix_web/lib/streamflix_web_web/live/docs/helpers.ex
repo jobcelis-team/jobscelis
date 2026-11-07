@@ -33,7 +33,7 @@ defmodule StreamflixWebWeb.Docs.Helpers do
 
   def sdk_install("swift"),
     do:
-      ~s|// Swift Package Manager\n.package(url: "https://github.com/vladimirCeli/jobcelis-swift", from: "1.0.0")|
+      ~s|// Swift Package Manager\n.package(url: "https://github.com/jobcelis-team/jobcelis-swift", from: "1.0.0")|
 
   def sdk_install("java"),
     do:

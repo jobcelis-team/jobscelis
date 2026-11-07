@@ -802,18 +802,18 @@ All SDKs cover **100% of the API** (99 endpoints) with full documentation.
 | **Node.js/TypeScript** | [npm](https://www.npmjs.com/package/@jobcelis/sdk) | `npm install @jobcelis/sdk` | v1.9.0 |
 | **CLI** | [npm](https://www.npmjs.com/package/@jobcelis/cli) | `npm install -g @jobcelis/cli` | v2.2.0 |
 | **Python** | [PyPI](https://pypi.org/project/jobcelis/) | `pip install jobcelis` | v1.6.0 |
-| **Go** | [GitHub](https://github.com/vladimirCeli/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.4.0 |
+| **Go** | [GitHub](https://github.com/jobcelis-team/go-jobcelis) | `go get github.com/vladimirCeli/go-jobcelis` | v1.4.0 |
 | **PHP** | [Packagist](https://packagist.org/packages/jobcelis/sdk) | `composer require jobcelis/sdk` | v1.3.0 |
 | **Ruby** | [RubyGems](https://rubygems.org/gems/jobcelis) | `gem install jobcelis` | v1.3.0 |
 | **Elixir** | [Hex](https://hex.pm/packages/jobcelis) · [Docs](https://hexdocs.pm/jobcelis) | `{:jobcelis, "~> 1.0"}` | v1.3.0 |
 | **C# / .NET** | [NuGet](https://www.nuget.org/packages/Jobcelis) | `dotnet add package Jobcelis` | v1.3.0 |
-| **Rust** | [crates.io](https://crates.io/crates/jobcelis) · [Docs](https://docs.rs/jobcelis) | `cargo add jobcelis` | v1.3.0 |
-| **Swift** | [GitHub](https://github.com/vladimirCeli/jobcelis-swift) | `.package(url: "...jobcelis-swift", from: "1.0.0")` | v1.3.0 |
-| **Java** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis/1.0.0/) | `com.jobcelis:jobcelis:1.3.0` | v1.3.0 |
+| **Rust** | [crates.io](https://crates.io/crates/jobcelis) · [Docs](https://docs.rs/jobcelis) | `cargo add jobcelis` | v1.3.1 |
+| **Swift** | [GitHub](https://github.com/jobcelis-team/jobcelis-swift) | `.package(url: "...jobcelis-swift", from: "1.0.0")` | v1.3.1 |
+| **Java** | [Maven Central](https://central.sonatype.com/artifact/com.jobcelis/jobcelis) | `com.jobcelis:jobcelis:1.3.1` | v1.3.1 |
 | **Dart/Flutter** | [pub.dev](https://pub.dev/packages/jobcelis) | `dart pub add jobcelis` | v1.3.0 |
-| **Kotlin** | [Maven Central](https://repo1.maven.org/maven2/com/jobcelis/jobcelis-kotlin/1.0.0/) | `com.jobcelis:jobcelis-kotlin:1.3.0` | v1.3.0 |
+| **Kotlin** | [Maven Central](https://central.sonatype.com/artifact/com.jobcelis/jobcelis-kotlin) | `com.jobcelis:jobcelis-kotlin:1.3.1` | v1.3.1 |
 | **Terraform** | [Registry](https://registry.terraform.io/providers/vladimirCeli/jobcelis/) | See `required_providers` block | v1.0.0 |
-| **GitHub Action** | This monorepo | `uses: vladimirCeli/jobscelis/sdks/github-action@main` | — |
+| **GitHub Action** | This monorepo | `uses: jobcelis-team/jobscelis/sdks/github-action@main` | — |
 
 ### Quick Start Examples
 
@@ -959,7 +959,7 @@ fun main() = runBlocking {
 **GitHub Action:**
 
 ```yaml
-- uses: vladimirCeli/jobscelis/sdks/github-action@main
+- uses: jobcelis-team/jobscelis/sdks/github-action@main
   with:
     api-key: ${{ secrets.JOBCELIS_API_KEY }}
     topic: deploy.completed
@@ -1025,17 +1025,17 @@ The following SDKs live in their own repositories:
 
 | Repo | URL | Reason |
 |------|-----|--------|
-| **Go** | [go-jobcelis](https://github.com/vladimirCeli/go-jobcelis) | `pkg.go.dev` requires own repo with `go.mod` at root |
-| **PHP** | [jobcelis-php](https://github.com/vladimirCeli/jobcelis-php) | Packagist requires `composer.json` at repo root |
-| **Ruby** | [jobcelis-ruby](https://github.com/vladimirCeli/jobcelis-ruby) | Public repo for RubyGems and code visibility |
-| **Elixir** | [jobcelis-elixir](https://github.com/vladimirCeli/jobcelis-elixir) | Hex.pm requires own repo for publishing |
-| **C# / .NET** | [jobcelis-dotnet](https://github.com/vladimirCeli/jobcelis-dotnet) | NuGet requires own repo for publishing |
-| **Rust** | [jobcelis-rust](https://github.com/vladimirCeli/jobcelis-rust) | crates.io requires own repo for publishing |
-| **Swift** | [jobcelis-swift](https://github.com/vladimirCeli/jobcelis-swift) | Swift Package Manager uses GitHub repo URL directly |
-| **Java** | [jobcelis-java](https://github.com/vladimirCeli/jobcelis-java) | Maven Central requires own repo for publishing |
-| **Dart/Flutter** | [jobcelis-dart](https://github.com/vladimirCeli/jobcelis-dart) | pub.dev requires own repo for publishing |
-| **Kotlin** | [jobcelis-kotlin](https://github.com/vladimirCeli/jobcelis-kotlin) | Maven Central requires own repo for publishing |
-| **Terraform** | [terraform-provider-jobcelis](https://github.com/vladimirCeli/terraform-provider-jobcelis) | Terraform Registry requires `terraform-provider-*` naming |
+| **Go** | [go-jobcelis](https://github.com/jobcelis-team/go-jobcelis) | `pkg.go.dev` requires own repo with `go.mod` at root |
+| **PHP** | [jobcelis-php](https://github.com/jobcelis-team/jobcelis-php) | Packagist requires `composer.json` at repo root |
+| **Ruby** | [jobcelis-ruby](https://github.com/jobcelis-team/jobcelis-ruby) | Public repo for RubyGems and code visibility |
+| **Elixir** | [jobcelis-elixir](https://github.com/jobcelis-team/jobcelis-elixir) | Hex.pm requires own repo for publishing |
+| **C# / .NET** | [jobcelis-dotnet](https://github.com/jobcelis-team/jobcelis-dotnet) | NuGet requires own repo for publishing |
+| **Rust** | [jobcelis-rust](https://github.com/jobcelis-team/jobcelis-rust) | crates.io requires own repo for publishing |
+| **Swift** | [jobcelis-swift](https://github.com/jobcelis-team/jobcelis-swift) | Swift Package Manager uses GitHub repo URL directly |
+| **Java** | [jobcelis-java](https://github.com/jobcelis-team/jobcelis-java) | Maven Central requires own repo for publishing |
+| **Dart/Flutter** | [jobcelis-dart](https://github.com/jobcelis-team/jobcelis-dart) | pub.dev requires own repo for publishing |
+| **Kotlin** | [jobcelis-kotlin](https://github.com/jobcelis-team/jobcelis-kotlin) | Maven Central requires own repo for publishing |
+| **Terraform** | [terraform-provider-jobcelis](https://github.com/jobcelis-team/terraform-provider-jobcelis) | Terraform Registry requires `terraform-provider-*` naming |
 
 > Each of these repos is the source of truth for its SDK and publishes itself: bump the version and merge to `main`, and its Release workflow publishes it to its registry and tags it. The Node, CLI and Python SDKs live in `sdks/` of this repo and publish the same way (`.github/workflows/release-sdks.yml`).
 
