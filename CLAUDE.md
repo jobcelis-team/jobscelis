@@ -5,7 +5,7 @@
 1. `mix compile --warnings-as-errors` — zero warnings allowed
 2. `mix format --check-formatted` — code must be formatted
 3. `mix credo --min-priority=high` — static analysis
-4. `mix sobelow --exit low --app-dir apps/streamflix_web` — security scan
+4. `mix sobelow --exit low --root apps/streamflix_web --skip` — security scan (false positives are marked with `# sobelow_skip` comments next to the code)
 5. `mix deps.audit` — no known CVEs in dependencies
 6. `mix hex.audit` — no retired packages
 7. `mix test` — all tests must pass
