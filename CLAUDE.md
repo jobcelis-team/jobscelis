@@ -146,16 +146,18 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - **Terraform Provider**: `github.com/jobcelis-team/terraform-provider-jobcelis` — Terraform Registry requires `terraform-provider-*` naming
 
 ### SDK publishing (automatic)
-- Every SDK publishes itself when its version changes on `main`; changes without a version bump publish nothing
-- Node, CLI, Python: `.github/workflows/release-sdks.yml` in this repo (npm: trusted publishing, no token; PyPI: secret `PYPI_TOKEN`); tags `node-vX.Y.Z`, `cli-vX.Y.Z`, `python-vX.Y.Z`
-- Each external repo: `.github/workflows/release.yml` (reads the version, checks the registry, publishes, tags `vX.Y.Z`; Swift tags `X.Y.Z`)
+- Every SDK publishes itself on every push to `main` that changes it: the shared action `jobcelis-team/.github/actions/next-version` takes the last release tag plus a patch (1.3.1 → 1.3.2). Changes only to docs, `*.md`, tests, `.github/` or repo config (`.gitignore`, `VERSION` alone) publish nothing
+- For a minor or major version, raise it in the manifest in the same pull request: a version above the last release is used as is
+- Each external repo writes the version into its manifest, commits it as `chore: release X.Y.Z [skip ci]` (by github-actions) after publishing, and tags it (`commit-version` + `push-release` actions). Pull before working on an SDK repo
+- Node, CLI, Python: `.github/workflows/release-sdks.yml` in this repo (npm: trusted publishing, no token; PyPI: secret `PYPI_TOKEN`); tags `node-vX.Y.Z`, `cli-vX.Y.Z`, `python-vX.Y.Z`. `main` is protected, so the version is written only for the build and lives in those tags: the manifests here can lag behind npm/PyPI
+- Each external repo: `.github/workflows/release.yml` (next version, checks the registry, publishes, pushes the version commit, tags `vX.Y.Z`; Swift tags `X.Y.Z`)
   - Go, PHP, Swift: version in `VERSION`; the tag is the release (pkg.go.dev, Packagist, SwiftPM)
   - Terraform: version in `VERSION`; GoReleaser signs the release with `GPG_PRIVATE_KEY` (key `4FFC8F1D4A902EEA`, registered for the `jobcelis-team` namespace) and the Terraform Registry picks it up as `jobcelis-team/jobcelis`. The old `vladimirCeli/jobcelis` stays frozen at 1.0.0
   - Ruby `RUBYGEMS_API_KEY`, Elixir `HEX_API_KEY`, .NET `NUGET_API_KEY`, Rust `CRATES_TOKEN`
   - Dart: pub.dev automated publishing (no token); `release.yml` tags, then starts `publish.yml` on the tag
   - Java and Kotlin: `MAVEN_USERNAME`/`MAVEN_PASSWORD` (Central Portal user token), `GPG_PRIVATE_KEY`, `GPG_PASSPHRASE`
 - A missing secret makes the workflow warn and publish nothing; add it and re-run the workflow
-- Registries reject duplicate versions: always bump the version to release
+- If a run fails after publishing, the next run sees the version on the registry and only commits and tags it
 - Java and Kotlin also run `check-release.yml` on pull requests (builds and validates the Maven Central bundle without uploading); every other SDK repo runs `ci.yml`
 
 ### Web releases (automatic)
@@ -181,8 +183,8 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 - All SDKs must cover 100% of API routes. When adding a new API route, update ALL SDKs: Node, Python and CLI here, and Go, PHP, Ruby, Elixir, .NET, Rust, Swift, Java, Dart, Kotlin in their repos
 
 ### Changing an SDK in its own repo
-1. Clone the SDK repo, make the change, bump its version
-2. Merge to `main`: its Release workflow publishes it
+1. Clone (or pull) the SDK repo and make the change; raise the version only for a minor or major release
+2. Merge to `main`: its Release workflow publishes the next version
 3. A new API route must be added to every SDK repo and to `sdks/node`, `sdks/python` and `sdks/cli`
 
 ### Full publishing guide
