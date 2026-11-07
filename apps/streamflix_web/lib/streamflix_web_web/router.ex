@@ -7,6 +7,9 @@ defmodule StreamflixWebWeb.Router do
     Plug.Conn.assign(conn, :current_path, conn.request_path)
   end
 
+  # CSP is set for every response by StreamflixWebWeb.Plugs.SecurityHeaders
+  # (endpoint), with a per-request nonce.
+  # sobelow_skip ["Config.CSP"]
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -158,7 +161,7 @@ defmodule StreamflixWebWeb.Router do
     post "/mfa/verify", MfaController, :verify
     post "/mfa/verify-backup", MfaController, :verify_backup
     delete "/logout", AuthController, :logout
-    get "/logout", AuthController, :logout
+    get "/logout", AuthController, :logout_link
     post "/session/keepalive", AuthController, :keepalive
     get "/forgot-password", PageController, :forgot_password
     post "/forgot-password", AuthController, :forgot_password
