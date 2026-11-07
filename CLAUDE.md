@@ -218,7 +218,7 @@ Use generic language instead: "multiple attempts", "short period", "industry-sta
 
 ### Infrastructure
 
-- Docker: multi-stage Alpine build (elixir:1.17-otp-27-alpine)
+- Docker: multi-stage Alpine build (elixir:1.20.4-otp-29-alpine)
 - Release: `streamflix` (all 3 apps as `:permanent`)
 - Auto-migrate on startup via `StreamflixCore.Release.migrate()`
 - ACR: `jobscelisacr`
