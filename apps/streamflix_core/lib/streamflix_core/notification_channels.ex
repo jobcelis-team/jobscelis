@@ -3,7 +3,6 @@ defmodule StreamflixCore.NotificationChannels do
   Context for managing external notification channels per project.
   Handles CRUD operations and dispatching alerts to configured channels.
   """
-  require Logger
 
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.NotificationChannel
