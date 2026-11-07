@@ -29,7 +29,7 @@ defmodule StreamflixCore.MixProject do
 
   defp deps do
     [
-      {:ecto_sql, "~> 3.13"},
+      {:ecto_sql, "~> 3.14"},
       {:postgrex, "~> 0.21"},
       {:phoenix_pubsub, "~> 2.2"},
       {:oban, "~> 2.20"},

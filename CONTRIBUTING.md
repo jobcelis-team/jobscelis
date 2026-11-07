@@ -70,7 +70,7 @@ Jobcelis supports English and Spanish. When adding user-facing strings:
 
 ```bash
 # Clone the repo
-git clone https://github.com/vladimirCeli/jobscelis.git
+git clone https://github.com/jobcelis-team/jobscelis.git
 cd jobscelis
 
 # Install dependencies
