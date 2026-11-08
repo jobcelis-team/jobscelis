@@ -229,7 +229,11 @@ config :streamflix_core, Oban,
     default: 5
   ],
   plugins: [
-    {Oban.Plugins.Pruner, max_age: 7 * 24 * 3600},
+    # Completed jobs are kept 1 day: deliveries and job runs keep their outcome
+    {Oban.Plugins.Pruner, max_age: 24 * 3600},
+    # Jobs left "executing" by a crash or a killed deploy are retried instead
+    # of staying stuck (longer than any job's own timeout)
+    {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(30)},
     {Oban.Plugins.Cron,
      crontab: [
        {"* * * * *", StreamflixCore.Platform.ObanDelayedEventsWorker},

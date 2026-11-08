@@ -109,4 +109,6 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD ["/bin/sh", "-c", "curl -f http://localhost:4000/health || exit 1"]
 
-CMD ["/bin/sh", "-c", "bin/streamflix eval 'StreamflixCore.Release.migrate()' && bin/streamflix start"]
+# exec: the release replaces the shell as PID 1, so it receives SIGTERM on a
+# restart and shuts down cleanly (open requests and Oban jobs get to finish)
+CMD ["/bin/sh", "-c", "bin/streamflix eval 'StreamflixCore.Release.migrate()' && exec bin/streamflix start"]

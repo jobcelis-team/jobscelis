@@ -10,5 +10,11 @@ defmodule StreamflixCore.Release do
   end
 
   defp repos, do: Application.fetch_env!(@app, :ecto_repos)
-  defp load_app, do: Application.ensure_all_started(@app)
+  # Only load the app: with_repo starts the Repo it needs. Starting the whole
+  # app here also started Oban (cron and queues), the scheduler and a health
+  # check, which could run jobs against a schema still being migrated.
+  defp load_app do
+    Application.ensure_all_started(:ssl)
+    Application.ensure_loaded(@app)
+  end
 end
