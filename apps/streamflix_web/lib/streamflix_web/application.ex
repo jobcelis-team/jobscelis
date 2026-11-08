@@ -18,10 +18,15 @@ defmodule StreamflixWeb.Application do
           {DNSCluster,
            query: Application.get_env(:streamflix_web, :dns_cluster_query) || :ignore},
           StreamflixWebWeb.Endpoint
-        ]
+        ] ++ deploy_notice()
 
     opts = [strategy: :one_for_one, name: StreamflixWeb.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  # After the endpoint: stopped first on shutdown, while sockets are still open
+  defp deploy_notice do
+    if StreamflixWebWeb.DeployNotice.enabled?(), do: [StreamflixWebWeb.DeployNotice], else: []
   end
 
   defp maybe_prom_ex do

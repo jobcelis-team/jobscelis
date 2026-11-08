@@ -8755,3 +8755,19 @@ msgstr "Inputs: api-key (required), topic (required), payload (JSON object) and 
 #, elixir-autogen, elixir-format
 msgid "Ver código"
 msgstr "View source"
+
+#, elixir-autogen, elixir-format
+msgid "Estamos mejorando Jobcelis"
+msgstr "We are improving Jobcelis"
+
+#, elixir-autogen, elixir-format
+msgid "En unos segundos volvemos con una versión nueva. No pierdes nada: tus eventos y webhooks siguen en cola."
+msgstr "We will be back with a new version in a few seconds. Nothing is lost: your events and webhooks stay queued."
+
+#, elixir-autogen, elixir-format
+msgid "Jobcelis se actualizó"
+msgstr "Jobcelis has been updated"
+
+#, elixir-autogen, elixir-format
+msgid "Ya tienes la versión más reciente."
+msgstr "You are on the latest version."
