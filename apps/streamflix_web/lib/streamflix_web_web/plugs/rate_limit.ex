@@ -53,15 +53,17 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
         conn
 
       :limit_exceeded ->
+        api? = String.starts_with?(normalized_path(conn), "/api/")
+
         body =
-          if String.starts_with?(conn.request_path, "/api/") do
+          if api? do
             Jason.encode!(%{error: "Too many requests. Try again in a minute."})
           else
             "Demasiadas peticiones. Intenta de nuevo en un minuto."
           end
 
         content_type =
-          if String.starts_with?(conn.request_path, "/api/"),
+          if api?,
             do: "application/json",
             else: "text/plain"
 
@@ -73,13 +75,32 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
     end
   end
 
+  # Matches against the path Plug routes on (`path_info`, empty segments
+  # dropped), not the raw `request_path`: `/login/`, `//login` and `/login`
+  # reach the same action and must share one bucket. The bucket is keyed by
+  # the matched rule, never by the request path, so path variations (or a
+  # different token in `/reset-password/:token`) cannot open fresh buckets.
   defp path_match(conn, path_rules) do
     method = conn.method
-    path = conn.request_path
+    path = normalized_path(conn)
 
-    case Enum.find(path_rules, fn {m, p, _} -> m == method and String.starts_with?(path, p) end) do
-      {_, _, max} -> {max, path <> method}
+    case Enum.find(path_rules, fn {m, p, _} -> m == method and rule_matches?(p, path) end) do
+      {m, p, max} -> {max, p <> m}
       nil -> nil
+    end
+  end
+
+  @doc false
+  def normalized_path(%Plug.Conn{path_info: path_info}), do: "/" <> Enum.join(path_info, "/")
+
+  # A rule ending in "/" is a prefix rule ("/reset-password/" covers every
+  # token). Otherwise it matches the path itself or anything below it on a
+  # segment boundary ("/mfa/verify" does not cover "/mfa/verify-backup").
+  defp rule_matches?(rule, path) do
+    if String.ends_with?(rule, "/") do
+      String.starts_with?(path, rule)
+    else
+      path == rule or String.starts_with?(path, rule <> "/")
     end
   end
 

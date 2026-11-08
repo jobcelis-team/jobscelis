@@ -47,7 +47,10 @@ defmodule StreamflixWebWeb.Router do
         {"POST", "/login", 5},
         {"POST", "/signup", 3},
         {"POST", "/mfa/verify", 10},
-        {"POST", "/mfa/verify-backup", 5}
+        {"POST", "/mfa/verify-backup", 5},
+        {"POST", "/forgot-password", 3},
+        {"POST", "/reset-password/", 5},
+        {"GET", "/confirm-email/", 10}
       ],
       window_sec: 60
   end
