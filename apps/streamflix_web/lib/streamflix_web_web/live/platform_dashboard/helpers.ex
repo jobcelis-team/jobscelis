@@ -60,7 +60,14 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
       {detail, _} = Keyword.get(changeset.errors, :base, {"", []})
       gettext("Límite alcanzado: %{detail}", detail: detail)
     else
-      default
+      # Name the first problem (e.g. a name that is too long), not just "failed"
+      case changeset.errors do
+        [{field, error} | _] ->
+          "#{default} #{field}: #{StreamflixWebWeb.CoreComponents.translate_error(error)}"
+
+        [] ->
+          default
+      end
     end
   end
 

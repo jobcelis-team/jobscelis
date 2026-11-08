@@ -24,6 +24,7 @@ defmodule StreamflixCore.Schemas.SandboxEndpoint do
     endpoint
     |> cast(attrs, [:project_id, :slug, :name, :expires_at])
     |> validate_required([:project_id, :slug, :expires_at])
+    |> validate_length(:name, max: 100)
     |> unique_constraint(:slug)
     |> foreign_key_constraint(:project_id)
   end

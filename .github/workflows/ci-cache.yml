@@ -1,0 +1,87 @@
+# Fills the CI caches on develop and main.
+# Caches saved by a pull request run are only visible to that pull request; a
+# new pull request can read the caches of its base branch. Without this
+# workflow, develop and main never had any, so every new pull request rebuilt
+# the deps and the Dialyzer PLT from scratch (~4 min). Keys match ci.yml.
+name: CI caches
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "mix.exs"
+      - "mix.lock"
+      - "apps/**"
+      - "config/**"
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/ci-cache.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MIX_ENV: test
+  ELIXIR_VERSION: "1.20.4"
+  OTP_VERSION: "29"
+
+concurrency:
+  group: ci-cache-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  warm:
+    name: Warm CI caches
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        id: beam
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Restore build
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ steps.beam.outputs.otp-version }}-${{ hashFiles('**/mix.lock') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ steps.beam.outputs.otp-version }}-${{ hashFiles('**/mix.lock') }}-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile
+        run: mix compile
+
+      - name: Save build
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ steps.beam.outputs.otp-version }}-${{ hashFiles('**/mix.lock') }}-${{ github.sha }}
+
+      - name: Restore Dialyzer PLT
+        id: plt
+        uses: actions/cache/restore@v6
+        with:
+          path: priv/plts
+          key: ${{ runner.os }}-plt-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-${{ hashFiles('**/mix.lock') }}
+
+      - name: Build PLT
+        if: steps.plt.outputs.cache-hit != 'true'
+        run: mkdir -p priv/plts && mix dialyzer --plt
+
+      - name: Save Dialyzer PLT
+        if: steps.plt.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: priv/plts
+          key: ${{ steps.plt.outputs.cache-primary-key }}
