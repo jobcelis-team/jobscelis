@@ -5,7 +5,6 @@
 | Version | Supported |
 |---------|-----------|
 | Latest (main branch) | Yes |
-| Staging (develop branch) | Best-effort |
 
 ## Reporting a Vulnerability
 
