@@ -14,9 +14,17 @@ defmodule StreamflixWebWeb.AbuseLimitsTest do
     %{conn: put_req_header(conn, "x-api-key", raw_key), project: project, api_key: api_key}
   end
 
+  # The limiter counts in fixed one-minute windows: a test that crosses into
+  # the next minute starts again from zero. Start well inside a window.
+  defp start_of_fresh_window do
+    second = rem(System.system_time(:second), 60)
+    if second >= 55, do: Process.sleep((60 - second) * 1000 + 100)
+  end
+
   describe "events per minute" do
     test "batch items count against the limit, 429 with Retry-After", %{conn: conn} do
       %{conn: conn} = api_conn(conn, rate_limit_events_per_minute: 3)
+      start_of_fresh_window()
 
       events = for n <- 1..4, do: %{"topic" => "t", "n" => n}
       resp = post(conn, "/api/v1/events/batch", %{"events" => events})
