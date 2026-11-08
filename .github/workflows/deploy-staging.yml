@@ -21,6 +21,9 @@ on:
       - ".github/workflows/ci.yml"
       - ".github/workflows/release-sdks.yml"
       - ".github/workflows/release.yml"
+      # CI-only workflows: they do not change the deployed app
+      - ".github/workflows/ci-cache.yml"
+      - ".github/workflows/sdk-catalog.yml"
 
 env:
   ACR_NAME: ${{ secrets.AZURE_ACR_NAME }}
