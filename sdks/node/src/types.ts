@@ -2,6 +2,13 @@ export interface JobcelisConfig {
   apiKey: string;
   baseUrl?: string;
   timeout?: number;
+  /**
+   * Retries after a network error or HTTP 429/502/503/504 (default 6, about 60 s
+   * of backoff). 0 disables retries.
+   */
+  maxRetries?: number;
+  /** Base delay in ms of the exponential backoff (default 1000). */
+  retryBaseDelay?: number;
 }
 
 export interface Event {

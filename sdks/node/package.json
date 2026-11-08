@@ -1,13 +1,13 @@
 {
   "name": "@jobcelis/sdk",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "Official Node.js/TypeScript SDK for the Jobcelis Event Infrastructure Platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
     "build": "tsc",
-    "test": "node --test test/"
+    "test": "npm run build && node --test test/*.test.js"
   },
   "keywords": ["jobcelis", "webhooks", "events", "sdk"],
   "homepage": "https://jobcelis.com",
