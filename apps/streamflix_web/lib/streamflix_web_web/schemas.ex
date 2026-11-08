@@ -79,6 +79,11 @@ defmodule StreamflixWebWeb.Schemas do
       title: "EventResponse",
       type: :object,
       properties: %{
+        id: %Schema{
+          type: :string,
+          format: :uuid,
+          description: "Event ID (same value as event_id)"
+        },
         event_id: %Schema{type: :string, format: :uuid},
         payload_hash: %Schema{
           type: :string,
@@ -92,6 +97,7 @@ defmodule StreamflixWebWeb.Schemas do
         idempotency_key: %Schema{type: :string, description: "Present when one was given"}
       },
       example: %{
+        id: "550e8400-e29b-41d4-a716-446655440000",
         event_id: "550e8400-e29b-41d4-a716-446655440000",
         payload_hash: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
       }
