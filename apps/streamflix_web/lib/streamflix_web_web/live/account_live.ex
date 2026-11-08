@@ -158,7 +158,7 @@ defmodule StreamflixWebWeb.AccountLive do
 
           {:error, %Ecto.Changeset{} = changeset} ->
             errors =
-              Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
+              Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
               |> Enum.flat_map(fn {_, msgs} -> msgs end)
 
             {:noreply,
@@ -252,7 +252,7 @@ defmodule StreamflixWebWeb.AccountLive do
 
           {:error, %Ecto.Changeset{} = changeset} ->
             errors =
-              Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
+              Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
               |> Enum.flat_map(fn {_, msgs} -> msgs end)
 
             {:noreply,

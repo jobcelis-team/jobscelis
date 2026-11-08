@@ -322,7 +322,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsController do
     %{id: r.id, executed_at: r.executed_at, status: r.status, result: r.result}
   end
 
-  defp format_errors(c), do: Ecto.Changeset.traverse_errors(c, fn {msg, _} -> msg end)
+  defp format_errors(c),
+    do: Ecto.Changeset.traverse_errors(c, &StreamflixWebWeb.ChangesetErrors.interpolate/1)
 
   defp parse_int(nil, default), do: default
 
