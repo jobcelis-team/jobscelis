@@ -12,6 +12,10 @@ on:
       - ".github/workflows/release-sdks.yml"
       - ".github/workflows/release.yml"
 
+# Read-only token: no job writes to the repository
+permissions:
+  contents: read
+
 env:
   MIX_ENV: test
   ELIXIR_VERSION: "1.20.4"
