@@ -599,7 +599,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
     case type do
       "emit_event" ->
         payload =
-          case Jason.decode(params["action_payload"] || "{}") do
+          case StreamflixCore.SafeJson.decode(params["action_payload"] || "{}") do
             {:ok, m} -> m
             _ -> %{}
           end

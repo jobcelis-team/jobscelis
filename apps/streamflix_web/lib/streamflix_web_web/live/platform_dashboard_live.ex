@@ -349,7 +349,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         {:error, %Ecto.Changeset{} = cs} ->
           message =
             cs
-            |> Ecto.Changeset.traverse_errors(fn {msg, _} -> msg end)
+            |> Ecto.Changeset.traverse_errors(&translate_error/1)
             |> Enum.map_join("; ", fn {field, msgs} -> "#{field}: #{Enum.join(msgs, ", ")}" end)
 
           {:noreply, assign(socket, :key_restrictions_error, message)}
@@ -444,7 +444,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
         {:error, changeset} ->
           errors =
-            Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+            Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
 
           {:noreply,
            socket
@@ -1274,7 +1274,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       socket =
         assign(socket, :pipeline_form, Map.merge(socket.assigns.pipeline_form || %{}, params))
 
-      case Jason.decode(params["steps"] || "[]") do
+      case StreamflixCore.SafeJson.decode(params["steps"] || "[]") do
         {:ok, steps} when is_list(steps) ->
           do_save_pipeline(socket, project, params, steps)
 
@@ -1341,7 +1341,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
     # Presets append to the current steps instead of replacing them
     current =
-      case Jason.decode(socket.assigns.pipeline_form["steps"] || "[]") do
+      case StreamflixCore.SafeJson.decode(socket.assigns.pipeline_form["steps"] || "[]") do
         {:ok, list} when is_list(list) -> list
         _ -> []
       end
@@ -1657,7 +1657,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     with_permission(socket, :write, fn ->
       project = socket.assigns.project
 
-      case Jason.decode(schema_str) do
+      case StreamflixCore.SafeJson.decode(schema_str) do
         {:ok, schema_map} ->
           case Platform.create_event_schema(project.id, %{
                  "topic" => topic,
@@ -2968,7 +2968,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   defp decode_test_json(str) do
-    case Jason.decode(str) do
+    case StreamflixCore.SafeJson.decode(str) do
       {:ok, map} when is_map(map) -> {:ok, map}
       _ -> :error
     end
