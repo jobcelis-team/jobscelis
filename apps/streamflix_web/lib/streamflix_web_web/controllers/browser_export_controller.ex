@@ -19,14 +19,19 @@ defmodule StreamflixWebWeb.BrowserExportController do
     end
   end
 
-  defp get_user_project(user) do
+  # The project being viewed in the dashboard (?project=), else the last one
+  # selected, else the default. Only projects the user can access are used.
+  defp get_user_project(user, params) do
     projects = Teams.list_all_accessible_projects(user.id)
-    Enum.find(projects, & &1.is_default) || List.first(projects)
+    find = fn id -> is_binary(id) && Enum.find(projects, &(&1.id == id)) end
+
+    find.(params["project"]) || find.(user.last_project_id) ||
+      Enum.find(projects, & &1.is_default) || List.first(projects)
   end
 
   def events(conn, params) do
     with {:ok, user} <- require_auth(conn),
-         project when not is_nil(project) <- get_user_project(user) do
+         project when not is_nil(project) <- get_user_project(user, params) do
       format = params["format"] || "json"
 
       events =
@@ -56,7 +61,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
 
   def deliveries(conn, params) do
     with {:ok, user} <- require_auth(conn),
-         project when not is_nil(project) <- get_user_project(user) do
+         project when not is_nil(project) <- get_user_project(user, params) do
       format = params["format"] || "json"
       deliveries = Platform.list_deliveries(project_id: project.id, limit: @max_export)
 
@@ -88,7 +93,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
 
   def jobs(conn, params) do
     with {:ok, user} <- require_auth(conn),
-         project when not is_nil(project) <- get_user_project(user) do
+         project when not is_nil(project) <- get_user_project(user, params) do
       format = params["format"] || "json"
       jobs = Platform.list_jobs(project.id, include_inactive: true)
 
@@ -113,7 +118,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
 
   def audit_log(conn, params) do
     with {:ok, user} <- require_auth(conn),
-         project when not is_nil(project) <- get_user_project(user) do
+         project when not is_nil(project) <- get_user_project(user, params) do
       format = params["format"] || "json"
       logs = Audit.list_for_project(project.id, limit: @max_export)
 
@@ -166,7 +171,7 @@ defmodule StreamflixWebWeb.BrowserExportController do
       Enum.map_join(rows, "\n", fn row ->
         Enum.map_join(columns, ",", fn col ->
           value = Map.get(row, String.to_existing_atom(col), "")
-          csv_escape(to_string(value))
+          StreamflixWebWeb.CSV.escape(value)
         end)
       end)
 
@@ -189,12 +194,4 @@ defmodule StreamflixWebWeb.BrowserExportController do
 
   defp iso8601(%NaiveDateTime{} = ndt),
     do: ndt |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_iso8601()
-
-  defp csv_escape(value) do
-    if String.contains?(value, [",", "\"", "\n"]) do
-      "\"" <> String.replace(value, "\"", "\"\"") <> "\""
-    else
-      value
-    end
-  end
 end

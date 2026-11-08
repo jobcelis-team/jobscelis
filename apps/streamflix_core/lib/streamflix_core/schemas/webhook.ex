@@ -55,8 +55,41 @@ defmodule StreamflixCore.Schemas.Webhook do
     |> validate_format(:url, ~r|^https?://|, message: "must be http or https")
     |> StreamflixCore.Platform.UrlGuard.validate_changeset(:url)
     |> validate_headers()
+    |> validate_topics()
     |> foreign_key_constraint(:project_id)
   end
+
+  @max_topics 50
+  @max_topic_length 100
+  @topic_format ~r/\A[A-Za-z0-9._*#:\-]+\z/
+
+  @doc false
+  def max_topics, do: @max_topics
+
+  # Topics are shown in the dashboard and the embeddable portal: only plain
+  # topic patterns are accepted so no markup can ever be stored.
+  defp validate_topics(changeset) do
+    validate_change(changeset, :topics, fn :topics, topics ->
+      cond do
+        length(topics) > @max_topics ->
+          [topics: "cannot have more than #{@max_topics} topics"]
+
+        not Enum.all?(topics, &valid_topic?/1) ->
+          [
+            topics:
+              "each topic must be at most #{@max_topic_length} characters of letters, digits and . _ * # : -"
+          ]
+
+        true ->
+          []
+      end
+    end)
+  end
+
+  defp valid_topic?(topic) when is_binary(topic),
+    do: String.length(topic) <= @max_topic_length and topic =~ @topic_format
+
+  defp valid_topic?(_), do: false
 
   # Custom headers are sent with every delivery: string names/values only and
   # no CR/LF (header injection).

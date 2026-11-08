@@ -35,6 +35,7 @@ defmodule StreamflixCore.Schemas.Job do
       :status
     ])
     |> validate_required([:project_id, :name, :schedule_type, :action_type])
+    |> validate_length(:name, max: 100)
     |> validate_inclusion(:status, ~w(active inactive))
     |> validate_inclusion(:schedule_type, ~w(daily weekly monthly cron))
     |> validate_inclusion(:action_type, ~w(emit_event post_url))

@@ -41,6 +41,7 @@ defmodule StreamflixCore.Schemas.EmbedToken do
       :expires_at
     ])
     |> validate_required([:project_id, :prefix, :token_hash])
+    |> validate_length(:name, max: 100)
     |> validate_inclusion(:status, ~w(active inactive))
     |> validate_scopes()
     |> foreign_key_constraint(:project_id)

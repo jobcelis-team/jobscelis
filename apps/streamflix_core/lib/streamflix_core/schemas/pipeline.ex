@@ -38,6 +38,14 @@ defmodule StreamflixCore.Schemas.Pipeline do
     pipeline
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> validate_length(:name, max: 100)
+    |> validate_length(:description, max: 500)
+    |> validate_length(:topics, max: 50)
+    |> validate_change(:topics, fn :topics, topics ->
+      if Enum.all?(topics, &(String.length(&1) <= 100)),
+        do: [],
+        else: [topics: "each topic must be at most 100 characters"]
+    end)
     |> validate_inclusion(:status, @valid_statuses)
     |> validate_steps()
     |> foreign_key_constraint(:project_id)
