@@ -567,42 +567,16 @@ Hooks.Chart = {
   },
 };
 
-// Cookie consent banner hook (LiveView pages)
-Hooks.CookieBanner = {
-  mounted() {
-    this._init();
-  },
-  updated() {
-    this._init();
-  },
-  _init() {
-    if (!localStorage.getItem("cookie_consent_dismissed")) {
-      this.el.classList.remove("hidden");
-    }
-    const btn = this.el.querySelector("[data-cookie-accept]");
-    if (btn) {
-      btn.addEventListener("click", () => {
-        localStorage.setItem("cookie_consent_dismissed", "1");
-        this.el.classList.add("hidden");
-      });
-    }
-  },
-};
-
-// Cookie consent banner (non-LiveView pages: home, login, signup, etc.)
-document.addEventListener("DOMContentLoaded", function () {
-  var banner = document.getElementById("cookie-banner");
-  if (!banner) return;
-  if (!localStorage.getItem("cookie_consent_dismissed")) {
-    banner.classList.remove("hidden");
-  }
-  var btn = banner.querySelector("[data-cookie-accept]");
-  if (btn) {
-    btn.addEventListener("click", function () {
-      localStorage.setItem("cookie_consent_dismissed", "1");
-      banner.classList.add("hidden");
-    });
-  }
+// Cookie notice: one delegated listener covers every page (dead views and
+// LiveView, before and after live navigation). Dismissal is kept in a cookie
+// and in localStorage; <html data-cookie-notice> hides the banner (app.css).
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("[data-cookie-accept]")) return;
+  document.cookie = "cookie_notice=1; Max-Age=31536000; Path=/; SameSite=Lax; Secure";
+  try {
+    localStorage.setItem("cookie_consent_dismissed", "1");
+  } catch (_) {}
+  document.documentElement.setAttribute("data-cookie-notice", "dismissed");
 });
 
 // Docs scroll spy: watches section[id] elements, highlights active nav item directly.

@@ -95,6 +95,18 @@
     </script>
 
     <script nonce={assigns[:csp_nonce]}>
+      // Cookie notice: decided before the page is painted and stored on <html>,
+      // which LiveView never patches, so it cannot flicker or come back
+      (() => {
+        let dismissed = /(?:^|; )cookie_notice=1(?:;|$)/.test(document.cookie);
+        try {
+          dismissed = dismissed || localStorage.getItem("cookie_consent_dismissed") === "1";
+        } catch (_) {}
+        if (dismissed) document.documentElement.setAttribute("data-cookie-notice", "dismissed");
+      })();
+    </script>
+
+    <script nonce={assigns[:csp_nonce]}>
       (() => {
         const mq = window.matchMedia("(prefers-color-scheme: dark)");
 

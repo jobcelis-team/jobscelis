@@ -968,6 +968,12 @@ details[open] > summary .details-chevron {
 }
 
 /* Hide default details marker */
+
+/* Cookie notice dismissed (see the inline script in the root layout) */
+html[data-cookie-notice="dismissed"] #cookie-banner {
+  display: none !important;
+}
+
 details > summary {
   list-style: none;
 }
