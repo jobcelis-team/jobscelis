@@ -93,6 +93,8 @@ jobs:
         with:
           tag: ${{ steps.v.outputs.tag }}
           push-commit: "false"
+          # The Latest release of this repository is the platform's
+          latest: "false"
 
   pypi:
     name: PyPI jobcelis
@@ -162,3 +164,5 @@ jobs:
         with:
           tag: ${{ steps.v.outputs.tag }}
           push-commit: "false"
+          # The Latest release of this repository is the platform's
+          latest: "false"
