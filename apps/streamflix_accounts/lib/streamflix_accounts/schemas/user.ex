@@ -76,6 +76,7 @@ defmodule StreamflixAccounts.Schemas.User do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> validate_email()
+    |> validate_name()
     |> validate_inclusion(:role, ["user", "admin", "moderator", "superadmin"])
     |> validate_inclusion(:status, ["active", "inactive", "restricted"])
     |> unique_constraint(:email_hash, message: "already registered")
@@ -167,6 +168,25 @@ defmodule StreamflixAccounts.Schemas.User do
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must be a valid email")
     |> validate_length(:email, max: 160)
     |> update_change(:email, &String.downcase/1)
+    |> validate_change(:email, fn :email, email ->
+      if StreamflixAccounts.DisposableEmail.disposable?(email),
+        do: [email: "temporary email addresses are not allowed"],
+        else: []
+    end)
+  end
+
+  # Links, markup and control characters: what spam bots put in the name field
+  @name_spam ~r/(https?:|:\/\/|www\.|[<>]|[\x00-\x1F\x7F]|\S+\.(com|net|org|ru|xyz|top|info|biz|click|link|php)\b)/iu
+
+  defp validate_name(changeset) do
+    changeset
+    |> update_change(:name, &if(is_binary(&1), do: String.trim(&1), else: &1))
+    |> validate_length(:name, max: 100)
+    |> validate_change(:name, fn :name, name ->
+      if is_binary(name) and Regex.match?(@name_spam, name),
+        do: [name: "cannot contain links or HTML"],
+        else: []
+    end)
   end
 
   defp validate_password(changeset) do
