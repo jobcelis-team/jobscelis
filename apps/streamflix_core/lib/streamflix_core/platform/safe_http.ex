@@ -42,7 +42,7 @@ defmodule StreamflixCore.Platform.SafeHttp do
 
   @type error ::
           {:blocked, UrlGuard.reason()}
-          | Req.TransportError.t()
+          | %Req.TransportError{}
           | Exception.t()
 
   @doc """
@@ -188,11 +188,11 @@ defmodule StreamflixCore.Platform.SafeHttp do
 
         if byte_size(data) > room do
           kept = binary_part(data, 0, max(room, 0))
-          {:truncated, %{state | body: [state.body | kept], size: state.max_body}}
+          {:truncated, %{state | body: [state.body, kept], size: state.max_body}}
         else
           handle_responses(rest, ref, %{
             state
-            | body: [state.body | data],
+            | body: [state.body, data],
               size: state.size + byte_size(data)
           })
         end
