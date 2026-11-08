@@ -8741,3 +8741,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Ver código"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Estamos mejorando Jobcelis"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "En unos segundos volvemos con una versión nueva. No pierdes nada: tus eventos y webhooks siguen en cola."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Jobcelis se actualizó"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Ya tienes la versión más reciente."
+msgstr ""

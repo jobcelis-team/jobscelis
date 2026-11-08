@@ -120,6 +120,7 @@ defmodule StreamflixWebWeb.Router do
     live_session :public,
       on_mount: [
         {StreamflixWebWeb.LiveLocale, :set},
+        StreamflixWebWeb.DeployNoticeHook,
         {StreamflixWebWeb.LiveAuth, :mount_current_user_optional}
       ] do
       live "/status", StatusLive, :index
@@ -373,6 +374,7 @@ defmodule StreamflixWebWeb.Router do
     live_session :default,
       on_mount: [
         {StreamflixWebWeb.LiveLocale, :set},
+        StreamflixWebWeb.DeployNoticeHook,
         {StreamflixWebWeb.LiveAuth, :mount_current_user}
       ] do
       live "/account", AccountLive, :index
@@ -401,6 +403,7 @@ defmodule StreamflixWebWeb.Router do
     live_session :admin,
       on_mount: [
         {StreamflixWebWeb.LiveLocale, :set},
+        StreamflixWebWeb.DeployNoticeHook,
         {StreamflixWebWeb.LiveAuth, :mount_admin_user}
       ] do
       live "/", DashboardLive, :index

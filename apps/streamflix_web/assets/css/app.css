@@ -974,3 +974,12 @@ details > summary {
 details > summary::-webkit-details-marker {
   display: none;
 }
+
+/* While the server restarts for an update (deploy notice), the banner explains
+   it: the generic "connection lost" flashes would only add noise */
+html.jc-deploying #client-error,
+html.jc-deploying #server-error,
+#deploy-notice[hidden],
+#deploy-notice [hidden] {
+  display: none !important;
+}

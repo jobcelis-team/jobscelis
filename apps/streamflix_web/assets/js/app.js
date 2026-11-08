@@ -859,6 +859,50 @@ topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" });
 window.addEventListener("phx:page-loading-start", (_info) => topbar.show(300));
 window.addEventListener("phx:page-loading-stop", (_info) => topbar.hide());
 
+// Deploy notice (StreamflixWebWeb.DeployNotice): just before a production
+// restart the server announces it. Show it, hide the generic "connection lost"
+// flashes while the server restarts, and confirm once the page is back
+// (reloaded with new assets, or reconnected).
+const DEPLOY_KEY = "jc-deploy-notice";
+
+function showDeployNotice(state) {
+  const el = document.getElementById("deploy-notice");
+  if (!el) return;
+  el.querySelectorAll("[data-deploy-state]").forEach((n) => {
+    n.hidden = n.dataset.deployState !== state;
+  });
+  el.hidden = false;
+}
+
+function hideDeployNotice() {
+  const el = document.getElementById("deploy-notice");
+  if (el) el.hidden = true;
+}
+
+window.addEventListener("phx:deploy-notice", () => {
+  try {
+    sessionStorage.setItem(DEPLOY_KEY, String(Date.now()));
+  } catch (_) {}
+  document.documentElement.classList.add("jc-deploying");
+  showDeployNotice("updating");
+});
+
+function deployFinished() {
+  let since = 0;
+  try {
+    since = Number(sessionStorage.getItem(DEPLOY_KEY)) || 0;
+    sessionStorage.removeItem(DEPLOY_KEY);
+  } catch (_) {}
+  document.documentElement.classList.remove("jc-deploying");
+  if (!since) return;
+  // A notice from long ago (the tab was left open) is not worth confirming
+  if (Date.now() - since > 10 * 60 * 1000) return hideDeployNotice();
+  showDeployNotice("done");
+  setTimeout(hideDeployNotice, 6000);
+}
+
+liveSocket.getSocket().onOpen(() => deployFinished());
+
 // connect if there are any LiveViews on the page
 liveSocket.connect();
 
