@@ -34,26 +34,41 @@ import type {
   EmbedTokenCreate,
   EmbedTokenResponse,
 } from './types';
+import { randomUUID } from 'crypto';
 
 export class JobcelisClient {
   private apiKey: string;
   private baseUrl: string;
   private timeout: number;
+  private maxRetries: number;
+  private retryBaseDelay: number;
 
   constructor(config: JobcelisConfig) {
     this.apiKey = config.apiKey;
     this.baseUrl = (config.baseUrl || 'https://jobcelis.com').replace(/\/$/, '');
     this.timeout = config.timeout || 30000;
+    this.maxRetries = Math.max(0, Math.floor(config.maxRetries ?? DEFAULT_MAX_RETRIES));
+    this.retryBaseDelay = config.retryBaseDelay ?? DEFAULT_RETRY_BASE_DELAY_MS;
   }
 
   // --- Events ---
 
+  /**
+   * Sends one event. The request carries an `X-Idempotency-Key` header (the event's
+   * `idempotency_key`, or a generated UUID) so retries never duplicate the event.
+   */
   async sendEvent(event: EventCreate): Promise<Event> {
-    return this.post('/api/v1/events', event);
+    return this.post('/api/v1/events', event, { idempotencyKey: event.idempotency_key || randomUUID() });
   }
 
+  /**
+   * Sends a batch of events. Items without an `idempotency_key` get a generated
+   * UUID, so retries never duplicate an event.
+   */
   async sendEvents(events: EventCreate[]): Promise<BatchResult> {
-    return this.post('/api/v1/events/batch', { events });
+    const items = events.map((e) => (e.idempotency_key ? e : { ...e, idempotency_key: randomUUID() }));
+    // every item carries a key, so a retry after a network error is safe
+    return this.post('/api/v1/events/batch', { events: items }, { idempotent: true });
   }
 
   async getEvent(id: string): Promise<Event> {
@@ -475,72 +490,105 @@ export class JobcelisClient {
 
   // --- HTTP helpers ---
 
-  private async request(method: string, path: string, body?: unknown, query?: Record<string, any>): Promise<unknown> {
+  /**
+   * Sends a request, retrying on network errors and HTTP 429/502/503/504 with
+   * exponential backoff. POSTs are retried on network errors only when they carry
+   * an idempotency key, so a retry can never create a resource twice.
+   */
+  private async send(
+    method: string,
+    path: string,
+    opts: RetryOptions & { body?: unknown; query?: Record<string, any>; json?: boolean },
+  ): Promise<Response> {
     const url = new URL(this.baseUrl + path);
-    if (query) {
-      for (const [k, v] of Object.entries(query)) {
+    if (opts.query) {
+      for (const [k, v] of Object.entries(opts.query)) {
         if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
       }
     }
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeout);
+    const headers: Record<string, string> = { 'X-Api-Key': this.apiKey };
+    if (opts.json !== false) headers['Content-Type'] = 'application/json';
+    if (opts.idempotencyKey) headers['X-Idempotency-Key'] = opts.idempotencyKey;
+    const body = opts.body ? JSON.stringify(opts.body) : undefined;
+    const retryOnNetworkError = method !== 'POST' || !!opts.idempotencyKey || !!opts.idempotent;
 
-    try {
-      const res = await fetch(url.toString(), {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Api-Key': this.apiKey,
-        },
-        body: body ? JSON.stringify(body) : undefined,
-        signal: controller.signal,
-      });
-
-      if (!res.ok) {
-        const errBody: any = await res.json().catch(() => ({ error: res.statusText }));
-        throw new JobcelisError(res.status, errBody.error || errBody.errors || res.statusText);
+    for (let attempt = 0; ; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), this.timeout);
+      let res: Response;
+      try {
+        res = await fetch(url.toString(), { method, headers, body, signal: controller.signal });
+      } catch (err) {
+        clearTimeout(timer);
+        if (!retryOnNetworkError || attempt >= this.maxRetries) throw err;
+        await sleep(this.retryDelay(attempt + 1, null));
+        continue;
       }
-
-      if (res.status === 204) return undefined;
-      return res.json();
-    } finally {
       clearTimeout(timer);
+
+      if (RETRYABLE_STATUSES.has(res.status) && attempt < this.maxRetries) {
+        const retryAfter = res.headers.get('retry-after');
+        await res.body?.cancel().catch(() => undefined);
+        await sleep(this.retryDelay(attempt + 1, retryAfter));
+        continue;
+      }
+      return res;
     }
   }
 
-  private async requestText(method: string, path: string): Promise<string> {
-    const url = new URL(this.baseUrl + path);
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeout);
-
-    try {
-      const res = await fetch(url.toString(), {
-        method,
-        headers: {
-          'X-Api-Key': this.apiKey,
-        },
-        signal: controller.signal,
-      });
-
-      if (!res.ok) {
-        const error = await res.text().catch(() => res.statusText);
-        throw new JobcelisError(res.status, error);
+  /** Delay in ms before retry number n (1-based). */
+  private retryDelay(n: number, retryAfter: string | null): number {
+    if (retryAfter !== null) {
+      const seconds = Number(retryAfter);
+      let ms: number | undefined;
+      if (retryAfter.trim() !== '' && Number.isFinite(seconds)) {
+        ms = seconds * 1000;
+      } else {
+        const date = Date.parse(retryAfter);
+        if (!Number.isNaN(date)) ms = date - Date.now();
       }
-
-      return res.text();
-    } finally {
-      clearTimeout(timer);
+      if (ms !== undefined) return Math.min(MAX_RETRY_AFTER_MS, Math.max(0, ms));
     }
+    const base = Math.min(MAX_BACKOFF_MS, this.retryBaseDelay * 2 ** (n - 1));
+    return base * (0.8 + Math.random() * 0.4);
+  }
+
+  private async request(
+    method: string,
+    path: string,
+    body?: unknown,
+    query?: Record<string, any>,
+    retry: RetryOptions = {},
+  ): Promise<unknown> {
+    const res = await this.send(method, path, { ...retry, body, query });
+
+    if (!res.ok) {
+      const errBody: any = await res.json().catch(() => ({ error: res.statusText }));
+      throw new JobcelisError(res.status, errBody.error || errBody.errors || res.statusText);
+    }
+
+    if (res.status === 204) return undefined;
+    return res.json();
+  }
+
+  private async requestText(method: string, path: string): Promise<string> {
+    const res = await this.send(method, path, { json: false });
+
+    if (!res.ok) {
+      const error = await res.text().catch(() => res.statusText);
+      throw new JobcelisError(res.status, error);
+    }
+
+    return res.text();
   }
 
   private async get(path: string, query?: Record<string, any>): Promise<any> {
     return this.request('GET', path, undefined, query);
   }
 
-  private async post(path: string, body: unknown): Promise<any> {
-    return this.request('POST', path, body);
+  private async post(path: string, body: unknown, retry?: RetryOptions): Promise<any> {
+    return this.request('POST', path, body, undefined, retry);
   }
 
   private async put(path: string, body: unknown): Promise<any> {
@@ -554,6 +602,23 @@ export class JobcelisClient {
   private async delete(path: string): Promise<any> {
     return this.request('DELETE', path);
   }
+}
+
+interface RetryOptions {
+  /** Sent as X-Idempotency-Key; makes the request safe to retry after a network error. */
+  idempotencyKey?: string;
+  /** The body carries its own idempotency keys (batch): safe to retry after a network error. */
+  idempotent?: boolean;
+}
+
+const RETRYABLE_STATUSES = new Set([429, 502, 503, 504]);
+const DEFAULT_MAX_RETRIES = 6;
+const DEFAULT_RETRY_BASE_DELAY_MS = 1000;
+const MAX_BACKOFF_MS = 30_000;
+const MAX_RETRY_AFTER_MS = 60_000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export class JobcelisError extends Error {

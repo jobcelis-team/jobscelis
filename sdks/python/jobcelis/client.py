@@ -1,6 +1,16 @@
 """Jobcelis Python SDK — API client."""
 
+import email.utils
+import random
+import time
+import uuid
+
 import requests
+
+RETRYABLE_STATUSES = frozenset({429, 502, 503, 504})
+DEFAULT_MAX_RETRIES = 6
+MAX_BACKOFF = 30.0
+MAX_RETRY_AFTER = 60.0
 
 
 class JobcelisError(Exception):
@@ -15,10 +25,24 @@ class JobcelisError(Exception):
 class JobcelisClient:
     """Client for the Jobcelis Event Infrastructure Platform API."""
 
-    def __init__(self, api_key: str, base_url: str = "https://jobcelis.com", timeout: int = 30):
+    def __init__(
+        self,
+        api_key: str,
+        base_url: str = "https://jobcelis.com",
+        timeout: int = 30,
+        max_retries: int = DEFAULT_MAX_RETRIES,
+        retry_base_delay: float = 1.0,
+    ):
+        """
+        ``max_retries``: retries after a network error or HTTP 429/502/503/504
+        (default 6, about 60 s of backoff); 0 disables retries.
+        ``retry_base_delay``: base delay in seconds of the exponential backoff.
+        """
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        self.max_retries = max(0, int(max_retries))
+        self.retry_base_delay = retry_base_delay
         self._session = requests.Session()
         self._session.headers.update({
             "Content-Type": "application/json",
@@ -53,13 +77,29 @@ class JobcelisClient:
     # --- Events ---
 
     def send_event(self, topic: str, payload: dict, **kwargs) -> dict:
-        """Send a single event."""
+        """Send a single event.
+
+        The request carries an ``X-Idempotency-Key`` header (``idempotency_key``
+        if given, otherwise a generated UUID) so retries never duplicate the event.
+        """
         body = {"topic": topic, "payload": payload, **kwargs}
-        return self._post("/api/v1/events", body)
+        key = kwargs.get("idempotency_key") or str(uuid.uuid4())
+        return self._request("POST", "/api/v1/events", json=body, idempotency_key=key)
 
     def send_events(self, events: list[dict]) -> dict:
-        """Send up to 1000 events in a batch."""
-        return self._post("/api/v1/events/batch", {"events": events})
+        """Send up to 1000 events in a batch.
+
+        Items without an ``idempotency_key`` get a generated UUID, so retries never
+        duplicate an event.
+        """
+        items = [
+            {**e, "idempotency_key": str(uuid.uuid4())}
+            if isinstance(e, dict) and not e.get("idempotency_key")
+            else e
+            for e in events
+        ]
+        # every item carries a key, so a retry after a network error is safe
+        return self._request("POST", "/api/v1/events/batch", json={"events": items}, idempotent=True)
 
     def get_event(self, event_id: str) -> dict:
         """Get event details."""
@@ -516,11 +556,15 @@ class JobcelisClient:
 
     def _post_public(self, path: str, body: dict) -> dict:
         """POST without X-Api-Key header (for public auth endpoints)."""
-        resp = requests.post(
-            f"{self.base_url}{path}",
-            json=body,
-            headers={"Content-Type": "application/json"},
-            timeout=self.timeout,
+        resp = self._send(
+            "POST",
+            path,
+            lambda: requests.post(
+                f"{self.base_url}{path}",
+                json=body,
+                headers={"Content-Type": "application/json"},
+                timeout=self.timeout,
+            ),
         )
         if not resp.ok:
             try:
@@ -532,18 +576,62 @@ class JobcelisClient:
             return None
         return resp.json()
 
+    def _session_request(self, method, path, params, idempotency_key=None, idempotent=False, **kwargs):
+        if idempotency_key:
+            kwargs["headers"] = {**kwargs.get("headers", {}), "X-Idempotency-Key": idempotency_key}
+        return self._send(
+            method,
+            path,
+            lambda: self._session.request(
+                method,
+                f"{self.base_url}{path}",
+                params=params,
+                timeout=self.timeout,
+                **kwargs,
+            ),
+            idempotent=bool(idempotency_key) or idempotent,
+        )
+
+    def _send(self, method: str, path: str, do_request, idempotent: bool = False) -> requests.Response:
+        """Run ``do_request``, retrying on network errors and HTTP 429/502/503/504.
+
+        POSTs are retried on network errors only when idempotent (they carry an
+        idempotency key), so a retry can never create a resource twice.
+        """
+        retry_on_network_error = method != "POST" or idempotent
+        attempt = 0
+        while True:
+            try:
+                resp = do_request()
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                if not retry_on_network_error or attempt >= self.max_retries:
+                    raise
+                attempt += 1
+                time.sleep(self._retry_delay(attempt, None))
+                continue
+            if resp.status_code in RETRYABLE_STATUSES and attempt < self.max_retries:
+                attempt += 1
+                retry_after = resp.headers.get("Retry-After")
+                resp.close()
+                time.sleep(self._retry_delay(attempt, retry_after))
+                continue
+            return resp
+
+    def _retry_delay(self, attempt: int, retry_after: str | None) -> float:
+        """Delay in seconds before retry number ``attempt`` (1-based)."""
+        if retry_after is not None:
+            delay = _parse_retry_after(retry_after)
+            if delay is not None:
+                return min(MAX_RETRY_AFTER, max(0.0, delay))
+        base = min(MAX_BACKOFF, self.retry_base_delay * 2 ** (attempt - 1))
+        return base * random.uniform(0.8, 1.2)
+
     def _request(self, method: str, path: str, **kwargs) -> dict | None:
         params = kwargs.pop("params", None)
         if params:
             params = {k: v for k, v in params.items() if v is not None}
 
-        resp = self._session.request(
-            method,
-            f"{self.base_url}{path}",
-            params=params,
-            timeout=self.timeout,
-            **kwargs,
-        )
+        resp = self._session_request(method, path, params, **kwargs)
 
         if not resp.ok:
             try:
@@ -562,13 +650,7 @@ class JobcelisClient:
         if params:
             params = {k: v for k, v in params.items() if v is not None}
 
-        resp = self._session.request(
-            method,
-            f"{self.base_url}{path}",
-            params=params,
-            timeout=self.timeout,
-            **kwargs,
-        )
+        resp = self._session_request(method, path, params, **kwargs)
 
         if not resp.ok:
             try:
@@ -578,3 +660,18 @@ class JobcelisClient:
             raise JobcelisError(resp.status_code, detail.get("error", detail) if isinstance(detail, dict) else detail)
 
         return resp.content
+
+
+def _parse_retry_after(value: str):
+    """Seconds to wait from a Retry-After header (seconds or HTTP date), or None."""
+    try:
+        return float(value)
+    except ValueError:
+        pass
+    try:
+        when = email.utils.parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    if when is None:
+        return None
+    return when.timestamp() - time.time()
