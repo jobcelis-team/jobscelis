@@ -6,6 +6,8 @@
 name: Deploy Production
 
 on:
+  # Run workflow (Actions tab) redeploys without a code change
+  workflow_dispatch:
   push:
     branches: [main]
     paths-ignore:
