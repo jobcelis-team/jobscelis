@@ -122,9 +122,17 @@ defmodule Mix.Tasks.SdkCatalog.Check do
     |> Task.async_stream(&{&1, link_status(&1)}, max_concurrency: 4, timeout: 30_000)
     |> Enum.flat_map(fn
       {:ok, {_url, 200}} -> []
+      # Rate limited (Maven Central throttles CI runners): the page exists, and
+      # the package itself is verified through its registry
+      {:ok, {url, 429}} -> warn("#{url} rate limited the link check (429), not counted as broken")
       {:ok, {url, status}} -> ["broken link #{url} (#{inspect(status)})"]
       {:exit, reason} -> ["link check crashed: #{inspect(reason)}"]
     end)
+  end
+
+  defp warn(message) do
+    Mix.shell().info("  warning: " <> message)
+    []
   end
 
   defp link_status(url) do
