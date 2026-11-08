@@ -10,6 +10,9 @@ defmodule StreamflixAccounts.AccountsTest do
 
   defp unique_email, do: "test#{System.unique_integer([:positive])}@example.com"
 
+  defp errors_on(changeset),
+    do: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+
   defp register_user(attrs \\ %{}) do
     base = %{email: unique_email(), password: @valid_password, name: "Test User"}
     attrs = Map.merge(base, attrs)
@@ -57,6 +60,79 @@ defmodule StreamflixAccounts.AccountsTest do
     test "returns error for password missing digit" do
       attrs = %{email: unique_email(), password: "NoDigitsHere!", name: "User"}
       assert {:error, %Ecto.Changeset{}} = StreamflixAccounts.register_user(attrs)
+    end
+  end
+
+  describe "register_user/1 spam protection" do
+    test "rejects a name carrying a link (spam bot signup)" do
+      name =
+        ~s(* * * <a href="http://spam.example/go.php">$3,222 payment available</a> * * *)
+
+      assert {:error, %Ecto.Changeset{} = cs} =
+               StreamflixAccounts.register_user(%{
+                 email: unique_email(),
+                 password: @valid_password,
+                 name: name
+               })
+
+      assert "cannot contain links or HTML" in errors_on(cs).name
+    end
+
+    test "rejects bare URLs and domains in the name" do
+      for name <- ["www.cheap-pills.example", "visit spam-site.com now", "https://x.example"] do
+        assert {:error, %Ecto.Changeset{} = cs} =
+                 StreamflixAccounts.register_user(%{
+                   email: unique_email(),
+                   password: @valid_password,
+                   name: name
+                 })
+
+        assert "cannot contain links or HTML" in errors_on(cs).name, name
+      end
+    end
+
+    test "accepts real names in any language" do
+      for name <- ["José Ñúñez-O'Brien", "Anna Müller", "李雷", "Ольга Петрова", "Dr. Ana Pérez"] do
+        assert {:ok, user, _} =
+                 StreamflixAccounts.register_user(%{
+                   email: unique_email(),
+                   password: @valid_password,
+                   name: name
+                 })
+
+        assert user.name == name
+      end
+    end
+
+    test "trims the name and limits it to 100 characters" do
+      assert {:ok, user, _} =
+               StreamflixAccounts.register_user(%{
+                 email: unique_email(),
+                 password: @valid_password,
+                 name: "  Ana  "
+               })
+
+      assert user.name == "Ana"
+
+      assert {:error, %Ecto.Changeset{} = cs} =
+               StreamflixAccounts.register_user(%{
+                 email: unique_email(),
+                 password: @valid_password,
+                 name: String.duplicate("a", 101)
+               })
+
+      assert errors_on(cs).name != []
+    end
+
+    test "rejects disposable email addresses" do
+      assert {:error, %Ecto.Changeset{} = cs} =
+               StreamflixAccounts.register_user(%{
+                 email: "bot#{System.unique_integer([:positive])}@fextemp.com",
+                 password: @valid_password,
+                 name: "Bot"
+               })
+
+      assert "temporary email addresses are not allowed" in errors_on(cs).email
     end
   end
 

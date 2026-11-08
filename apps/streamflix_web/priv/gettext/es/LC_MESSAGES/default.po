@@ -8665,3 +8665,13 @@ msgstr "Restricciones del token actualizadas"
 #, elixir-autogen, elixir-format
 msgid "Limita el API token a ciertos scopes y direcciones IP. Los campos omitidos no cambian; una lista de IPs vacía permite cualquier IP."
 msgstr "Limita el API token a ciertos scopes y direcciones IP. Los campos omitidos no cambian; una lista de IPs vacía permite cualquier IP."
+
+#: lib/streamflix_web_web/controllers/auth_controller.ex
+#, elixir-autogen, elixir-format
+msgid "cannot contain links or HTML"
+msgstr "no puede contener enlaces ni HTML"
+
+#: lib/streamflix_web_web/controllers/auth_controller.ex
+#, elixir-autogen, elixir-format
+msgid "temporary email addresses are not allowed"
+msgstr "no se permiten correos temporales"
