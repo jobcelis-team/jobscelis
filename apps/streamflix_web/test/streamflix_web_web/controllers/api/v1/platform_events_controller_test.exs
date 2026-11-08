@@ -17,7 +17,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsControllerTest do
 
     test "creates event and returns 202", %{conn: conn} do
       conn = post(conn, "/api/v1/events", %{"topic" => "user.created", "name" => "John"})
-      assert %{"event_id" => id} = json_response(conn, 202)
+      assert %{"event_id" => id, "id" => id} = json_response(conn, 202)
       assert is_binary(id)
     end
 

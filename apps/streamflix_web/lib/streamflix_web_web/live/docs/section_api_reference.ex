@@ -117,7 +117,7 @@ defmodule StreamflixWebWeb.Docs.SectionApiReference do
           />
           <.response_block
             code={
-              ~s|{\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "a3f2b8c1d4e5..."\n}|
+              ~s|{\n  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "a3f2b8c1d4e5..."\n}|
             }
             copy_id="copy-events-create-response"
             status="202 Accepted"
@@ -140,7 +140,7 @@ defmodule StreamflixWebWeb.Docs.SectionApiReference do
           />
           <.response_block
             code={
-              ~s|{\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "a3f2b8c1d4e5..."\n}|
+              ~s|{\n  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "event_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",\n  "payload_hash": "a3f2b8c1d4e5..."\n}|
             }
             copy_id="copy-send-event-response"
             status="202 Accepted"

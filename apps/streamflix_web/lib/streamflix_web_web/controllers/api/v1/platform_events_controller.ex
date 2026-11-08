@@ -40,7 +40,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
 
     case Platform.create_event(project.id, body) do
       {:ok, event} ->
-        resp = %{event_id: event.id, payload_hash: event.payload_hash}
+        # `id` and `event_id` carry the same value: SDKs read either field
+        resp = %{id: event.id, event_id: event.id, payload_hash: event.payload_hash}
         resp = if event.deliver_at, do: Map.put(resp, :deliver_at, event.deliver_at), else: resp
 
         resp =
