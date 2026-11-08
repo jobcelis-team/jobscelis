@@ -6,6 +6,8 @@
 name: Deploy to Staging
 
 on:
+  # Run workflow (Actions tab) redeploys without a code change
+  workflow_dispatch:
   push:
     branches: [develop]
     paths-ignore:
