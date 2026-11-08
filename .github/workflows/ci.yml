@@ -220,8 +220,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      # Reuses the layers cached by the staging/production deploys: only the
-      # layers after a change are rebuilt
+      # Reuses the layers cached by the deploys (and by earlier runs of this
+      # branch): only the layers after a change are rebuilt
       - name: Build Docker image
         uses: docker/build-push-action@v7
         with:
@@ -230,6 +230,7 @@ jobs:
           load: true
           tags: jobscelis:ci
           cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
