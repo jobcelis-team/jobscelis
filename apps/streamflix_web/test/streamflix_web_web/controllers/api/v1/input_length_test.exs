@@ -15,7 +15,8 @@ defmodule StreamflixWebWeb.Api.V1.InputLengthTest do
   end
 
   test "sandbox name", %{conn: conn} do
-    assert json_response(post(conn, "/api/v1/sandbox-endpoints", %{name: @long}), 422)
+    assert %{"errors" => %{"name" => ["should be at most 100 character(s)"]}} =
+             json_response(post(conn, "/api/v1/sandbox-endpoints", %{name: @long}), 422)
   end
 
   test "event topic and idempotency key, single and batch", %{conn: conn} do
