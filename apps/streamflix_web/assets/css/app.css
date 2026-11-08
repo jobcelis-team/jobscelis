@@ -974,3 +974,8 @@ details > summary {
 details > summary::-webkit-details-marker {
   display: none;
 }
+
+/* Cookie notice dismissed (see the inline script in the root layout) */
+html[data-cookie-notice="dismissed"] #cookie-banner {
+  display: none !important;
+}

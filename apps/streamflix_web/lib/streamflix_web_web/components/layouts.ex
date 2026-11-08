@@ -378,14 +378,16 @@ defmodule StreamflixWebWeb.Layouts do
 
   @doc """
   Informative cookie banner for technical-only cookies (session + locale).
-  Uses localStorage to persist dismissal. No opt-in needed (ePrivacy exempt).
+  No opt-in needed (ePrivacy exempt). Dismissal is kept in a cookie and in
+  localStorage; an inline script in the root layout marks <html> before the
+  first paint and CSS hides the banner, so LiveView patches cannot bring it
+  back. The "Entendido" click is handled once, by delegation, in app.js.
   """
   def cookie_banner(assigns) do
     ~H"""
     <div
       id="cookie-banner"
-      phx-hook="CookieBanner"
-      class="fixed bottom-0 inset-x-0 z-50 hidden"
+      class="fixed bottom-0 inset-x-0 z-50"
       role="alert"
       aria-live="polite"
     >
