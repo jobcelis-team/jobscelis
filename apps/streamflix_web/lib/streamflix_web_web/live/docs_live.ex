@@ -23,8 +23,6 @@ defmodule StreamflixWebWeb.DocsLive do
     SectionReference
   }
 
-  @sdk_languages ~w(nodejs python go php ruby elixir dotnet rust swift java dart kotlin)
-
   @impl true
   def mount(_params, _session, socket) do
     base_url =
@@ -59,7 +57,7 @@ defmodule StreamflixWebWeb.DocsLive do
          ),
        current_path: "/docs",
        base_url: base_url,
-       sdk_languages: @sdk_languages,
+       sdk_languages: StreamflixWebWeb.SdkCatalog.sdk_ids(),
        active_page: :docs,
        legal: legal
      )}
@@ -144,8 +142,16 @@ defmodule StreamflixWebWeb.DocsLive do
         id: "sdks-tools",
         title: gettext("SDKs y herramientas"),
         items: [
-          %{id: "sdks", label: gettext("SDKs (12 lenguajes)")},
+          %{
+            id: "sdks",
+            label:
+              gettext("SDKs (%{count} lenguajes)",
+                count: length(StreamflixWebWeb.SdkCatalog.sdks())
+              )
+          },
           %{id: "cli", label: "CLI"},
+          %{id: "terraform", label: "Terraform"},
+          %{id: "github-action", label: "GitHub Action"},
           %{id: "webhook-verification", label: gettext("Verificación de webhooks")}
         ]
       },

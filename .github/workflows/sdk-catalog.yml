@@ -1,0 +1,60 @@
+# Keeps /docs and the README honest about SDKs and tools.
+# `mix sdk_catalog.check` fails when a public jobcelis-team repository or an
+# sdks/ directory is missing from apps/streamflix_web/priv/sdk_catalog.json, a
+# package is not published, a published Go module declares another path, a
+# link is broken or the README does not link an entry.
+#
+# Runs on every pull request (no path filter: a new SDK directory, the README
+# or the catalog can all break it) and daily, so a new repository or a broken
+# registry link shows up even when nothing changes here. A failed scheduled run
+# emails the repository owner.
+name: SDK catalog
+
+on:
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # dev: the test config stubs HTTP for the registry client
+  MIX_ENV: dev
+  ELIXIR_VERSION: "1.20.4"
+  OTP_VERSION: "29"
+
+jobs:
+  check:
+    name: SDK catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Cache deps
+        uses: actions/cache@v6
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-dev-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-dev-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Check the SDK catalog
+        working-directory: apps/streamflix_web
+        env:
+          # Higher GitHub API rate limit for the repository and tag lookups
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mix sdk_catalog.check

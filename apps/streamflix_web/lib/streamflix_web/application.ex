@@ -13,6 +13,8 @@ defmodule StreamflixWeb.Application do
           {Registry, keys: :duplicate, name: StreamflixWebWeb.SSERegistry},
           # Owns the rate-limit ETS table (must start before the endpoint)
           StreamflixWebWeb.Plugs.RateLimit.Table,
+          # Latest SDK/tool versions shown in /docs
+          StreamflixWebWeb.SdkCatalog.Versions,
           {DNSCluster,
            query: Application.get_env(:streamflix_web, :dns_cluster_query) || :ignore},
           StreamflixWebWeb.Endpoint

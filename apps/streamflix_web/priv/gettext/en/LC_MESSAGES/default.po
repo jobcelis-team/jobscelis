@@ -4502,8 +4502,8 @@ msgstr "Public routes:"
 #: lib/streamflix_web_web/live/docs/section_sdks.ex:15
 #: lib/streamflix_web_web/live/docs_live.ex:147
 #, elixir-autogen, elixir-format
-msgid "SDKs (12 lenguajes)"
-msgstr "SDKs (12 languages)"
+msgid "SDKs (%{count} lenguajes)"
+msgstr "SDKs (%{count} languages)"
 
 #: lib/streamflix_web_web/live/docs_live.ex:145
 #, elixir-autogen, elixir-format
@@ -8725,3 +8725,33 @@ msgstr "Only a superadmin can assign the Admin and Superadmin roles."
 #, elixir-autogen, elixir-format
 msgid "Límite alcanzado: %{detail}"
 msgstr "Limit reached: %{detail}"
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Provider oficial para gestionar webhooks, jobs, pipelines, schemas y proyectos como código."
+msgstr "Official provider to manage webhooks, jobs, pipelines, schemas and projects as code."
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid " en el Terraform Registry"
+msgstr " on the Terraform Registry"
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Recursos: jobcelis_webhook, jobcelis_job, jobcelis_pipeline, jobcelis_event_schema y jobcelis_project, cada uno con su data source para leer recursos existentes. La API key también puede venir de la variable de entorno JOBCELIS_API_KEY."
+msgstr "Resources: jobcelis_webhook, jobcelis_job, jobcelis_pipeline, jobcelis_event_schema and jobcelis_project, each with a data source to read existing resources. The API key can also come from the JOBCELIS_API_KEY environment variable."
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Envía un evento desde cualquier workflow de GitHub Actions: deploys, releases, tests."
+msgstr "Send an event from any GitHub Actions workflow: deploys, releases, tests."
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Entradas: api-key (obligatoria), topic (obligatoria), payload (objeto JSON) y base-url. Salidas: event-id y status. Guarda la API key en los secrets del repositorio."
+msgstr "Inputs: api-key (required), topic (required), payload (JSON object) and base-url. Outputs: event-id and status. Store the API key in the repository secrets."
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Ver código"
+msgstr "View source"

@@ -4493,7 +4493,7 @@ msgstr ""
 #: lib/streamflix_web_web/live/docs/section_sdks.ex:15
 #: lib/streamflix_web_web/live/docs_live.ex:147
 #, elixir-autogen, elixir-format
-msgid "SDKs (12 lenguajes)"
+msgid "SDKs (%{count} lenguajes)"
 msgstr ""
 
 #: lib/streamflix_web_web/live/docs_live.ex:145
@@ -8710,4 +8710,34 @@ msgstr ""
 #: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
 #, elixir-autogen, elixir-format
 msgid "Límite alcanzado: %{detail}"
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Provider oficial para gestionar webhooks, jobs, pipelines, schemas y proyectos como código."
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid " en el Terraform Registry"
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Recursos: jobcelis_webhook, jobcelis_job, jobcelis_pipeline, jobcelis_event_schema y jobcelis_project, cada uno con su data source para leer recursos existentes. La API key también puede venir de la variable de entorno JOBCELIS_API_KEY."
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Envía un evento desde cualquier workflow de GitHub Actions: deploys, releases, tests."
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Entradas: api-key (obligatoria), topic (obligatoria), payload (objeto JSON) y base-url. Salidas: event-id y status. Guarda la API key en los secrets del repositorio."
+msgstr ""
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Ver código"
 msgstr ""
