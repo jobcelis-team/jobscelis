@@ -191,9 +191,20 @@ defmodule StreamflixCore.GDPR do
     end
   end
 
-  @doc "Revoke a consent (sets revoked_at)."
-  def revoke_consent(consent_id) do
-    case Repo.get(Consent, consent_id) do
+  @doc """
+  Revoke one of the user's consents (sets revoked_at).
+
+  The lookup is scoped to `user_id`: a consent owned by someone else, or an id
+  that is not a valid UUID, returns `{:error, :not_found}`.
+  """
+  def revoke_consent(user_id, consent_id) do
+    consent =
+      case Ecto.UUID.cast(consent_id) do
+        {:ok, id} -> Repo.get_by(Consent, id: id, user_id: user_id)
+        :error -> nil
+      end
+
+    case consent do
       nil ->
         {:error, :not_found}
 
@@ -252,7 +263,9 @@ defmodule StreamflixCore.GDPR do
   @doc """
   Re-accept a consent with the current version. Revokes the old consent and creates a new one.
   """
-  def re_accept_consent(user_id, purpose, opts \\ []) when purpose in @purposes do
+  def re_accept_consent(user_id, purpose, opts \\ [])
+
+  def re_accept_consent(user_id, purpose, opts) when purpose in @purposes do
     current_ver = Map.get(@current_versions, purpose, "1.0")
 
     # Revoke existing active consent for this purpose
@@ -266,6 +279,8 @@ defmodule StreamflixCore.GDPR do
     # Grant new consent with current version
     grant_consent(user_id, purpose, Keyword.merge(opts, version: current_ver))
   end
+
+  def re_accept_consent(_user_id, _purpose, _opts), do: {:error, :invalid_purpose}
 
   @doc "List all consents for a user."
   def list_consents(user_id) do

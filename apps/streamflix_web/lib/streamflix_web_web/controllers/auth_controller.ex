@@ -13,11 +13,11 @@ defmodule StreamflixWebWeb.AuthController do
   # it. They get the generic error, with nothing hinting at the reason.
   def register(conn, %{"website" => trap} = params) when is_binary(trap) and trap != "" do
     Logger.info("[Auth] Signup rejected: honeypot field filled")
-    signup_error(conn, gettext("Error al crear cuenta"), params["plan"] || "standard", params)
+    signup_error(conn, gettext("Error al crear cuenta"), signup_plan(params), params)
   end
 
   def register(conn, params) do
-    plan = params["plan"] || "standard"
+    plan = signup_plan(params)
 
     case validate_auth_params(params) do
       {:ok, email, password, name} ->
@@ -71,8 +71,8 @@ defmodule StreamflixWebWeb.AuthController do
   # out of logs and browser history.
   defp signup_error(conn, message, plan, params) do
     prefill = %{
-      "name" => params["name"] |> to_string() |> String.slice(0, 255),
-      "email" => params["email"] |> to_string() |> String.slice(0, 254)
+      "name" => params["name"] |> prefill_string() |> String.slice(0, 255),
+      "email" => params["email"] |> prefill_string() |> String.slice(0, 254)
     }
 
     conn
@@ -80,6 +80,12 @@ defmodule StreamflixWebWeb.AuthController do
     |> put_flash(:error, message)
     |> redirect(to: ~p"/signup?plan=#{plan}")
   end
+
+  defp signup_plan(%{"plan" => plan}) when is_binary(plan) and plan != "", do: plan
+  defp signup_plan(_params), do: "standard"
+
+  defp prefill_string(value) when is_binary(value), do: value
+  defp prefill_string(_), do: ""
 
   @doc """
   Handles user login from web form.
@@ -111,19 +117,11 @@ defmodule StreamflixWebWeb.AuthController do
           complete_login(conn, user, remember)
         end
 
-      {:error, :invalid_credentials} ->
+      # A locked account gets the same answer as a wrong password: a distinct
+      # message would tell anyone which emails are registered.
+      {:error, reason} when reason in [:invalid_credentials, :account_locked] ->
         conn
         |> put_flash(:error, gettext("Email o contraseña incorrectos"))
-        |> redirect(to: "/login")
-
-      {:error, :account_locked} ->
-        conn
-        |> put_flash(
-          :error,
-          gettext(
-            "Tu cuenta ha sido bloqueada temporalmente por múltiples intentos fallidos. Intenta de nuevo más tarde."
-          )
-        )
         |> redirect(to: "/login")
 
       {:error, :account_inactive} ->
@@ -300,6 +298,12 @@ defmodule StreamflixWebWeb.AuthController do
         |> put_flash(:error, gettext("La contraseña debe tener al menos 8 caracteres"))
         |> redirect(to: "/reset-password/#{token}")
 
+      # Same cap as signup/login: no Argon2 work on oversized input
+      byte_size(password) > 72 ->
+        conn
+        |> put_flash(:error, gettext("Contraseña demasiado larga"))
+        |> redirect(to: "/reset-password/#{token}")
+
       password != confirm ->
         conn
         |> put_flash(:error, gettext("Las contraseñas no coinciden."))
@@ -419,17 +423,19 @@ defmodule StreamflixWebWeb.AuthController do
   end
 
   # Email 3-254 chars, password 8-72 chars, name optional max 255. Trims and downcases email.
-  defp validate_auth_params(params) when is_map(params) do
-    email = params["email"] && to_string(params["email"]) |> String.trim() |> String.downcase()
-    password = params["password"] && to_string(params["password"])
+  # Only plain strings are accepted: nested params (maps/lists) get the normal
+  # validation error instead of crashing on to_string/1.
+  defp validate_auth_params(%{"email" => email, "password" => password} = params)
+       when is_binary(email) and is_binary(password) do
+    email = email |> String.trim() |> String.downcase()
 
     name =
-      params["name"] && params["name"] |> to_string() |> String.trim() |> String.slice(0, 255)
+      case params["name"] do
+        name when is_binary(name) -> name |> String.trim() |> String.slice(0, 255)
+        _ -> nil
+      end
 
     cond do
-      not (is_binary(email) and is_binary(password)) ->
-        {:error, gettext("Faltan email o contraseña")}
-
       byte_size(email) > 254 ->
         {:error, gettext("Email demasiado largo")}
 
@@ -447,7 +453,7 @@ defmodule StreamflixWebWeb.AuthController do
     end
   end
 
-  defp validate_auth_params(_), do: {:error, gettext("Datos inválidos")}
+  defp validate_auth_params(_), do: {:error, gettext("Faltan email o contraseña")}
 
   # Changeset messages from StreamflixAccounts, translated in format_errors/1;
   # listed here so `mix gettext.extract` keeps them in the .po files

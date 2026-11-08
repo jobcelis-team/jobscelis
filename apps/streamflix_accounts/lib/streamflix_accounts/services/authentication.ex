@@ -44,7 +44,9 @@ defmodule StreamflixAccounts.Services.Authentication do
 
           # Only someone who knows the password learns the account is inactive:
           # checking status first let anyone probe which emails are registered.
-          user.status != "active" ->
+          # "restricted" (GDPR Art. 18) users can still log in: they must be able
+          # to lift the restriction, export or delete their account.
+          not login_allowed_status?(user.status) ->
             {:error, :account_inactive}
 
           true ->
@@ -60,6 +62,11 @@ defmodule StreamflixAccounts.Services.Authentication do
         end
     end
   end
+
+  @login_statuses ["active", "restricted"]
+
+  @doc "Whether a user with this status may log in (and use its tokens)."
+  def login_allowed_status?(status), do: status in @login_statuses
 
   defp maybe_auto_unlock(%User{locked_at: nil} = user), do: user
 
@@ -176,8 +183,11 @@ defmodule StreamflixAccounts.Services.Authentication do
     if StreamflixAccounts.session_revoked?(jti), do: {:error, :session_revoked}, else: :ok
   end
 
-  defp ensure_active(%{status: "inactive"}), do: {:error, :account_inactive}
-  defp ensure_active(_user), do: :ok
+  # Same rule as login: anything but "active"/"restricted" (e.g. "inactive")
+  # is rejected.
+  defp ensure_active(%{status: status}) do
+    if login_allowed_status?(status), do: :ok, else: {:error, :account_inactive}
+  end
 
   # Avoids a DB hit on every authenticated request; TTL handles staleness.
   defp cached_get_user(user_id) do
