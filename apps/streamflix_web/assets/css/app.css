@@ -968,9 +968,24 @@ details[open] > summary .details-chevron {
 }
 
 /* Hide default details marker */
+
+/* Cookie notice dismissed (see the inline script in the root layout) */
+html[data-cookie-notice="dismissed"] #cookie-banner {
+  display: none !important;
+}
+
 details > summary {
   list-style: none;
 }
 details > summary::-webkit-details-marker {
   display: none;
+}
+
+/* While the server restarts for an update (deploy notice), the banner explains
+   it: the generic "connection lost" flashes would only add noise */
+html.jc-deploying #client-error,
+html.jc-deploying #server-error,
+#deploy-notice[hidden],
+#deploy-notice [hidden] {
+  display: none !important;
 }

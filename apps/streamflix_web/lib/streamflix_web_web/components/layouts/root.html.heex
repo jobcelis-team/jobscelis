@@ -95,6 +95,18 @@
     </script>
 
     <script nonce={assigns[:csp_nonce]}>
+      // Cookie notice: decided before the page is painted and stored on <html>,
+      // which LiveView never patches, so it cannot flicker or come back
+      (() => {
+        let dismissed = /(?:^|; )cookie_notice=1(?:;|$)/.test(document.cookie);
+        try {
+          dismissed = dismissed || localStorage.getItem("cookie_consent_dismissed") === "1";
+        } catch (_) {}
+        if (dismissed) document.documentElement.setAttribute("data-cookie-notice", "dismissed");
+      })();
+    </script>
+
+    <script nonce={assigns[:csp_nonce]}>
       (() => {
         const mq = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -135,5 +147,39 @@
     data-authenticated={assigns[:current_user] && "true"}
   >
     {@inner_content}
+    <%!-- Deploy notice (StreamflixWebWeb.DeployNotice), shown by app.js --%>
+    <div
+      id="deploy-notice"
+      class="toast toast-top toast-center z-[60]"
+      role="status"
+      aria-live="polite"
+      hidden
+    >
+      <div
+        data-deploy-state="updating"
+        class="alert alert-info w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap shadow-lg"
+      >
+        <.icon name="hero-arrow-path" class="size-5 shrink-0 motion-safe:animate-spin" />
+        <div>
+          <p class="font-semibold">{gettext("Estamos mejorando Jobcelis")}</p>
+          <p>
+            {gettext(
+              "En unos segundos volvemos con una versión nueva. No pierdes nada: tus eventos y webhooks siguen en cola."
+            )}
+          </p>
+        </div>
+      </div>
+      <div
+        data-deploy-state="done"
+        class="alert alert-success w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap shadow-lg"
+        hidden
+      >
+        <.icon name="hero-check-circle" class="size-5 shrink-0" />
+        <div>
+          <p class="font-semibold">{gettext("Jobcelis se actualizó")}</p>
+          <p>{gettext("Ya tienes la versión más reciente.")}</p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

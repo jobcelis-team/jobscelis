@@ -28,6 +28,19 @@ end
 # PRODUCTION RUNTIME CONFIG
 # ============================================
 
+# Restart notice for open LiveView pages (StreamflixWebWeb.DeployNotice): on
+# for the production site only; DEPLOY_NOTICE=true|false forces it either way
+config :streamflix_web,
+       :deploy_notice,
+       (case System.get_env("DEPLOY_NOTICE") do
+          nil ->
+            config_env() == :prod and
+              (System.get_env("PHX_HOST") || "jobcelis.com") == "jobcelis.com"
+
+          value ->
+            value in ~w(true 1)
+        end)
+
 if config_env() == :prod do
   # Database Configuration
   database_url =
