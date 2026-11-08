@@ -151,18 +151,12 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
           })
         end
 
-      {:error, :invalid_credentials} ->
+      # A locked account gets the same answer as a wrong password: a distinct
+      # status (423) would tell anyone which emails are registered.
+      {:error, reason} when reason in [:invalid_credentials, :account_locked] ->
         conn
         |> put_status(:unauthorized)
         |> json(%{error: "Invalid email or password"})
-
-      {:error, :account_locked} ->
-        conn
-        |> put_status(423)
-        |> json(%{
-          error:
-            "Account temporarily locked due to multiple failed login attempts. Try again later."
-        })
 
       {:error, :account_inactive} ->
         conn
@@ -179,11 +173,13 @@ defmodule StreamflixWebWeb.Api.V1.AuthController do
       when not is_map_key(params, "mfa_token"),
       do: verify_mfa(conn, %{"mfa_token" => token, "code" => code})
 
-  def verify_mfa(conn, %{"mfa_token" => mfa_token, "code" => code}) do
+  def verify_mfa(conn, %{"mfa_token" => mfa_token, "code" => code})
+      when is_binary(mfa_token) and is_binary(code) do
     case StreamflixAccounts.Guardian.decode_and_verify(mfa_token) do
       {:ok, %{"type" => "mfa_challenge"} = claims} ->
         case StreamflixAccounts.Guardian.resource_from_claims(claims) do
-          {:ok, %{status: "active"} = user} ->
+          {:ok, %{status: status} = user}
+          when status in ["active", "restricted"] ->
             case StreamflixAccounts.verify_mfa_code(user, String.trim(code)) do
               true -> mfa_success(conn, user)
               :too_many_attempts -> mfa_failure(conn, user, "Too many attempts, log in again")

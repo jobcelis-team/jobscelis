@@ -55,7 +55,10 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
 
       {:error, changeset} ->
         errors =
-          Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+          Ecto.Changeset.traverse_errors(
+            changeset,
+            &StreamflixWebWeb.ChangesetErrors.interpolate/1
+          )
 
         conn
         |> put_status(:unprocessable_entity)
@@ -107,7 +110,10 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
 
           {:error, changeset} ->
             errors =
-              Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+              Ecto.Changeset.traverse_errors(
+                changeset,
+                &StreamflixWebWeb.ChangesetErrors.interpolate/1
+              )
 
             conn
             |> put_status(:unprocessable_entity)

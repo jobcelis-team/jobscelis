@@ -8,6 +8,10 @@ defmodule StreamflixCore.Platform.ObanScheduledJobWorker do
     # One run per job per scheduled minute, even with several nodes ticking
     unique: [period: 300, keys: [:job_id, :slot]]
 
+  # Hard cap for one run; "Call URL" requests have a 20s total deadline.
+  @impl true
+  def timeout(_job), do: :timer.seconds(30)
+
   @impl true
   def perform(%Oban.Job{args: args}) do
     job_id = args["job_id"] || args[:job_id]

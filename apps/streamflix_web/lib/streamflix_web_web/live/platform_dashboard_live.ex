@@ -231,17 +231,22 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("send_test", %{"topic" => topic, "payload" => payload_str} = _params, socket) do
     with_permission(socket, :write, fn ->
-      project = socket.assigns.project
+      with_throttle(socket, :send_test, fn ->
+        project = socket.assigns.project
 
-      case decode_test_payload(payload_str) do
-        {:ok, payload} ->
-          body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
-          send_test_event(socket, project, body)
+        case decode_test_payload(payload_str) do
+          {:ok, payload} ->
+            body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
+            send_test_event(socket, project, body)
 
-        :error ->
-          {:noreply,
-           put_flash(socket, :error, gettext("El payload debe ser un objeto JSON válido."))}
-      end
+          :too_large ->
+            {:noreply, put_flash(socket, :error, payload_too_large_msg())}
+
+          :error ->
+            {:noreply,
+             put_flash(socket, :error, gettext("El payload debe ser un objeto JSON válido."))}
+        end
+      end)
     end)
   end
 
@@ -344,7 +349,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         {:error, %Ecto.Changeset{} = cs} ->
           message =
             cs
-            |> Ecto.Changeset.traverse_errors(fn {msg, _} -> msg end)
+            |> Ecto.Changeset.traverse_errors(&translate_error/1)
             |> Enum.map_join("; ", fn {field, msgs} -> "#{field}: #{Enum.join(msgs, ", ")}" end)
 
           {:noreply, assign(socket, :key_restrictions_error, message)}
@@ -439,7 +444,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
         {:error, changeset} ->
           errors =
-            Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+            Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
 
           {:noreply,
            socket
@@ -472,13 +477,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("test_notification_channel", _params, socket) do
     with_permission(socket, :write, fn ->
-      case StreamflixCore.NotificationChannels.send_test(socket.assigns.project.id) do
-        {:ok, _jobs} ->
-          {:noreply, put_flash(socket, :info, gettext("Notificación de prueba enviada."))}
+      with_throttle(socket, :test_notification_channel, fn ->
+        case StreamflixCore.NotificationChannels.send_test(socket.assigns.project.id) do
+          {:ok, _jobs} ->
+            {:noreply, put_flash(socket, :info, gettext("Notificación de prueba enviada."))}
 
-        {:error, _} ->
-          {:noreply, put_flash(socket, :error, gettext("No hay canales configurados."))}
-      end
+          {:error, _} ->
+            {:noreply, put_flash(socket, :error, gettext("No hay canales configurados."))}
+        end
+      end)
     end)
   end
 
@@ -641,8 +648,12 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               |> assign(:job_form, nil)
               |> assign(:job_step, 1)
 
-            {:error, _} ->
-              put_flash(socket, :error, gettext("Error al guardar el job."))
+            {:error, reason} ->
+              put_flash(
+                socket,
+                :error,
+                create_error_message(reason, gettext("Error al guardar el job."))
+              )
           end
 
         {:noreply, socket}
@@ -999,52 +1010,37 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   def handle_event("send_webhook_test", %{"id" => id}, socket) do
     with_permission(socket, :write, fn ->
-      case fetch_owned(socket, &Platform.get_webhook/1, id) do
-        nil ->
-          {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
+      with_throttle(socket, :send_webhook_test, fn ->
+        case fetch_owned(socket, &Platform.get_webhook/1, id) do
+          nil ->
+            {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
 
-        webhook ->
-          case Platform.test_webhook(webhook.id) do
-            {:ok, result} ->
-              msg =
-                gettext("Test enviado — Status: %{status}, Latencia: %{latency}ms",
-                  status: result.status,
-                  latency: result.latency_ms
-                )
+          webhook ->
+            # The test is an outbound HTTP call of up to 15s: run it off the
+            # LiveView process so the dashboard stays responsive.
+            lv = self()
+            webhook_id = webhook.id
 
-              {:noreply, put_flash(socket, :info, msg)}
+            Task.Supervisor.start_child(StreamflixCore.TaskSupervisor, fn ->
+              send(lv, {:webhook_test_result, webhook_id, Platform.test_webhook(webhook_id)})
+            end)
 
-            {:error, %{reason: reason}} ->
-              msg = gettext("Test fallido — %{reason}", reason: reason)
-              {:noreply, put_flash(socket, :error, msg)}
-
-            {:error, _} ->
-              {:noreply, put_flash(socket, :error, gettext("Webhook no encontrado."))}
-          end
-      end
+            {:noreply, put_flash(socket, :info, gettext("Enviando test al webhook..."))}
+        end
+      end)
     end)
   end
 
   @impl true
   def handle_event("simulate_event", %{"topic" => topic, "payload" => payload_str}, socket) do
     with_permission(socket, :write, fn ->
-      project = socket.assigns.project
-
-      payload =
-        case Jason.decode(payload_str) do
-          {:ok, map} when is_map(map) -> map
-          _ -> %{}
+      with_throttle(socket, :simulate_event, fn ->
+        if payload_within_limit?(payload_str) do
+          do_simulate_event(socket, topic, payload_str)
+        else
+          {:noreply, put_flash(socket, :error, payload_too_large_msg())}
         end
-
-      body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
-
-      case Platform.simulate_event(project.id, body) do
-        matches when is_list(matches) ->
-          {:noreply, assign(socket, :simulation_result, matches)}
-
-        _ ->
-          {:noreply, put_flash(socket, :error, gettext("Error en simulación"))}
-      end
+      end)
     end)
   end
 
@@ -1147,8 +1143,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
            |> assign(:sandbox_active, endpoint)
            |> assign(:sandbox_requests, requests)}
 
-        {:error, _} ->
-          {:noreply, put_flash(socket, :error, gettext("Error al crear sandbox."))}
+        {:error, reason} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             create_error_message(reason, gettext("Error al crear sandbox."))
+           )}
       end
     end)
   end
@@ -1273,7 +1274,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       socket =
         assign(socket, :pipeline_form, Map.merge(socket.assigns.pipeline_form || %{}, params))
 
-      case Jason.decode(params["steps"] || "[]") do
+      case StreamflixCore.SafeJson.decode(params["steps"] || "[]") do
         {:ok, steps} when is_list(steps) ->
           do_save_pipeline(socket, project, params, steps)
 
@@ -1340,7 +1341,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
     # Presets append to the current steps instead of replacing them
     current =
-      case Jason.decode(socket.assigns.pipeline_form["steps"] || "[]") do
+      case StreamflixCore.SafeJson.decode(socket.assigns.pipeline_form["steps"] || "[]") do
         {:ok, list} when is_list(list) -> list
         _ -> []
       end
@@ -1615,27 +1616,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   end
 
   @impl true
-  def handle_event("create_project", %{"name" => name}, socket) do
-    user = socket.assigns.current_user
-    name = String.trim(name)
-
-    if name == "" do
-      {:noreply, put_flash(socket, :error, gettext("El nombre no puede estar vacío."))}
-    else
-      case Platform.create_project(%{user_id: user.id, name: name}) do
-        {:ok, project} ->
-          Platform.create_api_key(project.id, %{name: "Default"})
-          projects = Teams.list_all_accessible_projects(user.id)
-
-          {:noreply,
-           socket
-           |> assign(:projects, projects)
-           |> put_flash(:info, gettext("Proyecto creado: %{name}", name: project.name))}
-
-        {:error, _} ->
-          {:noreply, put_flash(socket, :error, gettext("Error al crear proyecto."))}
-      end
-    end
+  def handle_event("create_project", %{"name" => name}, socket) when is_binary(name) do
+    with_throttle(socket, :create_project, fn -> do_create_project(socket, name) end)
   end
 
   @impl true
@@ -1647,42 +1629,22 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         nil ->
           {:noreply, put_flash(socket, :error, gettext("Proyecto no encontrado."))}
 
+        %{user_id: owner_id} when owner_id != user.id ->
+          {:noreply,
+           put_flash(socket, :error, gettext("Solo el dueño puede eliminar el proyecto."))}
+
         project ->
-          if project.user_id != user.id do
-            {:noreply,
-             put_flash(socket, :error, gettext("Solo el dueño puede eliminar el proyecto."))}
-          else
-            case Platform.delete_project(project) do
-              {:ok, _} ->
-                projects = Teams.list_all_accessible_projects(user.id)
-                new_project = List.first(projects)
+          case Platform.delete_project(project) do
+            {:ok, _} ->
+              # Remount from scratch: role, subscriptions and data for whatever
+              # project is selected next are recomputed by mount/handle_params.
+              {:noreply,
+               socket
+               |> put_flash(:info, gettext("Proyecto eliminado."))
+               |> push_navigate(to: ~p"/platform")}
 
-                socket =
-                  socket
-                  |> assign(:projects, projects)
-                  |> assign(:project, new_project)
-                  |> put_flash(:info, gettext("Proyecto eliminado."))
-
-                if new_project do
-                  events = Platform.list_events(new_project.id, limit: 20)
-                  webhooks = Platform.list_webhooks(new_project.id)
-                  api_key = Platform.get_api_key_for_project(new_project.id)
-
-                  socket
-                  |> assign(:api_key, api_key)
-                  |> assign(:events, events)
-                  |> assign(:webhooks, webhooks)
-                else
-                  socket
-                  |> assign(:api_key, nil)
-                  |> assign(:events, [])
-                  |> assign(:webhooks, [])
-                end
-                |> then(&{:noreply, &1})
-
-              {:error, _} ->
-                {:noreply, put_flash(socket, :error, gettext("Error al eliminar proyecto."))}
-            end
+            {:error, _} ->
+              {:noreply, put_flash(socket, :error, gettext("Error al eliminar proyecto."))}
           end
       end
     end)
@@ -1695,7 +1657,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     with_permission(socket, :write, fn ->
       project = socket.assigns.project
 
-      case Jason.decode(schema_str) do
+      case StreamflixCore.SafeJson.decode(schema_str) do
         {:ok, schema_map} ->
           case Platform.create_event_schema(project.id, %{
                  "topic" => topic,
@@ -1709,8 +1671,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                |> assign(:event_schemas, schemas)
                |> put_flash(:info, gettext("Schema creado."))}
 
-            {:error, _} ->
-              {:noreply, put_flash(socket, :error, gettext("Error al crear schema."))}
+            {:error, reason} ->
+              {:noreply,
+               put_flash(
+                 socket,
+                 :error,
+                 create_error_message(reason, gettext("Error al crear schema."))
+               )}
           end
 
         {:error, _} ->
@@ -1749,33 +1716,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   @impl true
   def handle_event("invite_member", %{"email" => email, "role" => role}, socket) do
     with_permission(socket, :write, fn ->
-      project = socket.assigns.project
-      user = socket.assigns.current_user
-
-      case StreamflixAccounts.get_user_by_email(email) do
-        nil ->
-          {:noreply, put_flash(socket, :error, gettext("Usuario no encontrado con ese email."))}
-
-        target_user ->
-          if target_user.id == user.id do
-            {:noreply, put_flash(socket, :error, gettext("No puedes invitarte a ti mismo."))}
-          else
-            case Teams.invite_member(project.id, target_user.id, role, user.id) do
-              {:ok, member} ->
-                Notifications.notify_team_invite(target_user.id, project.id, role, member.id)
-
-                members = list_team_members(project.id)
-
-                {:noreply,
-                 socket
-                 |> assign(:team_members, members)
-                 |> put_flash(:info, gettext("Miembro invitado."))}
-
-              {:error, _} ->
-                {:noreply, put_flash(socket, :error, gettext("Error al invitar miembro."))}
-            end
-          end
-      end
+      with_throttle(socket, :invite_member, fn -> do_invite_member(socket, email, role) end)
     end)
   end
 
@@ -2217,6 +2158,29 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     else
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_info({:webhook_test_result, _webhook_id, result}, socket) do
+    socket =
+      case result do
+        {:ok, result} ->
+          msg =
+            gettext("Test enviado — Status: %{status}, Latencia: %{latency}ms",
+              status: result.status,
+              latency: result.latency_ms
+            )
+
+          put_flash(socket, :info, msg)
+
+        {:error, %{reason: reason}} ->
+          put_flash(socket, :error, gettext("Test fallido — %{reason}", reason: reason))
+
+        _ ->
+          put_flash(socket, :error, gettext("Webhook no encontrado."))
+      end
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -2997,8 +2961,14 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   defp decode_test_payload(str) when str in [nil, ""], do: {:ok, %{}}
 
+  defp decode_test_payload(str) when not is_binary(str), do: :error
+
   defp decode_test_payload(str) do
-    case Jason.decode(str) do
+    if payload_within_limit?(str), do: decode_test_json(str), else: :too_large
+  end
+
+  defp decode_test_json(str) do
+    case StreamflixCore.SafeJson.decode(str) do
       {:ok, map} when is_map(map) -> {:ok, map}
       _ -> :error
     end
@@ -3040,6 +3010,105 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       end
 
     {:noreply, socket}
+  end
+
+  # Owner is never assignable through an invitation; only the owner may invite
+  # editors (same rule as the members API).
+  defp do_invite_member(socket, email, role) do
+    project = socket.assigns.project
+    user = socket.assigns.current_user
+    is_owner = Teams.effective_role(project.id, user.id) == "owner"
+
+    cond do
+      role not in StreamflixCore.Schemas.ProjectMember.invitable_roles() ->
+        {:noreply, put_flash(socket, :error, gettext("Rol no válido."))}
+
+      role == "editor" and not is_owner ->
+        {:noreply,
+         put_flash(socket, :error, gettext("Solo el dueño del proyecto puede invitar editores."))}
+
+      true ->
+        invite_existing_user(socket, project, user, email, role)
+    end
+  end
+
+  defp invite_existing_user(socket, project, user, email, role) do
+    target_user = if is_binary(email), do: StreamflixAccounts.get_user_by_email(email)
+
+    cond do
+      # Same reply whether or not the address has an account (no enumeration)
+      is_nil(target_user) ->
+        {:noreply, put_flash(socket, :info, invite_generic_msg())}
+
+      target_user.id == user.id ->
+        {:noreply, put_flash(socket, :error, gettext("No puedes invitarte a ti mismo."))}
+
+      true ->
+        case Teams.invite_member(project.id, target_user.id, role, user.id) do
+          {:ok, member} ->
+            Notifications.notify_team_invite(target_user.id, project.id, role, member.id)
+            audit(socket, "member.invited", "project_member", member.id, %{"role" => role})
+
+            {:noreply,
+             socket
+             |> assign(:team_members, list_team_members(project.id))
+             |> put_flash(:info, invite_generic_msg())}
+
+          {:error, _} ->
+            {:noreply, put_flash(socket, :info, invite_generic_msg())}
+        end
+    end
+  end
+
+  defp invite_generic_msg,
+    do: gettext("Si el email corresponde a una cuenta, se le envió la invitación.")
+
+  defp do_simulate_event(socket, topic, payload_str) do
+    project = socket.assigns.project
+
+    payload =
+      case decode_test_json(payload_str) do
+        {:ok, map} -> map
+        _ -> %{}
+      end
+
+    body = if topic != "", do: Map.put(payload, "topic", topic), else: payload
+
+    case Platform.simulate_event(project.id, body) do
+      matches when is_list(matches) ->
+        {:noreply, assign(socket, :simulation_result, matches)}
+
+      _ ->
+        {:noreply, put_flash(socket, :error, gettext("Error en simulación"))}
+    end
+  end
+
+  defp do_create_project(socket, name) do
+    user = socket.assigns.current_user
+    name = String.trim(name)
+
+    if name == "" do
+      {:noreply, put_flash(socket, :error, gettext("El nombre no puede estar vacío."))}
+    else
+      case Platform.create_project(%{user_id: user.id, name: name}) do
+        {:ok, project} ->
+          Platform.create_api_key(project.id, %{name: "Default"})
+          projects = Teams.list_all_accessible_projects(user.id)
+
+          {:noreply,
+           socket
+           |> assign(:projects, projects)
+           |> put_flash(:info, gettext("Proyecto creado: %{name}", name: project.name))}
+
+        {:error, reason} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             create_error_message(reason, gettext("Error al crear proyecto."))
+           )}
+      end
+    end
   end
 
   # Dashboard changes must land in the project's activity log like API ones

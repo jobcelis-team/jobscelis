@@ -28,10 +28,12 @@ defmodule StreamflixCore.EmbedTokens do
         attrs
       )
 
-    case %EmbedToken{} |> EmbedToken.changeset(token_attrs) |> Repo.insert() do
-      {:ok, token} -> {:ok, @prefix <> raw, token}
-      {:error, changeset} -> {:error, changeset}
-    end
+    StreamflixCore.Platform.Quotas.with_quota(:embed_tokens, project_id, fn ->
+      case %EmbedToken{} |> EmbedToken.changeset(token_attrs) |> Repo.insert() do
+        {:ok, token} -> {:ok, @prefix <> raw, token}
+        {:error, changeset} -> {:error, changeset}
+      end
+    end)
   end
 
   @doc """

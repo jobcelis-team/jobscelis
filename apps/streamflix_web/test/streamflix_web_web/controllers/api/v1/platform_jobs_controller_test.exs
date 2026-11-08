@@ -42,6 +42,25 @@ defmodule StreamflixWebWeb.Api.V1.PlatformJobsControllerTest do
     end
   end
 
+  describe "POST /api/v1/jobs validation errors" do
+    setup [:setup_api_auth]
+
+    test "messages come back with their placeholders filled in", %{conn: conn} do
+      resp =
+        conn
+        |> post("/api/v1/jobs", %{
+          name: String.duplicate("n", 500),
+          queue: "default",
+          cron_expression: "0 9 * * *"
+        })
+        |> json_response(422)
+
+      assert [msg] = resp["errors"]["name"]
+      assert msg =~ ~r/at most \d+ character/
+      refute msg =~ "%{"
+    end
+  end
+
   describe "POST /api/v1/jobs with SDK / CLI / Terraform shorthand" do
     setup [:setup_api_auth]
 

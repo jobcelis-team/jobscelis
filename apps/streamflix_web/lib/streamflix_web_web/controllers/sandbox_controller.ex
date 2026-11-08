@@ -14,28 +14,38 @@ defmodule StreamflixWebWeb.SandboxController do
         |> json(%{error: "Sandbox endpoint not found or expired"})
 
       endpoint ->
-        body = captured_body(conn)
+        case captured_body(conn) do
+          :too_large ->
+            conn
+            |> put_status(:request_entity_too_large)
+            |> json(%{error: "Request body too large"})
 
-        headers =
-          conn.req_headers
-          |> Enum.reject(fn {name, _} -> proxy_header?(name) end)
-          |> Enum.into(%{})
-
-        attrs = %{
-          method: conn.method,
-          path: params["path"] |> List.wrap() |> Enum.join("/"),
-          headers: headers,
-          body: body,
-          query_params: conn.query_params,
-          ip: StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
-        }
-
-        Platform.record_sandbox_request(endpoint.id, attrs)
-
-        conn
-        |> put_status(:ok)
-        |> json(%{status: "received", endpoint: slug})
+          body ->
+            record(conn, slug, endpoint, body, params)
+        end
     end
+  end
+
+  defp record(conn, slug, endpoint, body, params) do
+    headers =
+      conn.req_headers
+      |> Enum.reject(fn {name, _} -> proxy_header?(name) end)
+      |> Enum.into(%{})
+
+    attrs = %{
+      method: conn.method,
+      path: params["path"] |> List.wrap() |> Enum.join("/"),
+      headers: headers,
+      body: body,
+      query_params: conn.query_params,
+      ip: StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
+    }
+
+    Platform.record_sandbox_request(endpoint.id, attrs)
+
+    conn
+    |> put_status(:ok)
+    |> json(%{status: "received", endpoint: slug})
   end
 
   # Headers added by our own reverse proxy / hosting front end, not by the sender.
@@ -53,10 +63,16 @@ defmodule StreamflixWebWeb.SandboxController do
   # Plug.Parsers (in the :api pipeline) already consumed JSON / urlencoded /
   # multipart bodies, so read_body/1 returns "" for them. Rebuild the body from
   # the parsed params in that case; other content types still arrive raw.
+  # Same cap as Plug.Parsers for parsed bodies (endpoint): anything larger is 413.
+  @max_body 256_000
+
   defp captured_body(conn) do
-    case read_body(conn) do
+    case read_body(conn, length: @max_body) do
       {:ok, raw, _conn} when raw != "" ->
         raw
+
+      {:more, _partial, _conn} ->
+        :too_large
 
       _ ->
         case conn.body_params do

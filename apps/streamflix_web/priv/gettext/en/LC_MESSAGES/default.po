@@ -8675,3 +8675,53 @@ msgstr "cannot contain links or HTML"
 #, elixir-autogen, elixir-format
 msgid "temporary email addresses are not allowed"
 msgstr "temporary email addresses are not allowed"
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Rol no válido."
+msgstr "Invalid role."
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Solo el dueño del proyecto puede invitar editores."
+msgstr "Only the project owner can invite editors."
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Si el email corresponde a una cuenta, se le envió la invitación."
+msgstr "If the email belongs to an account, the invitation was sent."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Demasiadas solicitudes. Espera un minuto e inténtalo de nuevo."
+msgstr "Too many requests. Wait a minute and try again."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "El payload es demasiado grande (máximo 256 KB)."
+msgstr "The payload is too large (maximum 256 KB)."
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Enviando test al webhook..."
+msgstr "Sending test to the webhook..."
+
+#: lib/streamflix_web_web/live/admin/users_live.ex
+#, elixir-autogen, elixir-format
+msgid "Solo un superadmin puede modificar cuentas de administrador."
+msgstr "Only a superadmin can modify administrator accounts."
+
+#: lib/streamflix_web_web/live/admin/users_live.ex
+#, elixir-autogen, elixir-format
+msgid "No puedes cambiar tu propio rol o estado."
+msgstr "You cannot change your own role or status."
+
+#: lib/streamflix_web_web/live/admin/users_live.ex
+#, elixir-autogen, elixir-format
+msgid "Solo un superadmin puede asignar los roles Admin y Superadmin."
+msgstr "Only a superadmin can assign the Admin and Superadmin roles."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Límite alcanzado: %{detail}"
+msgstr "Limit reached: %{detail}"

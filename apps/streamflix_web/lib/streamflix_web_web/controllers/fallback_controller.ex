@@ -5,6 +5,8 @@ defmodule StreamflixWebWeb.FallbackController do
 
   use StreamflixWebWeb, :controller
 
+  require Logger
+
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     errors =
       Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
@@ -42,9 +44,23 @@ defmodule StreamflixWebWeb.FallbackController do
     |> json(%{error: reason})
   end
 
+  def call(conn, {:error, :email_already_registered}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{errors: %{email: ["already registered"]}})
+  end
+
+  # Unknown errors: the details stay in the server log, never in the response
+  # (inspect output can leak internals such as structs, queries or secrets).
   def call(conn, {:error, reason}) do
+    Logger.error("Unhandled controller error",
+      error: inspect(reason),
+      method: conn.method,
+      path: conn.request_path
+    )
+
     conn
     |> put_status(:internal_server_error)
-    |> json(%{error: "Internal server error", details: inspect(reason)})
+    |> json(%{error: "Internal server error"})
   end
 end

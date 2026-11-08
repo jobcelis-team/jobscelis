@@ -9,10 +9,12 @@ defmodule StreamflixCore.Platform.Pipelines do
 
   @doc "Create a new pipeline for a project."
   def create_pipeline(project_id, attrs) do
-    %Pipeline{}
-    |> Pipeline.changeset(Map.put(attrs, "project_id", project_id))
-    |> validate_webhook_in_project()
-    |> Repo.insert()
+    StreamflixCore.Platform.Quotas.with_quota(:pipelines, project_id, fn ->
+      %Pipeline{}
+      |> Pipeline.changeset(Map.put(attrs, "project_id", project_id))
+      |> validate_webhook_in_project()
+      |> Repo.insert()
+    end)
   end
 
   @doc "List all pipelines for a project."

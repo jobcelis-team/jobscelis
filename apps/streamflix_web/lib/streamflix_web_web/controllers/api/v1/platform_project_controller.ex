@@ -82,7 +82,13 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
       {:error, changeset} ->
         conn
         |> put_status(422)
-        |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)})
+        |> json(%{
+          errors:
+            Ecto.Changeset.traverse_errors(
+              changeset,
+              &StreamflixWebWeb.ChangesetErrors.interpolate/1
+            )
+        })
     end
   end
 
@@ -177,7 +183,10 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
       {:error, %Ecto.Changeset{} = cs} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> json(%{error: Ecto.Changeset.traverse_errors(cs, fn {msg, _} -> msg end)})
+        |> json(%{
+          error:
+            Ecto.Changeset.traverse_errors(cs, &StreamflixWebWeb.ChangesetErrors.interpolate/1)
+        })
 
       {:error, :not_found} ->
         conn |> put_status(:not_found) |> json(%{error: "No active API token"})
@@ -276,7 +285,13 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
       {:error, changeset} ->
         conn
         |> put_status(422)
-        |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)})
+        |> json(%{
+          errors:
+            Ecto.Changeset.traverse_errors(
+              changeset,
+              &StreamflixWebWeb.ChangesetErrors.interpolate/1
+            )
+        })
     end
   end
 

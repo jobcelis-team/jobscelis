@@ -42,6 +42,7 @@ defmodule StreamflixCore.Schemas.ApiKey do
     api_key
     |> cast(attrs, [:project_id, :prefix, :key_hash, :name, :status, :scopes, :allowed_ips])
     |> validate_required([:project_id, :prefix, :key_hash])
+    |> validate_length(:name, max: 100)
     |> validate_inclusion(:status, ~w(active inactive))
     |> validate_scopes()
     |> validate_allowed_ips()

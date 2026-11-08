@@ -24,7 +24,7 @@ defmodule StreamflixWebWeb.MfaController do
   end
 
   @doc "POST /mfa/verify — validate a 6-digit TOTP code."
-  def verify(conn, %{"code" => code}) do
+  def verify(conn, %{"code" => code}) when is_binary(code) do
     case validate_mfa_session(conn) do
       {:ok, user_id} ->
         user = StreamflixAccounts.get_user(user_id)
@@ -58,7 +58,7 @@ defmodule StreamflixWebWeb.MfaController do
   end
 
   @doc "POST /mfa/verify-backup — validate a backup code."
-  def verify_backup(conn, %{"code" => code}) do
+  def verify_backup(conn, %{"code" => code}) when is_binary(code) do
     case validate_mfa_session(conn) do
       {:ok, user_id} ->
         user = StreamflixAccounts.get_user(user_id)
@@ -68,6 +68,12 @@ defmodule StreamflixWebWeb.MfaController do
             remember = get_session(conn, :mfa_remember) || false
             user = StreamflixAccounts.get_user(user_id)
             StreamflixWebWeb.AuthController.complete_login(conn, user, remember)
+
+          {:error, :too_many_attempts} ->
+            conn
+            |> clear_mfa_session()
+            |> put_flash(:error, gettext("Demasiados intentos. Inicia sesión nuevamente."))
+            |> redirect(to: "/login")
 
           _ ->
             if user do

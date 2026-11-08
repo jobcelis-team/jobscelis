@@ -15,6 +15,11 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
   @default_base_delay 10
   @default_max_delay 3600
 
+  # Hard cap for one attempt. The HTTP request itself has a 20s total deadline
+  # (SafeHttp), so a slow endpoint cannot hold a delivery slot longer than this.
+  @impl true
+  def timeout(_job), do: :timer.seconds(30)
+
   @impl true
   def backoff(%Oban.Job{args: args, attempt: attempt}) do
     config = args["retry_config"] || %{}

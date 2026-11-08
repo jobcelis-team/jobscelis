@@ -17,10 +17,12 @@ defmodule StreamflixWebWeb.Endpoint do
   ]
 
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options]],
+    websocket: [connect_info: [session: @session_options], max_frame_size: 1_000_000],
     longpoll: [connect_info: [session: @session_options]]
 
-  socket "/ws", StreamflixWebWeb.UserSocket, websocket: [timeout: 120_000]
+  # peer_data/x_headers give UserSocket the client IP for API keys with an IP allowlist
+  socket "/ws", StreamflixWebWeb.UserSocket,
+    websocket: [timeout: 120_000, connect_info: [:peer_data, :x_headers]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -49,7 +51,7 @@ defmodule StreamflixWebWeb.Endpoint do
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Phoenix.json_library(),
+    json_decoder: StreamflixCore.SafeJson,
     length: 256_000
 
   # 256 KB max body (spec §11); for larger uploads use multipart

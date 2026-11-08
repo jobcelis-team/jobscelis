@@ -24,6 +24,7 @@ defmodule StreamflixCore.Platform do
   defdelegate create_api_key(project_id, attrs), to: StreamflixCore.Platform.ApiKeys
   defdelegate verify_api_key(prefix, raw_key), to: StreamflixCore.Platform.ApiKeys
   defdelegate get_api_key_for_project(project_id), to: StreamflixCore.Platform.ApiKeys
+  defdelegate get_active_api_key(id), to: StreamflixCore.Platform.ApiKeys
   defdelegate regenerate_api_key(project_id), to: StreamflixCore.Platform.ApiKeys
 
   defdelegate update_api_key_restrictions(project_id, attrs),

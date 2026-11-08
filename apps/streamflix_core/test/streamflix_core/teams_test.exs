@@ -161,4 +161,43 @@ defmodule StreamflixCore.TeamsTest do
       assert is_nil(Teams.get_member_role(project.id, Ecto.UUID.generate()))
     end
   end
+
+  describe "invite_member/4 owner role" do
+    test "the owner role cannot be granted through an invitation", %{
+      project: project,
+      user2: user2,
+      user: user
+    } do
+      assert {:error, changeset} = Teams.invite_member(project.id, user2.id, "owner", user.id)
+      assert changeset.errors[:role]
+      assert is_nil(Teams.get_member_role(project.id, user2.id))
+    end
+  end
+
+  describe "effective_role/2" do
+    test "owner for the project creator", %{project: project, user: user} do
+      assert Teams.effective_role(project.id, user.id) == "owner"
+    end
+
+    test "nil for pending, removed and non-members", %{project: project, user2: user2} do
+      assert is_nil(Teams.effective_role(project.id, user2.id))
+
+      {:ok, member} = Teams.invite_member(project.id, user2.id, "editor")
+      assert is_nil(Teams.effective_role(project.id, user2.id))
+
+      {:ok, _} = Teams.accept_invitation(member.id)
+      assert Teams.effective_role(project.id, user2.id) == "editor"
+
+      {:ok, _} = Teams.update_member_role(member.id, "viewer")
+      assert Teams.effective_role(project.id, user2.id) == "viewer"
+
+      {:ok, _} = Teams.remove_member(member.id)
+      assert is_nil(Teams.effective_role(project.id, user2.id))
+    end
+
+    test "nil for invalid ids", %{project: project} do
+      assert is_nil(Teams.effective_role(project.id, nil))
+      assert is_nil(Teams.effective_role("not-a-uuid", "nope"))
+    end
+  end
 end

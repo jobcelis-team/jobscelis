@@ -261,6 +261,10 @@ defmodule StreamflixAccounts.PasswordPolicy do
   @spec password_in_history?(String.t(), [String.t()]) :: boolean()
   def password_in_history?(_password, []), do: false
 
+  # Passwords over the 72-byte policy limit are rejected by validation anyway;
+  # never spend Argon2 verifies on them.
+  def password_in_history?(password, _hashes) when byte_size(password) > 72, do: false
+
   def password_in_history?(password, hashes) when is_binary(password) and is_list(hashes) do
     Enum.any?(hashes, fn hash -> Argon2.verify_pass(password, hash) end)
   end

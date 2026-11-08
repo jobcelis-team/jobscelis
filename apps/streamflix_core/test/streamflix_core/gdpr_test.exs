@@ -42,16 +42,34 @@ defmodule StreamflixCore.GDPRTest do
       assert c1.id == c2.id
     end
 
-    test "revoke_consent/1 sets revoked_at", %{user: user} do
+    test "revoke_consent/2 sets revoked_at", %{user: user} do
       {:ok, consent} = GDPR.grant_consent(user.id, "marketing")
-      assert {:ok, revoked} = GDPR.revoke_consent(consent.id)
+      assert {:ok, revoked} = GDPR.revoke_consent(user.id, consent.id)
       assert revoked.revoked_at != nil
     end
 
     test "revoke_consent returns error if already revoked", %{user: user} do
       {:ok, consent} = GDPR.grant_consent(user.id, "marketing")
-      {:ok, _} = GDPR.revoke_consent(consent.id)
-      assert {:error, :already_revoked} = GDPR.revoke_consent(consent.id)
+      {:ok, _} = GDPR.revoke_consent(user.id, consent.id)
+      assert {:error, :already_revoked} = GDPR.revoke_consent(user.id, consent.id)
+    end
+
+    test "revoke_consent/2 cannot revoke another user's consent", %{user: user} do
+      other = create_test_user()
+      {:ok, consent} = GDPR.grant_consent(other.id, "marketing")
+
+      assert {:error, :not_found} = GDPR.revoke_consent(user.id, consent.id)
+      assert GDPR.has_consent?(other.id, "marketing")
+    end
+
+    test "revoke_consent/2 returns not_found for a malformed id", %{user: user} do
+      assert {:error, :not_found} = GDPR.revoke_consent(user.id, "not-a-uuid")
+      assert {:error, :not_found} = GDPR.revoke_consent(user.id, %{"x" => 1})
+    end
+
+    test "re_accept_consent returns an error for an unknown purpose", %{user: user} do
+      assert {:error, :invalid_purpose} = GDPR.re_accept_consent(user.id, "bogus")
+      assert {:error, :invalid_purpose} = GDPR.re_accept_consent(user.id, %{"x" => 1})
     end
 
     test "has_consent?/2 returns true for active", %{user: user} do
@@ -61,14 +79,14 @@ defmodule StreamflixCore.GDPRTest do
 
     test "has_consent?/2 returns false after revoke", %{user: user} do
       {:ok, consent} = GDPR.grant_consent(user.id, "marketing")
-      {:ok, _} = GDPR.revoke_consent(consent.id)
+      {:ok, _} = GDPR.revoke_consent(user.id, consent.id)
       refute GDPR.has_consent?(user.id, "marketing")
     end
 
     test "list_active_consents/1 excludes revoked", %{user: user} do
       {:ok, _} = GDPR.grant_consent(user.id, "terms")
       {:ok, c2} = GDPR.grant_consent(user.id, "marketing")
-      {:ok, _} = GDPR.revoke_consent(c2.id)
+      {:ok, _} = GDPR.revoke_consent(user.id, c2.id)
 
       active = GDPR.list_active_consents(user.id)
       assert length(active) == 1

@@ -14,53 +14,53 @@ defmodule StreamflixWebWeb.Api.V1.PlatformExportController do
 
   @max_export 10_000
 
+  # Events and deliveries can be large: rows are read page by page and streamed
+  # as a chunked response, so memory stays bounded (see Platform.Exports).
   def events(conn, params) do
     project = conn.assigns.current_project
     format = params["format"] || "json"
 
-    events =
-      Platform.list_events(project.id,
-        limit: @max_export,
-        topic: params["topic"]
-      )
+    to_row = fn e ->
+      %{
+        id: e.id,
+        topic: e.topic,
+        status: e.status,
+        occurred_at: to_string(e.occurred_at),
+        payload: Jason.encode!(e.payload || %{}),
+        payload_hash: e.payload_hash || ""
+      }
+    end
 
-    rows =
-      Enum.map(events, fn e ->
-        %{
-          id: e.id,
-          topic: e.topic,
-          status: e.status,
-          occurred_at: to_string(e.occurred_at),
-          payload: Jason.encode!(e.payload || %{}),
-          payload_hash: e.payload_hash || ""
-        }
-      end)
-
-    export(conn, rows, format, "events", ~w(id topic status occurred_at payload payload_hash))
+    stream_export(
+      conn,
+      {:events, project.id, [topic: params["topic"]]},
+      to_row,
+      format,
+      "events",
+      ~w(id topic status occurred_at payload payload_hash)
+    )
   end
 
   def deliveries(conn, params) do
     project = conn.assigns.current_project
     format = params["format"] || "json"
 
-    deliveries = Platform.list_deliveries(project_id: project.id, limit: @max_export)
+    to_row = fn d ->
+      %{
+        id: d.id,
+        event_id: d.event_id,
+        webhook_id: d.webhook_id,
+        status: d.status,
+        attempt_number: d.attempt_number,
+        response_status: d.response_status,
+        inserted_at: to_string(d.inserted_at)
+      }
+    end
 
-    rows =
-      Enum.map(deliveries, fn d ->
-        %{
-          id: d.id,
-          event_id: d.event_id,
-          webhook_id: d.webhook_id,
-          status: d.status,
-          attempt_number: d.attempt_number,
-          response_status: d.response_status,
-          inserted_at: to_string(d.inserted_at)
-        }
-      end)
-
-    export(
+    stream_export(
       conn,
-      rows,
+      {:deliveries, project.id, []},
+      to_row,
       format,
       "deliveries",
       ~w(id event_id webhook_id status attempt_number response_status inserted_at)
@@ -140,11 +140,73 @@ defmodule StreamflixWebWeb.Api.V1.PlatformExportController do
     |> json(%{data: rows, total: length(rows)})
   end
 
-  defp csv_escape(value) do
-    if String.contains?(value, [",", "\"", "\n"]) do
-      "\"" <> String.replace(value, "\"", "\"\"") <> "\""
+  # Same output as export/5 (CSV with header line; JSON `{"data": [...], "total": n}`)
+  # but written page by page. The content type is one of two fixed values.
+  # sobelow_skip ["XSS.ContentType"]
+  defp stream_export(conn, {kind, project_id, opts}, to_row, format, filename, columns) do
+    csv? = format == "csv"
+    ext = if csv?, do: "csv", else: "json"
+
+    conn =
+      conn
+      |> put_resp_content_type(if csv?, do: "text/csv", else: "application/json")
+      |> put_resp_header("content-disposition", "attachment; filename=\"#{filename}.#{ext}\"")
+      |> send_chunked(200)
+
+    opening = if csv?, do: Enum.join(columns, ","), else: ~s({"data":[)
+
+    with {:ok, conn} <- chunk(conn, opening) do
+      write = fn rows, {:ok, conn, count} ->
+        write_page(conn, rows, count, to_row, csv?, columns)
+      end
+
+      result = Platform.Exports.reduce_pages(kind, project_id, opts, {:ok, conn, 0}, write)
+
+      case result do
+        {:ok, conn, count} ->
+          closing =
+            cond do
+              not csv? -> ~s(],"total":#{count}})
+              # export/5 writes "header\n" when there are no rows
+              count == 0 -> "\n"
+              true -> ""
+            end
+
+          case chunk(conn, closing) do
+            {:ok, conn} -> conn
+            {:error, _} -> conn
+          end
+
+        {:error, _} ->
+          conn
+      end
     else
-      value
+      {:error, _} -> conn
     end
   end
+
+  defp write_page(conn, rows, count, to_row, csv?, columns) do
+    data =
+      Enum.map_join(rows, if(csv?, do: "", else: ","), fn row ->
+        row = to_row.(row)
+        if csv?, do: "\n" <> csv_line(row, columns), else: Jason.encode!(row)
+      end)
+
+    data = if not csv? and count > 0, do: "," <> data, else: data
+
+    case chunk(conn, data) do
+      {:ok, conn} -> {:cont, {:ok, conn, count + length(rows)}}
+      {:error, _} = error -> {:halt, error}
+    end
+  end
+
+  defp csv_line(row, columns) do
+    Enum.map_join(columns, ",", fn col ->
+      value = Map.get(row, String.to_existing_atom(col), "")
+      csv_escape(to_string(value))
+    end)
+  end
+
+  # RFC 4180 quoting plus CSV/formula-injection neutralizing, shared with the browser exporter
+  defp csv_escape(value), do: StreamflixWebWeb.CSV.escape(value)
 end
