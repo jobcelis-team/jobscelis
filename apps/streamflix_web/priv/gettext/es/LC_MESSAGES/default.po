@@ -4502,8 +4502,8 @@ msgstr "Rutas públicas:"
 #: lib/streamflix_web_web/live/docs/section_sdks.ex:15
 #: lib/streamflix_web_web/live/docs_live.ex:147
 #, elixir-autogen, elixir-format
-msgid "SDKs (12 lenguajes)"
-msgstr "SDKs (12 lenguajes)"
+msgid "SDKs (%{count} lenguajes)"
+msgstr "SDKs (%{count} lenguajes)"
 
 #: lib/streamflix_web_web/live/docs_live.ex:145
 #, elixir-autogen, elixir-format
@@ -8675,3 +8675,83 @@ msgstr "no puede contener enlaces ni HTML"
 #, elixir-autogen, elixir-format
 msgid "temporary email addresses are not allowed"
 msgstr "no se permiten correos temporales"
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Rol no válido."
+msgstr "Rol no válido."
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Solo el dueño del proyecto puede invitar editores."
+msgstr "Solo el dueño del proyecto puede invitar editores."
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Si el email corresponde a una cuenta, se le envió la invitación."
+msgstr "Si el email corresponde a una cuenta, se le envió la invitación."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Demasiadas solicitudes. Espera un minuto e inténtalo de nuevo."
+msgstr "Demasiadas solicitudes. Espera un minuto e inténtalo de nuevo."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "El payload es demasiado grande (máximo 256 KB)."
+msgstr "El payload es demasiado grande (máximo 256 KB)."
+
+#: lib/streamflix_web_web/live/platform_dashboard_live.ex
+#, elixir-autogen, elixir-format
+msgid "Enviando test al webhook..."
+msgstr "Enviando test al webhook..."
+
+#: lib/streamflix_web_web/live/admin/users_live.ex
+#, elixir-autogen, elixir-format
+msgid "Solo un superadmin puede modificar cuentas de administrador."
+msgstr "Solo un superadmin puede modificar cuentas de administrador."
+
+#: lib/streamflix_web_web/live/admin/users_live.ex
+#, elixir-autogen, elixir-format
+msgid "No puedes cambiar tu propio rol o estado."
+msgstr "No puedes cambiar tu propio rol o estado."
+
+#: lib/streamflix_web_web/live/admin/users_live.ex
+#, elixir-autogen, elixir-format
+msgid "Solo un superadmin puede asignar los roles Admin y Superadmin."
+msgstr "Solo un superadmin puede asignar los roles Admin y Superadmin."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Límite alcanzado: %{detail}"
+msgstr "Límite alcanzado: %{detail}"
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Provider oficial para gestionar webhooks, jobs, pipelines, schemas y proyectos como código."
+msgstr "Provider oficial para gestionar webhooks, jobs, pipelines, schemas y proyectos como código."
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid " en el Terraform Registry"
+msgstr " en el Terraform Registry"
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Recursos: jobcelis_webhook, jobcelis_job, jobcelis_pipeline, jobcelis_event_schema y jobcelis_project, cada uno con su data source para leer recursos existentes. La API key también puede venir de la variable de entorno JOBCELIS_API_KEY."
+msgstr "Recursos: jobcelis_webhook, jobcelis_job, jobcelis_pipeline, jobcelis_event_schema y jobcelis_project, cada uno con su data source para leer recursos existentes. La API key también puede venir de la variable de entorno JOBCELIS_API_KEY."
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Envía un evento desde cualquier workflow de GitHub Actions: deploys, releases, tests."
+msgstr "Envía un evento desde cualquier workflow de GitHub Actions: deploys, releases, tests."
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Entradas: api-key (obligatoria), topic (obligatoria), payload (objeto JSON) y base-url. Salidas: event-id y status. Guarda la API key en los secrets del repositorio."
+msgstr "Entradas: api-key (obligatoria), topic (obligatoria), payload (objeto JSON) y base-url. Salidas: event-id y status. Guarda la API key en los secrets del repositorio."
+
+#: lib/streamflix_web_web/live/docs/section_sdks.ex
+#, elixir-autogen, elixir-format
+msgid "Ver código"
+msgstr "Ver código"

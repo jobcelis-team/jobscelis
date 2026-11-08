@@ -14,54 +14,63 @@ defmodule StreamflixWebWeb.Plugs.ValidateAuthParams do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    if String.ends_with?(conn.request_path, "/auth/refresh") or
-         String.ends_with?(conn.request_path, "/auth/mfa/verify") do
-      conn
-    else
-      validate(conn)
+    # path_info (not request_path): "/auth/refresh/" routes to the same action
+    case Enum.take(conn.path_info, -2) do
+      ["auth", "refresh"] -> conn
+      ["mfa", "verify"] -> conn
+      _ -> validate(conn)
     end
   end
 
   defp validate(conn) do
     params = conn.params || %{}
 
-    email = params["email"] && to_string(params["email"])
-    password = params["password"] && to_string(params["password"])
+    # Only plain strings are accepted: JSON objects or arrays (maps/lists after
+    # parsing) are rejected with a 400 instead of crashing on to_string/1.
+    email = params["email"]
+    password = params["password"]
+    raw_name = params["name"]
 
-    if is_binary(email) and is_binary(password) do
-      email = String.trim(email) |> String.downcase()
+    cond do
+      not (is_binary(email) and is_binary(password)) ->
+        reject(conn, "Email and password are required")
 
-      name =
-        params["name"] &&
-          params["name"] |> to_string() |> String.trim() |> String.slice(0, @max_name_len)
+      not (is_nil(raw_name) or is_binary(raw_name)) ->
+        reject(conn, "Invalid name")
 
-      cond do
-        byte_size(email) > @max_email_len ->
-          reject(conn, "Email is too long")
+      true ->
+        validate_strings(conn, params, email, password, raw_name)
+    end
+  end
 
-        byte_size(password) < @min_password_len ->
-          reject(conn, "Password must be at least #{@min_password_len} characters")
+  defp validate_strings(conn, params, email, password, raw_name) do
+    email = String.trim(email) |> String.downcase()
+    name = raw_name && raw_name |> String.trim() |> String.slice(0, @max_name_len)
 
-        byte_size(password) > @max_password_len ->
-          reject(conn, "Password is too long")
+    cond do
+      byte_size(email) > @max_email_len ->
+        reject(conn, "Email is too long")
 
-        not email_valid?(email) ->
-          reject(conn, "Invalid email")
+      byte_size(password) < @min_password_len ->
+        reject(conn, "Password must be at least #{@min_password_len} characters")
 
-        true ->
-          safe = %{}
-          safe = Map.put(safe, "email", email)
-          safe = Map.put(safe, "password", password)
-          safe = if name, do: Map.put(safe, "name", name), else: safe
-          safe = if params["plan"], do: Map.put(safe, "plan", params["plan"]), else: safe
+      byte_size(password) > @max_password_len ->
+        reject(conn, "Password is too long")
 
-          safe =
-            if params["remember"], do: Map.put(safe, "remember", params["remember"]), else: safe
+      not email_valid?(email) ->
+        reject(conn, "Invalid email")
 
-          %{conn | params: safe, body_params: safe}
-      end
-    else
-      reject(conn, "Email and password are required")
+      true ->
+        safe = %{}
+        safe = Map.put(safe, "email", email)
+        safe = Map.put(safe, "password", password)
+        safe = if name, do: Map.put(safe, "name", name), else: safe
+        safe = if params["plan"], do: Map.put(safe, "plan", params["plan"]), else: safe
+
+        safe =
+          if params["remember"], do: Map.put(safe, "remember", params["remember"]), else: safe
+
+        %{conn | params: safe, body_params: safe}
     end
   end
 

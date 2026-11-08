@@ -18,6 +18,18 @@
 
   var DEFAULT_BASE_URL = "https://jobcelis.com";
 
+  // Builds an element whose text is set through textContent, never parsed as
+  // HTML: values coming from the API (URLs, topics, statuses) must not be able
+  // to inject markup into the host page.
+  function el(tag, css, text) {
+    var node = document.createElement(tag);
+    if (css) node.style.cssText = css;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  var TD_CSS = "padding:8px;border-bottom:1px solid #f1f5f9;";
+
   var TRANSLATIONS = {
     en: {
       webhooks: "Webhooks",
@@ -318,10 +330,9 @@
 
     // Table
     if (this.webhooks.length === 0) {
-      content.innerHTML +=
-        '<p style="color:#94a3b8;text-align:center;padding:20px;">' +
-        this.t.noWebhooks +
-        "</p>";
+      content.appendChild(
+        el("p", "color:#94a3b8;text-align:center;padding:20px;", this.t.noWebhooks)
+      );
       return;
     }
 
@@ -346,27 +357,42 @@
     var tbody = document.createElement("tbody");
     this.webhooks.forEach(function (wh) {
       var tr = document.createElement("tr");
-      var circuitBadge =
-        wh.circuit_state === "open"
-          ? '<span style="color:#ef4444;font-size:11px;"> (' +
-            self.t.circuitOpen +
-            ")</span>"
-          : "";
-      tr.innerHTML =
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
-        wh.url +
-        "</td>" +
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;"><span style="font-size:12px;color:#64748b;">' +
-        (wh.topics || []).join(", ") +
-        "</span></td>" +
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;"><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:' +
-        (wh.status === "active" ? "#dcfce7;color:#16a34a" : "#fef2f2;color:#dc2626") +
-        ';">' +
-        (wh.status === "active" ? self.t.active : self.t.inactive) +
-        "</span>" +
-        circuitBadge +
-        "</td>" +
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;text-align:right;"></td>';
+      var urlTd = el(
+        "td",
+        TD_CSS +
+          "max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;",
+        wh.url
+      );
+      tr.appendChild(urlTd);
+
+      var topicsTd = el("td", TD_CSS);
+      topicsTd.appendChild(
+        el(
+          "span",
+          "font-size:12px;color:#64748b;",
+          (Array.isArray(wh.topics) ? wh.topics : []).join(", ")
+        )
+      );
+      tr.appendChild(topicsTd);
+
+      var isActive = wh.status === "active";
+      var statusTd = el("td", TD_CSS);
+      statusTd.appendChild(
+        el(
+          "span",
+          "display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:" +
+            (isActive ? "#dcfce7;color:#16a34a" : "#fef2f2;color:#dc2626") +
+            ";",
+          isActive ? self.t.active : self.t.inactive
+        )
+      );
+      if (wh.circuit_state === "open") {
+        statusTd.appendChild(
+          el("span", "color:#ef4444;font-size:11px;", " (" + self.t.circuitOpen + ")")
+        );
+      }
+      tr.appendChild(statusTd);
+      tr.appendChild(el("td", TD_CSS + "text-align:right;"));
 
       var delBtn = document.createElement("button");
       delBtn.textContent = self.t.delete;
@@ -395,10 +421,9 @@
     var self = this;
 
     if (this.deliveries.length === 0) {
-      content.innerHTML =
-        '<p style="color:#94a3b8;text-align:center;padding:20px;">' +
-        this.t.noDeliveries +
-        "</p>";
+      content.appendChild(
+        el("p", "color:#94a3b8;text-align:center;padding:20px;", this.t.noDeliveries)
+      );
       return;
     }
 
@@ -436,24 +461,25 @@
           : d.status === "failed"
             ? "#fef2f2"
             : "#fefce8";
-      tr.innerHTML =
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;"><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:' +
-        statusBg +
-        ";color:" +
-        statusColor +
-        ';">' +
-        d.status +
-        "</span></td>" +
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;">' +
-        (d.response_status || "-") +
-        "</td>" +
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;">' +
-        d.attempt_number +
-        "</td>" +
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;">' +
-        (d.response_latency_ms ? d.response_latency_ms + "ms" : "-") +
-        "</td>" +
-        '<td style="padding:8px;border-bottom:1px solid #f1f5f9;text-align:right;"></td>';
+      var dStatusTd = el("td", TD_CSS);
+      dStatusTd.appendChild(
+        el(
+          "span",
+          "display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:" +
+            statusBg +
+            ";color:" +
+            statusColor +
+            ";",
+          d.status
+        )
+      );
+      tr.appendChild(dStatusTd);
+      tr.appendChild(el("td", TD_CSS, d.response_status || "-"));
+      tr.appendChild(el("td", TD_CSS, d.attempt_number));
+      tr.appendChild(
+        el("td", TD_CSS, d.response_latency_ms ? d.response_latency_ms + "ms" : "-")
+      );
+      tr.appendChild(el("td", TD_CSS + "text-align:right;"));
 
       if (d.status === "failed") {
         var retryBtn = document.createElement("button");

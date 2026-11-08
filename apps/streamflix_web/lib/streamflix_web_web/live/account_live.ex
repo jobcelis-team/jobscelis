@@ -158,7 +158,7 @@ defmodule StreamflixWebWeb.AccountLive do
 
           {:error, %Ecto.Changeset{} = changeset} ->
             errors =
-              Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
+              Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
               |> Enum.flat_map(fn {_, msgs} -> msgs end)
 
             {:noreply,
@@ -184,9 +184,9 @@ defmodule StreamflixWebWeb.AccountLive do
 
   def handle_event("save_password", %{"password_change" => params}, socket) do
     user = socket.assigns.user
-    current = params["current_password"] || ""
-    new_pass = params["new_password"] || ""
-    confirm = params["new_password_confirm"] || ""
+    current = string_param(params["current_password"])
+    new_pass = string_param(params["new_password"])
+    confirm = string_param(params["new_password_confirm"])
 
     cond do
       current == "" ->
@@ -210,6 +210,13 @@ defmodule StreamflixWebWeb.AccountLive do
          |> assign(:password_form_errors, [
            gettext("La nueva contraseña debe tener al menos 8 caracteres.")
          ])}
+
+      # Same cap as signup/login: oversized input never reaches Argon2
+      byte_size(new_pass) > 72 or byte_size(current) > 72 ->
+        {:noreply,
+         socket
+         |> assign(:password_form, to_form(password_form_params(params), as: "password_change"))
+         |> assign(:password_form_errors, [gettext("Contraseña demasiado larga")])}
 
       true ->
         case StreamflixAccounts.update_password(user, current, new_pass,
@@ -245,7 +252,7 @@ defmodule StreamflixWebWeb.AccountLive do
 
           {:error, %Ecto.Changeset{} = changeset} ->
             errors =
-              Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
+              Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
               |> Enum.flat_map(fn {_, msgs} -> msgs end)
 
             {:noreply,
@@ -410,10 +417,11 @@ defmodule StreamflixWebWeb.AccountLive do
   end
 
   def handle_event("revoke_consent", %{"id" => consent_id}, socket) do
-    case StreamflixCore.GDPR.revoke_consent(consent_id) do
-      {:ok, _consent} ->
-        user = socket.assigns.user
+    user = socket.assigns.user
 
+    # Scoped to the current user: another user's consent id is "not found"
+    case StreamflixCore.GDPR.revoke_consent(user.id, consent_id) do
+      {:ok, _consent} ->
         StreamflixCore.Audit.record("gdpr.consent_revoked",
           user_id: user.id,
           metadata: %{consent_id: consent_id}
@@ -786,11 +794,14 @@ defmodule StreamflixWebWeb.AccountLive do
     attrs = attrs || %{}
 
     %{
-      "current_password" => attrs["current_password"] || "",
-      "new_password" => attrs["new_password"] || "",
-      "new_password_confirm" => attrs["new_password_confirm"] || ""
+      "current_password" => string_param(attrs["current_password"]),
+      "new_password" => string_param(attrs["new_password"]),
+      "new_password_confirm" => string_param(attrs["new_password_confirm"])
     }
   end
+
+  defp string_param(value) when is_binary(value), do: value
+  defp string_param(_), do: ""
 
   defp password_form_validate(params) do
     errors = []

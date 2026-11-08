@@ -176,8 +176,7 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
     case guarded_post(webhook_url,
            body: body,
            headers: [{"content-type", "application/json"}],
-           receive_timeout: @receive_timeout,
-           retry: false
+           receive_timeout: @receive_timeout
          ) do
       {:ok, %{status: status}} when status in 200..299 ->
         :ok
@@ -219,8 +218,7 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
     case guarded_post(webhook_url,
            body: body,
            headers: [{"content-type", "application/json"}],
-           receive_timeout: @receive_timeout,
-           retry: false
+           receive_timeout: @receive_timeout
          ) do
       {:ok, %{status: status}} when status in 200..299 ->
         :ok
@@ -260,8 +258,7 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
     case guarded_post(channel.meta_webhook_url,
            body: body,
            headers: headers,
-           receive_timeout: @receive_timeout,
-           retry: false
+           receive_timeout: @receive_timeout
          ) do
       {:ok, %{status: status}} when status in 200..299 ->
         :ok
@@ -274,14 +271,25 @@ defmodule StreamflixCore.Platform.ExternalNotificationWorker do
     end
   end
 
-  # User-supplied alert URLs: SSRF guard and no redirects
+  # User-supplied alert URLs: SSRF guard with the checked IP pinned, no
+  # redirects, no decompression, bounded response size and total time.
   defp guarded_post(url, opts) do
-    case StreamflixCore.Platform.UrlGuard.check(url) do
-      :ok ->
-        Req.post(url, Keyword.put(opts, :redirect, false))
+    case StreamflixCore.Platform.SafeHttp.request(url,
+           method: :post,
+           headers: Keyword.get(opts, :headers, []),
+           body: Keyword.get(opts, :body, ""),
+           receive_timeout: Keyword.get(opts, :receive_timeout, @receive_timeout),
+           deadline: 15_000,
+           max_body: 2_000
+         ) do
+      {:ok, resp} ->
+        {:ok, %{status: resp.status, body: StreamflixCore.Platform.SafeHttp.printable_body(resp)}}
+
+      {:error, {:blocked, reason}} ->
+        {:error, "blocked destination: " <> StreamflixCore.Platform.UrlGuard.message(reason)}
 
       {:error, reason} ->
-        {:error, "blocked destination: " <> StreamflixCore.Platform.UrlGuard.message(reason)}
+        {:error, reason}
     end
   end
 

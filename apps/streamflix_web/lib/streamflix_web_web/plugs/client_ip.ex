@@ -12,18 +12,38 @@ defmodule StreamflixWebWeb.Plugs.ClientIp do
 
   @doc "Returns the real client IP as a string, without port."
   def get_client_ip(conn) do
-    raw_ip =
-      case Plug.Conn.get_req_header(conn, "x-forwarded-for") do
-        [_ | _] = values ->
-          # Several headers are treated as one comma-separated list
-          values |> Enum.join(",") |> String.split(",") |> List.last() |> String.trim()
-
-        _ ->
-          conn.remote_ip |> :inet.ntoa() |> to_string()
-      end
-
-    strip_port(raw_ip)
+    from_parts(Plug.Conn.get_req_header(conn, "x-forwarded-for"), conn.remote_ip)
   end
+
+  @doc """
+  Same as `get_client_ip/1` for a socket's `connect_info` (needs the socket to be
+  declared with `connect_info: [:peer_data, :x_headers]`). Returns nil when that
+  information is not available.
+  """
+  def from_connect_info(connect_info) when is_map(connect_info) do
+    forwarded =
+      for {name, value} <- Map.get(connect_info, :x_headers) || [],
+          String.downcase(name) == "x-forwarded-for",
+          do: value
+
+    case Map.get(connect_info, :peer_data) do
+      %{address: address} -> from_parts(forwarded, address)
+      _ when forwarded != [] -> from_parts(forwarded, nil)
+      _ -> nil
+    end
+  end
+
+  def from_connect_info(_), do: nil
+
+  defp from_parts([_ | _] = values, _remote_ip) do
+    # Several headers are treated as one comma-separated list
+    values |> Enum.join(",") |> String.split(",") |> List.last() |> String.trim() |> strip_port()
+  end
+
+  defp from_parts(_, remote_ip) when is_tuple(remote_ip),
+    do: remote_ip |> :inet.ntoa() |> to_string() |> strip_port()
+
+  defp from_parts(_, _), do: nil
 
   defp strip_port(ip) do
     # IPv6 in brackets: [::1]:port → ::1

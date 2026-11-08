@@ -5,42 +5,11 @@ defmodule StreamflixWebWeb.Docs.Helpers do
   and framework webhook verification code samples.
   """
 
-  # ── SDK labels ──────────────────────────────────────────────────────
+  # ── SDK labels and install commands ─────────────────────────────────
+  # Both come from priv/sdk_catalog.json; versions follow the registries.
 
-  def sdk_label("nodejs"), do: "Node.js"
-  def sdk_label("python"), do: "Python"
-  def sdk_label("go"), do: "Go"
-  def sdk_label("php"), do: "PHP"
-  def sdk_label("ruby"), do: "Ruby"
-  def sdk_label("elixir"), do: "Elixir"
-  def sdk_label("dotnet"), do: ".NET"
-  def sdk_label("rust"), do: "Rust"
-  def sdk_label("swift"), do: "Swift"
-  def sdk_label("java"), do: "Java"
-  def sdk_label("dart"), do: "Dart"
-  def sdk_label("kotlin"), do: "Kotlin"
-
-  # ── SDK install commands ────────────────────────────────────────────
-
-  def sdk_install("nodejs"), do: "npm install @jobcelis/sdk"
-  def sdk_install("python"), do: "pip install jobcelis"
-  def sdk_install("go"), do: "go get github.com/vladimirCeli/go-jobcelis"
-  def sdk_install("php"), do: "composer require jobcelis/sdk"
-  def sdk_install("ruby"), do: "gem install jobcelis"
-  def sdk_install("elixir"), do: ~s|{:jobcelis, "~> 1.0"}  # add to mix.exs deps|
-  def sdk_install("dotnet"), do: "dotnet add package Jobcelis"
-  def sdk_install("rust"), do: ~s|cargo add jobcelis|
-
-  def sdk_install("swift"),
-    do:
-      ~s|// Swift Package Manager\n.package(url: "https://github.com/jobcelis-team/jobcelis-swift", from: "1.0.0")|
-
-  def sdk_install("java"),
-    do:
-      ~s|<!-- Maven -->\n<dependency>\n  <groupId>com.jobcelis</groupId>\n  <artifactId>jobcelis</artifactId>\n  <version>1.0.0</version>\n</dependency>|
-
-  def sdk_install("dart"), do: ~s|dart pub add jobcelis|
-  def sdk_install("kotlin"), do: ~s|implementation("com.jobcelis:jobcelis:1.0.0")|
+  defdelegate sdk_label(lang), to: StreamflixWebWeb.SdkCatalog, as: :label
+  defdelegate sdk_install(lang), to: StreamflixWebWeb.SdkCatalog, as: :install
 
   # ── SDK usage: send_event ───────────────────────────────────────────
 

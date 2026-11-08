@@ -24,20 +24,22 @@ defmodule StreamflixCore.Platform.Projects do
 
     attrs = Map.put(attrs, :is_default, Map.get(attrs, :is_default, is_default))
 
-    case %Project{}
-         |> Project.changeset(attrs)
-         |> Repo.insert() do
-      {:ok, project} ->
-        # Auto-create owner membership
-        if user_id do
-          StreamflixCore.Teams.create_owner_member(project.id, user_id)
-        end
+    StreamflixCore.Platform.Quotas.with_quota(:projects, user_id, fn ->
+      case %Project{}
+           |> Project.changeset(attrs)
+           |> Repo.insert() do
+        {:ok, project} ->
+          # Auto-create owner membership
+          if user_id do
+            StreamflixCore.Teams.create_owner_member(project.id, user_id)
+          end
 
-        {:ok, project}
+          {:ok, project}
 
-      error ->
-        error
-    end
+        error ->
+          error
+      end
+    end)
   end
 
   def get_project(id), do: Repo.get_uuid(Project, id)

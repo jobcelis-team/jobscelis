@@ -19,8 +19,6 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
   alias StreamflixCore.Schemas.{
     Delivery,
     JobRun,
-    SandboxEndpoint,
-    SandboxRequest,
     DeadLetter,
     Project,
     WebhookEvent
@@ -48,27 +46,9 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
       )
       |> Repo.delete_all()
 
-    # Purge expired sandbox endpoints and their requests
-    expired_ids =
-      from(s in SandboxEndpoint,
-        where: s.expires_at < ^now,
-        select: s.id
-      )
-      |> Repo.all()
-
-    {req_count, _} =
-      if expired_ids != [] do
-        from(r in SandboxRequest, where: r.endpoint_id in ^expired_ids) |> Repo.delete_all()
-      else
-        {0, nil}
-      end
-
-    {sandbox_count, _} =
-      if expired_ids != [] do
-        from(s in SandboxEndpoint, where: s.id in ^expired_ids) |> Repo.delete_all()
-      else
-        {0, nil}
-      end
+    # Purge expired sandbox endpoints and their requests (also done daily by
+    # ObanSandboxPurgeWorker)
+    {sandbox_count, req_count} = StreamflixCore.Platform.Sandbox.purge_expired(now)
 
     # Purge old resolved dead letters
     {dlq_count, _} =

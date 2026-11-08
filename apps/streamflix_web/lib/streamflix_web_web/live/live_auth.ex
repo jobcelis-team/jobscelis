@@ -32,7 +32,7 @@ defmodule StreamflixWebWeb.LiveAuth do
       is_admin = check_admin(socket.assigns.current_user)
 
       if is_admin do
-        {:cont, socket}
+        {:cont, attach_hook(socket, :admin_recheck, :handle_event, &recheck_admin/3)}
       else
         {:halt,
          redirect(socket, to: "/")
@@ -80,6 +80,32 @@ defmodule StreamflixWebWeb.LiveAuth do
 
       is_integer(last_activity) and System.system_time(:second) - last_activity > timeout
     end
+  end
+
+  # The role checked at mount can be stale: every admin action re-reads the
+  # user, so a demoted or deactivated admin cannot keep acting.
+  defp recheck_admin(_event, _params, socket) do
+    case StreamflixAccounts.get_user(socket.assigns.current_user.id) do
+      %{status: "active"} = fresh ->
+        if check_admin(fresh) do
+          {:cont,
+           socket
+           |> assign(:current_user, fresh)
+           |> assign(:current_user_role, fresh.role)}
+        else
+          deny_admin(socket)
+        end
+
+      _ ->
+        deny_admin(socket)
+    end
+  end
+
+  defp deny_admin(socket) do
+    {:halt,
+     socket
+     |> put_flash(:error, gettext("Acceso denegado. Se requieren permisos de administrador."))
+     |> redirect(to: "/")}
   end
 
   defp check_admin(user) do

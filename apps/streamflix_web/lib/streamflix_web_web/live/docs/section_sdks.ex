@@ -1,10 +1,12 @@
 defmodule StreamflixWebWeb.Docs.SectionSdks do
-  @moduledoc "SDKs and tools documentation section covering 12 language SDKs, CLI, and webhook verification."
+  @moduledoc "SDKs and tools documentation section: language SDKs, CLI, Terraform, GitHub Action and webhook verification."
   use Phoenix.Component
   use Gettext, backend: StreamflixWebWeb.Gettext
 
   import StreamflixWebWeb.Docs.Components
   import StreamflixWebWeb.Docs.Helpers
+
+  alias StreamflixWebWeb.SdkCatalog
 
   attr :sdk_languages, :list, required: true
 
@@ -12,7 +14,7 @@ defmodule StreamflixWebWeb.Docs.SectionSdks do
     ~H"""
     <.docs_section
       id="sdks"
-      title={gettext("SDKs (12 lenguajes)")}
+      title={gettext("SDKs (%{count} lenguajes)", count: length(SdkCatalog.sdks()))}
       subtitle={gettext("SDKs oficiales para los principales lenguajes de programación.")}
     >
       <p class="text-slate-700 leading-relaxed mb-6">
@@ -45,37 +47,12 @@ defmodule StreamflixWebWeb.Docs.SectionSdks do
           {gettext("Enlaces de instalación")}
         </h3>
         <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-          <.sdk_link label="Node.js" registry="npm" url="https://www.npmjs.com/package/@jobcelis/sdk" />
-          <.sdk_link label="Python" registry="PyPI" url="https://pypi.org/project/jobcelis/" />
           <.sdk_link
-            label="Go"
-            registry="pkg.go.dev"
-            url="https://pkg.go.dev/github.com/vladimirCeli/go-jobcelis"
-          />
-          <.sdk_link
-            label="PHP"
-            registry="Packagist"
-            url="https://packagist.org/packages/jobcelis/sdk"
-          />
-          <.sdk_link label="Ruby" registry="RubyGems" url="https://rubygems.org/gems/jobcelis" />
-          <.sdk_link label="Elixir" registry="Hex.pm" url="https://hex.pm/packages/jobcelis" />
-          <.sdk_link label=".NET" registry="NuGet" url="https://www.nuget.org/packages/Jobcelis" />
-          <.sdk_link label="Rust" registry="crates.io" url="https://crates.io/crates/jobcelis" />
-          <.sdk_link
-            label="Swift"
-            registry="SPM"
-            url="https://github.com/jobcelis-team/jobcelis-swift"
-          />
-          <.sdk_link
-            label="Java"
-            registry="Maven Central"
-            url="https://central.sonatype.com/artifact/com.jobcelis/jobcelis"
-          />
-          <.sdk_link label="Dart" registry="pub.dev" url="https://pub.dev/packages/jobcelis" />
-          <.sdk_link
-            label="Kotlin"
-            registry="Maven Central"
-            url="https://central.sonatype.com/artifact/com.jobcelis/jobcelis-kotlin"
+            :for={sdk <- SdkCatalog.sdks()}
+            label={sdk["label"]}
+            registry={sdk["registry"]}
+            url={sdk["url"]}
+            version={SdkCatalog.version(sdk)}
           />
         </div>
       </div>
@@ -112,6 +89,59 @@ defmodule StreamflixWebWeb.Docs.SectionSdks do
         code={"npm install -g @jobcelis/cli\nexport JOBCELIS_API_KEY=\"YOUR_API_KEY\"\n\n# Send an event\njobcelis events send --topic order.created --payload '{\"id\":\"123\"}'\n\n# List events\njobcelis events list --limit 10\n\n# List webhooks\njobcelis webhooks list\n\n# Create a webhook\njobcelis webhooks create --url https://example.com/hook --topics \"order.*\"\n\n# Check platform status\njobcelis status"}
         copy_id="copy-cli"
       />
+    </.docs_section>
+
+    <.docs_section
+      id="terraform"
+      title="Terraform"
+      subtitle={
+        gettext(
+          "Provider oficial para gestionar webhooks, jobs, pipelines, schemas y proyectos como código."
+        )
+      }
+    >
+      <p class="text-slate-600 text-sm mb-4">
+        <a
+          href={SdkCatalog.get!("terraform")["url"]}
+          target="_blank"
+          rel="noopener"
+          class="text-indigo-600 hover:text-indigo-800 font-medium underline"
+        >
+          jobcelis-team/jobcelis
+        </a>
+        {gettext(" en el Terraform Registry")} (v{SdkCatalog.version("terraform")})
+      </p>
+      <.code_block code={terraform_example()} copy_id="copy-terraform" />
+      <p class="text-slate-600 text-sm mt-4">
+        {gettext(
+          "Recursos: jobcelis_webhook, jobcelis_job, jobcelis_pipeline, jobcelis_event_schema y jobcelis_project, cada uno con su data source para leer recursos existentes. La API key también puede venir de la variable de entorno JOBCELIS_API_KEY."
+        )}
+      </p>
+    </.docs_section>
+
+    <.docs_section
+      id="github-action"
+      title="GitHub Action"
+      subtitle={
+        gettext(
+          "Envía un evento desde cualquier workflow de GitHub Actions: deploys, releases, tests."
+        )
+      }
+    >
+      <.code_block code={github_action_example()} copy_id="copy-github-action" />
+      <p class="text-slate-600 text-sm mt-4">
+        {gettext(
+          "Entradas: api-key (obligatoria), topic (obligatoria), payload (objeto JSON) y base-url. Salidas: event-id y status. Guarda la API key en los secrets del repositorio."
+        )}
+        <a
+          href={SdkCatalog.get!("github-action")["url"]}
+          target="_blank"
+          rel="noopener"
+          class="text-indigo-600 hover:text-indigo-800 font-medium underline ml-1"
+        >
+          {gettext("Ver código")}
+        </a>
+      </p>
     </.docs_section>
 
     <.docs_section
@@ -198,6 +228,40 @@ defmodule StreamflixWebWeb.Docs.SectionSdks do
         )}
       </.callout>
     </.docs_section>
+    """
+  end
+
+  defp terraform_example do
+    SdkCatalog.install("terraform") <>
+      ~S"""
+
+
+      provider "jobcelis" {
+        api_key = var.jobcelis_api_key
+      }
+
+      resource "jobcelis_webhook" "orders" {
+        url    = "https://api.example.com/webhooks/orders"
+        secret = var.webhook_secret
+        topics = ["order.*"]
+      }
+
+      resource "jobcelis_job" "daily_digest" {
+        name            = "Daily order digest"
+        queue           = "scheduled_job"
+        cron_expression = "0 9 * * *"
+      }
+      """
+  end
+
+  defp github_action_example do
+    ~S"""
+    - name: Notify Jobcelis
+      uses: jobcelis-team/jobscelis/sdks/github-action@main
+      with:
+        api-key: ${{ secrets.JOBCELIS_API_KEY }}
+        topic: deploy.completed
+        payload: '{"sha": "${{ github.sha }}", "ref": "${{ github.ref_name }}"}'
     """
   end
 end

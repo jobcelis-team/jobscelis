@@ -58,68 +58,134 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
 
   @impl true
   def handle_event("deactivate_user", %{"id" => id}, socket) do
-    case StreamflixAccounts.deactivate_user(id) do
-      {:ok, _} ->
-        send(self(), :load_users)
-        {:noreply, put_flash(socket, :info, gettext("Usuario desactivado correctamente"))}
+    with_target(socket, id, :status, fn target ->
+      case StreamflixAccounts.deactivate_user(target.id) do
+        {:ok, _} ->
+          audit(socket, "admin.user_deactivated", target, %{"status" => "inactive"})
+          send(self(), :load_users)
+          {:noreply, put_flash(socket, :info, gettext("Usuario desactivado correctamente"))}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al desactivar usuario"))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al desactivar usuario"))}
+      end
+    end)
   end
 
   @impl true
   def handle_event("activate_user", %{"id" => id}, socket) do
-    case StreamflixAccounts.activate_user(id) do
-      {:ok, _} ->
-        send(self(), :load_users)
-        {:noreply, put_flash(socket, :info, gettext("Usuario activado correctamente"))}
+    with_target(socket, id, :status, fn target ->
+      case StreamflixAccounts.activate_user(target.id) do
+        {:ok, _} ->
+          audit(socket, "admin.user_activated", target, %{"status" => "active"})
+          send(self(), :load_users)
+          {:noreply, put_flash(socket, :info, gettext("Usuario activado correctamente"))}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Error al activar usuario"))}
-    end
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Error al activar usuario"))}
+      end
+    end)
   end
 
   @impl true
   def handle_event("save_user", params, socket) do
     user_id = params["_id"] || params["id"]
-    requested_role = params["role"] || "user"
-    # Only a superadmin can assign the superadmin role
-    role =
-      if requested_role == "superadmin" and socket.assigns.current_user_role != "superadmin" do
-        "admin"
-      else
-        requested_role
+
+    with_target(socket, user_id, :edit, fn target ->
+      attrs = %{
+        "name" => params["name"],
+        "email" => params["email"],
+        "role" => params["role"] || target.role,
+        "status" => params["status"] || target.status
+      }
+
+      case check_edit(socket.assigns.current_user, target, attrs) do
+        :ok -> do_save_user(socket, target, attrs)
+        {:error, msg} -> {:noreply, put_flash(socket, :error, msg)}
       end
+    end)
+  end
 
-    attrs = %{
-      name: params["name"],
-      email: params["email"],
-      role: role,
-      status: params["status"] || "active"
-    }
+  defp do_save_user(socket, target, attrs) do
+    case StreamflixAccounts.admin_update_user(target, attrs) do
+      {:ok, updated} ->
+        audit(socket, "admin.user_updated", target, changes_summary(target, updated))
+        send(self(), :load_users)
 
-    case StreamflixAccounts.get_user(user_id) do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("Usuario no encontrado"))}
+        socket =
+          socket
+          |> assign(:editing_user, nil)
+          |> put_flash(:info, gettext("Usuario actualizado correctamente"))
 
-      user ->
-        case StreamflixAccounts.update_user(user, attrs) do
-          {:ok, _} ->
-            send(self(), :load_users)
+        {:noreply, socket}
 
-            socket =
-              socket
-              |> assign(:editing_user, nil)
-              |> put_flash(:info, gettext("Usuario actualizado correctamente"))
-
-            {:noreply, socket}
-
-          {:error, changeset} ->
-            errors = format_changeset_errors(changeset)
-            {:noreply, put_flash(socket, :error, gettext("Error: %{details}", details: errors))}
-        end
+      {:error, changeset} ->
+        errors = format_changeset_errors(changeset)
+        {:noreply, put_flash(socket, :error, gettext("Error: %{details}", details: errors))}
     end
+  end
+
+  # Loads the target user and applies the rules shared by every admin action:
+  # only a superadmin may touch admin/superadmin accounts, and nobody can
+  # change their own status from here.
+  defp with_target(socket, id, kind, fun) do
+    actor = socket.assigns.current_user
+
+    case is_binary(id) && StreamflixAccounts.get_user(id) do
+      target when is_struct(target, User) ->
+        cond do
+          target.role in ["admin", "superadmin"] and not User.superadmin?(actor) ->
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Solo un superadmin puede modificar cuentas de administrador.")
+             )}
+
+          kind == :status and target.id == actor.id ->
+            {:noreply,
+             put_flash(socket, :error, gettext("No puedes cambiar tu propio rol o estado."))}
+
+          true ->
+            fun.(target)
+        end
+
+      _ ->
+        {:noreply, put_flash(socket, :error, gettext("Usuario no encontrado"))}
+    end
+  end
+
+  defp check_edit(actor, target, attrs) do
+    cond do
+      target.id == actor.id and
+          (attrs["role"] != target.role or attrs["status"] != target.status) ->
+        {:error, gettext("No puedes cambiar tu propio rol o estado.")}
+
+      attrs["role"] in ["admin", "superadmin"] and attrs["role"] != target.role and
+          not User.superadmin?(actor) ->
+        {:error, gettext("Solo un superadmin puede asignar los roles Admin y Superadmin.")}
+
+      true ->
+        :ok
+    end
+  end
+
+  # Never store raw emails in the audit log: only whether it changed
+  defp changes_summary(before, updated) do
+    %{
+      "name_changed" => before.name != updated.name,
+      "email_changed" => before.email != updated.email,
+      "role" => %{"from" => before.role, "to" => updated.role},
+      "status" => %{"from" => before.status, "to" => updated.status}
+    }
+  end
+
+  defp audit(socket, action, target, metadata) do
+    StreamflixCore.Audit.record(action,
+      user_id: socket.assigns.current_user.id,
+      resource_type: "user",
+      resource_id: target.id,
+      metadata: metadata
+    )
   end
 
   defp format_changeset_errors(changeset) do
@@ -361,11 +427,10 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                     {gettext("Moderador")}
                   </option>
 
-                  <option value="admin" selected={@editing_user.role == "admin"}>
-                    {gettext("Administrador")}
-                  </option>
-
                   <%= if @current_user_role == "superadmin" do %>
+                    <option value="admin" selected={@editing_user.role == "admin"}>
+                      {gettext("Administrador")}
+                    </option>
                     <option value="superadmin" selected={@editing_user.role == "superadmin"}>
                       {gettext("Superadmin")}
                     </option>
@@ -373,7 +438,7 @@ defmodule StreamflixWebWeb.Admin.UsersLive do
                 </select>
                 <%= if @current_user_role != "superadmin" do %>
                   <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                    {gettext("Solo un superadmin puede asignar el rol Superadmin.")}
+                    {gettext("Solo un superadmin puede asignar los roles Admin y Superadmin.")}
                   </p>
                 <% end %>
               </div>

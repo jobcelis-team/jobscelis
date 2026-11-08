@@ -18,6 +18,11 @@ defmodule StreamflixCore.Teams do
 
     %ProjectMember{}
     |> ProjectMember.changeset(attrs)
+    # Ownership comes only from creating the project: an invited "owner"
+    # could not be removed or demoted by the real owner.
+    |> Ecto.Changeset.validate_inclusion(:role, ProjectMember.invitable_roles(),
+      message: "cannot be assigned through an invitation"
+    )
     |> Repo.insert()
   end
 
@@ -127,6 +132,38 @@ defmodule StreamflixCore.Teams do
     )
     |> select([m], m.role)
     |> Repo.one()
+  end
+
+  @doc """
+  The role the user holds right now in an active project: "owner" for the
+  creator, the role of an *active* membership otherwise, nil when the user has
+  no access (pending or removed members included). Always read from the DB so
+  permission checks see removals and demotions immediately.
+  """
+  def effective_role(project_id, user_id) when is_binary(project_id) and is_binary(user_id) do
+    with {:ok, project_id} <- Ecto.UUID.cast(project_id),
+         {:ok, user_id} <- Ecto.UUID.cast(user_id) do
+      do_effective_role(project_id, user_id)
+    else
+      _ -> nil
+    end
+  end
+
+  def effective_role(_project_id, _user_id), do: nil
+
+  defp do_effective_role(project_id, user_id) do
+    from(p in Project,
+      left_join: m in ProjectMember,
+      on: m.project_id == p.id and m.user_id == ^user_id and m.status == "active",
+      where: p.id == ^project_id and p.status == "active",
+      select: {p.user_id, m.role}
+    )
+    |> Repo.one()
+    |> case do
+      {^user_id, _} -> "owner"
+      {_, role} when is_binary(role) -> role
+      _ -> nil
+    end
   end
 
   def user_can_access?(project_id, user_id) do

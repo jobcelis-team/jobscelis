@@ -59,6 +59,18 @@ defmodule StreamflixCore.Platform.ApiKeys do
     end
   end
 
+  @doc """
+  Fresh (uncached) lookup of an active API key whose project is active, with the
+  project preloaded. Used to re-validate long-lived connections (SSE).
+  """
+  def get_active_api_key(id) do
+    ApiKey
+    |> where([k], k.id == ^id and k.status == "active")
+    |> join(:inner, [k], p in Project, on: p.id == k.project_id and p.status == "active")
+    |> preload([k, p], project: p)
+    |> Repo.one()
+  end
+
   def get_api_key_for_project(project_id) do
     ApiKey
     |> where([k], k.project_id == ^project_id and k.status == "active")

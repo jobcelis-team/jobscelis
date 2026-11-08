@@ -282,7 +282,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformWebhooksController do
     json(conn, %{templates: templates})
   end
 
-  defp format_errors(c), do: Ecto.Changeset.traverse_errors(c, fn {msg, _} -> msg end)
+  defp format_errors(c),
+    do: Ecto.Changeset.traverse_errors(c, &StreamflixWebWeb.ChangesetErrors.interpolate/1)
 
   defp audit(project, action, webhook) do
     Audit.record(action,

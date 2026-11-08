@@ -116,34 +116,47 @@ defmodule StreamflixAccounts do
 
   def update_password(%User{} = user, current_password, new_password, opts)
       when is_binary(current_password) and is_binary(new_password) do
-    case Authentication.authenticate(user.email, current_password) do
-      {:ok, _} ->
-        history_hashes = get_password_history_hashes(user.id, 5)
+    # Policy (length etc.) first: invalid input never reaches Argon2
+    with :ok <- check_password_policy(user, new_password),
+         {:ok, _} <- authenticate_current(user, current_password),
+         :ok <- check_password_history(user, new_password) do
+      old_hash = user.password_hash
 
-        if PasswordPolicy.password_in_history?(new_password, history_hashes) do
-          {:error, :password_recently_used}
-        else
-          old_hash = user.password_hash
+      case user
+           |> User.password_changeset(%{password: new_password})
+           |> Repo.update() do
+        {:ok, updated_user} ->
+          save_password_to_history(user.id, old_hash)
+          revoke_all_sessions(user.id, except_jti: opts[:except_jti])
+          {:ok, updated_user}
 
-          case user
-               |> User.password_changeset(%{password: new_password})
-               |> Repo.update() do
-            {:ok, updated_user} ->
-              save_password_to_history(user.id, old_hash)
-              revoke_all_sessions(user.id, except_jti: opts[:except_jti])
-              {:ok, updated_user}
-
-            error ->
-              error
-          end
-        end
-
-      {:error, _} ->
-        {:error, :wrong_password}
+        error ->
+          error
+      end
     end
   end
 
   def update_password(_, _, _, _), do: {:error, :invalid}
+
+  defp check_password_policy(user, password) do
+    changeset = User.password_policy_changeset(user, %{password: password})
+    if changeset.valid?, do: :ok, else: {:error, %{changeset | action: :update}}
+  end
+
+  defp authenticate_current(user, current_password) do
+    case Authentication.authenticate(user.email, current_password) do
+      {:ok, _} = ok -> ok
+      {:error, _} -> {:error, :wrong_password}
+    end
+  end
+
+  defp check_password_history(user, password) do
+    history_hashes = get_password_history_hashes(user.id, 5)
+
+    if PasswordPolicy.password_in_history?(password, history_hashes),
+      do: {:error, :password_recently_used},
+      else: :ok
+  end
 
   def create_admin(attrs) do
     attrs =
@@ -265,10 +278,15 @@ defmodule StreamflixAccounts do
         true
 
       true ->
-        {:ok, count} = Cachex.incr(:platform_cache, key, 1)
-        if count == 1, do: Cachex.expire(:platform_cache, key, @mfa_attempts_window)
-        if count >= @max_mfa_attempts, do: :too_many_attempts, else: false
+        if record_mfa_failure(key) == :too_many_attempts, do: :too_many_attempts, else: false
     end
+  end
+
+  # Counts a wrong second factor (TOTP or backup code: both share the counter).
+  defp record_mfa_failure(key) do
+    {:ok, count} = Cachex.incr(:platform_cache, key, 1)
+    if count == 1, do: Cachex.expire(:platform_cache, key, @mfa_attempts_window)
+    if count >= @max_mfa_attempts, do: :too_many_attempts, else: :ok
   end
 
   defp mfa_attempts(key) do
@@ -278,9 +296,32 @@ defmodule StreamflixAccounts do
     end
   end
 
-  @doc "Verify a backup code (consumes it on success)."
+  @doc """
+  Verify a backup code (consumes it on success).
+
+  Wrong codes count against the same per-user limit as TOTP codes. Returns
+  `{:ok, user}`, `{:error, :invalid_code}` or `{:error, :too_many_attempts}`.
+  """
   def verify_mfa_backup_code(%User{} = user, code) do
-    MFA.verify_backup_code(user, code)
+    key = {:mfa_attempts, user.id}
+
+    if mfa_attempts(key) >= @max_mfa_attempts do
+      {:error, :too_many_attempts}
+    else
+      result = if is_binary(code), do: MFA.verify_backup_code(user, code), else: :invalid
+
+      case result do
+        {:ok, _user} = ok ->
+          Cachex.del(:platform_cache, key)
+          ok
+
+        _ ->
+          case record_mfa_failure(key) do
+            :too_many_attempts -> {:error, :too_many_attempts}
+            :ok -> {:error, :invalid_code}
+          end
+      end
+    end
   end
 
   @doc "Regenerate backup codes for a user with MFA enabled."
@@ -333,38 +374,33 @@ defmodule StreamflixAccounts do
   Resets the user password using a valid reset token.
   Deletes all reset tokens for the user after success.
   """
-  def reset_user_password(token, new_password) do
-    case verify_reset_password_token(token) do
-      {:ok, user} ->
-        history_hashes = get_password_history_hashes(user.id, 5)
+  def reset_user_password(token, new_password) when is_binary(new_password) do
+    with {:ok, user} <- verify_reset_password_token(token),
+         # Policy (length etc.) before the history check: no Argon2 on bad input
+         :ok <- check_password_policy(user, new_password),
+         :ok <- check_password_history(user, new_password) do
+      old_hash = user.password_hash
 
-        if PasswordPolicy.password_in_history?(new_password, history_hashes) do
-          {:error, :password_recently_used}
-        else
-          old_hash = user.password_hash
+      result =
+        user
+        |> User.password_changeset(%{password: new_password})
+        |> Repo.update()
 
-          result =
-            user
-            |> User.password_changeset(%{password: new_password})
-            |> Repo.update()
+      case result do
+        {:ok, updated_user} ->
+          save_password_to_history(user.id, old_hash)
+          Repo.delete_all(UserToken.by_user_and_contexts_query(user, ["reset_password"]))
+          # A reset usually follows a compromise: end every existing session
+          revoke_all_sessions(user.id)
+          {:ok, updated_user}
 
-          case result do
-            {:ok, updated_user} ->
-              save_password_to_history(user.id, old_hash)
-              Repo.delete_all(UserToken.by_user_and_contexts_query(user, ["reset_password"]))
-              # A reset usually follows a compromise: end every existing session
-              revoke_all_sessions(user.id)
-              {:ok, updated_user}
-
-            {:error, changeset} ->
-              {:error, changeset}
-          end
-        end
-
-      {:error, reason} ->
-        {:error, reason}
+        {:error, changeset} ->
+          {:error, changeset}
+      end
     end
   end
+
+  def reset_user_password(_token, _new_password), do: {:error, :invalid_password}
 
   # ---------- EMAIL VERIFICATION ----------
 
@@ -684,6 +720,44 @@ defmodule StreamflixAccounts do
           revoke_all_sessions(user.id)
           {:ok, updated}
         end
+    end
+  end
+
+  @doc """
+  Updates a user from the admin panel (name, email, role, status).
+
+  A changed email goes through `User.email_changeset/2`, so the new address is
+  unverified and pending confirm/reset links are discarded. Moving the user out
+  of "active" revokes all their sessions, as `deactivate_user/1` does.
+  Authorization (who may edit whom) is the caller's responsibility.
+  """
+  def admin_update_user(%User{} = user, attrs) do
+    attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
+    {email, attrs} = Map.pop(attrs, "email")
+    new_email = if is_binary(email), do: email |> String.trim() |> String.downcase()
+    email_changed? = is_binary(new_email) and new_email != "" and new_email != user.email
+
+    changeset =
+      user
+      |> User.changeset(Map.take(attrs, ["name", "role", "status"]))
+      |> then(&if email_changed?, do: User.email_changeset(&1, %{email: new_email}), else: &1)
+
+    with {:ok, updated} <- Repo.update(changeset) do
+      if email_changed? do
+        import Ecto.Query, only: [from: 2]
+
+        Repo.delete_all(
+          from(t in UserToken,
+            where: t.user_id == ^user.id and t.context in ["confirm_email", "reset_password"]
+          )
+        )
+      end
+
+      if user.status == "active" and updated.status != "active",
+        do: revoke_all_sessions(user.id)
+
+      Cachex.del(:platform_cache, {:auth_user, user.id})
+      {:ok, updated}
     end
   end
 

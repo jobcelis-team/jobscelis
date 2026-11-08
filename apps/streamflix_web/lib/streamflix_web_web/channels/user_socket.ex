@@ -4,15 +4,19 @@ defmodule StreamflixWebWeb.UserSocket do
   channel "events:*", StreamflixWebWeb.EventsChannel
 
   @impl true
-  def connect(%{"token" => token}, socket, _connect_info) do
+  def connect(%{"token" => token}, socket, connect_info) do
     case StreamflixCore.Platform.verify_api_key("", token) do
       nil ->
         :error
 
       api_key ->
         scopes = api_key.scopes || ["*"]
+        client_ip = StreamflixWebWeb.Plugs.ClientIp.from_connect_info(connect_info)
 
-        if "*" in scopes or "events:read" in scopes do
+        # Same IP allowlist as the HTTP API (ApiKeyAuth). If the client IP is
+        # unknown, keys with an allowlist are rejected (fail closed).
+        if ("*" in scopes or "events:read" in scopes) and
+             StreamflixWebWeb.Plugs.ApiKeyAuth.ip_allowed?(api_key, client_ip) do
           socket =
             socket
             |> assign(:current_api_key, api_key)

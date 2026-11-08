@@ -120,11 +120,21 @@ defmodule StreamflixAccounts.Schemas.User do
 
   def password_changeset(user, attrs) do
     user
+    |> password_policy_changeset(attrs)
+    |> hash_password()
+    |> invalidate_cached_user()
+  end
+
+  @doc """
+  Validates a new password (length, character classes, blacklist) without
+  hashing it. Lets callers reject bad input before any Argon2 work, e.g.
+  before checking the password history.
+  """
+  def password_policy_changeset(user, attrs) do
+    user
     |> cast(attrs, [:password])
     |> validate_required([:password])
     |> validate_password()
-    |> hash_password()
-    |> invalidate_cached_user()
   end
 
   # IANA zone names: "UTC", "America/Guayaquil", "America/Argentina/Buenos_Aires", "Etc/GMT+5"
@@ -227,6 +237,10 @@ defmodule StreamflixAccounts.Schemas.User do
   end
 
   defp invalidate_cached_user(changeset), do: changeset
+
+  # Argon2 is deliberately expensive: only hash once every validation passed,
+  # so invalid (e.g. oversized) passwords cost no hashing work.
+  defp hash_password(%Ecto.Changeset{valid?: false} = changeset), do: changeset
 
   defp hash_password(changeset) do
     case get_change(changeset, :password) do

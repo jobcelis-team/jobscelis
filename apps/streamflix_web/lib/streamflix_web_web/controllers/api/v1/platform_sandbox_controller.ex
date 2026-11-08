@@ -60,6 +60,16 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
         |> put_status(:created)
         |> json(endpoint_json(endpoint))
 
+      {:error, %Ecto.Changeset{} = changeset} ->
+        if StreamflixCore.Platform.Quotas.quota_exceeded?(changeset) do
+          {msg, _} = changeset.errors[:base]
+          conn |> put_status(:unprocessable_entity) |> json(%{error: msg})
+        else
+          conn
+          |> put_status(:unprocessable_entity)
+          |> json(%{error: "Failed to create sandbox endpoint"})
+        end
+
       {:error, _} ->
         conn
         |> put_status(:unprocessable_entity)

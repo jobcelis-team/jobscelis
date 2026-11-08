@@ -282,6 +282,7 @@ defmodule StreamflixWebWeb.Docs.Components do
   attr :label, :string, required: true
   attr :registry, :string, required: true
   attr :url, :string, required: true
+  attr :version, :string, default: nil
 
   def sdk_link(assigns) do
     ~H"""
@@ -293,6 +294,7 @@ defmodule StreamflixWebWeb.Docs.Components do
     >
       <span class="font-semibold text-indigo-600 group-hover:text-indigo-700">{@label}</span>
       <span class="text-xs text-slate-400 group-hover:text-indigo-400">{@registry}</span>
+      <span :if={@version} class="text-xs font-mono text-slate-500">v{@version}</span>
       <svg
         class="w-3.5 h-3.5 ml-auto text-slate-300 group-hover:text-indigo-500 transition"
         fill="none"
