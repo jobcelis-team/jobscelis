@@ -27,7 +27,6 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
           conn
 
         {max, key_suffix} ->
-          ensure_table!()
           maybe_cleanup_expired(@table, window_sec)
           ip = StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
           key = {ip, key_suffix}
@@ -35,7 +34,6 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
           apply_limit(conn, key, now, window_sec, max)
       end
     else
-      ensure_table!()
       maybe_cleanup_expired(@table, window_sec)
       key_suffix = key_suffix || "default"
       ip = StreamflixWebWeb.Plugs.ClientIp.get_client_ip(conn)
@@ -104,35 +102,16 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
     end
   end
 
-  defp ensure_table!() do
-    case :ets.whereis(@table) do
-      :undefined ->
-        :ets.new(@table, [:set, :public, :named_table, read_concurrency: true])
-        :ok
-
-      _ ->
-        :ok
-    end
-  end
-
+  # update_counter is atomic, so concurrent requests cannot both slip under
+  # the limit the way a separate lookup + increment would allow.
   defp check_and_inc(table, key, now, window_sec, max) do
     case :ets.lookup(table, key) do
-      [] ->
+      [{^key, _count, started}] when now - started <= window_sec ->
+        if :ets.update_counter(table, key, {2, 1}) > max, do: :limit_exceeded, else: :allow
+
+      _ ->
         :ets.insert(table, {key, 1, now})
         :allow
-
-      [{^key, count, started}] ->
-        if now - started > window_sec do
-          :ets.insert(table, {key, 1, now})
-          :allow
-        else
-          if count >= max do
-            :limit_exceeded
-          else
-            :ets.update_counter(table, key, {2, 1})
-            :allow
-          end
-        end
     end
   end
 
@@ -143,5 +122,28 @@ defmodule StreamflixWebWeb.Plugs.RateLimit do
       expire_before = now - window_sec * 2
       :ets.select_delete(table, [{{:"$1", :"$2", :"$3"}, [{:<, :"$3", expire_before}], [true]}])
     end
+  end
+end
+
+defmodule StreamflixWebWeb.Plugs.RateLimit.Table do
+  @moduledoc false
+  # The table must outlive any single request. Created from the request
+  # process it would die with that connection, resetting every counter, so it
+  # is owned by a supervised process started before the endpoint.
+  use GenServer
+
+  def start_link(_opts), do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+
+  @impl true
+  def init(nil) do
+    :ets.new(StreamflixWebWeb.Plugs.RateLimit, [
+      :set,
+      :public,
+      :named_table,
+      read_concurrency: true,
+      write_concurrency: true
+    ])
+
+    {:ok, nil}
   end
 end

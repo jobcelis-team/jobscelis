@@ -44,6 +44,19 @@ defmodule StreamflixWebWeb.Plugs.RateLimitTest do
     assert request("POST", "/login//", ip).status == 429
   end
 
+  # Every HTTP connection runs in its own process; the counters must survive
+  # them, or each new connection would start with a fresh bucket.
+  test "buckets survive the processes that made the requests" do
+    ip = unique_ip()
+
+    for _ <- 1..2 do
+      Task.async(fn -> refute request("POST", "/login", ip).halted end) |> Task.await()
+    end
+
+    task = Task.async(fn -> request("POST", "/login", ip).status end)
+    assert Task.await(task) == 429
+  end
+
   test "a prefix rule shares one bucket across every token" do
     ip = unique_ip()
 

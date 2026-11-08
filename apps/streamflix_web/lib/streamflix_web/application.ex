@@ -11,6 +11,8 @@ defmodule StreamflixWeb.Application do
           StreamflixWebWeb.Telemetry,
           # Open SSE streams per project (concurrent connection cap)
           {Registry, keys: :duplicate, name: StreamflixWebWeb.SSERegistry},
+          # Owns the rate-limit ETS table (must start before the endpoint)
+          StreamflixWebWeb.Plugs.RateLimit.Table,
           {DNSCluster,
            query: Application.get_env(:streamflix_web, :dns_cluster_query) || :ignore},
           StreamflixWebWeb.Endpoint
