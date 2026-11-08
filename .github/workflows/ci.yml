@@ -55,10 +55,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TREE: ${{ steps.tree.outputs.tree }}
         run: |
-          found=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=tested-tree-${TREE}" \
-            --jq '[.artifacts[] | select(.expired == false)] | length' || echo 0)
+          if ! resp=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=tested-tree-${TREE}" 2>&1); then
+            echo "Artifact lookup failed, running everything: $resp"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          found=$(echo "$resp" | jq '[.artifacts[] | select(.expired == false)] | length')
+          echo "Successful runs found for tree ${TREE}: ${found}"
           if [ "${found:-0}" -gt 0 ]; then
-            echo "Tree ${TREE} already passed CI: skipping"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
