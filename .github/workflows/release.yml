@@ -1,10 +1,13 @@
-# Creates the web release automatically when VERSION changes on main:
-#   1. reads the version from VERSION
-#   2. if the tag vX.Y.Z does not exist yet, tags the commit
-#   3. creates the GitHub Release with the commits since the previous release
-# Bump VERSION to release; any other change releases nothing. Pushing a vX.Y.Z
-# tag by hand still works: the release is created for that tag.
-# The SDKs in this repo tag themselves as node-v*, cli-v*, python-v* (release-sdks.yml).
+# Releases the platform automatically on every push to main:
+#   1. next-version (jobcelis-team/.github) picks the version: the last vX.Y.Z
+#      tag plus a patch when the platform code changed since, or the version in
+#      VERSION when it was raised by hand above the last release
+#   2. tags the commit and creates the GitHub Release with the commits since the
+#      previous release
+# Docs, tests, CI and the SDKs in sdks/ (released by release-sdks.yml as
+# node-v*, cli-v*, python-v*) release nothing. main is protected, so the
+# version lives in the tags; VERSION is only raised by hand for a minor or
+# major release. Pushing a vX.Y.Z tag by hand still works.
 name: Create Release
 
 on:
@@ -28,22 +31,36 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Version in VERSION
+        id: current
+        if: github.ref_type != 'tag'
+        run: echo "version=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Next version
+        id: next
+        if: github.ref_type != 'tag'
+        uses: jobcelis-team/.github/actions/next-version@main
+        with:
+          current: ${{ steps.current.outputs.version }}
+        env:
+          # The default ignore list, plus the SDKs (they release themselves)
+          IGNORE: '(^|/)(README|CHANGELOG|CONTRIBUTING|CODE_OF_CONDUCT|SECURITY|LICENSE|VERSION)[^/]*$|\.md$|(^|/)\.(gitignore|gitattributes|editorconfig|github/)|(^|/)(tests?|spec|docs|examples?)/|^sdks/'
+
       - name: Which release?
         id: v
+        env:
+          NEXT_TAG: ${{ steps.next.outputs.tag }}
+          NEXT_RELEASE: ${{ steps.next.outputs.release }}
+          REASON: ${{ steps.next.outputs.reason }}
         run: |
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
             echo "release=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          TAG="v$(tr -d '[:space:]' < VERSION)"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            echo "$TAG already exists: nothing to do"
-            echo "release=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "release=true" >> "$GITHUB_OUTPUT"
-          fi
+          echo "$REASON"
+          echo "tag=$NEXT_TAG" >> "$GITHUB_OUTPUT"
+          echo "release=$NEXT_RELEASE" >> "$GITHUB_OUTPUT"
 
       - name: Tag the release
         if: steps.v.outputs.release == 'true' && github.ref_type != 'tag'
