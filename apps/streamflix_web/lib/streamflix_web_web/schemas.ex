@@ -731,8 +731,8 @@ defmodule StreamflixWebWeb.Schemas do
         events: %Schema{
           type: :array,
           items: EventCreate,
-          description: "List of events (max 1000)",
-          maxItems: 1000
+          description: "List of events (max 500)",
+          maxItems: 500
         }
       },
       example: %{

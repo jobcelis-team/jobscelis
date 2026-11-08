@@ -326,18 +326,22 @@ defmodule StreamflixCore.Platform.Events do
 
   # ---------- Batch Ingestion ----------
 
-  @max_batch_size 1000
+  @default_max_batch_size 500
+
+  @doc "Max events accepted in one batch (config `:max_event_batch_size`)."
+  def max_batch_size,
+    do: Application.get_env(:streamflix_core, :max_event_batch_size, @default_max_batch_size)
 
   @doc """
   Ingest a batch of events for a project.
 
-  Accepts up to #{@max_batch_size} events. Each event is validated individually;
+  Accepts up to `max_batch_size/0` events. Each event is validated individually;
   one bad event does not reject the entire batch.
 
   Returns `{:ok, %{accepted: N, rejected: N, events: [...]}}`.
   """
   def create_events_batch(project_id, events) when is_list(events) do
-    if length(events) > @max_batch_size do
+    if length(events) > max_batch_size() do
       {:error, :batch_too_large}
     else
       project = StreamflixCore.Platform.Projects.get_project(project_id)

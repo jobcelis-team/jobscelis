@@ -6,16 +6,30 @@ defmodule StreamflixCore.Platform.UrlGuard do
   A destination is allowed only if it is http(s) and every address its host
   resolves to is a public address: loopback, private (RFC 1918), CGNAT,
   link-local (incl. the 169.254.169.254 cloud metadata service), multicast,
-  reserved and the IPv6 equivalents are rejected. Checked when the URL is saved
-  and again right before each request (DNS can change). Outbound requests must
-  also disable redirects (`redirect: false`) so a public host cannot bounce the
-  request to an internal one.
+  reserved, the Azure wireserver (168.63.129.16), NAT64 (64:ff9b::/96), 6to4
+  (2002::/16), Teredo and the other IPv6 equivalents are rejected. Checked when
+  the URL is saved and again right before each request.
+
+  At send time the host is resolved exactly once with `pin/1` and the request is
+  made to that checked address (see `StreamflixCore.Platform.SafeHttp`), keeping
+  the original hostname for the `Host` header, TLS SNI and certificate
+  verification. This closes DNS rebinding: the HTTP client never resolves the
+  name a second time. Redirects are never followed.
 
   Development and test can allow private destinations (local sandbox, local
   receivers) with `config :streamflix_core, allow_private_destinations: true`.
   """
 
   @type reason :: :invalid_url | :unsupported_scheme | :unresolvable_host | :private_address
+
+  @typedoc "A destination resolved once and validated; requests must connect to `ip`."
+  @type pinned :: %{
+          scheme: :http | :https,
+          host: String.t(),
+          port: :inet.port_number(),
+          ip: :inet.ip_address(),
+          request_target: String.t()
+        }
 
   @doc "Request options that must be used for every outbound user-supplied URL."
   def req_options, do: [redirect: false]
@@ -29,6 +43,46 @@ defmodule StreamflixCore.Platform.UrlGuard do
   end
 
   def check(_), do: {:error, :invalid_url}
+
+  @doc """
+  Resolves the URL's host once, validates every resolved address and returns the
+  address the request must connect to (IPv4 preferred). `resolver` is only
+  overridden in tests.
+  """
+  @spec pin(String.t() | nil, (String.t() -> [:inet.ip_address()])) ::
+          {:ok, pinned} | {:error, reason}
+  def pin(url, resolver \\ &resolve/1)
+
+  def pin(url, resolver) when is_binary(url) do
+    with {:ok, uri, host} <- parse_uri(url) do
+      addrs = resolver.(host)
+
+      cond do
+        addrs == [] ->
+          {:error, :unresolvable_host}
+
+        not allow_private?() and not Enum.all?(addrs, &public?/1) ->
+          {:error, :private_address}
+
+        true ->
+          {:ok,
+           %{
+             scheme: String.to_existing_atom(uri.scheme),
+             host: host,
+             port: uri.port || URI.default_port(uri.scheme),
+             ip: Enum.find(addrs, hd(addrs), &(tuple_size(&1) == 4)),
+             request_target: request_target(uri)
+           }}
+      end
+    end
+  end
+
+  def pin(_, _), do: {:error, :invalid_url}
+
+  defp request_target(%URI{path: path, query: query}) do
+    path = if path in [nil, ""], do: "/", else: path
+    if query in [nil, ""], do: path, else: path <> "?" <> query
+  end
 
   @doc "Human readable message for a rejection reason."
   def message(:invalid_url), do: "is not a valid URL"
@@ -49,10 +103,15 @@ defmodule StreamflixCore.Platform.UrlGuard do
   end
 
   defp parse(url) do
+    with {:ok, _uri, host} <- parse_uri(url), do: {:ok, host}
+  end
+
+  defp parse_uri(url) do
     case URI.parse(String.trim(url)) do
-      %URI{scheme: scheme, host: host}
+      %URI{scheme: scheme, host: host} = uri
       when scheme in ["http", "https"] and is_binary(host) and host != "" ->
-        {:ok, host |> String.trim_leading("[") |> String.trim_trailing("]") |> String.downcase()}
+        {:ok, uri,
+         host |> String.trim_leading("[") |> String.trim_trailing("]") |> String.downcase()}
 
       %URI{scheme: scheme} when scheme not in [nil, "http", "https"] ->
         {:error, :unsupported_scheme}
@@ -69,7 +128,8 @@ defmodule StreamflixCore.Platform.UrlGuard do
     end
   end
 
-  defp resolve(host) do
+  @doc false
+  def resolve(host) do
     charlist = String.to_charlist(host)
 
     case :inet.parse_address(charlist) do
@@ -92,14 +152,19 @@ defmodule StreamflixCore.Platform.UrlGuard do
 
   @doc false
   # IPv4
-  def public?({a, b, _, _} = ip) when tuple_size(ip) == 4 do
+  # Azure wireserver / platform DNS (not in any reserved range)
+  def public?({168, 63, 129, 16}), do: false
+
+  def public?({a, b, c, _} = ip) when tuple_size(ip) == 4 do
     not (a == 0 or a == 10 or a == 127 or a >= 224 or
            (a == 100 and b in 64..127) or
            (a == 169 and b == 254) or
            (a == 172 and b in 16..31) or
            (a == 192 and b == 168) or
            (a == 192 and b == 0) or
-           (a == 198 and b in 18..19))
+           (a == 198 and b in 18..19) or
+           (a == 198 and b == 51 and c == 100) or
+           (a == 203 and b == 0 and c == 113))
   end
 
   # IPv4-mapped / -compatible IPv6 (::ffff:a.b.c.d)
@@ -112,6 +177,12 @@ defmodule StreamflixCore.Platform.UrlGuard do
   # multicast ff00::/8, documentation 2001:db8::/32
   def public?({0, 0, 0, 0, 0, 0, 0, 0}), do: false
   def public?({0, 0, 0, 0, 0, 0, 0, 1}), do: false
+
+  # Translation / tunnelling prefixes that can reach IPv4 space (incl. internal):
+  # NAT64 64:ff9b::/96 and local-use 64:ff9b:1::/48, 6to4 2002::/16, Teredo 2001::/32
+  def public?({0x64, 0xFF9B, _, _, _, _, _, _}), do: false
+  def public?({0x2002, _, _, _, _, _, _, _}), do: false
+  def public?({0x2001, 0, _, _, _, _, _, _}), do: false
 
   def public?({first, second, _, _, _, _, _, _}) do
     not (Bitwise.band(first, 0xFE00) == 0xFC00 or

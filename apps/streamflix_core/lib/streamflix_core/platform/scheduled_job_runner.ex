@@ -6,6 +6,9 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.{Job, JobRun}
   alias StreamflixCore.Platform
+  alias StreamflixCore.Platform.{SafeHttp, UrlGuard}
+
+  @request_deadline 20_000
 
   def run(job_id) do
     job = Repo.get(Job, job_id) |> Repo.preload(:project)
@@ -52,43 +55,44 @@ defmodule StreamflixCore.Platform.ScheduledJobRunner do
     payload = maybe_substitute_date(cfg["payload"] || %{})
     method = Map.get(@http_methods, String.upcase(to_string(cfg["method"] || "POST")), :post)
 
-    with true <- is_binary(url) and url != "",
-         :ok <- StreamflixCore.Platform.UrlGuard.check(url) do
+    if is_binary(url) and url != "" do
       request(job, method, url, payload)
     else
-      false ->
-        record_run(job, "failed", %{error: "missing url"})
-
-      {:error, reason} ->
-        record_run(job, "failed", %{
-          error: "url " <> StreamflixCore.Platform.UrlGuard.message(reason)
-        })
+      record_run(job, "failed", %{error: "missing url"})
     end
   end
 
+  # SafeHttp pins the checked IP (no DNS rebinding), never follows redirects,
+  # never decompresses and reads at most a few KB of the answer, within a
+  # total deadline that stays below the Oban worker timeout.
   defp request(job, method, url, payload) do
-    opts =
-      [
-        method: method,
-        url: url,
-        receive_timeout: 15_000,
-        finch: StreamflixCore.Finch,
-        redirect: false,
-        retry: false
-      ] ++ if(method in [:get, :delete], do: [], else: [json: payload])
+    body = if method in [:get, :delete], do: "", else: Jason.encode!(payload)
 
-    case Req.request(opts) do
+    headers =
+      if method in [:get, :delete], do: [], else: [{"content-type", "application/json"}]
+
+    case SafeHttp.request(url,
+           method: method,
+           headers: headers,
+           body: body,
+           receive_timeout: 15_000,
+           deadline: @request_deadline,
+           max_body: 1_000
+         ) do
       {:ok, %{status: status}} when status in 200..299 ->
         record_run(job, "success", %{response_status: status})
 
       {:ok, %{status: status}} ->
         record_run(job, "failed", %{response_status: status, error: "HTTP #{status}"})
 
+      {:error, {:blocked, reason}} ->
+        record_run(job, "failed", %{error: "url " <> UrlGuard.message(reason)})
+
       {:error, reason} ->
         record_run(job, "failed", %{error: Exception.message(reason)})
     end
   rescue
-    # e.g. malformed URL: record the failure instead of crashing the worker
+    # e.g. unencodable payload: record the failure instead of crashing the worker
     e -> record_run(job, "failed", %{error: Exception.message(e)})
   end
 

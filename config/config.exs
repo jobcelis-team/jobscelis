@@ -147,6 +147,36 @@ config :logger, :console,
   ]
 
 # ============================================
+# QUOTAS AND LIMITS (abuse protection; change here, no code changes needed)
+# ============================================
+
+config :streamflix_core, :quotas,
+  webhooks_per_project: 50,
+  jobs_per_project: 50,
+  pipelines_per_project: 50,
+  sandbox_endpoints_per_project: 20,
+  embed_tokens_per_project: 50,
+  event_schemas_per_project: 100,
+  projects_per_user: 10
+
+config :streamflix_core,
+  # Max events in one POST /api/v1/events/batch
+  max_event_batch_size: 500,
+  # Captured requests kept per sandbox endpoint and stored body size
+  sandbox_max_requests_per_endpoint: 100,
+  sandbox_max_stored_body_bytes: 64_000,
+  # Event schema JSON size limit
+  max_event_schema_bytes: 64_000
+
+config :streamflix_web, :sse,
+  # Max lifetime of one SSE stream; clients reconnect after it
+  max_lifetime_ms: 3_600_000,
+  # Keepalive interval; the API key is re-validated on every keepalive
+  keepalive_ms: 30_000,
+  # Concurrent SSE streams per project
+  max_connections_per_project: 10
+
+# ============================================
 # PROM_EX CONFIG (Prometheus Metrics)
 # ============================================
 
@@ -193,7 +223,7 @@ config :streamflix_core, Oban,
   notifier: Oban.Notifiers.PG,
   queues: [
     delivery: 10,
-    scheduled_job: 1,
+    scheduled_job: 5,
     replay: 3,
     default: 5
   ],
@@ -209,7 +239,8 @@ config :streamflix_core, Oban,
        {"*/5 * * * *", StreamflixCore.Platform.ObanBreachDetectionWorker},
        {"0 4 * * *", StreamflixCore.Platform.ObanSessionCleanupWorker},
        {"0 5 1 * *", StreamflixCore.Platform.ObanBackupVerificationWorker},
-       {"0 6 * * *", StreamflixCore.Platform.ObanIdempotencyPurgeWorker}
+       {"0 6 * * *", StreamflixCore.Platform.ObanIdempotencyPurgeWorker},
+       {"30 3 * * *", StreamflixCore.Platform.ObanSandboxPurgeWorker}
      ]}
   ]
 

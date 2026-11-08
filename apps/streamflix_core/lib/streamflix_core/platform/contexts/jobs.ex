@@ -9,9 +9,11 @@ defmodule StreamflixCore.Platform.Jobs do
   def create_job(project_id, attrs) do
     attrs = Map.merge(attrs, %{"project_id" => project_id})
 
-    %Job{}
-    |> Job.changeset(attrs)
-    |> Repo.insert()
+    StreamflixCore.Platform.Quotas.with_quota(:jobs, project_id, fn ->
+      %Job{}
+      |> Job.changeset(attrs)
+      |> Repo.insert()
+    end)
   end
 
   def list_jobs(project_id, opts \\ []) do
