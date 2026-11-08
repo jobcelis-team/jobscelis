@@ -65,9 +65,17 @@ defmodule StreamflixWebWeb.Api.V1.PlatformSandboxController do
           {msg, _} = changeset.errors[:base]
           conn |> put_status(:unprocessable_entity) |> json(%{error: msg})
         else
+          # "error" stays for existing clients; "errors" names each problem
           conn
           |> put_status(:unprocessable_entity)
-          |> json(%{error: "Failed to create sandbox endpoint"})
+          |> json(%{
+            error: "Failed to create sandbox endpoint",
+            errors:
+              Ecto.Changeset.traverse_errors(
+                changeset,
+                &StreamflixWebWeb.ChangesetErrors.interpolate/1
+              )
+          })
         end
 
       {:error, _} ->
