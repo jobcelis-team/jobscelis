@@ -14,7 +14,13 @@ defmodule Streamflix.MixProject do
       releases: releases(),
       listeners: [Phoenix.CodeReloader],
       test_coverage: [tool: ExCoveralls],
-      dialyzer: [plt_add_apps: [:mix, :ex_unit], ignore_warnings: ".dialyzer_ignore.exs"],
+      dialyzer: [
+        plt_add_apps: [:mix, :ex_unit],
+        # Inside the project so CI can cache them (priv/plts is git-ignored)
+        plt_core_path: "priv/plts",
+        plt_local_path: "priv/plts",
+        ignore_warnings: ".dialyzer_ignore.exs"
+      ],
       # Advisories with no compatible fix that do not affect how we use the
       # package (`mix hex.audit` fails on any other). Re-check on upgrades.
       hex: [
