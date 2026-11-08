@@ -1,4 +1,4 @@
-# Fills the CI caches on develop and main.
+# Fills the CI caches on develop.
 # Caches saved by a pull request run are only visible to that pull request; a
 # new pull request can read the caches of its base branch. Without this
 # workflow, develop and main never had any, so every new pull request rebuilt
@@ -7,7 +7,9 @@ name: CI caches
 
 on:
   push:
-    branches: [develop, main]
+    # Pull requests into develop run the full CI; the develop -> main pull
+    # request reuses that result (see "Already tested?" in ci.yml)
+    branches: [develop]
     paths:
       - "mix.exs"
       - "mix.lock"

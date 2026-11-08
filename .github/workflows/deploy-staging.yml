@@ -54,15 +54,34 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      # The image is also tagged with the git tree it was built from, so the
+      # production deploy can promote this exact image instead of rebuilding it
+      - name: Tree being deployed
+        id: tree
+        run: echo "tree=$(git rev-parse HEAD^{tree})" >> "$GITHUB_OUTPUT"
+
       - name: Build and push image
         uses: docker/build-push-action@v7
         with:
           context: .
           target: prod
           push: true
-          tags: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:tree-${{ steps.tree.outputs.tree }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Keep only the 5 newest tree-* images so the registry does not grow
+      - name: Remove old tree images
+        continue-on-error: true
+        run: |
+          az acr repository show-tags --name "$ACR_NAME" --repository "$IMAGE_NAME" \
+            --orderby time_desc --output tsv \
+            | grep '^tree-' | tail -n +6 \
+            | while read -r tag; do
+                az acr repository delete --name "$ACR_NAME" --image "$IMAGE_NAME:$tag" --yes
+              done
 
       - name: Restart Staging Web App
         run: az webapp restart --name ${{ env.WEBAPP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
