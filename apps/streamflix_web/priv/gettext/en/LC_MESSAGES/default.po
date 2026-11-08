@@ -8720,3 +8720,8 @@ msgstr "You cannot change your own role or status."
 #, elixir-autogen, elixir-format
 msgid "Solo un superadmin puede asignar los roles Admin y Superadmin."
 msgstr "Only a superadmin can assign the Admin and Superadmin roles."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Límite alcanzado: %{detail}"
+msgstr "Limit reached: %{detail}"

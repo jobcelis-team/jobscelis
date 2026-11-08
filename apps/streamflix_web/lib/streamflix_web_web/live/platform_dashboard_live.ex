@@ -648,8 +648,12 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
               |> assign(:job_form, nil)
               |> assign(:job_step, 1)
 
-            {:error, _} ->
-              put_flash(socket, :error, gettext("Error al guardar el job."))
+            {:error, reason} ->
+              put_flash(
+                socket,
+                :error,
+                create_error_message(reason, gettext("Error al guardar el job."))
+              )
           end
 
         {:noreply, socket}
@@ -1139,8 +1143,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
            |> assign(:sandbox_active, endpoint)
            |> assign(:sandbox_requests, requests)}
 
-        {:error, _} ->
-          {:noreply, put_flash(socket, :error, gettext("Error al crear sandbox."))}
+        {:error, reason} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             create_error_message(reason, gettext("Error al crear sandbox."))
+           )}
       end
     end)
   end
@@ -1662,8 +1671,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
                |> assign(:event_schemas, schemas)
                |> put_flash(:info, gettext("Schema creado."))}
 
-            {:error, _} ->
-              {:noreply, put_flash(socket, :error, gettext("Error al crear schema."))}
+            {:error, reason} ->
+              {:noreply,
+               put_flash(
+                 socket,
+                 :error,
+                 create_error_message(reason, gettext("Error al crear schema."))
+               )}
           end
 
         {:error, _} ->
@@ -3086,8 +3100,13 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
            |> assign(:projects, projects)
            |> put_flash(:info, gettext("Proyecto creado: %{name}", name: project.name))}
 
-        {:error, _} ->
-          {:noreply, put_flash(socket, :error, gettext("Error al crear proyecto."))}
+        {:error, reason} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             create_error_message(reason, gettext("Error al crear proyecto."))
+           )}
       end
     end
   end

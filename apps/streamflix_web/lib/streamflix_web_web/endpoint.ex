@@ -20,7 +20,9 @@ defmodule StreamflixWebWeb.Endpoint do
     websocket: [connect_info: [session: @session_options], max_frame_size: 1_000_000],
     longpoll: [connect_info: [session: @session_options]]
 
-  socket "/ws", StreamflixWebWeb.UserSocket, websocket: [timeout: 120_000]
+  # peer_data/x_headers give UserSocket the client IP for API keys with an IP allowlist
+  socket "/ws", StreamflixWebWeb.UserSocket,
+    websocket: [timeout: 120_000, connect_info: [:peer_data, :x_headers]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #

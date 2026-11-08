@@ -207,11 +207,6 @@ defmodule StreamflixWebWeb.Api.V1.PlatformExportController do
     end)
   end
 
-  defp csv_escape(value) do
-    if String.contains?(value, [",", "\"", "\n"]) do
-      "\"" <> String.replace(value, "\"", "\"\"") <> "\""
-    else
-      value
-    end
-  end
+  # RFC 4180 quoting plus CSV/formula-injection neutralizing, shared with the browser exporter
+  defp csv_escape(value), do: StreamflixWebWeb.CSV.escape(value)
 end

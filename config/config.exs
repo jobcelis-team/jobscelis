@@ -160,8 +160,9 @@ config :streamflix_core, :quotas,
   projects_per_user: 10
 
 config :streamflix_core,
-  # Max events in one POST /api/v1/events/batch
-  max_event_batch_size: 500,
+  # Max events in one POST /api/v1/events/batch (documented as 1000; every item
+  # counts against the project's events/minute limit)
+  max_event_batch_size: 1000,
   # Captured requests kept per sandbox endpoint and stored body size
   sandbox_max_requests_per_endpoint: 100,
   sandbox_max_stored_body_bytes: 64_000,

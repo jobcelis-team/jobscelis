@@ -34,9 +34,9 @@ defmodule StreamflixWebWeb.AbuseLimitsTest do
 
     test "batches above the maximum are rejected", %{conn: conn} do
       %{conn: conn} = api_conn(conn)
-      events = for _ <- 1..501, do: %{"topic" => "t"}
+      events = for _ <- 1..1001, do: %{"topic" => "t"}
       resp = post(conn, "/api/v1/events/batch", %{"events" => events})
-      assert %{"error" => "Batch too large, maximum 500 events"} = json_response(resp, 422)
+      assert %{"error" => "Batch too large, maximum 1000 events"} = json_response(resp, 422)
     end
   end
 

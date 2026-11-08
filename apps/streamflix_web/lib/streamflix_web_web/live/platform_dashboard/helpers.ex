@@ -51,6 +51,21 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
 
   def format_changeset_errors(_), do: gettext("Error desconocido")
 
+  @doc """
+  Flash text for a failed create: the quota message when a plan limit was
+  reached (StreamflixCore.Platform.Quotas), otherwise `default`.
+  """
+  def create_error_message(%Ecto.Changeset{} = changeset, default) do
+    if StreamflixCore.Platform.Quotas.quota_exceeded?(changeset) do
+      {detail, _} = Keyword.get(changeset.errors, :base, {"", []})
+      gettext("Límite alcanzado: %{detail}", detail: detail)
+    else
+      default
+    end
+  end
+
+  def create_error_message(_reason, default), do: default
+
   # ── Health Score ────────────────────────────────────────────────────
 
   def health_class(:healthy), do: "bg-green-100 text-green-800"

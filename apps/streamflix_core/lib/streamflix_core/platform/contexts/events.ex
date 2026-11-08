@@ -326,7 +326,9 @@ defmodule StreamflixCore.Platform.Events do
 
   # ---------- Batch Ingestion ----------
 
-  @default_max_batch_size 500
+  # 1000 is the documented API contract (docs, SDK READMEs). Batches no longer
+  # amplify throughput: EventRateLimit counts every item against events/minute.
+  @default_max_batch_size 1000
 
   @doc "Max events accepted in one batch (config `:max_event_batch_size`)."
   def max_batch_size,
