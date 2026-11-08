@@ -22,10 +22,26 @@ Set the following environment variables:
 |---|---|---|---|
 | `JOBCELIS_API_KEY` | Yes | - | Your API key |
 | `JOBCELIS_BASE_URL` | No | `https://jobcelis.com` | Platform base URL |
+| `JOBCELIS_MAX_RETRIES` | No | `6` | Automatic retries (see [Retries](#retries)); `0` disables them |
 
 ```bash
 export JOBCELIS_API_KEY=your_api_key_here
 ```
+
+## Retries
+
+The CLI retries requests that fail during a brief outage (for example while the
+platform is being deployed):
+
+- network errors (connection refused or reset, DNS, TLS, timeouts) and HTTP `429`, `502`, `503`, `504`
+- up to 6 retries with exponential backoff (1 s, 2 s, 4 s, 8 s, 16 s, 30 s, about 60 s in total, with jitter);
+  a `Retry-After` header is honoured (capped at 60 s)
+- `POST` requests are retried on network errors only when they carry an idempotency key, so a retry never
+  creates a resource twice. `events send` sends an `X-Idempotency-Key` header (`--idempotency-key`, or a random
+  key) and `events batch` adds an `idempotency_key` to every event that has none, so retried events are never
+  duplicated.
+
+Set `JOBCELIS_MAX_RETRIES` to change the number of retries, or to `0` to disable them.
 
 ## Commands
 

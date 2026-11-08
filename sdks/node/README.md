@@ -355,6 +355,30 @@ const myData = await client.exportMyData();
 const status = await client.health();
 ```
 
+## Retries
+
+The client retries requests that fail during a brief outage (for example while the
+platform is being deployed):
+
+- network errors (connection refused or reset, DNS, TLS, timeouts) and HTTP `429`, `502`, `503`, `504`
+- up to 6 retries with exponential backoff (1 s, 2 s, 4 s, 8 s, 16 s, 30 s, about 60 s in total, with jitter);
+  a `Retry-After` header is honoured (capped at 60 s)
+- `POST` requests are retried on network errors only when they carry an idempotency key, so a retry never
+  creates a resource twice. `sendEvent` sends an `X-Idempotency-Key` header (your `idempotency_key`, or a
+  generated UUID) and `sendEvents` adds an `idempotency_key` to every event that has none, so retried events are
+  never duplicated.
+
+Other errors (`400`, `401`, `404`, `500`, ...) are raised at once; after the last retry the error is the same
+one you would get without retries.
+
+```typescript
+// Change the number of retries
+const client = new JobcelisClient({ apiKey: 'your_api_key', maxRetries: 3 });
+
+// Disable retries
+const noRetries = new JobcelisClient({ apiKey: 'your_api_key', maxRetries: 0 });
+```
+
 ## Error Handling
 
 ```typescript

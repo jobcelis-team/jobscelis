@@ -55,8 +55,9 @@ function hasFlag(args: string[], flag: string): boolean {
 export async function eventsSend(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis events send --topic <topic> --payload '<json>'\n\n" +
-        "Send a single event to the platform.\n"
+      "Usage: jobcelis events send --topic <topic> --payload '<json>' [--idempotency-key <key>]\n\n" +
+        "Send a single event to the platform. Without --idempotency-key a random key is\n" +
+        "generated, so automatic retries never duplicate the event.\n"
     );
     return;
   }
@@ -69,7 +70,12 @@ export async function eventsSend(args: string[]): Promise<void> {
     process.stderr.write("Error: --payload must be valid JSON.\n");
     process.exit(1);
   }
-  const result = await api.post("/api/v1/events", { topic, payload: parsed });
+  const idempotencyKey = getFlag(args, "--idempotency-key") || crypto.randomUUID();
+  const result = await api.post(
+    "/api/v1/events",
+    { topic, payload: parsed },
+    { idempotencyKey }
+  );
   printJson(result);
 }
 
@@ -140,7 +146,18 @@ export async function eventsBatch(args: string[]): Promise<void> {
     process.stderr.write("Error: file must contain a JSON array of events.\n");
     process.exit(1);
   }
-  const result = await api.post("/api/v1/events/batch", { events });
+  // Items without an idempotency_key get one, so automatic retries never
+  // duplicate an event
+  const items = events.map((e) =>
+    e && typeof e === "object" && !Array.isArray(e) && !(e as Record<string, unknown>).idempotency_key
+      ? { ...e, idempotency_key: crypto.randomUUID() }
+      : e
+  );
+  const result = await api.post(
+    "/api/v1/events/batch",
+    { events: items },
+    { idempotent: true }
+  );
   printJson(result);
 }
 

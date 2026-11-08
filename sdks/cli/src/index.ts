@@ -14,11 +14,14 @@ Usage: jobcelis <resource> <action> [options]
 Configuration:
   JOBCELIS_API_KEY     API key (required)
   JOBCELIS_BASE_URL    Base URL (default: https://jobcelis.com)
+  JOBCELIS_MAX_RETRIES Retries on network errors and HTTP 429/502/503/504
+                       (default: 6, about 60 s; 0 disables them)
 
 Commands:
 
   Events:
     events send --topic <topic> --payload '<json>'    Send an event
+      [--idempotency-key <key>]                       (default: a random key)
     events list [--limit N] [--cursor C]              List events
     events get <id>                                   Get event by ID
     events delete <id>                                Delete event by ID
