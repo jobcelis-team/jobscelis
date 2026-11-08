@@ -26,6 +26,7 @@ env:
   IMAGE_TAG: latest
   WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_PRODUCTION }}
   RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

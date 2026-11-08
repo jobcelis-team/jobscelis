@@ -107,8 +107,10 @@ logs/
 Session.vim
 .netrwhist
 
-# Claude Code
-.claude/settings.local.json
+# AI assistant notes and settings: private, shared with the team directly
+CLAUDE.md
+CLAUDE.local.md
+.claude/
 
 # Emacs
 *~

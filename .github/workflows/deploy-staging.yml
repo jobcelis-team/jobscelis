@@ -26,6 +26,7 @@ env:
   IMAGE_TAG: staging
   WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_STAGING }}
   RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
