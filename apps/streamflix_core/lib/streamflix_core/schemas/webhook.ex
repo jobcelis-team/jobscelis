@@ -32,6 +32,9 @@ defmodule StreamflixCore.Schemas.Webhook do
     timestamps(type: :utc_datetime_usec)
   end
 
+  # URLs with signed query strings can be long; the column is text
+  @max_url_length 2048
+
   def changeset(webhook, attrs) do
     webhook
     |> cast(attrs, [
@@ -52,8 +55,9 @@ defmodule StreamflixCore.Schemas.Webhook do
     ])
     |> validate_required([:project_id, :url])
     |> validate_inclusion(:status, ~w(active inactive))
+    |> validate_length(:url, max: @max_url_length)
     |> validate_format(:url, ~r|^https?://|, message: "must be http or https")
-    |> StreamflixCore.Platform.UrlGuard.validate_changeset(:url)
+    |> validate_public_url()
     |> validate_headers()
     |> validate_topics()
     |> foreign_key_constraint(:project_id)
@@ -90,6 +94,14 @@ defmodule StreamflixCore.Schemas.Webhook do
     do: String.length(topic) <= @max_topic_length and topic =~ @topic_format
 
   defp valid_topic?(_), do: false
+
+  # Only a well-formed URL is resolved and checked against private networks:
+  # one error per problem, and no DNS lookup for input that is already invalid.
+  defp validate_public_url(changeset) do
+    if Keyword.has_key?(changeset.errors, :url),
+      do: changeset,
+      else: StreamflixCore.Platform.UrlGuard.validate_changeset(changeset, :url)
+  end
 
   # Custom headers are sent with every delivery: string names/values only and
   # no CR/LF (header injection).

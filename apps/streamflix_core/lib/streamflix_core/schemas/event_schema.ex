@@ -23,6 +23,7 @@ defmodule StreamflixCore.Schemas.EventSchema do
     event_schema
     |> cast(attrs, [:project_id, :topic, :schema, :version, :status])
     |> validate_required([:project_id, :topic, :schema])
+    |> validate_length(:topic, max: 255)
     |> validate_inclusion(:status, ~w(active inactive))
     |> unique_constraint([:project_id, :topic, :version])
     |> foreign_key_constraint(:project_id)
