@@ -39,6 +39,9 @@ defmodule StreamflixCore.Schemas.WebhookEvent do
       :dispatched_at
     ])
     |> validate_required([:project_id, :payload, :occurred_at])
+    # Column limits (varchar 255): longer input is a 422, not a database error
+    |> validate_length(:topic, max: 255)
+    |> validate_length(:idempotency_key, max: 255)
     |> validate_inclusion(:status, ~w(active inactive))
     |> foreign_key_constraint(:project_id)
     |> unique_constraint([:project_id, :idempotency_key],
