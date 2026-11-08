@@ -10,8 +10,10 @@ import Config
 config :logger, level: :info
 
 # Structured JSON logging for production (easier to parse by log aggregators)
+# Every metadata key the app sets (worker, delivery_id, duration_ms, path...)
+# is kept, so production logs can explain a failure
 config :logger, :default_handler,
-  formatter: {LoggerJSON.Formatters.Basic, metadata: [:request_id, :user_id]}
+  formatter: {LoggerJSON.Formatters.Basic, metadata: {:all_except, [:conn, :domain]}}
 
 # Disable dev routes in production
 config :streamflix_web, dev_routes: false
