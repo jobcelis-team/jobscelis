@@ -13,6 +13,13 @@ name: Release SDKs
 on:
   push:
     branches: [main]
+    # Only pushes that touch an SDK: a merge brings every change since the
+    # previous push to main, so an SDK change is never missed
+    paths:
+      - "sdks/node/**"
+      - "sdks/cli/**"
+      - "sdks/python/**"
+      - ".github/workflows/release-sdks.yml"
   workflow_dispatch:
 
 concurrency:

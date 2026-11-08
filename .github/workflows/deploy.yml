@@ -54,7 +54,27 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      # main receives develop through a pull request, so its tree is normally
+      # the one staging already built and ran. That image is promoted as is
+      # (a registry-side copy, no build); otherwise the image is built here.
+      - name: Image built by staging?
+        id: staged
+        run: |
+          TREE=$(git rev-parse HEAD^{tree})
+          SOURCE="$ACR_NAME.azurecr.io/$IMAGE_NAME:tree-$TREE"
+          if docker buildx imagetools inspect "$SOURCE" >/dev/null 2>&1; then
+            echo "Promoting the staging image for tree $TREE"
+            echo "source=$SOURCE" >> "$GITHUB_OUTPUT"
+          else
+            echo "No staging image for tree $TREE: building"
+          fi
+
+      - name: Promote staging image
+        if: steps.staged.outputs.source != ''
+        run: docker buildx imagetools create --tag "$ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG" "${{ steps.staged.outputs.source }}"
+
       - name: Build and push image
+        if: steps.staged.outputs.source == ''
         uses: docker/build-push-action@v7
         with:
           context: .
