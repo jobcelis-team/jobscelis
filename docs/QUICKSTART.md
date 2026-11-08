@@ -23,6 +23,7 @@ curl -X POST https://jobcelis.com/api/v1/events \
 Response:
 ```json
 {
+  "id": "550e8400-e29b-41d4-a716-446655440000",
   "event_id": "550e8400-e29b-41d4-a716-446655440000",
   "payload_hash": "a1b2c3..."
 }
