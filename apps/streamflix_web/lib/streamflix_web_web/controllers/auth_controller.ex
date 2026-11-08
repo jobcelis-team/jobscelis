@@ -1,12 +1,21 @@
 defmodule StreamflixWebWeb.AuthController do
   use StreamflixWebWeb, :controller
 
+  require Logger
+
   alias StreamflixAccounts
   alias StreamflixWebWeb.Workers.ObanEmailWorker
 
   @doc """
   Handles user registration from web form.
   """
+  # Honeypot: "website" is hidden from people in the signup form, so only bots fill
+  # it. They get the generic error, with nothing hinting at the reason.
+  def register(conn, %{"website" => trap} = params) when is_binary(trap) and trap != "" do
+    Logger.info("[Auth] Signup rejected: honeypot field filled")
+    signup_error(conn, gettext("Error al crear cuenta"), params["plan"] || "standard", params)
+  end
+
   def register(conn, params) do
     plan = params["plan"] || "standard"
 
@@ -439,6 +448,16 @@ defmodule StreamflixWebWeb.AuthController do
   end
 
   defp validate_auth_params(_), do: {:error, gettext("Datos inválidos")}
+
+  # Changeset messages from StreamflixAccounts, translated in format_errors/1;
+  # listed here so `mix gettext.extract` keeps them in the .po files
+  @doc false
+  def translatable_changeset_errors do
+    [
+      gettext_noop("cannot contain links or HTML"),
+      gettext_noop("temporary email addresses are not allowed")
+    ]
+  end
 
   defp format_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->

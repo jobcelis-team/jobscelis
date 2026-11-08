@@ -109,6 +109,21 @@
         >
           <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
           <input type="hidden" name="plan" value={@plan || "standard"} />
+          <%!-- Honeypot: invisible to people, bots fill it and the signup is rejected --%>
+          <div
+            aria-hidden="true"
+            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;"
+          >
+            <label for="website">Website</label>
+            <input
+              id="website"
+              type="text"
+              name="website"
+              value=""
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
           <div>
             <label
               for="name"
