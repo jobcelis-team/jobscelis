@@ -16,15 +16,63 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels its run still in progress
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 env:
   MIX_ENV: test
   ELIXIR_VERSION: "1.20.4"
   OTP_VERSION: "29"
 
 jobs:
+  # The same code is not tested twice. After a pull request is merged into
+  # develop, the develop -> main pull request usually contains exactly the
+  # tree that was already tested; a successful run records the tree it tested
+  # (artifact tested-tree-<hash>), and a later run of the same tree skips the
+  # jobs below. Skipped jobs count as passed for required checks. Any
+  # difference in the code runs everything.
+  tested:
+    name: Already tested?
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      tree: ${{ steps.tree.outputs.tree }}
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Tree being tested
+        id: tree
+        run: echo "tree=$(git rev-parse HEAD^{tree})" >> "$GITHUB_OUTPUT"
+
+      - name: Look for a successful run of the same tree
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TREE: ${{ steps.tree.outputs.tree }}
+        run: |
+          if ! resp=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=tested-tree-${TREE}" 2>&1); then
+            echo "Artifact lookup failed, running everything: $resp"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          found=$(echo "$resp" | jq '[.artifacts[] | select(.expired == false)] | length')
+          echo "Successful runs found for tree ${TREE}: ${found}"
+          if [ "${found:-0}" -gt 0 ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
   compile:
     name: Compile & Format
     runs-on: ubuntu-latest
+    needs: tested
+    if: needs.tested.outputs.skip != 'true'
     steps:
       - uses: actions/checkout@v7
 
@@ -69,7 +117,8 @@ jobs:
   static-analysis:
     name: Static Analysis
     runs-on: ubuntu-latest
-    needs: compile
+    needs: [tested, compile]
+    if: needs.tested.outputs.skip != 'true'
     steps:
       - uses: actions/checkout@v7
 
@@ -110,7 +159,8 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
-    needs: compile
+    needs: [tested, compile]
+    if: needs.tested.outputs.skip != 'true'
     services:
       postgres:
         image: postgres:16-alpine
@@ -160,7 +210,8 @@ jobs:
   dialyzer:
     name: Dialyzer
     runs-on: ubuntu-latest
-    needs: compile
+    needs: [tested, compile]
+    if: needs.tested.outputs.skip != 'true'
     steps:
       - uses: actions/checkout@v7
 
@@ -214,6 +265,8 @@ jobs:
   container-security:
     name: Container Security Scan
     runs-on: ubuntu-latest
+    needs: tested
+    if: needs.tested.outputs.skip != 'true'
     steps:
       - uses: actions/checkout@v7
 
@@ -240,3 +293,18 @@ jobs:
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
+
+  # Records the tree that just passed every job (see "Already tested?")
+  record-tested:
+    name: Record tested tree
+    runs-on: ubuntu-latest
+    needs: [tested, compile, static-analysis, test, dialyzer, container-security]
+    if: needs.tested.outputs.skip != 'true'
+    steps:
+      - run: echo "${{ needs.tested.outputs.tree }}" > tested-tree.txt
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tested-tree-${{ needs.tested.outputs.tree }}
+          path: tested-tree.txt
+          retention-days: 30
