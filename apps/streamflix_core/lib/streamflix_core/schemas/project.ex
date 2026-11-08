@@ -42,6 +42,7 @@ defmodule StreamflixCore.Schemas.Project do
       :retention_policy
     ])
     |> validate_required([:name])
+    |> validate_length(:name, max: 100)
     |> validate_inclusion(:status, ~w(active inactive))
     |> validate_number(:retention_days, greater_than_or_equal_to: 1)
     |> foreign_key_constraint(:user_id)
