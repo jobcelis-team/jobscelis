@@ -38,6 +38,15 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
         _ -> body
       end
 
+    with :ok <- consume_event_budget(conn, project, 1) do
+      do_create(conn, project, body)
+    end
+  end
+
+  def create(conn, _),
+    do: conn |> put_status(422) |> json(%{error: "Body must be a JSON object"})
+
+  defp do_create(conn, project, body) do
     case Platform.create_event(project.id, body) do
       {:ok, event} ->
         # `id` and `event_id` carry the same value: SDKs read either field
@@ -87,13 +96,29 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
     end
   end
 
-  def create(conn, _),
-    do: conn |> put_status(422) |> json(%{error: "Body must be a JSON object"})
+  # Per-project events-per-minute limit; every event of a batch counts.
+  defp consume_event_budget(conn, project, count) do
+    case StreamflixCore.Platform.EventRateLimit.consume(project, count) do
+      :ok ->
+        :ok
+
+      {:error, {:rate_limited, retry_after, limit}} ->
+        conn
+        |> put_resp_header("retry-after", Integer.to_string(retry_after))
+        |> put_status(:too_many_requests)
+        |> json(%{
+          error: "event_rate_limit_exceeded",
+          message: "Event rate limit exceeded: #{limit} events per minute",
+          limit: limit,
+          retry_after: retry_after
+        })
+    end
+  end
 
   operation(:batch,
     summary: "Send a batch of events",
     description:
-      "Ingest up to 1000 events in a single request. " <>
+      "Ingest up to 500 events in a single request. " <>
         "Each event is validated individually; one bad event does not reject the batch.",
     request_body: {"Batch payload", "application/json", Schemas.BatchEventsCreate},
     responses: [
@@ -107,7 +132,31 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
   """
   def batch(conn, %{"events" => events}) when is_list(events) do
     project = conn.assigns.current_project
+    max = StreamflixCore.Platform.Events.max_batch_size()
 
+    cond do
+      length(events) > max ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "Batch too large, maximum #{max} events"})
+
+      events == [] ->
+        do_batch(conn, project, events)
+
+      true ->
+        with :ok <- consume_event_budget(conn, project, length(events)) do
+          do_batch(conn, project, events)
+        end
+    end
+  end
+
+  def batch(conn, _),
+    do:
+      conn
+      |> put_status(:unprocessable_entity)
+      |> json(%{error: "Body must contain an 'events' array"})
+
+  defp do_batch(conn, project, events) do
     case Platform.create_events_batch(project.id, events) do
       {:ok, result} ->
         conn
@@ -121,7 +170,10 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
       {:error, :batch_too_large} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> json(%{error: "Batch too large, maximum 1000 events"})
+        |> json(%{
+          error:
+            "Batch too large, maximum #{StreamflixCore.Platform.Events.max_batch_size()} events"
+        })
 
       {:error, :processing_restricted} ->
         conn
@@ -134,12 +186,6 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
         |> json(%{error: "Invalid payload"})
     end
   end
-
-  def batch(conn, _),
-    do:
-      conn
-      |> put_status(:unprocessable_entity)
-      |> json(%{error: "Body must contain an 'events' array"})
 
   operation(:index,
     summary: "List events",

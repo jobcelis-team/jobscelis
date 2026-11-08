@@ -28,7 +28,17 @@ defmodule StreamflixCore.Platform.UrlGuardTest do
             "http://[::1]/",
             "http://[fd00::1]/",
             "http://[fe80::1]/",
-            "http://[::ffff:127.0.0.1]/"
+            "http://[::ffff:127.0.0.1]/",
+            # Azure wireserver, CGNAT, documentation ranges
+            "http://168.63.129.16/machine",
+            "http://100.127.255.1/",
+            "http://198.51.100.7/",
+            "http://203.0.113.9/",
+            # NAT64 (incl. embedding 169.254.169.254), local-use NAT64, 6to4, Teredo
+            "http://[64:ff9b::a9fe:a9fe]/",
+            "http://[64:ff9b:1::1]/",
+            "http://[2002:a9fe:a9fe::1]/",
+            "http://[2001:0:4136:e378::1]/"
           ] do
         assert {:error, :private_address} = UrlGuard.check(url), url
       end
@@ -44,6 +54,48 @@ defmodule StreamflixCore.Platform.UrlGuardTest do
       assert {:error, :unsupported_scheme} = UrlGuard.check("gopher://127.0.0.1/")
       assert {:error, :invalid_url} = UrlGuard.check("not a url")
       assert {:error, :invalid_url} = UrlGuard.check(nil)
+    end
+  end
+
+  describe "pin/2" do
+    test "resolves once and returns the checked address with the original host" do
+      resolver = fn "hooks.example.com" -> [{93, 184, 216, 34}] end
+
+      assert {:ok,
+              %{
+                scheme: :https,
+                host: "hooks.example.com",
+                port: 443,
+                ip: {93, 184, 216, 34},
+                request_target: "/in?a=1"
+              }} = UrlGuard.pin("https://Hooks.Example.com/in?a=1", resolver)
+    end
+
+    test "defaults the path, keeps explicit ports and prefers IPv4" do
+      resolver = fn _ -> [{0x2606, 0x4700, 0, 0, 0, 0, 0, 0x1111}, {1, 1, 1, 1}] end
+
+      assert {:ok, %{scheme: :http, port: 8080, ip: {1, 1, 1, 1}, request_target: "/"}} =
+               UrlGuard.pin("http://multi.example.com:8080", resolver)
+    end
+
+    test "rejects when any resolved address is internal" do
+      resolver = fn _ -> [{93, 184, 216, 34}, {10, 0, 0, 1}] end
+      assert {:error, :private_address} = UrlGuard.pin("https://mixed.example.com/", resolver)
+    end
+
+    test "rejects unresolvable hosts and invalid URLs" do
+      assert {:error, :unresolvable_host} =
+               UrlGuard.pin("https://nx.example.com/", fn _ -> [] end)
+
+      assert {:error, :unsupported_scheme} = UrlGuard.pin("ftp://x/", fn _ -> [] end)
+      assert {:error, :invalid_url} = UrlGuard.pin(nil)
+    end
+
+    test "IP literals are pinned to themselves" do
+      assert {:ok, %{ip: {8, 8, 8, 8}, host: "8.8.8.8"}} = UrlGuard.pin("https://8.8.8.8/x")
+
+      assert {:ok, %{ip: {0x2606, 0x4700, 0x4700, 0, 0, 0, 0, 0x1111}}} =
+               UrlGuard.pin("https://[2606:4700:4700::1111]/x")
     end
   end
 

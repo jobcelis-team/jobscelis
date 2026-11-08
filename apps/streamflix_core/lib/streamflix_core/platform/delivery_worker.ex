@@ -8,10 +8,14 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.Delivery
   alias StreamflixCore.Platform
-  alias StreamflixCore.Platform.UrlGuard
+  alias StreamflixCore.Platform.{SafeHttp, UrlGuard}
 
   @connect_timeout 5_000
   @receive_timeout 15_000
+  # Total time for one delivery request (connect + send + response), whatever
+  # the server's pace; must stay below the Oban worker timeout.
+  @request_deadline 20_000
+  @max_response_body 10_000
 
   # Client errors that retrying cannot fix: dead-lettered on the first failure
   @no_retry_statuses [400, 401, 403, 404, 422]
@@ -102,28 +106,16 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
       url: url
     )
 
-    opts = [
-      json: body,
-      headers: headers,
-      receive_timeout: @receive_timeout,
-      pool_timeout: @connect_timeout,
-      finch: StreamflixCore.Finch,
-      redirect: false
-    ]
-
-    # Resolve destination IP before request
-    destination_ip = resolve_destination_ip(url)
-
-    # Store request details for logging
+    # Request details stored for the delivery log
     request_info = %{
       request_headers: flatten_headers(headers),
-      request_body: truncate_body(body_json, 10_000),
-      destination_ip: destination_ip
+      request_body: truncate_body(body_json, 10_000)
     }
 
-    # SSRF guard: re-checked at send time (DNS may have changed since the URL
-    # was saved); redirects are never followed.
-    case UrlGuard.check(url) do
+    # SSRF guard: the host is resolved once at send time (DNS may have changed
+    # since the URL was saved), every address is checked and the connection goes
+    # to that pinned address, so a rebinding DNS answer cannot redirect it.
+    case UrlGuard.pin(url) do
       {:error, reason} ->
         Logger.warning("Delivery blocked: destination not allowed",
           worker: "DeliveryWorker",
@@ -133,10 +125,21 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
 
         mark_blocked(delivery, "blocked: destination " <> UrlGuard.message(reason), request_info)
 
-      :ok ->
+      {:ok, pinned} ->
+        request_info =
+          Map.put(request_info, :destination_ip, pinned.ip |> :inet.ntoa() |> to_string())
+
         start_time = System.monotonic_time(:millisecond)
 
-        case Req.post(url, opts) do
+        case SafeHttp.request(pinned,
+               method: :post,
+               headers: headers,
+               body: body_json,
+               connect_timeout: @connect_timeout,
+               receive_timeout: @receive_timeout,
+               deadline: @request_deadline,
+               max_body: @max_response_body
+             ) do
           {:ok, %{status: status} = resp} when status >= 200 and status < 300 ->
             latency_ms = System.monotonic_time(:millisecond) - start_time
 
@@ -236,23 +239,8 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     :crypto.mac(:hmac, :sha256, secret, body) |> Base.encode64(padding: false)
   end
 
-  @max_response_body 10_000
-
-  defp format_response_body(%{body: body}) when is_binary(body) do
-    if String.length(body) > @max_response_body,
-      do: String.slice(body, 0, @max_response_body) <> "...",
-      else: body
-  end
-
-  defp format_response_body(%{body: body}) when is_map(body) or is_list(body) do
-    json = Jason.encode!(body)
-
-    if String.length(json) > @max_response_body,
-      do: String.slice(json, 0, @max_response_body) <> "...",
-      else: json
-  end
-
-  defp format_response_body(%{body: body}), do: inspect(body)
+  # The body is already capped at @max_response_body bytes while reading
+  defp format_response_body(resp), do: SafeHttp.printable_body(resp)
 
   defp mark_success(delivery, status, resp, latency_ms, request_info) do
     result =
@@ -436,17 +424,6 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
         attempts: delivery.attempt_number
       )
     end
-  end
-
-  defp resolve_destination_ip(url) do
-    uri = URI.parse(url)
-
-    case :inet.getaddr(to_charlist(uri.host || ""), :inet) do
-      {:ok, ip} -> :inet.ntoa(ip) |> to_string()
-      _ -> nil
-    end
-  rescue
-    _ -> nil
   end
 
   defp truncate_body(body, max_length) when is_binary(body) do

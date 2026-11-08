@@ -92,9 +92,9 @@ defmodule StreamflixCore.Platform.Webhooks do
   def create_webhook(project_id, attrs) do
     attrs = Map.merge(attrs, %{"project_id" => project_id})
 
-    case %Webhook{}
-         |> Webhook.changeset(attrs)
-         |> Repo.insert() do
+    case StreamflixCore.Platform.Quotas.with_quota(:webhooks, project_id, fn ->
+           %Webhook{} |> Webhook.changeset(attrs) |> Repo.insert()
+         end) do
       {:ok, webhook} ->
         Cachex.del(@cache, {:active_webhooks, project_id})
         invalidate_webhook_health_cache(project_id)
@@ -476,25 +476,25 @@ defmodule StreamflixCore.Platform.Webhooks do
 
         start_time = System.monotonic_time(:millisecond)
 
-        with :ok <- StreamflixCore.Platform.UrlGuard.check(webhook.url),
-             {:ok, %{status: status}} <-
-               Req.post(webhook.url,
-                 json: test_payload,
-                 headers: headers,
-                 receive_timeout: 10_000,
-                 connect_options: [timeout: 5_000],
-                 redirect: false,
-                 retry: false
-               ) do
-          latency_ms = System.monotonic_time(:millisecond) - start_time
-          result = %{status: status, latency_ms: latency_ms, webhook_id: webhook.id}
+        # Pinned to the checked IP, no redirects, no decompression, bounded body/time
+        case StreamflixCore.Platform.SafeHttp.request(webhook.url,
+               method: :post,
+               headers: headers,
+               body: body_json,
+               receive_timeout: 10_000,
+               deadline: 15_000,
+               max_body: 1_000
+             ) do
+          {:ok, %{status: status}} ->
+            latency_ms = System.monotonic_time(:millisecond) - start_time
+            result = %{status: status, latency_ms: latency_ms, webhook_id: webhook.id}
 
-          # Only a 2xx answer is a successful test
-          if status in 200..299,
-            do: {:ok, result},
-            else: {:error, Map.put(result, :reason, "HTTP #{status}")}
-        else
-          {:error, reason} when is_atom(reason) ->
+            # Only a 2xx answer is a successful test
+            if status in 200..299,
+              do: {:ok, result},
+              else: {:error, Map.put(result, :reason, "HTTP #{status}")}
+
+          {:error, {:blocked, reason}} ->
             {:error,
              %{
                reason: "destination " <> StreamflixCore.Platform.UrlGuard.message(reason),

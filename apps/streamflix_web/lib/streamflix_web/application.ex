@@ -9,6 +9,8 @@ defmodule StreamflixWeb.Application do
       maybe_prom_ex() ++
         [
           StreamflixWebWeb.Telemetry,
+          # Open SSE streams per project (concurrent connection cap)
+          {Registry, keys: :duplicate, name: StreamflixWebWeb.SSERegistry},
           {DNSCluster,
            query: Application.get_env(:streamflix_web, :dns_cluster_query) || :ignore},
           StreamflixWebWeb.Endpoint

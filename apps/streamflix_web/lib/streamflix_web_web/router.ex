@@ -63,6 +63,17 @@ defmodule StreamflixWebWeb.Router do
 
   pipeline :embed_token_auth do
     plug StreamflixWebWeb.Plugs.EmbedTokenAuth
+    plug StreamflixWebWeb.Plugs.ProjectRateLimit
+  end
+
+  # Public sandbox receiver: per-IP limit (own ETS key, no path rules)
+  pipeline :sandbox_rate_limit do
+    plug StreamflixWebWeb.Plugs.RateLimit, max: 60, window_sec: 60, key: "sandbox"
+  end
+
+  # JWT-authenticated API (projects, teams, GDPR): per-IP limit
+  pipeline :jwt_rate_limit do
+    plug StreamflixWebWeb.Plugs.RateLimit, max: 300, window_sec: 60, key: "jwt_api"
   end
 
   pipeline :openapi do
@@ -130,7 +141,7 @@ defmodule StreamflixWebWeb.Router do
 
   # Sandbox catch-all (receives webhook test requests)
   scope "/sandbox", StreamflixWebWeb do
-    pipe_through :api
+    pipe_through [:api, :sandbox_rate_limit]
 
     match :*, "/:slug", SandboxController, :receive
     match :*, "/:slug/*path", SandboxController, :receive
@@ -312,7 +323,7 @@ defmodule StreamflixWebWeb.Router do
   # ============================================
 
   scope "/api/v1", StreamflixWebWeb.Api.V1, as: :api_v1 do
-    pipe_through [:api, :api_auth]
+    pipe_through [:api, :jwt_rate_limit, :api_auth]
 
     # Multi-project (B11)
     get "/projects", PlatformProjectsController, :index
