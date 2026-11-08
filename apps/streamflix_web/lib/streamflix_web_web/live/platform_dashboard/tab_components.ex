@@ -462,14 +462,14 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
               <% end %>
             </.form>
             <a
-              href="/export/events?format=csv"
+              href={export_href(@project, "events", "csv")}
               target="_blank"
               class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
             >
               <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> CSV
             </a>
             <a
-              href="/export/events?format=json"
+              href={export_href(@project, "events", "json")}
               target="_blank"
               class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
             >
@@ -1285,14 +1285,14 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
         </h2>
         <div class="flex flex-wrap gap-2">
           <a
-            href="/export/deliveries?format=csv"
+            href={export_href(@project, "deliveries", "csv")}
             target="_blank"
             class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
           >
             <.icon name="hero-arrow-down-tray" class="w-3.5 h-3.5" /> CSV
           </a>
           <a
-            href="/export/deliveries?format=json"
+            href={export_href(@project, "deliveries", "json")}
             target="_blank"
             class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
           >
@@ -1560,7 +1560,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
         </h2>
         <div class="flex flex-wrap gap-2">
           <a
-            href="/export/jobs?format=csv"
+            href={export_href(@project, "jobs", "csv")}
             target="_blank"
             class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
           >

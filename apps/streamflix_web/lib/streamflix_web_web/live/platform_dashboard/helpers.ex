@@ -356,18 +356,38 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
     end
   end
 
+  @doc "Browser export link for the project being viewed."
+  def export_href(%{id: project_id}, kind, format),
+    do: "/export/#{kind}?" <> URI.encode_query(%{"format" => format, "project" => project_id})
+
+  def export_href(_project, kind, format), do: "/export/#{kind}?format=#{format}"
+
   # ── Permissions ────────────────────────────────────────────────────
 
-  def authorize(socket, :write) do
-    if socket.assigns.current_user_role in ["owner", "editor"],
-      do: :ok,
-      else: {:error, gettext("No tienes permisos para esta acción.")}
+  @doc """
+  Checks the user's permission on the current project. The role is read from
+  the DB on every call (not the one captured at mount), so a member who was
+  removed or demoted loses access immediately.
+  """
+  def authorize(socket, level) do
+    role = current_role(socket)
+
+    case level do
+      :write when role in ["owner", "editor"] -> :ok
+      :admin when role == "owner" -> :ok
+      :write -> {:error, gettext("No tienes permisos para esta acción.")}
+      :admin -> {:error, gettext("Solo el dueño del proyecto puede hacer esto.")}
+    end
   end
 
-  def authorize(socket, :admin) do
-    if socket.assigns.current_user_role == "owner",
-      do: :ok,
-      else: {:error, gettext("Solo el dueño del proyecto puede hacer esto.")}
+  defp current_role(socket) do
+    case socket.assigns do
+      %{project: %{id: project_id}, current_user: %{id: user_id}} ->
+        Teams.effective_role(project_id, user_id)
+
+      _ ->
+        nil
+    end
   end
 
   def with_permission(socket, level, fun) do
@@ -377,8 +397,37 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
     end
   end
 
+  @doc "Runs `fun` unless the user exceeded the per-minute limit for `action`."
+  def with_throttle(socket, action, fun) do
+    case StreamflixWebWeb.LiveThrottle.check(socket.assigns.current_user.id, action) do
+      :ok ->
+        fun.()
+
+      {:error, :throttled} ->
+        {:noreply,
+         Phoenix.LiveView.put_flash(
+           socket,
+           :error,
+           gettext("Demasiadas solicitudes. Espera un minuto e inténtalo de nuevo.")
+         )}
+    end
+  end
+
+  # Same limit as the API request body
+  @max_payload_bytes 256 * 1024
+
+  @doc "Whether a JSON payload typed in the dashboard is within the size limit."
+  def payload_within_limit?(str) when is_binary(str), do: byte_size(str) <= @max_payload_bytes
+  def payload_within_limit?(_), do: true
+
+  def payload_too_large_msg,
+    do: gettext("El payload es demasiado grande (máximo 256 KB).")
+
   def with_superadmin(socket, fun) do
-    if StreamflixAccounts.Schemas.User.superadmin?(socket.assigns.current_user) do
+    # Re-read the user: a demotion must take effect without a reconnect
+    fresh = StreamflixAccounts.get_user(socket.assigns.current_user.id)
+
+    if fresh && fresh.status == "active" && StreamflixAccounts.Schemas.User.superadmin?(fresh) do
       fun.()
     else
       {:noreply,
@@ -386,15 +435,9 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
     end
   end
 
+  @doc "Role shown in the UI; nil (no access) for anyone who is not an active member."
   def compute_user_role(nil, _user), do: nil
-
-  def compute_user_role(project, user) do
-    if project.user_id == user.id do
-      "owner"
-    else
-      Teams.get_member_role(project.id, user.id) || "viewer"
-    end
-  end
+  def compute_user_role(project, user), do: Teams.effective_role(project.id, user.id)
 
   # ── Data Loading ───────────────────────────────────────────────────
 

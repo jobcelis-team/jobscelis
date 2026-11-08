@@ -10,6 +10,10 @@ defmodule StreamflixCore.Schemas.ProjectMember do
 
   @valid_roles ~w(owner editor viewer)
   @valid_statuses ~w(pending active removed)
+  @invitable_roles ~w(editor viewer)
+
+  @doc "Roles that can be granted through an invitation (never owner)."
+  def invitable_roles, do: @invitable_roles
 
   schema "project_members" do
     field(:role, :string, default: "viewer")

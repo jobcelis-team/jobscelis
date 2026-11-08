@@ -687,6 +687,44 @@ defmodule StreamflixAccounts do
     end
   end
 
+  @doc """
+  Updates a user from the admin panel (name, email, role, status).
+
+  A changed email goes through `User.email_changeset/2`, so the new address is
+  unverified and pending confirm/reset links are discarded. Moving the user out
+  of "active" revokes all their sessions, as `deactivate_user/1` does.
+  Authorization (who may edit whom) is the caller's responsibility.
+  """
+  def admin_update_user(%User{} = user, attrs) do
+    attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
+    {email, attrs} = Map.pop(attrs, "email")
+    new_email = if is_binary(email), do: email |> String.trim() |> String.downcase()
+    email_changed? = is_binary(new_email) and new_email != "" and new_email != user.email
+
+    changeset =
+      user
+      |> User.changeset(Map.take(attrs, ["name", "role", "status"]))
+      |> then(&if email_changed?, do: User.email_changeset(&1, %{email: new_email}), else: &1)
+
+    with {:ok, updated} <- Repo.update(changeset) do
+      if email_changed? do
+        import Ecto.Query, only: [from: 2]
+
+        Repo.delete_all(
+          from(t in UserToken,
+            where: t.user_id == ^user.id and t.context in ["confirm_email", "reset_password"]
+          )
+        )
+      end
+
+      if user.status == "active" and updated.status != "active",
+        do: revoke_all_sessions(user.id)
+
+      Cachex.del(:platform_cache, {:auth_user, user.id})
+      {:ok, updated}
+    end
+  end
+
   def activate_user(user_id) do
     case get_user(user_id) do
       nil -> {:error, :not_found}
