@@ -178,7 +178,7 @@ jobs:
         run: docker build -t jobscelis:ci --target prod .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: 'jobscelis:ci'
           format: 'table'
