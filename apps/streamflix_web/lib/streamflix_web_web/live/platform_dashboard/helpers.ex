@@ -225,6 +225,13 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
   def notification_title(%{type: "dlq_entry"}), do: gettext("Entrega movida a DLQ")
   def notification_title(%{type: "replay_completed"}), do: gettext("Replay completado")
   def notification_title(%{type: "team_invite"}), do: gettext("Invitación a proyecto")
+
+  def notification_title(%{type: "security_anomaly"}),
+    do: gettext("Anomalía de seguridad detectada")
+
+  def notification_title(%{type: "system_health", metadata: %{"status" => status}}),
+    do: gettext("Estado del sistema: %{status}", status: uptime_label(%{status: status}))
+
   def notification_title(notif), do: notif.title
 
   def notification_message(%{type: "webhook_failing", metadata: %{"webhook_url" => url}}) do
@@ -247,7 +254,29 @@ defmodule StreamflixWebWeb.PlatformDashboard.Helpers do
     gettext("Has sido invitado a un proyecto.")
   end
 
+  def notification_message(%{type: "security_anomaly", metadata: %{"anomalies" => anomalies}})
+      when is_list(anomalies) do
+    anomalies
+    |> Enum.map(&anomaly_label(&1["type"]))
+    |> Enum.frequencies()
+    |> Enum.map_join(", ", fn {label, count} -> "#{label} (#{count})" end)
+  end
+
+  def notification_message(%{type: "system_health", metadata: %{"checks" => checks}})
+      when is_map(checks) do
+    case for({name, status} <- checks, status != "ok", do: name) do
+      [] -> gettext("Todos los componentes están operativos.")
+      failing -> gettext("Componentes con problemas: %{list}", list: Enum.join(failing, ", "))
+    end
+  end
+
   def notification_message(notif), do: notif.message
+
+  defp anomaly_label("brute_force_ip"), do: gettext("Intentos de acceso repetidos desde una IP")
+  defp anomaly_label("coordinated_attack"), do: gettext("Ataque coordinado de inicio de sesión")
+  defp anomaly_label("data_exfiltration"), do: gettext("Exportaciones de datos inusuales")
+  defp anomaly_label("account_lockout"), do: gettext("Cuenta bloqueada")
+  defp anomaly_label(other), do: to_string(other)
 
   # ── Sandbox ────────────────────────────────────────────────────────
 

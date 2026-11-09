@@ -16,6 +16,8 @@ defmodule StreamflixCore.Schemas.AuditLog do
     field(:resource_id, :binary_id)
     field(:metadata, :map, default: %{})
     field(:ip_address, StreamflixCore.Encrypted.Binary)
+    # Blind index of ip_address: equal IPs give equal hashes (breach detection)
+    field(:ip_hash, StreamflixCore.Hashed.HMAC)
     field(:user_agent, StreamflixCore.Encrypted.Binary)
 
     timestamps(type: :utc_datetime_usec, updated_at: false)
@@ -34,5 +36,13 @@ defmodule StreamflixCore.Schemas.AuditLog do
       :user_agent
     ])
     |> validate_required([:action])
+    |> put_ip_hash()
+  end
+
+  defp put_ip_hash(changeset) do
+    case get_change(changeset, :ip_address) do
+      ip when is_binary(ip) and ip != "" -> put_change(changeset, :ip_hash, String.trim(ip))
+      _ -> changeset
+    end
   end
 end

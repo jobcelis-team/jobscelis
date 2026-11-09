@@ -2,6 +2,8 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
   @moduledoc "Admin: list all projects and view one project (read-only)."
   use StreamflixWebWeb, :live_view
 
+  import StreamflixWebWeb.PlatformDashboard.Helpers, only: [status_label: 1]
+
   alias StreamflixCore.Platform
   alias StreamflixAccounts
 
@@ -179,7 +181,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
                         else: "bg-gray-200 text-gray-700 dark:bg-slate-700 dark:text-slate-300"
                       )
                     ]}>
-                      {p.status}
+                      {status_label(p.status)}
                     </span>
                   </td>
 
@@ -229,7 +231,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
           <p class="text-gray-600 dark:text-slate-400">{gettext("Usuario")}: {@user_email || "—"}</p>
 
           <p class="text-sm text-gray-500 dark:text-slate-400 mt-1 break-all">
-            {gettext("ID")}: {@project.id} · {gettext("Estado")}: {@project.status}
+            {gettext("ID")}: {@project.id} · {gettext("Estado")}: {status_label(@project.status)}
           </p>
         </div>
 
@@ -271,7 +273,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
                   }>
                     {w.url}
                   </span>
-                  <span class="text-gray-400 dark:text-slate-500 ml-2">{w.status}</span>
+                  <span class="text-gray-400 dark:text-slate-500 ml-2">{status_label(w.status)}</span>
                 </div>
               <% end %>
 
@@ -293,7 +295,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
                 <div class="p-3 text-sm dark:text-slate-300">
                   <span>{j.name || j.id}</span>
                   <span class="text-gray-400 dark:text-slate-500 ml-2">
-                    {j.schedule_type} · {j.status}
+                    {j.schedule_type} · {status_label(j.status)}
                   </span>
                 </div>
               <% end %>
@@ -312,7 +314,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
             <div class="max-h-64 overflow-y-auto divide-y dark:divide-slate-700">
               <%= for d <- @deliveries do %>
                 <div class="p-3 text-sm flex justify-between dark:text-slate-300">
-                  <span>{d.status}</span>
+                  <span>{status_label(d.status)}</span>
                   <span class="text-gray-500 dark:text-slate-400">
                     {if d.response_status, do: d.response_status, else: "—"}
                   </span>
