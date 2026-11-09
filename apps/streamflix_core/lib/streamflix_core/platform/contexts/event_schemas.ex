@@ -17,6 +17,7 @@ defmodule StreamflixCore.Platform.EventSchemas do
       |> EventSchema.changeset(attrs)
       |> validate_schema_document()
       |> Repo.insert()
+      |> invalidate_active_schema()
     end)
   end
 
@@ -33,10 +34,43 @@ defmodule StreamflixCore.Platform.EventSchemas do
   def get_event_schema(id), do: Repo.get_uuid(EventSchema, id)
 
   def update_event_schema(%EventSchema{} = schema, attrs) do
+    # The topic may change: the old one's cached schema is cleared too
+    Cachex.del(@cache, {:active_event_schema, schema.project_id, schema.topic})
+
     schema
     |> EventSchema.changeset(attrs)
     |> validate_schema_document()
     |> Repo.update()
+    |> invalidate_active_schema()
+  end
+
+  @active_ttl :timer.seconds(60)
+
+  defp invalidate_active_schema({:ok, %EventSchema{project_id: p, topic: t}} = result) do
+    Cachex.del(@cache, {:active_event_schema, p, t})
+    result
+  end
+
+  defp invalidate_active_schema(other), do: other
+
+  # The active schema of a topic is read for every event, so it is cached
+  # (nil as :none); create and update clear it.
+  defp active_schema(project_id, topic) do
+    loader = fn ->
+      EventSchema
+      |> where([s], s.project_id == ^project_id and s.topic == ^topic and s.status == "active")
+      |> order_by([s], desc: s.version)
+      |> limit(1)
+      |> Repo.one()
+    end
+
+    case Cachex.fetch(@cache, {:active_event_schema, project_id, topic}, fn _ ->
+           {:commit, loader.() || :none, expire: @active_ttl}
+         end) do
+      {status, :none} when status in [:ok, :commit] -> nil
+      {status, record} when status in [:ok, :commit] -> record
+      _ -> loader.()
+    end
   end
 
   @doc "Max size of a schema document (JSON-encoded bytes)."
@@ -108,14 +142,7 @@ defmodule StreamflixCore.Platform.EventSchemas do
         :ok
 
       t ->
-        schema_record =
-          EventSchema
-          |> where([s], s.project_id == ^project_id and s.topic == ^t and s.status == "active")
-          |> order_by([s], desc: s.version)
-          |> limit(1)
-          |> Repo.one()
-
-        case schema_record do
+        case active_schema(project_id, t) do
           nil ->
             :ok
 

@@ -70,6 +70,7 @@ defmodule StreamflixCore.GDPR do
     # Same keys as the sessions (Authentication) and API JWT (Guardian) caches
     Cachex.del(@cache, {:auth_user, id})
     Cachex.del(@cache, {:user, id})
+    StreamflixCore.Platform.Events.invalidate_processing_cache(id)
     result
   end
 
