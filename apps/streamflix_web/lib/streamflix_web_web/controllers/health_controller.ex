@@ -35,7 +35,24 @@ defmodule StreamflixWebWeb.HealthController do
     })
   end
 
+  # /health is public: the database result is shared for a few seconds, so a
+  # flood of requests costs at most one query per window instead of holding
+  # pool connections.
+  @db_check_ttl :timer.seconds(5)
+
   defp check_database do
+    case Cachex.get(:platform_cache, :health_db_check) do
+      {:ok, result} when is_binary(result) ->
+        result
+
+      _ ->
+        result = ping_database()
+        Cachex.put(:platform_cache, :health_db_check, result, expire: @db_check_ttl)
+        result
+    end
+  end
+
+  defp ping_database do
     try do
       StreamflixCore.Repo.query!("SELECT 1")
       "ok"

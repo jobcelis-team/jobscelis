@@ -28,6 +28,10 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
   @doc """
   POST /api/v1/send or /api/v1/events - Send an event (body = any JSON).
   """
+  # A JSON array (or any non-object body) reaches the action as %{"_json" => ...}
+  def create(conn, %{"_json" => _}),
+    do: conn |> put_status(422) |> json(%{error: "Body must be a JSON object"})
+
   def create(conn, body) when is_map(body) do
     project = conn.assigns.current_project
 
@@ -313,6 +317,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformEventsController do
       unprocessable_entity: {"Invalid payload", "application/json", Schemas.ErrorResponse}
     ]
   )
+
+  def simulate(conn, %{"_json" => _}),
+    do: conn |> put_status(422) |> json(%{error: "Body must be a JSON object"})
 
   def simulate(conn, body) when is_map(body) do
     project = conn.assigns.current_project

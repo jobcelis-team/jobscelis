@@ -10,7 +10,10 @@ IO.puts("Seeding Webhooks platform...")
 
 # Create admin if not already present (by email)
 admin_email = System.get_env("ADMIN_EMAIL") || "admin@example.com"
-admin_password = System.get_env("ADMIN_PASSWORD") || "admin123456"
+# Without ADMIN_PASSWORD a random one is generated (it meets the password policy)
+admin_password =
+  System.get_env("ADMIN_PASSWORD") ||
+    "Aa1!" <> Base.url_encode64(:crypto.strong_rand_bytes(12), padding: false)
 
 case StreamflixAccounts.get_user_by_email(admin_email) do
   nil ->
