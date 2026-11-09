@@ -13,7 +13,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   import StreamflixWebWeb.PlatformDashboard.Helpers
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     user = socket.assigns.current_user
     projects = Teams.list_all_accessible_projects(user.id)
 
@@ -94,7 +94,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           last_7d: %{uptime_percent: 0.0},
           last_30d: %{uptime_percent: 0.0}
         },
-        fresh_api_key: session["fresh_api_key"],
+        fresh_api_key: StreamflixWebWeb.FreshApiKey.get(user.id, take: connected?(socket)),
         event_detail: nil,
         event_deliveries: [],
         search_query: "",
@@ -880,8 +880,18 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
      |> assign(:webhook_step, 1)}
   end
 
+  # Step 2 is only reachable with a valid URL: its error is shown on step 1,
+  # so a hidden invalid field would otherwise block the submit silently
   def handle_event("webhook_step", %{"step" => step}, socket) do
-    {:noreply, assign(socket, :webhook_step, String.to_integer(step))}
+    step = String.to_integer(step)
+
+    case validate_webhook_form(socket.assigns.webhook_form) do
+      errors when step > 1 and errors != [] ->
+        {:noreply, assign(socket, webhook_step: 1, webhook_form_errors: errors)}
+
+      _ ->
+        {:noreply, assign(socket, :webhook_step, step)}
+    end
   end
 
   def handle_event("webhook_form_change", %{"webhook" => params}, socket) do
@@ -2100,20 +2110,43 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   # ---------- PubSub handlers (real-time) ----------
 
   @impl true
-  def handle_info({:event_created, _event}, socket) do
-    project = socket.assigns.project
-    events = Platform.list_events(project.id, limit: 20)
-    deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
-
-    {:noreply,
-     socket |> assign(:events, events) |> assign(:deliveries, deliveries) |> assign_kpis(project)}
-  end
+  def handle_info({:event_created, _event}, socket),
+    do: {:noreply, schedule_live_refresh(socket, [:events, :deliveries])}
 
   @impl true
-  def handle_info({:delivery_updated, _delivery}, socket) do
-    project = socket.assigns.project
-    deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
-    {:noreply, socket |> assign(:deliveries, deliveries) |> assign_kpis(project)}
+  def handle_info({:delivery_updated, _delivery}, socket),
+    do: {:noreply, schedule_live_refresh(socket, [:deliveries])}
+
+  # Events and delivery updates can arrive hundreds of times per second: they
+  # only mark what changed, and one refresh per second re-reads it, instead of
+  # re-running the list and KPI queries for every message.
+  @impl true
+  def handle_info(:live_refresh, socket) do
+    pending = socket.assigns[:live_refresh_pending] || MapSet.new()
+    socket = assign(socket, live_refresh_pending: MapSet.new(), live_refresh_timer: nil)
+
+    case socket.assigns.project do
+      nil ->
+        {:noreply, socket}
+
+      project ->
+        socket =
+          if MapSet.member?(pending, :events),
+            do: assign(socket, :events, Platform.list_events(project.id, limit: 20)),
+            else: socket
+
+        socket =
+          if MapSet.member?(pending, :deliveries),
+            do:
+              assign(
+                socket,
+                :deliveries,
+                Platform.list_deliveries(project_id: project.id, limit: 30)
+              ),
+            else: socket
+
+        {:noreply, assign_kpis(socket, project)}
+    end
   end
 
   @impl true
@@ -2763,9 +2796,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     errors = []
     errors = if url == "", do: [gettext("La URL es obligatoria") | errors], else: errors
 
+    # Same rule as the webhook schema (and the API): http or https
     errors =
-      if url != "" and not String.starts_with?(url, "https://"),
-        do: [gettext("La URL debe comenzar con https://") | errors],
+      if url != "" and not String.match?(url, ~r{^https?://[^\s/]+}),
+        do: [gettext("La URL debe comenzar con http:// o https://") | errors],
         else: errors
 
     Enum.reverse(errors)
@@ -2985,7 +3019,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             resource_id: event.id
           )
 
-          events = [event | Platform.list_events(project.id, limit: 19)]
+          # The new event is already in the list: prepending it showed it twice
+          events = Platform.list_events(project.id, limit: 20)
 
           socket
           |> put_flash(:info, gettext("Evento enviado. ID: %{id}", id: event.id))
@@ -3120,5 +3155,24 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       resource_id: resource_id,
       metadata: metadata
     )
+  end
+
+  @live_refresh_ms 1_000
+
+  defp schedule_live_refresh(socket, what) do
+    pending =
+      MapSet.union(socket.assigns[:live_refresh_pending] || MapSet.new(), MapSet.new(what))
+
+    socket = assign(socket, :live_refresh_pending, pending)
+
+    if socket.assigns[:live_refresh_timer] do
+      socket
+    else
+      assign(
+        socket,
+        :live_refresh_timer,
+        Process.send_after(self(), :live_refresh, @live_refresh_ms)
+      )
+    end
   end
 end

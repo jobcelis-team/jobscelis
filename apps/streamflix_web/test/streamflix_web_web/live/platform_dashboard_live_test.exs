@@ -83,4 +83,29 @@ defmodule StreamflixWebWeb.PlatformDashboardLiveTest do
       assert StreamflixCore.Platform.get_api_key_for_project(project.id).allowed_ips == []
     end
   end
+
+  describe "live updates" do
+    # Hundreds of events per second used to re-run the list and KPI queries for
+    # every message; now they are coalesced into one refresh per second.
+    test "a burst of events causes a single refresh that shows them", %{
+      conn: conn,
+      project: project
+    } do
+      {:ok, view, _html} = live(conn, "/platform?project=#{project.id}")
+
+      event =
+        insert(:webhook_event, project_id: project.id, topic: "burst.check", payload: %{})
+
+      for _ <- 1..200, do: send(view.pid, {:event_created, event})
+
+      # all 200 messages are handled, with one refresh scheduled
+      render(view)
+      assert %{live_refresh_timer: timer} = :sys.get_state(view.pid).socket.assigns
+      assert is_reference(timer)
+
+      Process.sleep(1_200)
+      assert render(view) =~ "burst.check"
+      assert %{live_refresh_timer: nil} = :sys.get_state(view.pid).socket.assigns
+    end
+  end
 end

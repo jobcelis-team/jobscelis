@@ -6236,8 +6236,8 @@ msgstr "Crear pipeline"
 
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1151
 #, elixir-autogen, elixir-format
-msgid "Debe ser una URL HTTPS accesible públicamente."
-msgstr "Debe ser una URL HTTPS accesible públicamente."
+msgid "Debe ser una URL accesible públicamente. Se recomienda HTTPS."
+msgstr "Debe ser una URL accesible públicamente. Se recomienda HTTPS."
 
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1210
 #, elixir-autogen, elixir-format
@@ -6541,8 +6541,8 @@ msgstr "El nombre es obligatorio"
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2739
 #, elixir-autogen, elixir-format
-msgid "La URL debe comenzar con https://"
-msgstr "La URL debe comenzar con https://"
+msgid "La URL debe comenzar con http:// o https://"
+msgstr "La URL debe comenzar con http:// o https://"
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2735
 #, elixir-autogen, elixir-format

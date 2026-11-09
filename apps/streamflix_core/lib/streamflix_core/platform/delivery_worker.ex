@@ -462,10 +462,18 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
     event = delivery.event || Repo.get(StreamflixCore.Schemas.WebhookEvent, delivery.event_id)
 
     if event do
+      # Only what subscribers use: the full struct carried the event payload and
+      # the webhook with its decrypted secret to every dashboard and stream
       Phoenix.PubSub.broadcast(
         StreamflixCore.PubSub,
         "project:#{event.project_id}",
-        {:delivery_updated, delivery}
+        {:delivery_updated,
+         %{
+           id: delivery.id,
+           status: delivery.status,
+           event_id: delivery.event_id,
+           webhook_id: delivery.webhook_id
+         }}
       )
     end
   end
