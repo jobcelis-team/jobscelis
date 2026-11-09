@@ -98,6 +98,7 @@ defmodule StreamflixCore.Platform.Webhooks do
       {:ok, webhook} ->
         Cachex.del(@cache, {:active_webhooks, project_id})
         invalidate_webhook_health_cache(project_id)
+        broadcast_webhooks_changed(project_id)
         {:ok, webhook}
 
       error ->
@@ -139,6 +140,7 @@ defmodule StreamflixCore.Platform.Webhooks do
       {:ok, updated} ->
         Cachex.del(@cache, {:active_webhooks, webhook.project_id})
         invalidate_webhook_health_cache(webhook.project_id)
+        broadcast_webhooks_changed(webhook.project_id)
         {:ok, updated}
 
       error ->
@@ -155,6 +157,16 @@ defmodule StreamflixCore.Platform.Webhooks do
       {k, v} when is_atom(k) -> {Atom.to_string(k), v}
       {k, v} -> {k, v}
     end)
+  end
+
+  # Lets an open dashboard refresh its webhook list when the change came from
+  # the API or another session (SSE and channel subscribers ignore it)
+  defp broadcast_webhooks_changed(project_id) do
+    Phoenix.PubSub.broadcast(
+      StreamflixCore.PubSub,
+      "project:#{project_id}",
+      {:webhooks_changed, project_id}
+    )
   end
 
   def set_webhook_inactive(%Webhook{} = webhook) do

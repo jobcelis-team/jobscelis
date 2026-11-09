@@ -8771,3 +8771,43 @@ msgstr "Jobcelis has been updated"
 #, elixir-autogen, elixir-format
 msgid "Ya tienes la versión más reciente."
 msgstr "You are on the latest version."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Anomalía de seguridad detectada"
+msgstr "Security anomaly detected"
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Estado del sistema: %{status}"
+msgstr "System status: %{status}"
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Todos los componentes están operativos."
+msgstr "All components are operational."
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Componentes con problemas: %{list}"
+msgstr "Components with issues: %{list}"
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Intentos de acceso repetidos desde una IP"
+msgstr "Repeated login attempts from one IP"
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Ataque coordinado de inicio de sesión"
+msgstr "Coordinated login attack"
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Exportaciones de datos inusuales"
+msgstr "Unusual data exports"
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Cuenta bloqueada"
+msgstr "Account locked"

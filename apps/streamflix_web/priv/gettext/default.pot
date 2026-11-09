@@ -8757,3 +8757,43 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Ya tienes la versión más reciente."
 msgstr ""
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Anomalía de seguridad detectada"
+msgstr ""
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Estado del sistema: %{status}"
+msgstr ""
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Todos los componentes están operativos."
+msgstr ""
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Componentes con problemas: %{list}"
+msgstr ""
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Intentos de acceso repetidos desde una IP"
+msgstr ""
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Ataque coordinado de inicio de sesión"
+msgstr ""
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Exportaciones de datos inusuales"
+msgstr ""
+
+#: lib/streamflix_web_web/live/platform_dashboard/helpers.ex
+#, elixir-autogen, elixir-format
+msgid "Cuenta bloqueada"
+msgstr ""

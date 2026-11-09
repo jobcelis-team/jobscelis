@@ -61,6 +61,5 @@ defmodule StreamflixWebWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug StreamflixWebWeb.Plugs.CORS
-  plug StreamflixWebWeb.Plugs.Compress
   plug StreamflixWebWeb.Router
 end

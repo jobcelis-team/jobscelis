@@ -2117,6 +2117,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_info({:delivery_updated, _delivery}, socket),
     do: {:noreply, schedule_live_refresh(socket, [:deliveries])}
 
+  @impl true
+  def handle_info({:webhooks_changed, _project_id}, socket),
+    do: {:noreply, schedule_live_refresh(socket, [:webhooks])}
+
   # Events and delivery updates can arrive hundreds of times per second: they
   # only mark what changed, and one refresh per second re-reads it, instead of
   # re-running the list and KPI queries for every message.
@@ -2133,6 +2137,15 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         socket =
           if MapSet.member?(pending, :events),
             do: assign(socket, :events, Platform.list_events(project.id, limit: 20)),
+            else: socket
+
+        socket =
+          if MapSet.member?(pending, :webhooks),
+            do:
+              assign(socket,
+                webhooks: Platform.list_webhooks(project.id, include_inactive: true),
+                webhook_health: Platform.webhooks_health(project.id)
+              ),
             else: socket
 
         socket =
