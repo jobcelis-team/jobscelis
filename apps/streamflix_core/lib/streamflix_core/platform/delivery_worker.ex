@@ -5,6 +5,7 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
   """
   require Logger
 
+  import Ecto.Query, only: [from: 2]
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.Delivery
   alias StreamflixCore.Platform
@@ -25,13 +26,31 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
   Returns `{:ok, delivery}` or `{:error, reason}`.
   """
   def run(nil), do: {:error, :not_found}
+  def run(%Delivery{} = delivery), do: run_loaded(delivery, delivery.id)
   def run(delivery_id) when not is_binary(delivery_id), do: {:error, :invalid_id}
+  def run(delivery_id), do: run_loaded(load(delivery_id), delivery_id)
 
-  def run(delivery_id) do
-    delivery =
-      Repo.get(Delivery, delivery_id)
-      |> Repo.preload([:event, :webhook])
+  @doc "The delivery with its event and webhook, in one query (nil if missing)."
+  def load(delivery_id) when is_binary(delivery_id) do
+    case Ecto.UUID.cast(delivery_id) do
+      {:ok, id} ->
+        Repo.one(
+          from(d in Delivery,
+            where: d.id == ^id,
+            left_join: e in assoc(d, :event),
+            left_join: w in assoc(d, :webhook),
+            preload: [event: e, webhook: w]
+          )
+        )
 
+      :error ->
+        nil
+    end
+  end
+
+  def load(_), do: nil
+
+  defp run_loaded(delivery, delivery_id) do
     case delivery do
       nil ->
         Logger.warning("Delivery not found",
@@ -70,20 +89,18 @@ defmodule StreamflixCore.Platform.DeliveryWorker do
 
       d ->
         # GDPR: skip delivery if project owner has restricted/objected processing
-        project = Repo.get(StreamflixCore.Schemas.Project, d.event.project_id)
-
-        if project && !Platform.user_processing_allowed?(project.user_id) do
+        if StreamflixCore.Platform.Events.processing_allowed_for_project?(d.event.project_id) do
+          case StreamflixCore.CircuitBreaker.check_circuit(d.webhook) do
+            :ok -> do_deliver(d)
+            {:error, :circuit_open} -> {:error, :circuit_open}
+          end
+        else
           Logger.info("Skipping delivery, user processing restricted",
             worker: "DeliveryWorker",
             delivery_id: delivery_id
           )
 
           mark_skipped(d, "skipped: processing restricted (GDPR)")
-        else
-          case StreamflixCore.CircuitBreaker.check_circuit(d.webhook) do
-            :ok -> do_deliver(d)
-            {:error, :circuit_open} -> {:error, :circuit_open}
-          end
         end
     end
   end

@@ -14,6 +14,7 @@ defmodule StreamflixCore.Platform.Pipelines do
       |> Pipeline.changeset(Map.put(attrs, "project_id", project_id))
       |> validate_webhook_in_project()
       |> Repo.insert()
+      |> invalidate()
     end)
   end
 
@@ -47,6 +48,7 @@ defmodule StreamflixCore.Platform.Pipelines do
     |> Pipeline.changeset(Map.drop(attrs, ["project_id", :project_id]))
     |> validate_webhook_in_project()
     |> Repo.update()
+    |> invalidate()
   end
 
   # The target webhook must belong to the pipeline's project
@@ -68,6 +70,7 @@ defmodule StreamflixCore.Platform.Pipelines do
     pipeline
     |> Pipeline.changeset(%{status: "inactive"})
     |> Repo.update()
+    |> invalidate()
   end
 
   @doc """
@@ -75,11 +78,39 @@ defmodule StreamflixCore.Platform.Pipelines do
   Uses the same wildcard matching as webhooks.
   """
   def matching_pipelines(project_id, topic) do
-    Pipeline
-    |> where([p], p.project_id == ^project_id and p.status == "active")
-    |> Repo.all()
+    project_id
+    |> active_pipelines()
     |> Enum.filter(&StreamflixCore.Platform.Webhooks.topic_matches?(&1.topics || [], topic))
   end
+
+  @cache :platform_cache
+  @active_ttl :timer.seconds(60)
+
+  @doc """
+  Active pipelines of a project. Read for every event, so cached; every write
+  in this module clears the project's entry.
+  """
+  def active_pipelines(project_id) do
+    loader = fn ->
+      Pipeline
+      |> where([p], p.project_id == ^project_id and p.status == "active")
+      |> Repo.all()
+    end
+
+    case Cachex.fetch(@cache, {:active_pipelines, project_id}, fn _ ->
+           {:commit, loader.(), expire: @active_ttl}
+         end) do
+      {status, pipelines} when status in [:ok, :commit] -> pipelines
+      _ -> loader.()
+    end
+  end
+
+  defp invalidate({:ok, %Pipeline{project_id: project_id}} = result) do
+    Cachex.del(@cache, {:active_pipelines, project_id})
+    result
+  end
+
+  defp invalidate(other), do: other
 
   # Upper bound for pipeline delay steps (7 days)
   @max_delay_seconds 7 * 24 * 3600
