@@ -220,7 +220,7 @@ defmodule StreamflixCore.Platform.Events do
       |> Enum.reject(&MapSet.member?(piped_webhook_ids, &1.id))
       |> Enum.filter(&Webhooks.webhook_matches_event?(&1, event))
       |> Enum.reduce(acc, fn webhook, {deliveries, jobs, items} ->
-        if (webhook.batch_config || %{})["enabled"] == true do
+        if batching?(webhook) do
           # Added to the webhook's batch queue instead of delivered now
           item = %{
             id: Ecto.UUID.generate(),
@@ -250,6 +250,9 @@ defmodule StreamflixCore.Platform.Events do
       end
     end)
   end
+
+  defp batching?(%{batch_config: %{"enabled" => true}}), do: true
+  defp batching?(_webhook), do: false
 
   defp planned_delivery(event, webhook, payload_override, delay_seconds, now) do
     id = Ecto.UUID.generate()
