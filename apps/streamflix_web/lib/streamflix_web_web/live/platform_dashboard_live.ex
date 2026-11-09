@@ -13,7 +13,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   import StreamflixWebWeb.PlatformDashboard.Helpers
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     user = socket.assigns.current_user
     projects = Teams.list_all_accessible_projects(user.id)
 
@@ -94,7 +94,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
           last_7d: %{uptime_percent: 0.0},
           last_30d: %{uptime_percent: 0.0}
         },
-        fresh_api_key: session["fresh_api_key"],
+        fresh_api_key: StreamflixWebWeb.FreshApiKey.get(user.id, take: connected?(socket)),
         event_detail: nil,
         event_deliveries: [],
         search_query: "",
@@ -880,8 +880,18 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
      |> assign(:webhook_step, 1)}
   end
 
+  # Step 2 is only reachable with a valid URL: its error is shown on step 1,
+  # so a hidden invalid field would otherwise block the submit silently
   def handle_event("webhook_step", %{"step" => step}, socket) do
-    {:noreply, assign(socket, :webhook_step, String.to_integer(step))}
+    step = String.to_integer(step)
+
+    case validate_webhook_form(socket.assigns.webhook_form) do
+      errors when step > 1 and errors != [] ->
+        {:noreply, assign(socket, webhook_step: 1, webhook_form_errors: errors)}
+
+      _ ->
+        {:noreply, assign(socket, :webhook_step, step)}
+    end
   end
 
   def handle_event("webhook_form_change", %{"webhook" => params}, socket) do
@@ -2786,9 +2796,10 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
     errors = []
     errors = if url == "", do: [gettext("La URL es obligatoria") | errors], else: errors
 
+    # Same rule as the webhook schema (and the API): http or https
     errors =
-      if url != "" and not String.starts_with?(url, "https://"),
-        do: [gettext("La URL debe comenzar con https://") | errors],
+      if url != "" and not String.match?(url, ~r{^https?://[^\s/]+}),
+        do: [gettext("La URL debe comenzar con http:// o https://") | errors],
         else: errors
 
     Enum.reverse(errors)
@@ -3008,7 +3019,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
             resource_id: event.id
           )
 
-          events = [event | Platform.list_events(project.id, limit: 19)]
+          # The new event is already in the list: prepending it showed it twice
+          events = Platform.list_events(project.id, limit: 20)
 
           socket
           |> put_flash(:info, gettext("Evento enviado. ID: %{id}", id: event.id))

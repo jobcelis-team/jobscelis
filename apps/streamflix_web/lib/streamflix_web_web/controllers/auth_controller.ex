@@ -410,14 +410,8 @@ defmodule StreamflixWebWeb.AuthController do
       |> put_session(:last_activity_at, System.system_time(:second))
       |> put_flash(:info, gettext("Cuenta creada. Revisa tu correo para verificar tu email."))
 
-    conn =
-      case Keyword.get(opts, :api_key) do
-        raw_key when is_binary(raw_key) and raw_key != "" ->
-          put_session(conn, :fresh_api_key, raw_key)
-
-        _ ->
-          conn
-      end
+    # Shown once on the dashboard, never stored in the session cookie
+    StreamflixWebWeb.FreshApiKey.put(user.id, Keyword.get(opts, :api_key))
 
     redirect(conn, to: ~p"/platform")
   end

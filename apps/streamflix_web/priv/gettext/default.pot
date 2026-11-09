@@ -6226,7 +6226,7 @@ msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1151
 #, elixir-autogen, elixir-format
-msgid "Debe ser una URL HTTPS accesible públicamente."
+msgid "Debe ser una URL accesible públicamente. Se recomienda HTTPS."
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1210
@@ -6531,7 +6531,7 @@ msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2739
 #, elixir-autogen, elixir-format
-msgid "La URL debe comenzar con https://"
+msgid "La URL debe comenzar con http:// o https://"
 msgstr ""
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2735
