@@ -1108,6 +1108,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
           <form
             phx-submit="save_webhook"
             phx-change="webhook_form_change"
+            novalidate
             class="px-6 pb-6 pt-4 space-y-4"
           >
             <%!-- STEP 1: Destination --%>
@@ -1147,7 +1148,7 @@ defmodule StreamflixWebWeb.PlatformDashboard.TabComponents do
                   </p>
                 <% end %>
                 <p class="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
-                  {gettext("Debe ser una URL HTTPS accesible públicamente.")}
+                  {gettext("Debe ser una URL accesible públicamente. Se recomienda HTTPS.")}
                 </p>
               </div>
             </div>
