@@ -3,7 +3,6 @@ defmodule StreamflixCore.Platform.Events do
   Event management: create, list, idempotency, delayed events, schema validation.
   """
   import Ecto.Query
-  require Logger
   alias StreamflixCore.Repo
   alias StreamflixCore.Schemas.{WebhookEvent, Delivery, BatchItem}
 
