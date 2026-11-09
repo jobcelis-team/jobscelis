@@ -757,14 +757,20 @@ defmodule StreamflixAccounts do
         do: revoke_all_sessions(user.id)
 
       Cachex.del(:platform_cache, {:auth_user, user.id})
+      StreamflixCore.Platform.Events.invalidate_processing_cache(user.id)
       {:ok, updated}
     end
   end
 
   def activate_user(user_id) do
     case get_user(user_id) do
-      nil -> {:error, :not_found}
-      user -> user |> User.changeset(%{status: "active"}) |> Repo.update()
+      nil ->
+        {:error, :not_found}
+
+      user ->
+        result = user |> User.changeset(%{status: "active"}) |> Repo.update()
+        StreamflixCore.Platform.Events.invalidate_processing_cache(user.id)
+        result
     end
   end
 end

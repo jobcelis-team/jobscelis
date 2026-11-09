@@ -74,7 +74,11 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
     # Attempts are counted on the delivery (attempt_number) by DeliveryWorker,
     # which dead-letters it when retry_config.max_attempts is reached. Oban's own
     # attempt counter is not used: snoozes (rate limit / circuit open) inflate it.
-    case check_outbound_rate_limit(delivery_id) do
+    # The delivery, its event and its webhook are loaded once (one query) and
+    # passed on, instead of being read again by each step.
+    delivery = StreamflixCore.Platform.DeliveryWorker.load(delivery_id)
+
+    case check_outbound_rate_limit(delivery) do
       {:error, :rate_limited} ->
         Logger.info("Delivery rate limited, snoozing",
           worker: "ObanDeliveryWorker",
@@ -84,40 +88,28 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
         {:snooze, 5}
 
       :ok ->
-        execute_delivery(delivery_id)
+        execute_delivery(delivery || delivery_id)
     end
   end
 
-  defp check_outbound_rate_limit(delivery_id) do
-    alias StreamflixCore.{Repo, Schemas.Delivery, RateLimiter}
+  defp check_outbound_rate_limit(%{webhook: %StreamflixCore.Schemas.Webhook{} = webhook}) do
+    alias StreamflixCore.RateLimiter
 
-    case Repo.get(Delivery, delivery_id) do
-      nil ->
+    case RateLimiter.check_rate(webhook.id, webhook.rate_limit || %{}) do
+      :ok ->
+        RateLimiter.record_request(webhook.id)
         :ok
 
-      delivery ->
-        webhook = Repo.get(StreamflixCore.Schemas.Webhook, delivery.webhook_id)
-
-        if webhook do
-          rate_config = webhook.rate_limit || %{}
-
-          case RateLimiter.check_rate(webhook.id, rate_config) do
-            :ok ->
-              RateLimiter.record_request(webhook.id)
-              :ok
-
-            {:error, :rate_limited} ->
-              {:error, :rate_limited}
-          end
-        else
-          :ok
-        end
+      {:error, :rate_limited} ->
+        {:error, :rate_limited}
     end
   end
 
+  defp check_outbound_rate_limit(_delivery), do: :ok
+
   # Oban only retries on {:error, _} (a bare :error is treated as success).
-  defp execute_delivery(delivery_id) do
-    case StreamflixCore.Platform.DeliveryWorker.run(delivery_id) do
+  defp execute_delivery(delivery) do
+    case StreamflixCore.Platform.DeliveryWorker.run(delivery) do
       {:ok, _} -> :ok
       {:error, :circuit_open} -> {:snooze, 300}
       {:error, {:dead_lettered, _}} -> {:cancel, :dead_lettered}
@@ -129,7 +121,7 @@ defmodule StreamflixCore.Platform.ObanDeliveryWorker do
     e ->
       Logger.error("DeliveryWorker crashed",
         worker: "ObanDeliveryWorker",
-        delivery_id: delivery_id,
+        delivery_id: if(is_binary(delivery), do: delivery, else: delivery.id),
         error: Exception.message(e)
       )
 
