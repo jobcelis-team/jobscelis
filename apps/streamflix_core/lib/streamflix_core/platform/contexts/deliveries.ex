@@ -4,7 +4,7 @@ defmodule StreamflixCore.Platform.Deliveries do
   """
   import Ecto.Query
   alias StreamflixCore.Repo
-  alias StreamflixCore.Schemas.{Delivery, WebhookEvent}
+  alias StreamflixCore.Schemas.Delivery
 
   def list_deliveries(opts \\ []) do
     event_id = Keyword.get(opts, :event_id)
@@ -13,19 +13,49 @@ defmodule StreamflixCore.Platform.Deliveries do
     project_id = Keyword.get(opts, :project_id)
     limit = Keyword.get(opts, :limit, 50)
 
-    event_ids_query =
-      if project_id do
-        from(e in WebhookEvent, where: e.project_id == ^project_id, select: e.id)
-      else
-        nil
-      end
+    if project_id && is_nil(event_id) do
+      latest_for_project(project_id, webhook_id, status, limit)
+    else
+      list_matching(event_id, webhook_id, status, project_id, limit)
+    end
+  end
 
+  # Latest deliveries of a project: the newest `limit` of each of its webhooks
+  # (index on webhook_id, inserted_at), merged. Ordering the whole project's
+  # deliveries instead reads the table and grows with every delivery.
+  defp latest_for_project(project_id, webhook_id, status, limit) do
+    per_webhook =
+      from(d in Delivery,
+        where: d.webhook_id == parent_as(:webhook).id,
+        order_by: [desc: d.inserted_at, desc: d.id],
+        limit: ^limit
+      )
+      |> maybe_where(:status, status)
+
+    from(w in StreamflixCore.Schemas.Webhook,
+      as: :webhook,
+      where: w.project_id == ^project_id,
+      inner_lateral_join: d in subquery(per_webhook),
+      on: true,
+      order_by: [desc: d.inserted_at, desc: d.id],
+      limit: ^limit,
+      select: d
+    )
+    |> maybe_where_webhook(webhook_id)
+    |> Repo.all()
+    |> Repo.preload([:event, :webhook])
+  end
+
+  defp maybe_where_webhook(query, nil), do: query
+  defp maybe_where_webhook(query, webhook_id), do: where(query, [w], w.id == ^webhook_id)
+
+  defp list_matching(event_id, webhook_id, status, project_id, limit) do
     base =
       Delivery
       |> maybe_where(:event_id, event_id)
       |> maybe_where(:webhook_id, webhook_id)
       |> maybe_where(:status, status)
-      |> maybe_where_event_in_subquery(event_ids_query)
+      |> maybe_where_project(project_id)
       |> order_by([d], desc: d.inserted_at)
       |> limit(^limit)
 
@@ -34,10 +64,18 @@ defmodule StreamflixCore.Platform.Deliveries do
     |> Repo.all()
   end
 
-  defp maybe_where_event_in_subquery(query, nil), do: query
+  defp maybe_where_project(query, nil), do: query
 
-  defp maybe_where_event_in_subquery(query, event_ids_query),
-    do: where(query, [d], d.event_id in subquery(event_ids_query))
+  defp maybe_where_project(query, project_id),
+    do: where(query, [d], d.webhook_id in subquery(project_webhook_ids(project_id)))
+
+  @doc false
+  # A delivery always targets a webhook of the event's project, and a project
+  # has few webhooks: filtering by them uses (webhook_id, inserted_at) instead
+  # of a semi-join over every event the project ever received.
+  def project_webhook_ids(project_id),
+    do:
+      from(w in StreamflixCore.Schemas.Webhook, where: w.project_id == ^project_id, select: w.id)
 
   defp maybe_where(query, _field, nil), do: query
   defp maybe_where(query, field, value), do: where(query, [d], field(d, ^field) == ^value)
@@ -49,9 +87,8 @@ defmodule StreamflixCore.Platform.Deliveries do
   def success_rate_since(project_id, %DateTime{} = since) do
     counts =
       from(d in Delivery,
-        join: e in WebhookEvent,
-        on: e.id == d.event_id,
-        where: e.project_id == ^project_id and d.inserted_at >= ^since,
+        where: d.webhook_id in subquery(project_webhook_ids(project_id)),
+        where: d.inserted_at >= ^since,
         where: d.status in ["success", "failed"],
         select: %{
           total: count(d.id),

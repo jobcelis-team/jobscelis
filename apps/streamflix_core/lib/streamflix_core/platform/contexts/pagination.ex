@@ -48,8 +48,8 @@ defmodule StreamflixCore.Platform.Pagination do
 
     query =
       if project_id do
-        event_ids = from(e in WebhookEvent, where: e.project_id == ^project_id, select: e.id)
-        where(query, [d], d.event_id in subquery(event_ids))
+        webhook_ids = StreamflixCore.Platform.Deliveries.project_webhook_ids(project_id)
+        where(query, [d], d.webhook_id in subquery(webhook_ids))
       else
         query
       end

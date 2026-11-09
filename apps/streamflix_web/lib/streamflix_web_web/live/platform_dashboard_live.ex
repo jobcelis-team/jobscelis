@@ -2100,20 +2100,43 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   # ---------- PubSub handlers (real-time) ----------
 
   @impl true
-  def handle_info({:event_created, _event}, socket) do
-    project = socket.assigns.project
-    events = Platform.list_events(project.id, limit: 20)
-    deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
-
-    {:noreply,
-     socket |> assign(:events, events) |> assign(:deliveries, deliveries) |> assign_kpis(project)}
-  end
+  def handle_info({:event_created, _event}, socket),
+    do: {:noreply, schedule_live_refresh(socket, [:events, :deliveries])}
 
   @impl true
-  def handle_info({:delivery_updated, _delivery}, socket) do
-    project = socket.assigns.project
-    deliveries = Platform.list_deliveries(project_id: project.id, limit: 30)
-    {:noreply, socket |> assign(:deliveries, deliveries) |> assign_kpis(project)}
+  def handle_info({:delivery_updated, _delivery}, socket),
+    do: {:noreply, schedule_live_refresh(socket, [:deliveries])}
+
+  # Events and delivery updates can arrive hundreds of times per second: they
+  # only mark what changed, and one refresh per second re-reads it, instead of
+  # re-running the list and KPI queries for every message.
+  @impl true
+  def handle_info(:live_refresh, socket) do
+    pending = socket.assigns[:live_refresh_pending] || MapSet.new()
+    socket = assign(socket, live_refresh_pending: MapSet.new(), live_refresh_timer: nil)
+
+    case socket.assigns.project do
+      nil ->
+        {:noreply, socket}
+
+      project ->
+        socket =
+          if MapSet.member?(pending, :events),
+            do: assign(socket, :events, Platform.list_events(project.id, limit: 20)),
+            else: socket
+
+        socket =
+          if MapSet.member?(pending, :deliveries),
+            do:
+              assign(
+                socket,
+                :deliveries,
+                Platform.list_deliveries(project_id: project.id, limit: 30)
+              ),
+            else: socket
+
+        {:noreply, assign_kpis(socket, project)}
+    end
   end
 
   @impl true
@@ -3120,5 +3143,24 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
       resource_id: resource_id,
       metadata: metadata
     )
+  end
+
+  @live_refresh_ms 1_000
+
+  defp schedule_live_refresh(socket, what) do
+    pending =
+      MapSet.union(socket.assigns[:live_refresh_pending] || MapSet.new(), MapSet.new(what))
+
+    socket = assign(socket, :live_refresh_pending, pending)
+
+    if socket.assigns[:live_refresh_timer] do
+      socket
+    else
+      assign(
+        socket,
+        :live_refresh_timer,
+        Process.send_after(self(), :live_refresh, @live_refresh_ms)
+      )
+    end
   end
 end
