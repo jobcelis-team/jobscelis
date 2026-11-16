@@ -95,7 +95,7 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.v.outputs.release == 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.v.outputs.tag }}
           name: ${{ steps.v.outputs.tag }}
