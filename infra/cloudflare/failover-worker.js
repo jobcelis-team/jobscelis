@@ -1,7 +1,7 @@
 // Jobcelis failover proxy (Cloudflare Worker, free plan).
 //
 // Route: jobcelis.com/*  ·  Secret: PROXY_SECRET (same value as the app's
-// TRUSTED_PROXY_SECRET on every host).
+// TRUSTED_PROXY_SECRET on every host)  ·  Cron trigger: */5 * * * *
 //
 // Every request goes to the primary host (Azure). It is sent to the backup
 // host (Render) instead when the primary did not answer as the app:
@@ -61,6 +61,12 @@ export default {
 
     const backup = await send(BACKUP);
     return rewrite(backup, url);
+  },
+
+  // Cron trigger (every 5 minutes): Render's free plan sleeps after 15 idle
+  // minutes, which would stop its Oban jobs and delay a failover by ~50s
+  async scheduled(_event, _env, ctx) {
+    ctx.waitUntil(fetch(BACKUP + "/health"));
   },
 };
 
