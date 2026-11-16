@@ -145,6 +145,12 @@ if config_env() == :prod do
       container_backups: System.get_env("AZURE_CONTAINER_BACKUPS") || "backups"
   end
 
+  # Shared secret of the Cloudflare failover Worker: lets the app trust the
+  # client IP it forwards (StreamflixWebWeb.Plugs.ClientIp)
+  if proxy_secret = System.get_env("TRUSTED_PROXY_SECRET") do
+    config :streamflix_web, :trusted_proxy_secret, proxy_secret
+  end
+
   # Erlang Distribution Cookie
   if cookie = System.get_env("NODE_COOKIE") do
     Node.set_cookie(String.to_atom(cookie))
