@@ -273,6 +273,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      # Changes once a day, so the runtime image's OS packages are refreshed
+      # (see APK_REFRESH in the Dockerfile)
+      - name: Package refresh key
+        id: apk
+        run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
       # Reuses the layers cached by the deploys (and by earlier runs of this
       # branch): only the layers after a change are rebuilt
       - name: Build Docker image
@@ -282,6 +288,7 @@ jobs:
           target: prod
           load: true
           tags: jobscelis:ci
+          build-args: APK_REFRESH=${{ steps.apk.outputs.day }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
