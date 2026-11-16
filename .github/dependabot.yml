@@ -1,5 +1,5 @@
 # Keeps dependencies current, so a security advisory arrives as a pull request
-# instead of a failing CI run. Pull requests target develop (staging first),
+# instead of a failing CI run. Pull requests target develop (CI runs there first),
 # one grouped pull request per ecosystem. The web app's Elixir deps are checked
 # weekly; the SDKs, actions and the Docker base image monthly.
 version: 2
