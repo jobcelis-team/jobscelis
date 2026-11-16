@@ -87,6 +87,9 @@ FROM elixir:1.20.4-otp-29-alpine AS prod
 
 # The base tag is rebuilt only occasionally: upgrade OS packages so security
 # fixes published since then are included (Trivy blocks HIGH/CRITICAL CVEs).
+# CI passes the current date: without it this layer is restored from the build
+# cache and keeps the packages from the day it was first cached.
+ARG APK_REFRESH=none
 RUN apk upgrade --no-cache && apk add --no-cache \
     libstdc++ \
     ca-certificates \
