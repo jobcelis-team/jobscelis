@@ -92,7 +92,6 @@ jobcelis/
 └── .github/workflows/
     ├── ci.yml                 # Tests, format, Credo, Sobelow, Dialyzer, Trivy
     ├── deploy.yml             # Production deploy
-    ├── deploy-staging.yml     # Staging deploy
     ├── release.yml            # Tags vX.Y.Z and creates the GitHub Release when VERSION changes
     └── release-sdks.yml       # Publishes and tags the Node, CLI and Python SDKs on every change
 ```
@@ -731,10 +730,10 @@ Runs on push to `main`/`develop` and PRs to `main`:
 
 | Environment | Branch | Trigger |
 |-------------|--------|---------|
-| **Staging** | `develop` | Auto push → Container Registry → Cloud platform |
-| **Production** | `main` | Auto push → Container Registry → Cloud platform |
+| **Integration** | `develop` | CI only (no deploy) |
+| **Production** | `main` | Auto push → Container Registry → Cloud platform (primary + backup behind a failover proxy) |
 
-Recommended flow: `develop` (staging) → verify → `main` (production).
+Recommended flow: feature branch → PR to `develop` (CI) → PR `develop` → `main` (production). See [docs/DEPLOYMENT_FLOW.md](docs/DEPLOYMENT_FLOW.md).
 
 ---
 

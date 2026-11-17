@@ -2,92 +2,82 @@
 
 ## Environments
 
-| Environment | URL | Branch | Image | Auto-deploy |
-|-------------|-----|--------|-------|-------------|
-| **Local** | `http://localhost:4000` | — | — | — |
-| **Staging** | Staging environment | `develop` | `jobscelis:staging` | Push to `develop` |
-| **Production** | `https://jobcelis.com` | `main` | `jobscelis:latest` | Push to `main` |
+| Environment | URL | Branch | Auto-deploy |
+|-------------|-----|--------|-------------|
+| **Local** | `http://localhost:4000` | — | — |
+| **Production** | `https://jobcelis.com` | `main` | Push to `main` |
+
+There is no staging environment: `develop` runs CI only, and production is
+reached through a pull request from `develop` to `main`.
 
 ## Deploy Process
 
 ```
 Local development
     │
-    ├── commit changes
+    ├── commit on a feature branch
+    ├── pull request → develop
+    │   └── GitHub Actions: ci.yml (compile, format, Credo, Sobelow, tests, Dialyzer, Trivy)
     │
     ▼
-Staging (develop branch)
+develop (integration, CI only)
     │
-    ├── git checkout develop
-    ├── git merge main
-    ├── git push origin develop
-    │   └── GitHub Actions: deploy-staging.yml
-    │       ├── Build image → container registry (jobscelis:staging)
-    │       └── Restart staging cloud platform
-    │
-    ├── Verify at staging environment
+    ├── pull request develop → main
     │
     ▼
-Production (main branch)
+main (production)
     │
-    ├── git checkout main
-    ├── git push origin main
-    │   └── GitHub Actions: deploy.yml
-    │       ├── Build image → container registry (jobscelis:latest)
-    │       └── Restart production cloud platform
+    ├── GitHub Actions: deploy.yml
+    │   ├── Build image → container registry (jobscelis:latest)
+    │   └── Restart the primary host
+    ├── Backup host redeploys from main on its own (only when app code changes)
     │
     └── Live at https://jobcelis.com
 ```
 
 ## Commands
 
-### Normal workflow (staging first)
+### Normal workflow
 
 ```bash
-# 1. Work locally, make changes, commit
+# 1. Work on a branch from develop
+git switch -c feat/my-change origin/develop
 git add <files>
 git commit -m "feat: description"
+git push -u origin feat/my-change
 
-# 2. Deploy to staging
-git checkout develop
-git merge main
-git push origin develop
+# 2. Open a pull request to develop and wait for CI
+gh pr create --base develop
 
-# 3. Verify staging works
-# Visit the staging environment URL
-
-# 4. Deploy to production
-git checkout main
-git push origin main
-```
-
-### Quick sync (after pushing to main, keep develop up to date)
-
-```bash
-git checkout develop
-git merge main
-git push origin develop
-git checkout main
+# 3. Release: pull request develop → main
+gh pr create --base main --head develop
 ```
 
 ### Hotfix (urgent production fix)
 
-```bash
-# Fix and commit on main
-git add <files>
-git commit -m "fix: urgent fix"
-git push origin main
+Same flow with a `fix/...` branch; merge to `develop` and then `develop → main`
+as soon as CI passes.
 
-# Then sync develop
-git checkout develop
-git merge main
-git push origin develop
-git checkout main
+## Production topology
+
 ```
+Client → https://jobcelis.com → Cloudflare Worker (edge failover proxy)
+                                   ├─ primary host
+                                   └─ backup host (used when the primary does not answer)
+```
+
+- Both hosts run the same release and share one PostgreSQL database.
+- Oban runs on both: cron jobs have a single leader and each job is locked
+  by the database, so nothing runs twice.
+- The Worker forwards the client IP with a shared secret
+  (`TRUSTED_PROXY_SECRET`, see `StreamflixWebWeb.Plugs.ClientIp`); every host
+  must have the same value.
+- Worker source: `infra/cloudflare/failover-worker.js` (deployed in the
+  Cloudflare dashboard, not by CI). A cron trigger keeps the backup host awake.
 
 ## CI Pipeline
 
-On every push to `main` or `develop`, and on PRs to `main`:
+On every push to `main` or `develop`, and on pull requests:
 
 1. `mix compile --warnings-as-errors` — zero warnings
 2. `mix format --check-formatted` — code formatted
@@ -96,34 +86,33 @@ On every push to `main` or `develop`, and on PRs to `main`:
 5. `mix deps.audit` — no known CVEs
 6. `mix hex.audit` — no retired packages
 7. `mix test` — all tests pass
-8. `mix dialyzer` — type checking (non-blocking)
+8. `mix dialyzer` — type checking
 9. **Trivy** — container vulnerability scan (CRITICAL/HIGH block merge)
 
 ## Infrastructure
 
 | Component | Service | Details |
 |-----------|---------|---------|
-| **Hosting** | Cloud platform | Managed container hosting |
-| **Container Registry** | Container registry | Images: `latest`, `staging` |
+| **Hosting** | Cloud platform | Primary + backup container hosts |
+| **Edge** | Cloudflare | DNS, proxy and failover Worker |
+| **Container Registry** | Container registry | Image: `latest` |
 | **Production DB** | Supabase PostgreSQL | Connection pooler |
-| **Staging DB** | Supabase PostgreSQL | Separate instance |
-| **CDN** | Cloudflare → `cdn.jobcelis.com` | Production only |
-| **DNS** | Cloudflare | `jobcelis.com`, `cdn.jobcelis.com` |
-| **CI/CD** | GitHub Actions | 3 workflows: CI, deploy, deploy-staging |
+| **CDN** | Cloudflare → `cdn.jobcelis.com` | Static assets |
+| **CI/CD** | GitHub Actions | CI, deploy, releases |
 | **Email** | Resend | `support@jobcelis.com` |
 | **Backups** | Cloud object storage | Daily, verified monthly |
 
 ## Load Testing
 
-Run against staging (never production) using k6:
+Run against a local or dedicated test instance (never production) using k6:
 
 ```bash
 # Health endpoint
-k6 run --env BASE_URL=https://your-staging-url k6/health_load.js
+k6 run --env BASE_URL=http://localhost:4000 k6/health_load.js
 
 # Event creation
-k6 run --env API_KEY='your_staging_key' --env BASE_URL=https://your-staging-url k6/events_load.js
+k6 run --env API_KEY='your_test_key' --env BASE_URL=http://localhost:4000 k6/events_load.js
 
 # Webhook listing
-k6 run --env API_KEY='your_staging_key' --env BASE_URL=https://your-staging-url k6/webhooks_load.js
+k6 run --env API_KEY='your_test_key' --env BASE_URL=http://localhost:4000 k6/webhooks_load.js
 ```
