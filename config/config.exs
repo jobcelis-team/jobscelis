@@ -224,6 +224,11 @@ config :streamflix_core, Oban,
   engine: Oban.Engines.Basic,
   repo: StreamflixCore.Repo,
   notifier: Oban.Notifiers.PG,
+  # Every tick the leader runs a staging transaction (scheduled/retryable →
+  # available) against the database; the default 1s is the largest share of
+  # the database's egress. New jobs do not wait for it (the inserting node runs
+  # them at once); only scheduled jobs and retries can start up to 5s later.
+  stager: [interval: :timer.seconds(5)],
   queues: [
     delivery: 10,
     scheduled_job: 5,
