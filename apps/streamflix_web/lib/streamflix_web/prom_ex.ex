@@ -14,8 +14,10 @@ defmodule StreamflixWeb.PromEx do
       Plugins.Beam,
       {Plugins.Phoenix, router: StreamflixWebWeb.Router, endpoint: StreamflixWebWeb.Endpoint},
       {Plugins.Ecto, repos: [StreamflixCore.Repo]},
-      {Plugins.Oban, oban_supervisors: [Oban]},
-      {StreamflixWeb.PromEx.JobcelisPlugin, poll_rate: 15_000}
+      # Polled gauges query the database on every tick, on every node, whether
+      # or not anything scrapes /metrics: once a minute is enough for them
+      {Plugins.Oban, oban_supervisors: [Oban], poll_rate: 60_000},
+      {StreamflixWeb.PromEx.JobcelisPlugin, poll_rate: 60_000}
     ]
   end
 
