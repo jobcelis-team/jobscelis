@@ -25,9 +25,10 @@ defmodule StreamflixWebWeb.UserAgent do
 
   # Order matters: Edge and Opera also say "Chrome", Chrome also says "Safari".
   @browsers [
-    {"Edge", ["edg/", "edga/", "edgios/"]},
+    {"Edge", ["edg/", "edga/", "edgios/", "edge/"]},
     {"Opera", ["opr/", "opera"]},
     {"Samsung Internet", ["samsungbrowser"]},
+    {"Silk", ["silk/"]},
     {"Firefox", ["firefox/", "fxios/"]},
     {"Chrome", ["chrome/", "crios/"]},
     {"Safari", ["safari/"]},
@@ -63,6 +64,12 @@ defmodule StreamflixWebWeb.UserAgent do
       String.contains?(lower, ["tizen", "webos", "web0s"]) ->
         "Smart TV"
 
+      String.contains?(lower, ["xbox"]) ->
+        "Xbox"
+
+      String.contains?(lower, ["playstation"]) ->
+        "PlayStation"
+
       true ->
         Enum.find_value(@systems, fn {name, needles} ->
           if String.contains?(lower, needles), do: name
@@ -70,24 +77,42 @@ defmodule StreamflixWebWeb.UserAgent do
     end
   end
 
+  # Smart TVs, TV sticks and consoles (their browsers often say "Android" or
+  # "Linux" too, so they are checked before tablets and phones)
+  @tv_markers [
+    "smart-tv",
+    "smarttv",
+    "tizen",
+    "webos",
+    "web0s",
+    "android tv",
+    "googletv",
+    "crkey",
+    "appletv",
+    "roku",
+    "aftb",
+    "aftm",
+    "afts",
+    "aftt",
+    "hbbtv",
+    "netcast",
+    "vidaa",
+    "bravia",
+    "xbox",
+    "playstation",
+    " tv safari",
+    "; tv)"
+  ]
+
   defp device(lower, browser) do
     cond do
       browser in @api_clients ->
         :api
 
-      String.contains?(lower, [
-        "smart-tv",
-        "smarttv",
-        "tizen",
-        "webos",
-        "web0s",
-        "android tv",
-        "crkey",
-        "appletv"
-      ]) ->
+      String.contains?(lower, @tv_markers) ->
         :tv
 
-      String.contains?(lower, ["ipad", "tablet"]) ->
+      String.contains?(lower, ["ipad", "tablet", "kindle", "silk/"]) ->
         :tablet
 
       String.contains?(lower, "android") and not String.contains?(lower, "mobile") ->
