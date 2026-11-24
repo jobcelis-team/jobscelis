@@ -123,7 +123,25 @@ defmodule StreamflixCore.Notifications do
     result
   end
 
+  # One DLQ notice per webhook every 15 minutes: 4xx responses go to the DLQ on
+  # the first failure, so an endpoint answering 404 to 10_000 events produced
+  # 10_000 notifications and as many emails/Slack messages.
+  @dlq_notice_window :timer.minutes(15)
+
   def notify_dlq_entry(user_id, project_id, webhook_url) do
+    key = {:dlq_notice, project_id, webhook_url}
+
+    case Cachex.exists?(:platform_cache, key) do
+      {:ok, true} ->
+        {:ok, :throttled}
+
+      _ ->
+        Cachex.put(:platform_cache, key, true, expire: @dlq_notice_window)
+        do_notify_dlq_entry(user_id, project_id, webhook_url)
+    end
+  end
+
+  defp do_notify_dlq_entry(user_id, project_id, webhook_url) do
     result =
       create(%{
         user_id: user_id,

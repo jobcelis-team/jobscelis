@@ -3,14 +3,14 @@ defmodule StreamflixWeb.PromEx.JobcelisPlugin do
   Custom PromEx plugin for Jobcelis domain metrics.
 
   Counters:
-  - jobcelis_events_created_total (by project, topic)
-  - jobcelis_deliveries_success_total (by project, webhook, topic)
-  - jobcelis_deliveries_failed_total (by project, webhook, topic)
+  - jobcelis_events_created_total (by project)
+  - jobcelis_deliveries_success_total (by project, webhook)
+  - jobcelis_deliveries_failed_total (by project, webhook)
   - jobcelis_circuit_breaker_opened_total (by project, webhook)
   - jobcelis_circuit_breaker_closed_total (by project, webhook)
 
   Histograms:
-  - jobcelis_delivery_latency_milliseconds (by project, webhook, topic)
+  - jobcelis_delivery_latency_milliseconds (by project, webhook)
 
   Gauges (polled):
   - jobcelis_webhooks_active (by project)
@@ -44,21 +44,21 @@ defmodule StreamflixWeb.PromEx.JobcelisPlugin do
           [:jobcelis, :events, :created, :total],
           event_name: [:jobcelis, :event, :created],
           measurement: :count,
-          tags: [:project_id, :topic],
+          tags: [:project_id],
           description: "Total events created"
         ),
         counter(
           [:jobcelis, :deliveries, :success, :total],
           event_name: [:jobcelis, :delivery, :success],
           measurement: :count,
-          tags: [:project_id, :webhook_id, :topic],
+          tags: [:project_id, :webhook_id],
           description: "Total successful deliveries"
         ),
         counter(
           [:jobcelis, :deliveries, :failed, :total],
           event_name: [:jobcelis, :delivery, :failure],
           measurement: :count,
-          tags: [:project_id, :webhook_id, :topic],
+          tags: [:project_id, :webhook_id],
           description: "Total failed deliveries"
         ),
         counter(
@@ -87,7 +87,7 @@ defmodule StreamflixWeb.PromEx.JobcelisPlugin do
           [:jobcelis, :delivery, :latency, :milliseconds],
           event_name: [:jobcelis, :delivery, :success],
           measurement: :latency_ms,
-          tags: [:project_id, :webhook_id, :topic],
+          tags: [:project_id, :webhook_id],
           description: "Delivery response latency in milliseconds",
           reporter_options: [
             buckets: [10, 25, 50, 100, 250, 500, 1_000, 2_500, 5_000, 10_000]

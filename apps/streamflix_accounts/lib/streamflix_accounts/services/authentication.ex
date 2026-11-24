@@ -21,10 +21,15 @@ defmodule StreamflixAccounts.Services.Authentication do
 
       user ->
         cond do
+          # A locked account is only revealed to someone who knows the password:
+          # answering "locked" to any password let anyone confirm an email is
+          # registered (lock it with 5 bad passwords, then check the reply).
           User.locked?(user) ->
-            Argon2.no_user_verify()
             audit_login(user, "user.login_failed", opts, %{reason: "account_locked"})
-            {:error, :account_locked}
+
+            if verify_password(password, user.password_hash),
+              do: {:error, :account_locked},
+              else: {:error, :invalid_credentials}
 
           not verify_password(password, user.password_hash) ->
             user = increment_failed_attempts(user)
@@ -35,12 +40,10 @@ defmodule StreamflixAccounts.Services.Authentication do
               })
             end)
 
-            if user.failed_login_attempts >= User.max_failed_attempts() do
-              lock_account(user, opts)
-              {:error, :account_locked}
-            else
-              {:error, :invalid_credentials}
-            end
+            if user.failed_login_attempts >= User.max_failed_attempts(),
+              do: lock_account(user, opts)
+
+            {:error, :invalid_credentials}
 
           # Only someone who knows the password learns the account is inactive:
           # checking status first let anyone probe which emails are registered.

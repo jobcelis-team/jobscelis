@@ -143,4 +143,47 @@ defmodule StreamflixCore.Platform.AuditRegressionsTest do
       assert Repo.get(WebhookEvent, event.id)
     end
   end
+
+  describe "pagination" do
+    test "a cursor whose row was purged gives an empty page, not page 1 again" do
+      project = insert(:project)
+      insert(:webhook_event, project_id: project.id)
+
+      page =
+        StreamflixCore.Platform.Pagination.paginate_events(project.id,
+          cursor: Ecto.UUID.generate()
+        )
+
+      assert page.data == []
+      refute page.has_next
+    end
+
+    test "list-valued filters are ignored instead of raising" do
+      project = insert(:project)
+
+      assert %{data: _} =
+               StreamflixCore.Platform.Pagination.paginate_events(project.id, topic: ["x"])
+    end
+  end
+
+  describe "DLQ notifications" do
+    test "only one notice per webhook in the throttle window" do
+      user = create_test_user()
+      project = insert(:project, user_id: user.id)
+
+      assert {:ok, %{}} =
+               StreamflixCore.Notifications.notify_dlq_entry(
+                 user.id,
+                 project.id,
+                 "https://x.test"
+               )
+
+      assert {:ok, :throttled} =
+               StreamflixCore.Notifications.notify_dlq_entry(
+                 user.id,
+                 project.id,
+                 "https://x.test"
+               )
+    end
+  end
 end

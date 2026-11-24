@@ -59,12 +59,18 @@ defmodule StreamflixWebWeb.Router do
     plug StreamflixWebWeb.Plugs.Auth
   end
 
+  # Per-IP ceiling checked before authenticating: every request with an unknown
+  # key costs a database lookup, so a flood of random keys could saturate the
+  # connection pool. Generous on purpose (6x one project's limit) so one server
+  # sending for several projects is not throttled by it.
   pipeline :api_key_auth do
+    plug StreamflixWebWeb.Plugs.RateLimit, max: 3000, window_sec: 60, key: "api_key_ip"
     plug StreamflixWebWeb.Plugs.ApiKeyAuth
     plug StreamflixWebWeb.Plugs.ProjectRateLimit
   end
 
   pipeline :embed_token_auth do
+    plug StreamflixWebWeb.Plugs.RateLimit, max: 3000, window_sec: 60, key: "embed_ip"
     plug StreamflixWebWeb.Plugs.EmbedTokenAuth
     plug StreamflixWebWeb.Plugs.ProjectRateLimit
   end

@@ -14,7 +14,7 @@ jobscelis/
 │   └── streamflix_web/        # HTTP layer, API, LiveView dashboard
 ├── config/                    # Configuration (compile-time + runtime)
 ├── docs/                      # Documentation
-├── sdks/                      # Client SDKs (Node.js, Python)
+├── sdks/                      # Node, Python, CLI, GitHub Action (other SDKs: own repos)
 ├── cli/                       # Command-line interface
 └── k6/                        # Load testing scripts
 ```
@@ -127,5 +127,4 @@ Request → Cloudflare (DDoS, CDN)
 | Environment | URL | Deploy trigger |
 |-------------|-----|----------------|
 | Local | `localhost:4000` | `mix phx.server` |
-| Staging | Staging environment | Push to `develop` |
 | Production | `jobcelis.com` | Push to `main` |
