@@ -12,10 +12,18 @@ jobcelis - CLI for the Jobcelis Event Infrastructure Platform (v${VERSION})
 Usage: jobcelis <resource> <action> [options]
 
 Configuration:
-  JOBCELIS_API_KEY     API key (required)
-  JOBCELIS_BASE_URL    Base URL (default: https://jobcelis.com)
-  JOBCELIS_MAX_RETRIES Retries on network errors and HTTP 429/502/503/504
-                       (default: 6, about 60 s; 0 disables them)
+  JOBCELIS_API_KEY     Project API key, sent as X-Api-Key (most commands)
+  JOBCELIS_TOKEN       User token (JWT) from "auth login", sent as
+                       Authorization: Bearer (projects, members,
+                       invitations and gdpr commands)
+  JOBCELIS_BASE_URL    Base URL, may include a path prefix
+                       (default: https://jobcelis.com)
+  JOBCELIS_TIMEOUT_MS  Request timeout in ms (default: 30000; 0 disables it)
+  JOBCELIS_MAX_RETRIES Retries on network errors, timeouts and HTTP
+                       429/502/503/504 (default: 6, about 60 s; 0 disables
+                       them). A POST without an idempotency key is retried
+                       only on 429/503.
+  auth commands, status and verify-signature need no credentials.
 
 Commands:
 
@@ -43,7 +51,8 @@ Commands:
 
   Jobs:
     jobs list                                         List scheduled jobs
-    jobs create --name <n> --queue <q> --cron <expr>  Create job
+    jobs create --name <n> --cron <expr> (--topic <t> | --url <u>)
+      [--payload '<json>'] [--method <m>]             Create job
     jobs get <id>                                     Get job by ID
     jobs update <id> [--name <n>] [--cron <expr>]     Update job
     jobs delete <id>                                  Delete job
@@ -52,7 +61,7 @@ Commands:
 
   Pipelines:
     pipelines list                                    List pipelines
-    pipelines create --name <n> --topics <t> --steps '<json>'
+    pipelines create --name <n> --topics <t> --webhook-id <id> [--steps '<json>']
                                                       Create pipeline
     pipelines get <id>                                Get pipeline by ID
     pipelines update <id> [--name <n>]                Update pipeline
@@ -143,7 +152,7 @@ Commands:
     gdpr consents                                     List consent records
     gdpr accept <purpose>                             Accept consent purpose
     gdpr export                                       Export personal data
-    gdpr restrict                                     Restrict processing
+    gdpr restrict --password <p>                      Restrict processing
     gdpr lift-restriction                             Lift restriction
     gdpr object                                       Object to processing
     gdpr restore                                      Withdraw objection
@@ -152,8 +161,8 @@ Commands:
     auth register --email <e> --password <p> [--name <n>]
                                                       Register account
     auth login --email <e> --password <p>             Log in
-    auth refresh --token <t>                          Refresh token
-    auth mfa-verify --token <t> --code <c>            Verify MFA code
+    auth refresh [--token <t>]                        Refresh token (default: $JOBCELIS_TOKEN)
+    auth mfa-verify --token <mfa_token> --code <c>    Verify MFA code
 
   Embed Tokens:
     embed tokens-list                                 List embed tokens
@@ -166,9 +175,9 @@ Commands:
                                                       Update retention policy
 
   Purge:
-    purge preview --type <t> [--older-than <date>] [--topic <p>] [--status <s>]
+    purge preview --type <t> --older-than <YYYY-MM-DD> [--topic <p>] [--status <s>]
                                                       Preview purge operation
-    purge execute --type <t> [--older-than <date>] [--topic <p>] [--status <s>]
+    purge execute --type <t> --older-than <YYYY-MM-DD> [--topic <p>] [--status <s>]
                                                       Execute purge operation
 
   Webhook Verification:
@@ -189,6 +198,7 @@ Examples:
   jobcelis projects list
   jobcelis gdpr export
   jobcelis auth login --email user@example.com --password secret
+  export JOBCELIS_TOKEN=<token from auth login>
   jobcelis status
 `.trim();
 

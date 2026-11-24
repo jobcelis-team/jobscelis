@@ -20,23 +20,32 @@ Set the following environment variables:
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `JOBCELIS_API_KEY` | Yes | - | Your API key |
-| `JOBCELIS_BASE_URL` | No | `https://jobcelis.com` | Platform base URL |
+| `JOBCELIS_API_KEY` | Most commands | - | Project API key, sent as `X-Api-Key` |
+| `JOBCELIS_TOKEN` | `projects`, `members`, `invitations`, `gdpr` | - | User token (JWT) from `auth login`, sent as `Authorization: Bearer` |
+| `JOBCELIS_BASE_URL` | No | `https://jobcelis.com` | Platform base URL (may include a path prefix) |
+| `JOBCELIS_TIMEOUT_MS` | No | `30000` | Request timeout in ms; `0` disables it |
 | `JOBCELIS_MAX_RETRIES` | No | `6` | Automatic retries (see [Retries](#retries)); `0` disables them |
 
 ```bash
 export JOBCELIS_API_KEY=your_api_key_here
+
+# Account commands (projects, members, invitations, gdpr) use your user token
+jobcelis auth login --email user@example.com --password secret123   # prints {"token": ...}
+export JOBCELIS_TOKEN=eyJhbGci...
 ```
+
+`auth` commands, `status` and `verify-signature` need no credentials.
 
 ## Retries
 
 The CLI retries requests that fail during a brief outage (for example while the
 platform is being deployed):
 
-- network errors (connection refused or reset, DNS, TLS, timeouts) and HTTP `429`, `502`, `503`, `504`
+- network errors (connection refused or reset, DNS, TLS), timeouts and HTTP `429`, `502`, `503`, `504`
 - up to 6 retries with exponential backoff (1 s, 2 s, 4 s, 8 s, 16 s, 30 s, about 60 s in total, with jitter);
   a `Retry-After` header is honoured (capped at 60 s)
-- `POST` requests are retried on network errors only when they carry an idempotency key, so a retry never
+- a `POST` without an idempotency key is retried only on `429` and `503` (the server did not act on it);
+  after a network error, timeout, `502` or `504` it may have, so it is not retried and a retry never
   creates a resource twice. `events send` sends an `X-Idempotency-Key` header (`--idempotency-key`, or a random
   key) and `events batch` adds an `idempotency_key` to every event that has none, so retried events are never
   duplicated.
@@ -108,7 +117,11 @@ jobcelis deliveries retry 550e8400-e29b-41d4-a716-446655440000
 jobcelis jobs list
 
 # Create a job
-jobcelis jobs create --name daily-report --queue default --cron "0 9 * * *"
+# Emit an event on a schedule (--cron also takes daily, weekly or monthly)
+jobcelis jobs create --name daily-report --cron "0 9 * * *" --topic report.generate --payload '{"type":"daily"}'
+
+# Or send an HTTP request
+jobcelis jobs create --name ping --cron daily --url https://example.com/ping
 
 # Get a job
 jobcelis jobs get 550e8400-e29b-41d4-a716-446655440000
@@ -133,7 +146,9 @@ jobcelis jobs cron-preview --cron "0 9 * * *" --count 5
 jobcelis pipelines list
 
 # Create a pipeline
-jobcelis pipelines create --name enrich-users --topics user.signup --steps '[{"type":"transform"}]'
+# --webhook-id (required) receives the processed events
+jobcelis pipelines create --name enrich-users --topics user.signup --webhook-id 550e8400-... \
+  --steps '[{"type":"filter","field":"plan","operator":"eq","value":"pro"},{"type":"transform","operation":"set","values":{"tier":"pro"}}]'
 
 # Get a pipeline
 jobcelis pipelines get 550e8400-e29b-41d4-a716-446655440000
@@ -286,6 +301,8 @@ jobcelis project restrict-token --scopes events:read,events:write --ips 203.0.11
 
 ### Projects (multi)
 
+Requires `JOBCELIS_TOKEN` (see [Configuration](#configuration)), as do Team Members, Invitations and GDPR.
+
 ```bash
 # List all projects
 jobcelis projects list
@@ -354,8 +371,8 @@ jobcelis gdpr accept marketing
 # Export personal data
 jobcelis gdpr export
 
-# Restrict processing
-jobcelis gdpr restrict
+# Restrict processing (requires your password)
+jobcelis gdpr restrict --password secret123
 
 # Lift restriction
 jobcelis gdpr lift-restriction
@@ -376,11 +393,22 @@ jobcelis auth register --email user@example.com --password secret123 --name "Joh
 # Log in
 jobcelis auth login --email user@example.com --password secret123
 
-# Refresh a token
+# Refresh a token (defaults to $JOBCELIS_TOKEN)
 jobcelis auth refresh --token eyJhbGci...
 
-# Verify MFA code
+# Verify MFA code with the mfa_token returned by auth login
 jobcelis auth mfa-verify --token eyJhbGci... --code 123456
+```
+
+### Retention & Purge
+
+```bash
+jobcelis retention get
+jobcelis retention set --events-days 30 --deliveries-days 30 --audit-logs-days 90
+
+# --older-than is required
+jobcelis purge preview --type events --older-than 2026-01-01
+jobcelis purge execute --type events --older-than 2026-01-01
 ```
 
 ### Other
@@ -388,6 +416,9 @@ jobcelis auth mfa-verify --token eyJhbGci... --code 123456
 ```bash
 # Check platform health
 jobcelis status
+
+# Verify a webhook signature (prints true/false; exits 1 when invalid)
+jobcelis verify-signature --secret whsec_... --body '{"topic":"x"}' --signature 'sha256=...'
 
 # Show version
 jobcelis version

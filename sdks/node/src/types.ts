@@ -1,10 +1,18 @@
 export interface JobcelisConfig {
-  apiKey: string;
+  /** Project API key, sent as `X-Api-Key`. Optional for the `/auth/*` calls. */
+  apiKey?: string;
+  /**
+   * User JWT (from login/register), sent as `Authorization: Bearer <token>`. Needed
+   * for the account routes: `/projects*`, `/invitations*` and `/me/*`.
+   */
+  authToken?: string;
   baseUrl?: string;
+  /** Request timeout in ms (default 30000). 0 disables it. */
   timeout?: number;
   /**
-   * Retries after a network error or HTTP 429/502/503/504 (default 6, about 60 s
-   * of backoff). 0 disables retries.
+   * Retries after a network error, timeout or HTTP 429/502/503/504 (default 6,
+   * about 60 s of backoff). 0 disables retries. A POST without an idempotency key
+   * is retried only on 429/503.
    */
   maxRetries?: number;
   /** Base delay in ms of the exponential backoff (default 1000). */
@@ -19,6 +27,13 @@ export interface Event {
   idempotency_key?: string;
   deliver_at?: string;
   inserted_at: string;
+}
+
+/** Response of sendEvent(): `id` and `event_id` carry the same value. */
+export interface SendEventResponse {
+  id: string;
+  event_id: string;
+  payload_hash: string;
 }
 
 export interface EventCreate {
@@ -125,33 +140,46 @@ export interface ListOptions {
 export interface Job {
   id: string;
   name: string;
-  schedule: string;
-  topic: string;
-  payload: Record<string, unknown>;
+  schedule_type: 'daily' | 'weekly' | 'monthly' | 'cron';
+  schedule_config: Record<string, unknown>;
+  action_type: 'emit_event' | 'post_url';
+  action_config: Record<string, unknown>;
   status: string;
-  timezone?: string;
-  next_run_at?: string;
-  last_run_at?: string;
   inserted_at: string;
-  updated_at: string;
 }
 
+/**
+ * Job to create. Give the schedule as `schedule` / `cron_expression` (a cron
+ * expression or "daily" | "weekly" | "monthly") or the canonical `schedule_type` +
+ * `schedule_config`. Give the action as `topic` (+ `payload`) to emit an event,
+ * `url` (+ `method`, `payload`) to POST to a URL, or the canonical `action_type` +
+ * `action_config`. Without one of them the job does nothing.
+ */
 export interface JobCreate {
   name: string;
-  schedule: string;
-  topic: string;
-  payload: Record<string, unknown>;
-  timezone?: string;
+  schedule?: string;
+  cron_expression?: string;
+  schedule_type?: 'daily' | 'weekly' | 'monthly' | 'cron';
+  schedule_config?: Record<string, unknown>;
+  topic?: string;
+  url?: string;
+  method?: string;
+  payload?: Record<string, unknown>;
+  action_type?: 'emit_event' | 'post_url';
+  action_config?: Record<string, unknown>;
+  status?: 'active' | 'inactive';
 }
 
 export interface JobRun {
   id: string;
-  job_id: string;
+  executed_at: string;
   status: string;
-  started_at: string;
-  finished_at?: string;
-  error?: string;
-  inserted_at: string;
+  result: Record<string, unknown> | null;
+}
+
+export interface CronPreview {
+  expression: string;
+  next_executions: string[];
 }
 
 // --- Pipelines ---
@@ -159,30 +187,70 @@ export interface JobRun {
 export interface Pipeline {
   id: string;
   name: string;
-  source_topic: string;
-  steps: PipelineStep[];
   status: string;
+  description: string | null;
+  topics: string[];
+  steps: PipelineStep[];
+  webhook_id: string;
   inserted_at: string;
-  updated_at: string;
 }
 
 export interface PipelineCreate {
   name: string;
-  source_topic: string;
-  steps: PipelineStep[];
+  /** Webhook that receives the processed events (required). */
+  webhook_id: string;
+  /** Topics that trigger the pipeline. */
+  topics?: string[];
+  description?: string;
+  steps?: PipelineStep[];
 }
 
-export interface PipelineStep {
-  type: 'filter' | 'transform' | 'delay' | 'deliver';
-  config: Record<string, unknown>;
+/** Keeps the event only when `field` (dot path in the payload) matches. */
+export interface PipelineFilterStep {
+  type: 'filter';
+  field: string;
+  operator?: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'exists' | 'not_exists';
+  value?: unknown;
+}
+
+/** Rewrites the payload. The fields used depend on `operation`. */
+export interface PipelineTransformStep {
+  type: 'transform';
+  operation: 'pick' | 'remove' | 'rename' | 'set' | 'template' | 'flatten';
+  /** pick / remove */
+  fields?: string[];
+  /** rename: old field => new field */
+  mapping?: Record<string, string>;
+  /** set */
+  values?: Record<string, unknown>;
+  /** template */
+  template?: Record<string, unknown>;
+}
+
+/** Delays delivery (at most 7 days in total). */
+export interface PipelineDelayStep {
+  type: 'delay';
+  seconds: number;
+}
+
+export type PipelineStep = PipelineFilterStep | PipelineTransformStep | PipelineDelayStep;
+
+export interface PipelineTestResult {
+  input: Record<string, unknown>;
+  output: Record<string, unknown> | null;
+  steps_count: number;
+  status: 'passed' | 'filtered';
+  reason?: string;
 }
 
 // --- Event Schemas ---
 
 export interface EventSchema {
   id: string;
+  project_id: string;
   topic: string;
-  version: string;
+  version: number;
+  status: string;
   schema: Record<string, unknown>;
   inserted_at: string;
   updated_at: string;
@@ -190,7 +258,7 @@ export interface EventSchema {
 
 export interface EventSchemaCreate {
   topic: string;
-  version: string;
+  version?: number;
   schema: Record<string, unknown>;
 }
 
@@ -217,7 +285,9 @@ export interface SandboxRequest {
 export interface Project {
   id: string;
   name: string;
+  status?: string;
   is_default?: boolean;
+  settings?: Record<string, unknown>;
   inserted_at: string;
   updated_at: string;
 }
@@ -226,8 +296,11 @@ export interface Project {
 
 export interface Member {
   id: string;
-  email: string;
+  project_id: string;
+  user_id: string;
   role: string;
+  status: string;
+  invited_by: string | null;
   inserted_at: string;
 }
 
@@ -341,4 +414,53 @@ export interface Consent {
   purpose: string;
   accepted: boolean;
   accepted_at?: string;
+}
+
+// --- Auth ---
+
+export interface RegisterParams {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string | null;
+}
+
+export interface AuthResponse {
+  user: AuthUser;
+  token: string;
+  /** Only on register, when a default project and API key were created. */
+  api_key?: string | null;
+}
+
+export interface MfaChallenge {
+  mfa_required: true;
+  /** Short-lived (5 min) token to pass to verifyMfa() with the TOTP code. */
+  mfa_token: string;
+}
+
+export type LoginResponse = AuthResponse | MfaChallenge;
+
+// --- Retention & purge ---
+
+export interface RetentionPolicy {
+  events_days?: number;
+  deliveries_days?: number;
+  audit_logs_days?: number;
+}
+
+export interface RetentionPolicyResponse {
+  retention_policy: RetentionPolicy;
+}
+
+export interface PurgeParams {
+  type: 'events' | 'deliveries' | 'audit_logs' | 'dead_letters';
+  /** YYYY-MM-DD (required by the server). */
+  older_than: string;
+  topic?: string;
+  status?: string;
 }

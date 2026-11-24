@@ -1,10 +1,11 @@
 import { createHmac, timingSafeEqual } from 'crypto';
+import { trimTrailing } from './util';
 
 /**
  * Verify a webhook signature from Jobcelis.
  *
  * @param secret - The webhook secret (from webhook configuration)
- * @param body - The raw request body as a string
+ * @param body - The raw request body, exactly as received (string or Buffer)
  * @param signature - The value of the X-Signature header (format: "sha256=<base64>")
  * @returns true if the signature is valid
  *
@@ -12,10 +13,10 @@ import { createHmac, timingSafeEqual } from 'crypto';
  * ```typescript
  * import { verifyWebhookSignature } from '@jobcelis/sdk';
  *
- * app.post('/webhook', (req, res) => {
+ * app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
  *   const isValid = verifyWebhookSignature(
  *     'your_webhook_secret',
- *     req.rawBody,
+ *     req.body, // raw Buffer
  *     req.headers['x-signature'] as string
  *   );
  *
@@ -30,26 +31,22 @@ import { createHmac, timingSafeEqual } from 'crypto';
  */
 export function verifyWebhookSignature(
   secret: string,
-  body: string,
+  body: string | Buffer,
   signature: string
 ): boolean {
-  if (!secret || !body || !signature) return false;
+  if (!secret || body === undefined || body === null || body.length === 0) return false;
+  if (typeof signature !== 'string' || !signature) return false;
 
   const prefix = 'sha256=';
   if (!signature.startsWith(prefix)) return false;
 
-  const receivedSig = signature.slice(prefix.length);
-  const expectedSig = createHmac('sha256', secret)
-    .update(body)
-    .digest('base64')
-    .replace(/=+$/, ''); // no padding
+  // Compare the Base64 text itself (padding optional): decoding first would ignore
+  // invalid characters, so a tampered signature could still match.
+  const receivedSig = trimTrailing(signature.slice(prefix.length), '=');
+  const expectedSig = trimTrailing(createHmac('sha256', secret).update(body).digest('base64'), '=');
 
-  try {
-    const a = Buffer.from(receivedSig, 'base64');
-    const b = Buffer.from(expectedSig, 'base64');
-    if (a.length !== b.length) return false;
-    return timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
+  const a = Buffer.from(receivedSig, 'utf8');
+  const b = Buffer.from(expectedSig, 'utf8');
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
 }

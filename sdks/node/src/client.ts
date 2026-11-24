@@ -33,22 +33,76 @@ import type {
   EmbedToken,
   EmbedTokenCreate,
   EmbedTokenResponse,
+  SendEventResponse,
+  AuthResponse,
+  LoginResponse,
+  RegisterParams,
+  CronPreview,
+  PipelineTestResult,
+  RetentionPolicy,
+  RetentionPolicyResponse,
+  PurgeParams,
 } from './types';
 import { randomUUID } from 'crypto';
+import { trimTrailing } from './util';
 
 export class JobcelisClient {
-  private apiKey: string;
+  private apiKey: string | undefined;
+  private authToken: string | undefined;
   private baseUrl: string;
   private timeout: number;
   private maxRetries: number;
   private retryBaseDelay: number;
 
   constructor(config: JobcelisConfig) {
-    this.apiKey = config.apiKey;
-    this.baseUrl = (config.baseUrl || 'https://jobcelis.com').replace(/\/$/, '');
-    this.timeout = config.timeout || 30000;
+    this.apiKey = config.apiKey || undefined;
+    this.authToken = config.authToken || undefined;
+    this.baseUrl = trimTrailing(config.baseUrl || 'https://jobcelis.com', '/');
+    // 0 disables the timeout (with `||` it silently became 30000)
+    this.timeout = config.timeout ?? 30000;
     this.maxRetries = Math.max(0, Math.floor(config.maxRetries ?? DEFAULT_MAX_RETRIES));
     this.retryBaseDelay = config.retryBaseDelay ?? DEFAULT_RETRY_BASE_DELAY_MS;
+  }
+
+  /**
+   * Sets (or clears, with null) the user JWT sent as `Authorization: Bearer <token>`.
+   * Needed for the account routes: projects, members, invitations and `/me/*`.
+   */
+  setAuthToken(token: string | null | undefined): void {
+    this.authToken = token || undefined;
+  }
+
+  // --- Auth (no API key needed) ---
+
+  /** POST /api/v1/auth/register. Stores the returned JWT for the account routes. */
+  async register(params: RegisterParams): Promise<AuthResponse> {
+    return this.storeToken(await this.post('/api/v1/auth/register', params));
+  }
+
+  /**
+   * POST /api/v1/auth/login. Returns `{ user, token }` and stores the token, or
+   * `{ mfa_required: true, mfa_token }` when the account has MFA: then call verifyMfa().
+   */
+  async login(email: string, password: string): Promise<LoginResponse> {
+    return this.storeToken(await this.post('/api/v1/auth/login', { email, password }));
+  }
+
+  /** POST /api/v1/auth/refresh. Defaults to the stored JWT and stores the new one. */
+  async refreshToken(token?: string): Promise<{ token: string }> {
+    const current = token ?? this.authToken;
+    if (!current) throw new JobcelisError(0, 'No token to refresh: pass one or call setAuthToken()');
+    return this.storeToken(await this.post('/api/v1/auth/refresh', { token: current }));
+  }
+
+  /** POST /api/v1/auth/mfa/verify with the `mfa_token` from login() and a TOTP code. */
+  async verifyMfa(mfaToken: string, code: string): Promise<AuthResponse> {
+    return this.storeToken(await this.post('/api/v1/auth/mfa/verify', { mfa_token: mfaToken, code }));
+  }
+
+  private storeToken<T>(res: T): T {
+    const token = (res as { token?: unknown } | undefined)?.token;
+    if (typeof token === 'string' && token) this.authToken = token;
+    return res;
   }
 
   // --- Events ---
@@ -57,7 +111,7 @@ export class JobcelisClient {
    * Sends one event. The request carries an `X-Idempotency-Key` header (the event's
    * `idempotency_key`, or a generated UUID) so retries never duplicate the event.
    */
-  async sendEvent(event: EventCreate): Promise<Event> {
+  async sendEvent(event: EventCreate): Promise<SendEventResponse> {
     return this.post('/api/v1/events', event, { idempotencyKey: event.idempotency_key || randomUUID() });
   }
 
@@ -189,25 +243,28 @@ export class JobcelisClient {
     return this.get(`/api/v1/jobs/${jobId}/runs`, opts);
   }
 
-  async cronPreview(expression: string, count?: number): Promise<{ executions: string[] }> {
+  async cronPreview(expression: string, count?: number): Promise<CronPreview> {
     return this.get('/api/v1/jobs/cron-preview', { expression, count });
   }
 
   // --- Pipelines ---
 
-  async createPipeline(data: PipelineCreate): Promise<Pipeline> {
+  async createPipeline(data: PipelineCreate): Promise<{ data: Pipeline }> {
     return this.post('/api/v1/pipelines', data);
   }
 
-  async listPipelines(opts?: ListOptions): Promise<PaginatedResponse<Pipeline>> {
+  async listPipelines(opts?: ListOptions): Promise<{ data: Pipeline[] }> {
     return this.get('/api/v1/pipelines', opts);
   }
 
-  async getPipeline(id: string): Promise<Pipeline> {
+  async getPipeline(id: string): Promise<{ data: Pipeline }> {
     return this.get(`/api/v1/pipelines/${id}`);
   }
 
-  async updatePipeline(id: string, updates: Partial<PipelineCreate>): Promise<Pipeline> {
+  async updatePipeline(
+    id: string,
+    updates: Partial<PipelineCreate> & { status?: 'active' | 'inactive' },
+  ): Promise<{ data: Pipeline }> {
     return this.patch(`/api/v1/pipelines/${id}`, updates);
   }
 
@@ -215,25 +272,26 @@ export class JobcelisClient {
     await this.delete(`/api/v1/pipelines/${id}`);
   }
 
-  async testPipeline(id: string, payload: Record<string, unknown>): Promise<any> {
-    return this.post(`/api/v1/pipelines/${id}/test`, payload);
+  /** Runs the pipeline's steps on a sample payload (sent as `{ payload }`). */
+  async testPipeline(id: string, payload: Record<string, unknown>): Promise<PipelineTestResult> {
+    return this.post(`/api/v1/pipelines/${id}/test`, { payload });
   }
 
   // --- Event Schemas ---
 
-  async createEventSchema(data: EventSchemaCreate): Promise<EventSchema> {
+  async createEventSchema(data: EventSchemaCreate): Promise<{ data: EventSchema }> {
     return this.post('/api/v1/event-schemas', data);
   }
 
-  async listEventSchemas(opts?: ListOptions): Promise<PaginatedResponse<EventSchema>> {
+  async listEventSchemas(opts?: ListOptions): Promise<{ data: EventSchema[] }> {
     return this.get('/api/v1/event-schemas', opts);
   }
 
-  async getEventSchema(id: string): Promise<EventSchema> {
+  async getEventSchema(id: string): Promise<{ data: EventSchema }> {
     return this.get(`/api/v1/event-schemas/${id}`);
   }
 
-  async updateEventSchema(id: string, updates: Partial<EventSchemaCreate>): Promise<EventSchema> {
+  async updateEventSchema(id: string, updates: Partial<EventSchemaCreate>): Promise<{ data: EventSchema }> {
     return this.patch(`/api/v1/event-schemas/${id}`, updates);
   }
 
@@ -291,7 +349,7 @@ export class JobcelisClient {
     return this.patch('/api/v1/project', updates);
   }
 
-  async listTopics(): Promise<{ data: string[] }> {
+  async listTopics(): Promise<{ topics: string[] }> {
     return this.get('/api/v1/topics');
   }
 
@@ -320,15 +378,15 @@ export class JobcelisClient {
     return this.get('/api/v1/projects');
   }
 
-  async createProject(name: string): Promise<Project> {
+  async createProject(name: string): Promise<{ data: Project }> {
     return this.post('/api/v1/projects', { name });
   }
 
-  async getProjectById(id: string): Promise<Project> {
+  async getProjectById(id: string): Promise<{ data: Project }> {
     return this.get(`/api/v1/projects/${id}`);
   }
 
-  async updateProjectById(id: string, updates: Partial<{ name: string }>): Promise<Project> {
+  async updateProjectById(id: string, updates: Partial<{ name: string }>): Promise<{ data: Project }> {
     return this.patch(`/api/v1/projects/${id}`, updates);
   }
 
@@ -336,7 +394,7 @@ export class JobcelisClient {
     await this.delete(`/api/v1/projects/${id}`);
   }
 
-  async setDefaultProject(id: string): Promise<Project> {
+  async setDefaultProject(id: string): Promise<{ data: Project }> {
     return this.patch(`/api/v1/projects/${id}/default`, {});
   }
 
@@ -346,11 +404,12 @@ export class JobcelisClient {
     return this.get(`/api/v1/projects/${projectId}/members`);
   }
 
-  async addMember(projectId: string, email: string, role?: string): Promise<Member> {
+  /** Invites a user by email. Role: "viewer" (default) or "editor". */
+  async addMember(projectId: string, email: string, role: string = 'viewer'): Promise<{ data: Member }> {
     return this.post(`/api/v1/projects/${projectId}/members`, { email, role });
   }
 
-  async updateMember(projectId: string, memberId: string, role: string): Promise<Member> {
+  async updateMember(projectId: string, memberId: string, role: string): Promise<{ data: Member }> {
     return this.patch(`/api/v1/projects/${projectId}/members/${memberId}`, { role });
   }
 
@@ -448,8 +507,9 @@ export class JobcelisClient {
     return this.get('/api/v1/me/data');
   }
 
-  async restrictProcessing(): Promise<void> {
-    await this.post('/api/v1/me/restrict', {});
+  /** Restricts processing of your data (GDPR Art. 18). The server requires your password. */
+  async restrictProcessing(password: string): Promise<{ status: string; restricted_at: string }> {
+    return this.post('/api/v1/me/restrict', { password });
   }
 
   async liftRestriction(): Promise<void> {
@@ -466,19 +526,20 @@ export class JobcelisClient {
 
   // --- Retention & Purge ---
 
-  async getRetentionPolicy(): Promise<any> {
+  async getRetentionPolicy(): Promise<{ retention_days: number | null; retention_policy: RetentionPolicy }> {
     return this.get('/api/v1/retention');
   }
 
-  async updateRetentionPolicy(policy: { events_days?: number; deliveries_days?: number; audit_logs_days?: number }): Promise<any> {
-    return this.patch('/api/v1/retention', policy);
+  /** Sent as `{ retention_policy: policy }`. */
+  async updateRetentionPolicy(policy: RetentionPolicy): Promise<RetentionPolicyResponse> {
+    return this.patch('/api/v1/retention', { retention_policy: policy });
   }
 
-  async previewPurge(params: { type: string; older_than?: string; topic?: string; status?: string }): Promise<any> {
+  async previewPurge(params: PurgeParams): Promise<any> {
     return this.post('/api/v1/purge/preview', params);
   }
 
-  async purgeData(params: { type: string; older_than?: string; topic?: string; status?: string }): Promise<any> {
+  async purgeData(params: PurgeParams): Promise<any> {
     return this.post('/api/v1/purge', params);
   }
 
@@ -488,12 +549,18 @@ export class JobcelisClient {
     return this.get('/health');
   }
 
+  /** Alias of health(): `/status` is an HTML page, so this reads `/health`. */
+  async status(): Promise<Record<string, unknown>> {
+    return this.health();
+  }
+
   // --- HTTP helpers ---
 
   /**
-   * Sends a request, retrying on network errors and HTTP 429/502/503/504 with
-   * exponential backoff. POSTs are retried on network errors only when they carry
-   * an idempotency key, so a retry can never create a resource twice.
+   * Sends a request, retrying on network errors, timeouts and HTTP 429/502/503/504
+   * with exponential backoff. A POST without an idempotency key is retried only on
+   * 429 and 503 (the server did not act on it): after a network error, timeout, 502
+   * or 504 it may have, and a retry could create the resource twice.
    */
   private async send(
     method: string,
@@ -507,27 +574,40 @@ export class JobcelisClient {
       }
     }
 
-    const headers: Record<string, string> = { 'X-Api-Key': this.apiKey };
+    const headers: Record<string, string> = {};
+    if (this.apiKey) headers['X-Api-Key'] = this.apiKey;
+    if (this.authToken) headers['Authorization'] = `Bearer ${this.authToken}`;
     if (opts.json !== false) headers['Content-Type'] = 'application/json';
     if (opts.idempotencyKey) headers['X-Idempotency-Key'] = opts.idempotencyKey;
     const body = opts.body ? JSON.stringify(opts.body) : undefined;
-    const retryOnNetworkError = method !== 'POST' || !!opts.idempotencyKey || !!opts.idempotent;
+    const idempotent = method !== 'POST' || !!opts.idempotencyKey || !!opts.idempotent;
+    const retryable = idempotent ? RETRYABLE_STATUSES : NON_IDEMPOTENT_RETRYABLE_STATUSES;
 
     for (let attempt = 0; ; attempt++) {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), this.timeout);
+      let timedOut = false;
+      const timer =
+        this.timeout > 0
+          ? setTimeout(() => {
+              timedOut = true;
+              controller.abort();
+            }, this.timeout)
+          : undefined;
       let res: Response;
       try {
         res = await fetch(url.toString(), { method, headers, body, signal: controller.signal });
       } catch (err) {
         clearTimeout(timer);
-        if (!retryOnNetworkError || attempt >= this.maxRetries) throw err;
+        if (!idempotent || attempt >= this.maxRetries) {
+          if (timedOut) throw new JobcelisError(0, `Request timed out after ${this.timeout} ms`);
+          throw err;
+        }
         await sleep(this.retryDelay(attempt + 1, null));
         continue;
       }
       clearTimeout(timer);
 
-      if (RETRYABLE_STATUSES.has(res.status) && attempt < this.maxRetries) {
+      if (retryable.has(res.status) && attempt < this.maxRetries) {
         const retryAfter = res.headers.get('retry-after');
         await res.body?.cancel().catch(() => undefined);
         await sleep(this.retryDelay(attempt + 1, retryAfter));
@@ -612,6 +692,8 @@ interface RetryOptions {
 }
 
 const RETRYABLE_STATUSES = new Set([429, 502, 503, 504]);
+/** Statuses where the server surely did not act: safe to retry any POST. */
+const NON_IDEMPOTENT_RETRYABLE_STATUSES = new Set([429, 503]);
 const DEFAULT_MAX_RETRIES = 6;
 const DEFAULT_RETRY_BASE_DELAY_MS = 1000;
 const MAX_BACKOFF_MS = 30_000;
