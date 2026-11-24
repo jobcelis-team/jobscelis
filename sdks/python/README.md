@@ -26,30 +26,34 @@ client = JobcelisClient(api_key="your_api_key")
 
 ## Authentication
 
-The auth methods do not require an API key. Use them to register, log in, and manage JWT tokens.
+Two credentials exist:
+
+- **API key** (`api_key`, sent as `X-Api-Key`): events, webhooks, jobs, pipelines, project settings...
+- **User JWT** (`auth_token`, sent as `Authorization: Bearer`): the account routes `/projects*`,
+  `/projects/:id/members*`, `/invitations*` and `/me/*` (GDPR). With only an API key they return 401.
+
+The auth methods do not require an API key, and they store the returned JWT on the client.
 
 ```python
 from jobcelis import JobcelisClient
 
-client = JobcelisClient(api_key="")
+client = JobcelisClient()  # or JobcelisClient(api_key="...", auth_token="eyJ...")
 
 # Register a new account
 user = client.register("alice@example.com", "SecurePass123!", name="Alice")
 
-# Log in — returns JWT access token and refresh token
+# Log in — returns {"user", "token"} (stored), or an MFA challenge
 session = client.login("alice@example.com", "SecurePass123!")
-access_token = session["token"]
-refresh_token = session["refresh_token"]
+if session.get("mfa_required"):
+    client.verify_mfa(session["mfa_token"], "123456")  # TOTP code
 
-# Set the JWT for subsequent authenticated calls
-client.set_auth_token(access_token)
+projects = client.list_projects()  # uses the stored JWT
 
-# Refresh an expired token
-new_session = client.refresh_token(refresh_token)
-client.set_auth_token(new_session["token"])
+# Refresh before it expires (defaults to the stored token)
+client.refresh_token()
 
-# Verify MFA (requires Bearer token already set)
-result = client.verify_mfa(token=access_token, code="123456")
+# Or set a JWT you already have (None clears it)
+client.set_auth_token("eyJ...")
 ```
 
 ## Events
@@ -127,12 +131,16 @@ client.cancel_replay("rpl_abc123")
 
 ```python
 # Create a job
+# Emit an event on a cron schedule ("daily", "weekly" and "monthly" also work)
 job = client.create_job(
     name="daily-report",
-    queue="default",
     cron_expression="0 9 * * *",
+    topic="report.generate",
     payload={"type": "daily"},
 )
+
+# Or POST to a URL
+client.create_job(name="ping", cron_expression="daily", url="https://example.com/ping")
 
 # CRUD
 jobs = client.list_jobs(limit=10)
@@ -153,11 +161,13 @@ preview = client.cron_preview("0 9 * * *", count=10)
 pipeline = client.create_pipeline(
     name="order-processing",
     topics=["order.created"],
+    webhook_id="wh_abc123",  # required: where the processed events are delivered
     steps=[
-        {"type": "filter", "config": {"field": "amount", "gt": 100}},
-        {"type": "transform", "config": {"add_field": "priority", "value": "high"}},
+        {"type": "filter", "field": "amount", "operator": "gt", "value": 100},
+        {"type": "transform", "operation": "set", "values": {"priority": "high"}},
+        {"type": "delay", "seconds": 60},
     ],
-)
+)["data"]
 
 pipelines = client.list_pipelines()
 p = client.get_pipeline("pipe_abc123")
@@ -165,8 +175,11 @@ client.update_pipeline("pipe_abc123", name="order-processing-v2")
 client.delete_pipeline("pipe_abc123")
 
 # Test a pipeline with a sample payload
-result = client.test_pipeline("pipe_abc123", {"topic": "order.created", "payload": {"id": "1"}})
+result = client.test_pipeline("pipe_abc123", {"amount": 150})  # sent as {"payload": {...}}
 ```
+
+Step types are `filter`, `transform` and `delay`. Transform steps need an `operation`: `pick` / `remove`
+(`fields`), `rename` (`mapping`), `set` (`values`), `template` (`template`) or `flatten`.
 
 ## Invitations
 
@@ -245,6 +258,8 @@ client.update_token_restrictions(scopes=["events:read", "events:write"], allowed
 
 ## Multi-Project Management
 
+Requires a user JWT (see Authentication).
+
 ```python
 projects = client.list_projects()
 new_project = client.create_project("staging-env")
@@ -258,7 +273,8 @@ client.delete_project("proj_abc123")
 
 ```python
 members = client.list_members("proj_abc123")
-member = client.add_member("proj_abc123", "alice@example.com", role="admin")
+# Requires a user JWT. Roles: "viewer" (default) or "editor"
+member = client.add_member("proj_abc123", "alice@example.com", role="editor")
 client.update_member("proj_abc123", "mem_abc123", role="viewer")
 client.remove_member("proj_abc123", "mem_abc123")
 ```
@@ -297,6 +313,8 @@ result = client.simulate_event("order.created", {"order_id": "test"})
 
 ## GDPR / Privacy
 
+Requires a user JWT (see Authentication).
+
 ```python
 # Consent management
 consents = client.get_consents()
@@ -306,7 +324,7 @@ client.accept_consent("marketing")
 my_data = client.export_my_data()
 
 # Processing restrictions
-client.restrict_processing()
+client.restrict_processing(password="your_password")
 client.lift_restriction()
 
 # Right to object
@@ -318,7 +336,16 @@ client.restore_consent()
 
 ```python
 health = client.health()
-status = client.status()
+status = client.status()  # alias of health(): GET /health
+```
+
+## Retention & Purge
+
+```python
+policy = client.get_retention_policy()
+client.update_retention_policy({"events_days": 30, "deliveries_days": 30})  # sent as {"retention_policy": {...}}
+client.preview_purge({"type": "events", "older_than": "2026-01-01"})
+client.purge_data({"type": "events", "older_than": "2026-01-01"})
 ```
 
 ## Retries
@@ -329,7 +356,8 @@ platform is being deployed):
 - network errors (connection refused or reset, DNS, TLS, timeouts) and HTTP `429`, `502`, `503`, `504`
 - up to 6 retries with exponential backoff (1 s, 2 s, 4 s, 8 s, 16 s, 30 s, about 60 s in total, with jitter);
   a `Retry-After` header is honoured (capped at 60 s)
-- `POST` requests are retried on network errors only when they carry an idempotency key, so a retry never
+- a `POST` without an idempotency key is retried only on `429` and `503` (the server did not act on it);
+  after a network error, timeout, `502` or `504` it may have, so it is not retried and a retry never
   creates a resource twice. `send_event` sends an `X-Idempotency-Key` header (your `idempotency_key`, or a
   generated UUID) and `send_events` adds an `idempotency_key` to every event that has none, so retried events are
   never duplicated.
@@ -369,7 +397,7 @@ from jobcelis import verify_webhook_signature
 def handle_webhook():
     is_valid = verify_webhook_signature(
         secret='your_webhook_secret',
-        body=request.get_data(as_text=True),
+        body=request.get_data(),  # raw bytes (str also works)
         signature=request.headers.get('X-Signature', '')
     )
 

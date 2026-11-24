@@ -1,5 +1,7 @@
 """Jobcelis Python SDK — API client."""
 
+from __future__ import annotations
+
 import email.utils
 import random
 import time
@@ -8,6 +10,9 @@ import uuid
 import requests
 
 RETRYABLE_STATUSES = frozenset({429, 502, 503, 504})
+# A POST without an idempotency key is retried only when the server surely did not
+# act on it; after a 502/504 it may have, and a retry could create it twice.
+NON_IDEMPOTENT_RETRYABLE_STATUSES = frozenset({429, 503})
 DEFAULT_MAX_RETRIES = 6
 MAX_BACKOFF = 30.0
 MAX_RETRY_AFTER = 60.0
@@ -27,15 +32,21 @@ class JobcelisClient:
 
     def __init__(
         self,
-        api_key: str,
+        api_key: str | None = None,
         base_url: str = "https://jobcelis.com",
         timeout: int = 30,
         max_retries: int = DEFAULT_MAX_RETRIES,
         retry_base_delay: float = 1.0,
+        auth_token: str | None = None,
     ):
         """
+        ``api_key``: project API key, sent as ``X-Api-Key``. Not needed for the
+        ``/auth/*`` calls (register, login, refresh_token, verify_mfa).
+        ``auth_token``: user JWT, sent as ``Authorization: Bearer``. Needed for the
+        account routes: projects, members, invitations and ``/me/*``.
         ``max_retries``: retries after a network error or HTTP 429/502/503/504
-        (default 6, about 60 s of backoff); 0 disables retries.
+        (default 6, about 60 s of backoff); 0 disables retries. A POST without an
+        idempotency key is retried only on 429/503.
         ``retry_base_delay``: base delay in seconds of the exponential backoff.
         """
         self.api_key = api_key
@@ -44,35 +55,60 @@ class JobcelisClient:
         self.max_retries = max(0, int(max_retries))
         self.retry_base_delay = retry_base_delay
         self._session = requests.Session()
-        self._session.headers.update({
-            "Content-Type": "application/json",
-            "X-Api-Key": self.api_key,
-        })
+        self._session.headers["Content-Type"] = "application/json"
+        if api_key:
+            self._session.headers["X-Api-Key"] = api_key
+        if auth_token:
+            self.set_auth_token(auth_token)
 
     # --- Auth ---
 
     def register(self, email: str, password: str, name: str | None = None) -> dict:
-        """Register a new account. Does not use API key auth."""
+        """Register a new account. Does not use API key auth; stores the returned JWT."""
         body = {"email": email, "password": password}
         if name is not None:
             body["name"] = name
-        return self._post_public("/api/v1/auth/register", body)
+        return self._store_token(self._post_public("/api/v1/auth/register", body))
 
     def login(self, email: str, password: str) -> dict:
-        """Log in and receive JWT + refresh token. Does not use API key auth."""
-        return self._post_public("/api/v1/auth/login", {"email": email, "password": password})
+        """Log in. Does not use API key auth.
 
-    def refresh_token(self, refresh_token: str) -> dict:
-        """Refresh an expired JWT using a refresh token. Does not use API key auth."""
-        return self._post_public("/api/v1/auth/refresh", {"refresh_token": refresh_token})
+        Returns ``{"user", "token"}`` and stores the token for the account routes, or
+        ``{"mfa_required": True, "mfa_token"}`` when the account has MFA: then call
+        ``verify_mfa(mfa_token, code)``.
+        """
+        return self._store_token(
+            self._post_public("/api/v1/auth/login", {"email": email, "password": password})
+        )
 
-    def verify_mfa(self, token: str, code: str) -> dict:
-        """Verify MFA code. Requires Bearer token set via set_auth_token()."""
-        return self._post("/api/v1/auth/mfa/verify", {"token": token, "code": code})
+    def refresh_token(self, token: str | None = None) -> dict:
+        """Exchange a JWT for a new one (defaults to the stored token) and store it."""
+        current = token or self._auth_token()
+        if not current:
+            raise JobcelisError(0, "No token to refresh: pass one or call set_auth_token()")
+        return self._store_token(self._post_public("/api/v1/auth/refresh", {"token": current}))
 
-    def set_auth_token(self, token: str):
-        """Set JWT bearer token for authenticated requests."""
-        self._session.headers["Authorization"] = f"Bearer {token}"
+    def verify_mfa(self, mfa_token: str, code: str) -> dict:
+        """Complete an MFA login with the ``mfa_token`` from login() and a TOTP code."""
+        return self._store_token(
+            self._post_public("/api/v1/auth/mfa/verify", {"mfa_token": mfa_token, "code": code})
+        )
+
+    def set_auth_token(self, token: str | None):
+        """Set (or clear, with None) the JWT sent as ``Authorization: Bearer``."""
+        if token:
+            self._session.headers["Authorization"] = f"Bearer {token}"
+        else:
+            self._session.headers.pop("Authorization", None)
+
+    def _auth_token(self) -> str | None:
+        header = self._session.headers.get("Authorization", "")
+        return header[len("Bearer "):] if header.startswith("Bearer ") else None
+
+    def _store_token(self, resp):
+        if isinstance(resp, dict) and isinstance(resp.get("token"), str) and resp["token"]:
+            self.set_auth_token(resp["token"])
+        return resp
 
     # --- Events ---
 
@@ -205,9 +241,34 @@ class JobcelisClient:
 
     # --- Jobs ---
 
-    def create_job(self, name: str, queue: str, cron_expression: str, **kwargs) -> dict:
-        """Create a scheduled job."""
-        body = {"name": name, "queue": queue, "cron_expression": cron_expression, **kwargs}
+    def create_job(
+        self,
+        name: str,
+        queue: str | None = None,
+        cron_expression: str | None = None,
+        *,
+        topic: str | None = None,
+        payload: dict | None = None,
+        url: str | None = None,
+        method: str | None = None,
+        **kwargs,
+    ) -> dict:
+        """Create a scheduled job.
+
+        ``cron_expression``: a cron expression or "daily" / "weekly" / "monthly".
+        The action is ``topic`` (+ ``payload``) to emit an event, ``url`` (+ ``method``,
+        ``payload``) to POST to a URL, or the canonical ``action_type`` +
+        ``action_config`` in kwargs. ``queue`` is ignored by the server and kept only
+        for backwards compatibility.
+        """
+        if not (topic or url or "action_config" in kwargs):
+            raise ValueError("create_job needs topic=, url= or action_config=; otherwise the job does nothing")
+        body = {"name": name, **kwargs}
+        if cron_expression is not None:
+            body["cron_expression"] = cron_expression
+        for key, value in (("topic", topic), ("url", url), ("method", method), ("payload", payload)):
+            if value is not None:
+                body[key] = value
         return self._post("/api/v1/jobs", body)
 
     def list_jobs(self, limit: int = 50, cursor: str | None = None) -> dict:
@@ -236,9 +297,22 @@ class JobcelisClient:
 
     # --- Pipelines ---
 
-    def create_pipeline(self, name: str, topics: list[str], steps: list[dict], **kwargs) -> dict:
-        """Create an event pipeline."""
-        body = {"name": name, "topics": topics, "steps": steps, **kwargs}
+    def create_pipeline(
+        self,
+        name: str,
+        topics: list[str],
+        steps: list[dict] | None = None,
+        *,
+        webhook_id: str,
+        **kwargs,
+    ) -> dict:
+        """Create an event pipeline that delivers to ``webhook_id``.
+
+        Steps: ``{"type": "filter", "field", "operator", "value"}``,
+        ``{"type": "transform", "operation": "pick" | "remove" | "rename" | "set" |
+        "template" | "flatten", ...}`` or ``{"type": "delay", "seconds"}``.
+        """
+        body = {"name": name, "topics": topics, "steps": steps or [], "webhook_id": webhook_id, **kwargs}
         return self._post("/api/v1/pipelines", body)
 
     def list_pipelines(self, limit: int = 50, cursor: str | None = None) -> dict:
@@ -258,8 +332,8 @@ class JobcelisClient:
         self._delete(f"/api/v1/pipelines/{pipeline_id}")
 
     def test_pipeline(self, pipeline_id: str, payload: dict) -> dict:
-        """Test a pipeline with a sample payload."""
-        return self._post(f"/api/v1/pipelines/{pipeline_id}/test", payload)
+        """Run the pipeline's steps on a sample payload (sent as ``{"payload": ...}``)."""
+        return self._post(f"/api/v1/pipelines/{pipeline_id}/test", {"payload": payload})
 
     # --- Event Schemas ---
 
@@ -391,7 +465,7 @@ class JobcelisClient:
         """List members of a project."""
         return self._get(f"/api/v1/projects/{project_id}/members")
 
-    def add_member(self, project_id: str, email: str, role: str = "member") -> dict:
+    def add_member(self, project_id: str, email: str, role: str = "viewer") -> dict:
         """Add a member to a project."""
         return self._post(f"/api/v1/projects/{project_id}/members", {"email": email, "role": role})
 
@@ -461,9 +535,9 @@ class JobcelisClient:
         """Export all personal data (GDPR data portability)."""
         return self._get("/api/v1/me/data")
 
-    def restrict_processing(self) -> dict:
-        """Request restriction of data processing."""
-        return self._post("/api/v1/me/restrict", {})
+    def restrict_processing(self, password: str) -> dict:
+        """Request restriction of data processing (GDPR Art. 18). Requires your password."""
+        return self._post("/api/v1/me/restrict", {"password": password})
 
     def lift_restriction(self) -> dict:
         """Lift restriction on data processing."""
@@ -516,8 +590,11 @@ class JobcelisClient:
         return self._get("/api/v1/retention")
 
     def update_retention_policy(self, policy: dict) -> dict:
-        """Update retention policy."""
-        return self._patch("/api/v1/retention", policy)
+        """Update the retention policy (sent as ``{"retention_policy": policy}``).
+
+        Keys: ``events_days``, ``deliveries_days``, ``audit_logs_days``.
+        """
+        return self._patch("/api/v1/retention", {"retention_policy": policy})
 
     def preview_purge(self, params: dict) -> dict:
         """Preview a purge operation."""
@@ -534,8 +611,8 @@ class JobcelisClient:
         return self._get("/health")
 
     def status(self) -> dict:
-        """Get platform status page."""
-        return self._get("/status")
+        """Alias of health(): ``/status`` is an HTML page, so this reads ``/health``."""
+        return self._get("/health")
 
     # --- HTTP helpers ---
 
@@ -595,10 +672,12 @@ class JobcelisClient:
     def _send(self, method: str, path: str, do_request, idempotent: bool = False) -> requests.Response:
         """Run ``do_request``, retrying on network errors and HTTP 429/502/503/504.
 
-        POSTs are retried on network errors only when idempotent (they carry an
-        idempotency key), so a retry can never create a resource twice.
+        A POST that is not idempotent (no idempotency key) is retried only on 429
+        and 503: after a network error, timeout, 502 or 504 the server may have
+        acted on it, so a retry could create the resource twice.
         """
         retry_on_network_error = method != "POST" or idempotent
+        retryable = RETRYABLE_STATUSES if retry_on_network_error else NON_IDEMPOTENT_RETRYABLE_STATUSES
         attempt = 0
         while True:
             try:
@@ -609,7 +688,7 @@ class JobcelisClient:
                 attempt += 1
                 time.sleep(self._retry_delay(attempt, None))
                 continue
-            if resp.status_code in RETRYABLE_STATUSES and attempt < self.max_retries:
+            if resp.status_code in retryable and attempt < self.max_retries:
                 attempt += 1
                 retry_after = resp.headers.get("Retry-After")
                 resp.close()

@@ -859,7 +859,7 @@ export JOBCELIS_API_KEY=your_api_key
 
 jobcelis events send --topic order.created --payload '{"order_id":"123"}'
 jobcelis webhooks list
-jobcelis jobs create --name daily-report --queue default --cron "0 9 * * *"
+jobcelis jobs create --name daily-report --cron "0 9 * * *" --topic report.generate
 jobcelis status
 ```
 

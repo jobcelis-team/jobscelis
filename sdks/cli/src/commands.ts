@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 import * as api from "./api";
+import { trimTrailing } from "./util";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -46,6 +47,17 @@ function printJson(data: unknown): void {
 
 function hasFlag(args: string[], flag: string): boolean {
   return args.includes(flag);
+}
+
+function parseJsonFlag(args: string[], flag: string): unknown {
+  const raw = getFlag(args, flag);
+  if (raw === undefined) return undefined;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    process.stderr.write(`Error: ${flag} must be valid JSON.\n`);
+    process.exit(1);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -329,15 +341,29 @@ export async function jobsList(args: string[]): Promise<void> {
 export async function jobsCreate(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis jobs create --name <n> --queue <q> --cron <expr>\n\n" +
-        "Create a scheduled job.\n"
+      "Usage: jobcelis jobs create --name <n> --cron <expr> (--topic <t> | --url <u>)\n" +
+        "                            [--payload '<json>'] [--method <m>]\n\n" +
+        "Create a scheduled job. --cron takes a cron expression or daily/weekly/monthly.\n" +
+        "--topic emits an event with --payload; --url sends an HTTP request (default POST).\n"
     );
     return;
   }
   const name = requireFlag(args, "--name", "name");
-  const queue = requireFlag(args, "--queue", "queue");
   const cron = requireFlag(args, "--cron", "cron expression");
-  const result = await api.post("/api/v1/jobs", { name, queue, cron });
+  const topic = getFlag(args, "--topic");
+  const url = getFlag(args, "--url");
+  if (!topic && !url) {
+    process.stderr.write("Error: --topic <topic> or --url <url> is required (what the job does).\n");
+    process.exit(1);
+  }
+  const body: Record<string, unknown> = { name, cron };
+  if (topic) body.topic = topic;
+  if (url) body.url = url;
+  const method = getFlag(args, "--method");
+  if (method) body.method = method;
+  const payload = parseJsonFlag(args, "--payload");
+  if (payload !== undefined) body.payload = payload;
+  const result = await api.post("/api/v1/jobs", body);
   printJson(result);
 }
 
@@ -407,7 +433,7 @@ export async function jobsCronPreview(args: string[]): Promise<void> {
     return;
   }
   const cron = requireFlag(args, "--cron", "cron expression");
-  const params: Record<string, string> = { cron };
+  const params: Record<string, string> = { expression: cron };
   const count = getFlag(args, "--count");
   if (count) params.count = count;
   const result = await api.get("/api/v1/jobs/cron-preview", params);
@@ -432,23 +458,20 @@ export async function pipelinesList(args: string[]): Promise<void> {
 export async function pipelinesCreate(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis pipelines create --name <n> --topics <t1,t2> --steps '<json>'\n\n" +
-        "Create a transformation pipeline.\n"
+      "Usage: jobcelis pipelines create --name <n> --topics <t1,t2> --webhook-id <id> [--steps '<json>']\n\n" +
+        "Create a transformation pipeline that delivers to the webhook --webhook-id.\n" +
+        "Steps: {\"type\":\"filter\",\"field\":\"amount\",\"operator\":\"gt\",\"value\":100},\n" +
+        "       {\"type\":\"transform\",\"operation\":\"set\",\"values\":{...}} (pick, remove, rename, set, template, flatten),\n" +
+        "       {\"type\":\"delay\",\"seconds\":60}\n"
     );
     return;
   }
   const name = requireFlag(args, "--name", "name");
   const topicsRaw = requireFlag(args, "--topics", "topics");
   const topics = topicsRaw.split(",").map((t) => t.trim());
-  const stepsRaw = requireFlag(args, "--steps", "steps json");
-  let steps: unknown;
-  try {
-    steps = JSON.parse(stepsRaw);
-  } catch {
-    process.stderr.write("Error: --steps must be valid JSON.\n");
-    process.exit(1);
-  }
-  const result = await api.post("/api/v1/pipelines", { name, topics, steps });
+  const webhookId = requireFlag(args, "--webhook-id", "webhook id");
+  const steps = parseJsonFlag(args, "--steps") ?? [];
+  const result = await api.post("/api/v1/pipelines", { name, topics, webhook_id: webhookId, steps });
   printJson(result);
 }
 
@@ -1291,11 +1314,12 @@ export async function gdprExport(args: string[]): Promise<void> {
 export async function gdprRestrict(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis gdpr restrict\n\nRequest restriction of processing.\n"
+      "Usage: jobcelis gdpr restrict --password <p>\n\nRequest restriction of processing (requires your password).\n"
     );
     return;
   }
-  const result = await api.post("/api/v1/me/restrict");
+  const password = requireFlag(args, "--password", "password");
+  const result = await api.post("/api/v1/me/restrict", { password });
   printJson(result);
 }
 
@@ -1370,11 +1394,15 @@ export async function authLogin(args: string[]): Promise<void> {
 export async function authRefresh(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis auth refresh --token <t>\n\nRefresh an auth token.\n"
+      "Usage: jobcelis auth refresh [--token <t>]\n\nRefresh an auth token (default: $JOBCELIS_TOKEN).\n"
     );
     return;
   }
-  const token = requireFlag(args, "--token", "token");
+  const token = getFlag(args, "--token") || process.env.JOBCELIS_TOKEN;
+  if (!token) {
+    process.stderr.write("Error: --token <token> is required (or set JOBCELIS_TOKEN).\n");
+    process.exit(1);
+  }
   const result = await api.post("/api/v1/auth/refresh", { token });
   printJson(result);
 }
@@ -1382,14 +1410,14 @@ export async function authRefresh(args: string[]): Promise<void> {
 export async function authMfaVerify(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis auth mfa-verify --token <t> --code <c>\n\n" +
-        "Verify an MFA code.\n"
+      "Usage: jobcelis auth mfa-verify --token <mfa_token> --code <c>\n\n" +
+        "Verify an MFA code with the mfa_token returned by auth login.\n"
     );
     return;
   }
-  const token = requireFlag(args, "--token", "token");
+  const token = getFlag(args, "--mfa-token") || requireFlag(args, "--token", "mfa token");
   const code = requireFlag(args, "--code", "code");
-  const result = await api.post("/api/v1/auth/mfa/verify", { token, code });
+  const result = await api.post("/api/v1/auth/mfa/verify", { mfa_token: token, code });
   printJson(result);
 }
 
@@ -1464,29 +1492,40 @@ export async function retentionSet(args: string[]): Promise<void> {
     );
     return;
   }
-  const body: Record<string, number> = {};
-  const eventsDays = getFlag(args, "--events-days");
-  if (eventsDays) body.events_days = parseInt(eventsDays, 10);
-  const deliveriesDays = getFlag(args, "--deliveries-days");
-  if (deliveriesDays) body.deliveries_days = parseInt(deliveriesDays, 10);
-  const auditLogsDays = getFlag(args, "--audit-logs-days");
-  if (auditLogsDays) body.audit_logs_days = parseInt(auditLogsDays, 10);
-  const result = await api.patch("/api/v1/retention", body);
+  const policy: Record<string, number> = {};
+  for (const [flag, key] of [
+    ["--events-days", "events_days"],
+    ["--deliveries-days", "deliveries_days"],
+    ["--audit-logs-days", "audit_logs_days"],
+  ]) {
+    const raw = getFlag(args, flag);
+    if (raw === undefined) continue;
+    const days = Number(raw);
+    if (!Number.isInteger(days) || days < 1) {
+      process.stderr.write(`Error: ${flag} must be a positive integer.\n`);
+      process.exit(1);
+    }
+    policy[key] = days;
+  }
+  if (Object.keys(policy).length === 0) {
+    process.stderr.write("Error: give at least one of --events-days, --deliveries-days, --audit-logs-days.\n");
+    process.exit(1);
+  }
+  const result = await api.patch("/api/v1/retention", { retention_policy: policy });
   printJson(result);
 }
 
 export async function purgePreview(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis purge preview --type <type> [--older-than <date>] [--topic <pattern>] [--status <status>]\n\n" +
+      "Usage: jobcelis purge preview --type <type> --older-than <YYYY-MM-DD> [--topic <pattern>] [--status <status>]\n\n" +
         "Preview a purge operation.\n"
     );
     return;
   }
   const type = requireFlag(args, "--type", "type");
-  const body: Record<string, string> = { type };
-  const olderThan = getFlag(args, "--older-than");
-  if (olderThan) body.older_than = olderThan;
+  const olderThan = requireFlag(args, "--older-than", "YYYY-MM-DD");
+  const body: Record<string, string> = { type, older_than: olderThan };
   const topic = getFlag(args, "--topic");
   if (topic) body.topic = topic;
   const statusVal = getFlag(args, "--status");
@@ -1498,15 +1537,14 @@ export async function purgePreview(args: string[]): Promise<void> {
 export async function purgeExecute(args: string[]): Promise<void> {
   if (hasFlag(args, "--help")) {
     process.stdout.write(
-      "Usage: jobcelis purge execute --type <type> [--older-than <date>] [--topic <pattern>] [--status <status>]\n\n" +
+      "Usage: jobcelis purge execute --type <type> --older-than <YYYY-MM-DD> [--topic <pattern>] [--status <status>]\n\n" +
         "Execute a purge operation.\n"
     );
     return;
   }
   const type = requireFlag(args, "--type", "type");
-  const body: Record<string, string> = { type };
-  const olderThan = getFlag(args, "--older-than");
-  if (olderThan) body.older_than = olderThan;
+  const olderThan = requireFlag(args, "--older-than", "YYYY-MM-DD");
+  const body: Record<string, string> = { type, older_than: olderThan };
   const topic = getFlag(args, "--topic");
   if (topic) body.topic = topic;
   const statusVal = getFlag(args, "--status");
@@ -1524,7 +1562,8 @@ export async function verifySignature(args: string[]): Promise<void> {
     process.stdout.write(
       "Usage: jobcelis verify-signature --secret <s> --body <b> --signature <sig>\n\n" +
         "Verify a webhook signature (HMAC-SHA256, Base64 no padding).\n" +
-        "The --signature value should be the full header, e.g. 'sha256=abc123...'.\n"
+        "The --signature value should be the full header, e.g. 'sha256=abc123...'.\n" +
+        "Prints true or false; exits with status 1 when the signature is invalid.\n"
     );
     return;
   }
@@ -1532,31 +1571,26 @@ export async function verifySignature(args: string[]): Promise<void> {
   const body = requireFlag(args, "--body", "body");
   const signature = requireFlag(args, "--signature", "signature");
 
-  const prefix = "sha256=";
-  if (!signature.startsWith(prefix)) {
-    process.stdout.write("false\n");
-    return;
-  }
-
-  const receivedSig = signature.slice(prefix.length);
-  const expectedSig = crypto
-    .createHmac("sha256", secret)
-    .update(body)
-    .digest("base64")
-    .replace(/=+$/, "");
-
-  let isValid = false;
-  try {
-    const a = Buffer.from(receivedSig, "base64");
-    const b = Buffer.from(expectedSig, "base64");
-    if (a.length === b.length) {
-      isValid = crypto.timingSafeEqual(a, b);
-    }
-  } catch {
-    isValid = false;
-  }
-
+  const isValid = signatureMatches(secret, body, signature);
   process.stdout.write(isValid ? "true\n" : "false\n");
+  if (!isValid) process.exitCode = 1;
+}
+
+/**
+ * Compares the Base64 text of the signature (padding optional) with the expected
+ * one. Decoding first would ignore invalid characters, so a tampered value could match.
+ */
+export function signatureMatches(secret: string, body: string, signature: string): boolean {
+  const prefix = "sha256=";
+  if (!signature.startsWith(prefix)) return false;
+  const receivedSig = trimTrailing(signature.slice(prefix.length), "=");
+  const expectedSig = trimTrailing(
+    crypto.createHmac("sha256", secret).update(body).digest("base64"),
+    "="
+  );
+  const a = Buffer.from(receivedSig, "utf8");
+  const b = Buffer.from(expectedSig, "utf8");
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
 // ---------------------------------------------------------------------------
