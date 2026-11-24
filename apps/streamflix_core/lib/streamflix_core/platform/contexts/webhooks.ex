@@ -203,38 +203,49 @@ defmodule StreamflixCore.Platform.Webhooks do
   def topic_matches?(topics, event_topic) when is_list(topics) do
     event_segments = String.split(event_topic, ".")
 
+    event = List.to_tuple(event_segments)
+
     Enum.any?(topics, fn pattern ->
-      pattern_segments = String.split(pattern, ".")
-      segments_match?(pattern_segments, event_segments)
+      segments_match?(pattern |> String.split(".") |> List.to_tuple(), event)
     end)
   end
 
-  defp segments_match?([], []), do: true
-  defp segments_match?([], _remaining), do: false
-  defp segments_match?(["#"], [_ | _]), do: true
-  defp segments_match?(["#"], []), do: false
-  defp segments_match?(["#" | rest], event_segments), do: hash_match?(rest, event_segments)
-  defp segments_match?(_pattern, []), do: false
+  # Pattern segments: `*` matches exactly one segment, `#` one or more.
+  #
+  # Dynamic programming over (pattern index, event index), filled from the end:
+  # `row` holds the results for pattern index i + 1, so a match costs
+  # O(pattern segments × event segments) whatever the number of `#`. (A
+  # backtracking matcher is exponential in the number of `#`: a pattern such as
+  # "#.#.#.#.#.#.#.x" took seconds of CPU per event.)
+  defp segments_match?(pattern, event) do
+    np = tuple_size(pattern)
+    ne = tuple_size(event)
 
-  defp segments_match?(["*" | p_rest], [_e | e_rest]),
-    do: segments_match?(p_rest, e_rest)
+    # Pattern exhausted: matches only when the event is exhausted too
+    last_row = for j <- 0..ne, into: %{}, do: {j, j == ne}
 
-  defp segments_match?([p | p_rest], [e | e_rest]) when p == e,
-    do: segments_match?(p_rest, e_rest)
+    first_row =
+      Enum.reduce((np - 1)..0//-1, last_row, fn i, next_row ->
+        segment = elem(pattern, i)
 
-  defp segments_match?(_pattern, _event), do: false
+        Enum.reduce(ne..0//-1, %{}, fn j, row ->
+          Map.put(row, j, cell_match?(segment, event, j, ne, next_row, row))
+        end)
+      end)
 
-  # `#` matches one or more segments, so try dropping 1..N segments from event
-  # `#` consumed one or more segments; check if remaining pattern matches remaining event
-  defp hash_match?([], event_segments), do: event_segments != []
-  defp hash_match?(_rest, []), do: false
-
-  defp hash_match?(rest, event_segments) do
-    # Try consuming 1..N segments with `#`, then match rest of pattern
-    Enum.any?(1..length(event_segments), fn drop ->
-      segments_match?(rest, Enum.drop(event_segments, drop))
-    end)
+    Map.fetch!(first_row, 0)
   end
+
+  defp cell_match?(_segment, _event, j, ne, _next_row, _row) when j == ne, do: false
+
+  # `#` consumes this event segment, then either stops or keeps consuming
+  defp cell_match?("#", _event, j, _ne, next_row, row),
+    do: Map.fetch!(next_row, j + 1) or Map.fetch!(row, j + 1)
+
+  defp cell_match?("*", _event, j, _ne, next_row, _row), do: Map.fetch!(next_row, j + 1)
+
+  defp cell_match?(segment, event, j, _ne, next_row, _row),
+    do: elem(event, j) == segment and Map.fetch!(next_row, j + 1)
 
   def filters_match?([], _topic, _payload), do: true
 
