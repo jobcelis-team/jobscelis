@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 import * as api from "./api";
+import { trimTrailing } from "./util";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1582,12 +1583,11 @@ export async function verifySignature(args: string[]): Promise<void> {
 export function signatureMatches(secret: string, body: string, signature: string): boolean {
   const prefix = "sha256=";
   if (!signature.startsWith(prefix)) return false;
-  const receivedSig = signature.slice(prefix.length).replace(/=+$/, "");
-  const expectedSig = crypto
-    .createHmac("sha256", secret)
-    .update(body)
-    .digest("base64")
-    .replace(/=+$/, "");
+  const receivedSig = trimTrailing(signature.slice(prefix.length), "=");
+  const expectedSig = trimTrailing(
+    crypto.createHmac("sha256", secret).update(body).digest("base64"),
+    "="
+  );
   const a = Buffer.from(receivedSig, "utf8");
   const b = Buffer.from(expectedSig, "utf8");
   return a.length === b.length && crypto.timingSafeEqual(a, b);

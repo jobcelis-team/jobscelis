@@ -1,3 +1,5 @@
+import { trimTrailing } from "./util";
+
 // Configuration is read from the environment on every request.
 //   JOBCELIS_API_KEY     project API key, sent as X-Api-Key
 //   JOBCELIS_TOKEN       user JWT, sent as Authorization: Bearer (account routes)
@@ -69,7 +71,7 @@ function timeoutMs(): number {
  * of the base (https://host/prefix + /api/v1/x -> https://host/api/v1/x).
  */
 export function buildUrl(path: string, params?: Record<string, string>): string {
-  const base = (process.env.JOBCELIS_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  const base = trimTrailing(process.env.JOBCELIS_BASE_URL || DEFAULT_BASE_URL, "/");
   const url = new URL(base + (path.startsWith("/") ? path : `/${path}`));
   if (params) {
     for (const [key, value] of Object.entries(params)) {

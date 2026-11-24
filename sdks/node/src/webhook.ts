@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto';
+import { trimTrailing } from './util';
 
 /**
  * Verify a webhook signature from Jobcelis.
@@ -41,11 +42,8 @@ export function verifyWebhookSignature(
 
   // Compare the Base64 text itself (padding optional): decoding first would ignore
   // invalid characters, so a tampered signature could still match.
-  const receivedSig = signature.slice(prefix.length).replace(/=+$/, '');
-  const expectedSig = createHmac('sha256', secret)
-    .update(body)
-    .digest('base64')
-    .replace(/=+$/, '');
+  const receivedSig = trimTrailing(signature.slice(prefix.length), '=');
+  const expectedSig = trimTrailing(createHmac('sha256', secret).update(body).digest('base64'), '=');
 
   const a = Buffer.from(receivedSig, 'utf8');
   const b = Buffer.from(expectedSig, 'utf8');

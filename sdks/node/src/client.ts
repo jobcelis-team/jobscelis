@@ -44,6 +44,7 @@ import type {
   PurgeParams,
 } from './types';
 import { randomUUID } from 'crypto';
+import { trimTrailing } from './util';
 
 export class JobcelisClient {
   private apiKey: string | undefined;
@@ -56,7 +57,7 @@ export class JobcelisClient {
   constructor(config: JobcelisConfig) {
     this.apiKey = config.apiKey || undefined;
     this.authToken = config.authToken || undefined;
-    this.baseUrl = (config.baseUrl || 'https://jobcelis.com').replace(/\/+$/, '');
+    this.baseUrl = trimTrailing(config.baseUrl || 'https://jobcelis.com', '/');
     // 0 disables the timeout (with `||` it silently became 30000)
     this.timeout = config.timeout ?? 30000;
     this.maxRetries = Math.max(0, Math.floor(config.maxRetries ?? DEFAULT_MAX_RETRIES));
