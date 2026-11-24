@@ -1625,138 +1625,79 @@ defmodule StreamflixWebWeb.AccountLive do
           </div>
         </div>
         <div class="p-6 sm:p-8">
-          <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-              <thead>
-                <tr class="border-b border-slate-200 dark:border-slate-700">
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                    {gettext("Dispositivo")}
-                  </th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">
-                    {gettext("IP")}
-                  </th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">
-                    {gettext("Última actividad")}
-                  </th>
-                  <th class="text-left py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                    {gettext("Fecha")}
-                  </th>
-                  <th class="text-right py-2 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                    {gettext("Acción")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                <%= for session <- @sessions do %>
-                  <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
-                    <td class="py-2.5 px-3 text-slate-700 dark:text-slate-300 font-medium">
-                      <div class="flex items-center gap-2">
-                        <%= case session.device_info do %>
-                          <% "Mobile" -> %>
-                            <svg
-                              class="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
-                              />
-                            </svg>
-                          <% "Tablet" -> %>
-                            <svg
-                              class="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z"
-                              />
-                            </svg>
-                          <% _ -> %>
-                            <svg
-                              class="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"
-                              />
-                            </svg>
-                        <% end %>
-                        <span>
-                          {session.device_info || gettext("Escritorio")}
-                          <%= if @current_jti && session.token_jti == @current_jti do %>
-                            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                              {gettext("Esta sesión")}
-                            </span>
-                          <% end %>
-                        </span>
-                      </div>
-                    </td>
-                    <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">
-                      <span class="truncate max-w-[8rem] inline-block">
-                        {session.ip_address || "—"}
+          <ul id="sessions-list" class="divide-y divide-slate-100 dark:divide-slate-700/60">
+            <%= for session <- @sessions do %>
+              <% ua = StreamflixWebWeb.UserAgent.parse(session.user_agent)
+              current? = @current_jti && session.token_jti == @current_jti %>
+              <li
+                id={"session-#{session.id}"}
+                class="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
+              >
+                <div class={[
+                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition",
+                  if(current?,
+                    do: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+                    else: "bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-300"
+                  )
+                ]}>
+                  <.icon name={session_icon(ua.device)} class="h-6 w-6" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    {session_title(ua)}
+                    <%= if current? do %>
+                      <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
+                        {gettext("Dispositivo actual")}
                       </span>
-                    </td>
-                    <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400 hidden sm:table-cell">
-                      <%= if session.last_activity_at do %>
-                        <.local_time value={session.last_activity_at} format="datetime_short" />
-                      <% else %>
-                        —
-                      <% end %>
-                    </td>
-                    <td class="py-2.5 px-3 text-slate-500 dark:text-slate-400">
-                      <.local_time value={session.inserted_at} format="datetime_short" />
-                    </td>
-                    <td class="py-2.5 px-3 text-right">
-                      <%= if @current_jti && session.token_jti == @current_jti do %>
-                        <span class="text-xs text-slate-400 dark:text-slate-500">—</span>
-                      <% else %>
-                        <button
-                          type="button"
-                          phx-click={show_confirm("confirm-revoke-session-#{session.id}")}
-                          class="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium"
-                        >
-                          {gettext("Revocar")}
-                        </button>
-                        <.confirm_modal
-                          id={"confirm-revoke-session-#{session.id}"}
-                          title={gettext("Confirmar cierre de sesión")}
-                          message={gettext("¿Cerrar esta sesión?")}
-                          confirm_text={gettext("Revocar")}
-                          confirm_event="revoke_session"
-                          confirm_value={%{id: session.id}}
-                          variant="danger"
-                        />
-                      <% end %>
-                    </td>
-                  </tr>
+                    <% end %>
+                  </p>
+                  <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    {gettext("Último uso")}:
+                    <%= if session.last_activity_at do %>
+                      <.local_time value={session.last_activity_at} format="datetime_short" />
+                    <% else %>
+                      —
+                    <% end %>
+                    <span class="mx-1 text-slate-300 dark:text-slate-600">·</span>
+                    {gettext("Inicio de sesión")}:
+                    <.local_time value={session.inserted_at} format="datetime_short" />
+                  </p>
+                  <p
+                    :if={session.ip_address}
+                    class="mt-0.5 truncate text-xs text-slate-400 dark:text-slate-500"
+                    title={session.ip_address}
+                  >
+                    IP {session.ip_address}
+                  </p>
+                </div>
+                <%= unless current? do %>
+                  <button
+                    type="button"
+                    id={"revoke-session-#{session.id}"}
+                    phx-click={show_confirm("confirm-revoke-session-#{session.id}")}
+                    class="shrink-0 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  >
+                    {gettext("Cerrar sesión")}
+                  </button>
+                  <.confirm_modal
+                    id={"confirm-revoke-session-#{session.id}"}
+                    title={gettext("Confirmar cierre de sesión")}
+                    message={gettext("¿Cerrar esta sesión?")}
+                    confirm_text={gettext("Revocar")}
+                    confirm_event="revoke_session"
+                    confirm_value={%{id: session.id}}
+                    variant="danger"
+                  />
                 <% end %>
-                <%= if @sessions == [] do %>
-                  <tr>
-                    <td
-                      colspan="5"
-                      class="py-4 px-3 text-center text-slate-400 dark:text-slate-500 text-sm"
-                    >
-                      {gettext("Sin sesiones activas.")}
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
+              </li>
+            <% end %>
+            <li
+              :if={@sessions == []}
+              class="py-4 text-center text-sm text-slate-400 dark:text-slate-500"
+            >
+              {gettext("Sin sesiones activas.")}
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -2866,5 +2807,25 @@ defmodule StreamflixWebWeb.AccountLive do
       })
       |> Oban.insert()
     end
+  end
+
+  defp session_icon(:mobile), do: "hero-device-phone-mobile"
+  defp session_icon(:tablet), do: "hero-device-tablet"
+  defp session_icon(:tv), do: "hero-tv"
+  defp session_icon(:api), do: "hero-command-line"
+  defp session_icon(_desktop), do: "hero-computer-desktop"
+
+  defp device_label(:mobile), do: gettext("Móvil")
+  defp device_label(:tablet), do: gettext("Tablet")
+  defp device_label(:tv), do: gettext("Smart TV")
+  defp device_label(:api), do: gettext("Cliente de la API")
+  defp device_label(_desktop), do: gettext("Ordenador")
+
+  # "Chrome · Windows", falling back to the device type when a part is unknown
+  defp session_title(%{browser: browser, os: os, device: device}) do
+    [browser || device_label(device), os]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.uniq()
+    |> Enum.join(" · ")
   end
 end

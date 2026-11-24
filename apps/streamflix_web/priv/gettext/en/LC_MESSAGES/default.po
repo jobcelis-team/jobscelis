@@ -84,8 +84,7 @@ msgstr "Actions"
 msgid "Acciones rápidas"
 msgstr "Quick actions"
 
-#: lib/streamflix_web_web/live/account_live.ex:1645
-#: lib/streamflix_web_web/live/account_live.ex:1988
+#: lib/streamflix_web_web/live/account_live.ex:1929
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:390
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1593
 #, elixir-autogen, elixir-format
@@ -108,7 +107,7 @@ msgstr "Activating..."
 msgid "Activar"
 msgstr "Activate"
 
-#: lib/streamflix_web_web/live/account_live.ex:2020
+#: lib/streamflix_web_web/live/account_live.ex:1961
 #: lib/streamflix_web_web/live/admin/users_live.ex:307
 #: lib/streamflix_web_web/live/admin/users_live.ex:454
 #: lib/streamflix_web_web/live/platform_dashboard/helpers.ex:125
@@ -117,21 +116,21 @@ msgstr "Activate"
 msgid "Activo"
 msgstr "Active"
 
-#: lib/streamflix_web_web/live/account_live.ex:2315
-#: lib/streamflix_web_web/live/account_live.ex:2520
-#: lib/streamflix_web_web/live/account_live.ex:2606
+#: lib/streamflix_web_web/live/account_live.ex:2256
+#: lib/streamflix_web_web/live/account_live.ex:2461
+#: lib/streamflix_web_web/live/account_live.ex:2547
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:2666
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:2677
 #, elixir-autogen, elixir-format
 msgid "Actualizando..."
 msgstr "Updating..."
 
-#: lib/streamflix_web_web/live/account_live.ex:2523
+#: lib/streamflix_web_web/live/account_live.ex:2464
 #, elixir-autogen, elixir-format
 msgid "Actualizar contraseña"
 msgstr "Update password"
 
-#: lib/streamflix_web_web/live/account_live.ex:2318
+#: lib/streamflix_web_web/live/account_live.ex:2259
 #, elixir-autogen, elixir-format
 msgid "Actualizar correo"
 msgstr "Update email"
@@ -223,13 +222,13 @@ msgid "Cambiado"
 msgstr "Changed"
 
 #: lib/streamflix_web_web/live/account_live.ex:1040
-#: lib/streamflix_web_web/live/account_live.ex:2380
+#: lib/streamflix_web_web/live/account_live.ex:2321
 #, elixir-autogen, elixir-format
 msgid "Cambiar contraseña"
 msgstr "Change password"
 
 #: lib/streamflix_web_web/live/account_live.ex:984
-#: lib/streamflix_web_web/live/account_live.ex:2201
+#: lib/streamflix_web_web/live/account_live.ex:2142
 #, elixir-autogen, elixir-format
 msgid "Cambiar correo"
 msgstr "Change email"
@@ -249,12 +248,12 @@ msgstr "Cancelled"
 
 #: lib/streamflix_web_web/components/core_components.ex:674
 #: lib/streamflix_web_web/live/account_live.ex:1513
-#: lib/streamflix_web_web/live/account_live.ex:2133
-#: lib/streamflix_web_web/live/account_live.ex:2311
-#: lib/streamflix_web_web/live/account_live.ex:2516
-#: lib/streamflix_web_web/live/account_live.ex:2602
-#: lib/streamflix_web_web/live/account_live.ex:2700
-#: lib/streamflix_web_web/live/account_live.ex:2829
+#: lib/streamflix_web_web/live/account_live.ex:2074
+#: lib/streamflix_web_web/live/account_live.ex:2252
+#: lib/streamflix_web_web/live/account_live.ex:2457
+#: lib/streamflix_web_web/live/account_live.ex:2543
+#: lib/streamflix_web_web/live/account_live.ex:2641
+#: lib/streamflix_web_web/live/account_live.ex:2770
 #: lib/streamflix_web_web/live/admin/users_live.ex:468
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:328
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:983
@@ -290,10 +289,10 @@ msgstr "Main capabilities"
 msgid "Cargando..."
 msgstr "Loading..."
 
-#: lib/streamflix_web_web/live/account_live.ex:2085
-#: lib/streamflix_web_web/live/account_live.ex:2216
-#: lib/streamflix_web_web/live/account_live.ex:2393
-#: lib/streamflix_web_web/live/account_live.ex:2553
+#: lib/streamflix_web_web/live/account_live.ex:2026
+#: lib/streamflix_web_web/live/account_live.ex:2157
+#: lib/streamflix_web_web/live/account_live.ex:2334
+#: lib/streamflix_web_web/live/account_live.ex:2494
 #: lib/streamflix_web_web/live/admin/users_live.ex:371
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:40
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:229
@@ -315,6 +314,7 @@ msgstr "Close menu"
 #: lib/streamflix_web_web/components/layouts.ex:150
 #: lib/streamflix_web_web/components/layouts.ex:268
 #: lib/streamflix_web_web/live/account_live.ex:1172
+#: lib/streamflix_web_web/live/account_live.ex:1680
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:409
 #, elixir-autogen, elixir-format
 msgid "Cerrar sesión"
@@ -348,7 +348,7 @@ msgstr "Core Concepts"
 msgid "Configuración"
 msgstr "Settings"
 
-#: lib/streamflix_web_web/live/account_live.ex:2473
+#: lib/streamflix_web_web/live/account_live.ex:2414
 #, elixir-autogen, elixir-format
 msgid "Confirmar nueva contraseña"
 msgstr "Confirm new password"
@@ -378,10 +378,10 @@ msgstr "Contact"
 msgid "Contraseña"
 msgstr "Password"
 
-#: lib/streamflix_web_web/live/account_live.ex:2117
-#: lib/streamflix_web_web/live/account_live.ex:2268
-#: lib/streamflix_web_web/live/account_live.ex:2420
-#: lib/streamflix_web_web/live/account_live.ex:2800
+#: lib/streamflix_web_web/live/account_live.ex:2058
+#: lib/streamflix_web_web/live/account_live.ex:2209
+#: lib/streamflix_web_web/live/account_live.ex:2361
+#: lib/streamflix_web_web/live/account_live.ex:2741
 #, elixir-autogen, elixir-format
 msgid "Contraseña actual"
 msgstr "Current password"
@@ -526,7 +526,7 @@ msgstr "Dead Letter Queue"
 msgid "Degradado"
 msgstr "Degraded"
 
-#: lib/streamflix_web_web/live/account_live.ex:2836
+#: lib/streamflix_web_web/live/account_live.ex:2777
 #: lib/streamflix_web_web/live/admin/users_live.ex:325
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1685
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1820
@@ -621,7 +621,7 @@ msgid "Editar job"
 msgstr "Edit job"
 
 #: lib/streamflix_web_web/live/account_live.ex:956
-#: lib/streamflix_web_web/live/account_live.ex:2550
+#: lib/streamflix_web_web/live/account_live.ex:2491
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:2341
 #, elixir-autogen, elixir-format
 msgid "Editar nombre"
@@ -654,7 +654,7 @@ msgstr "The Service is provided \"as is\". We do not guarantee uninterrupted ava
 msgid "El Servicio, su marca, diseño, código y documentación son propiedad de"
 msgstr "The Service, its brand, design, code and documentation are owned by"
 
-#: lib/streamflix_web_web/live/account_live.ex:2205
+#: lib/streamflix_web_web/live/account_live.ex:2146
 #, elixir-autogen, elixir-format
 msgid "El correo debe ser único en el sistema. Necesitas tu contraseña actual."
 msgstr "Email must be unique in the system. You need your current password."
@@ -718,7 +718,7 @@ msgstr "Delete"
 #: lib/streamflix_web_web/controllers/page_html/login.html.heex:116
 #: lib/streamflix_web_web/controllers/page_html/signup.html.heex:151
 #: lib/streamflix_web_web/live/account_live.ex:963
-#: lib/streamflix_web_web/live/account_live.ex:2232
+#: lib/streamflix_web_web/live/account_live.ex:2173
 #: lib/streamflix_web_web/live/admin/users_live.ex:403
 #, elixir-autogen, elixir-format
 msgid "Email"
@@ -911,7 +911,7 @@ msgstr "That email is already in use by another account."
 msgid "Esperando requests... Envía un POST/GET a la URL de arriba."
 msgstr "Waiting for requests... Send a POST/GET to the URL above."
 
-#: lib/streamflix_web_web/live/account_live.ex:1985
+#: lib/streamflix_web_web/live/account_live.ex:1926
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:190
 #: lib/streamflix_web_web/live/admin/projects_live.ex:152
 #: lib/streamflix_web_web/live/admin/projects_live.ex:234
@@ -1035,8 +1035,7 @@ msgstr "Failed"
 msgid "Faltan email o contraseña"
 msgstr "Email or password is missing"
 
-#: lib/streamflix_web_web/live/account_live.ex:1642
-#: lib/streamflix_web_web/live/account_live.ex:1982
+#: lib/streamflix_web_web/live/account_live.ex:1923
 #: lib/streamflix_web_web/live/admin/dashboard_live.ex:198
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:66
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:286
@@ -1412,7 +1411,7 @@ msgstr "Minimum 8 characters"
 
 #: lib/streamflix_web_web/controllers/page_html/reset_password.html.heex:155
 #: lib/streamflix_web_web/controllers/page_html/signup.html.heex:245
-#: lib/streamflix_web_web/live/account_live.ex:2384
+#: lib/streamflix_web_web/live/account_live.ex:2325
 #, elixir-autogen, elixir-format
 msgid "Mínimo 8 caracteres, con mayúsculas, minúsculas y números."
 msgstr "At least 8 characters, with uppercase, lowercase and numbers."
@@ -1466,7 +1465,7 @@ msgstr "We do not use advertising or third-party cookies for tracking."
 #: lib/streamflix_web_web/controllers/page_html/cookies.html.heex:48
 #: lib/streamflix_web_web/controllers/page_html/signup.html.heex:132
 #: lib/streamflix_web_web/live/account_live.ex:937
-#: lib/streamflix_web_web/live/account_live.ex:2575
+#: lib/streamflix_web_web/live/account_live.ex:2516
 #: lib/streamflix_web_web/live/admin/users_live.ex:390
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:449
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:1587
@@ -1503,12 +1502,12 @@ msgid "Notificaciones"
 msgstr "Notifications"
 
 #: lib/streamflix_web_web/controllers/page_html/reset_password.html.heex:81
-#: lib/streamflix_web_web/live/account_live.ex:2439
+#: lib/streamflix_web_web/live/account_live.ex:2380
 #, elixir-autogen, elixir-format
 msgid "Nueva contraseña"
 msgstr "New password"
 
-#: lib/streamflix_web_web/live/account_live.ex:2253
+#: lib/streamflix_web_web/live/account_live.ex:2194
 #, elixir-autogen, elixir-format
 msgid "Nuevo correo"
 msgstr "New email"
@@ -1592,7 +1591,7 @@ msgstr "Cookie policy (/cookies) and Changelog page (/changelog)."
 #: lib/streamflix_web_web/controllers/page_html/privacy.html.heex:9
 #: lib/streamflix_web_web/controllers/page_html/terms.html.heex:88
 #: lib/streamflix_web_web/live/account_live.ex:755
-#: lib/streamflix_web_web/live/account_live.ex:2000
+#: lib/streamflix_web_web/live/account_live.ex:1941
 #, elixir-autogen, elixir-format
 msgid "Política de privacidad"
 msgstr "Privacy policy"
@@ -1711,7 +1710,7 @@ msgstr "Remember me"
 msgid "Referencia API"
 msgstr "API Reference"
 
-#: lib/streamflix_web_web/live/account_live.ex:2835
+#: lib/streamflix_web_web/live/account_live.ex:2776
 #: lib/streamflix_web_web/live/platform_dashboard/modal_components.ex:988
 #, elixir-autogen, elixir-format
 msgid "Regenerando..."
@@ -2052,7 +2051,7 @@ msgid "Tu cuenta está inactiva. Contacta al soporte."
 msgstr "Your account is inactive. Contact support."
 
 #: lib/streamflix_web_web/controllers/page_html/signup.html.heex:139
-#: lib/streamflix_web_web/live/account_live.ex:2580
+#: lib/streamflix_web_web/live/account_live.ex:2521
 #, elixir-autogen, elixir-format
 msgid "Tu nombre"
 msgstr "Your name"
@@ -2066,7 +2065,7 @@ msgstr "Terms"
 #: lib/streamflix_web_web/controllers/page_html/about.html.heex:237
 #: lib/streamflix_web_web/controllers/page_html/terms.html.heex:9
 #: lib/streamflix_web_web/live/account_live.ex:754
-#: lib/streamflix_web_web/live/account_live.ex:1998
+#: lib/streamflix_web_web/live/account_live.ex:1939
 #, elixir-autogen, elixir-format
 msgid "Términos de uso"
 msgstr "Terms of use"
@@ -2195,7 +2194,7 @@ msgstr "Webhook failing"
 msgid "Webhooks"
 msgstr "Webhooks"
 
-#: lib/streamflix_web_web/live/account_live.ex:2232
+#: lib/streamflix_web_web/live/account_live.ex:2173
 #, elixir-autogen, elixir-format
 msgid "actual"
 msgstr "current"
@@ -2577,7 +2576,7 @@ msgstr "Only the owner can delete the project."
 msgid "Streaming en tiempo real"
 msgstr "Real-time Streaming"
 
-#: lib/streamflix_web_web/live/account_live.ex:1979
+#: lib/streamflix_web_web/live/account_live.ex:1920
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:683
 #, elixir-autogen, elixir-format
 msgid "Versión"
@@ -2599,7 +2598,7 @@ msgstr "Delete this schema?"
 msgid "¿Remover este miembro?"
 msgstr "Remove this member?"
 
-#: lib/streamflix_web_web/live/account_live.ex:1834
+#: lib/streamflix_web_web/live/account_live.ex:1775
 #: lib/streamflix_web_web/live/docs/section_api_reference.ex:1043
 #: lib/streamflix_web_web/live/docs_live.ex:103
 #, elixir-autogen, elixir-format
@@ -2708,7 +2707,7 @@ msgstr "Delete this project? This action cannot be undone."
 msgid "Aceptar"
 msgstr "Accept"
 
-#: lib/streamflix_web_web/live/account_live.ex:2671
+#: lib/streamflix_web_web/live/account_live.ex:2612
 #, elixir-autogen, elixir-format
 msgid "Confirma tu contraseña para eliminar la cuenta"
 msgstr "Confirm your password to delete the account"
@@ -2777,7 +2776,7 @@ msgstr "The name is too long."
 msgid "El nombre es obligatorio."
 msgstr "The name is required."
 
-#: lib/streamflix_web_web/live/account_live.ex:2704
+#: lib/streamflix_web_web/live/account_live.ex:2645
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:711
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:2354
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:2736
@@ -2786,12 +2785,12 @@ msgid "Eliminando..."
 msgstr "Deleting..."
 
 #: lib/streamflix_web_web/live/account_live.ex:1132
-#: lib/streamflix_web_web/live/account_live.ex:2655
+#: lib/streamflix_web_web/live/account_live.ex:2596
 #, elixir-autogen, elixir-format
 msgid "Eliminar cuenta"
 msgstr "Delete account"
 
-#: lib/streamflix_web_web/live/account_live.ex:2707
+#: lib/streamflix_web_web/live/account_live.ex:2648
 #, elixir-autogen, elixir-format
 msgid "Eliminar mi cuenta"
 msgstr "Delete my account"
@@ -2833,12 +2832,12 @@ msgstr "Error rejecting invitation."
 msgid "Error desconocido"
 msgstr "Unknown error"
 
-#: lib/streamflix_web_web/live/account_live.ex:2658
+#: lib/streamflix_web_web/live/account_live.ex:2599
 #, elixir-autogen, elixir-format
 msgid "Esta acción es irreversible. Se eliminarán todos tus datos, proyectos y configuración."
 msgstr "This action is irreversible. All your data, projects, and configuration will be deleted."
 
-#: lib/streamflix_web_web/live/account_live.ex:2609
+#: lib/streamflix_web_web/live/account_live.ex:2550
 #, elixir-autogen, elixir-format
 msgid "Guardar nombre"
 msgstr "Save name"
@@ -3089,7 +3088,7 @@ msgstr "Admin Panel"
 msgid "Pestañas"
 msgstr "Tabs"
 
-#: lib/streamflix_web_web/live/account_live.ex:2258
+#: lib/streamflix_web_web/live/account_live.ex:2199
 #, elixir-autogen, elixir-format
 msgid "nuevo@ejemplo.com"
 msgstr "new@example.com"
@@ -3195,8 +3194,8 @@ msgid "Códigos de recuperación regenerados."
 msgstr "Recovery codes regenerated."
 
 #: lib/streamflix_web_web/live/account_live.ex:1335
-#: lib/streamflix_web_web/live/account_live.ex:2771
-#: lib/streamflix_web_web/live/account_live.ex:2848
+#: lib/streamflix_web_web/live/account_live.ex:2712
+#: lib/streamflix_web_web/live/account_live.ex:2789
 #, elixir-autogen, elixir-format
 msgid "Desactivar MFA"
 msgstr "Disable MFA"
@@ -3288,8 +3287,8 @@ msgid "No se pudo desactivar MFA."
 msgstr "Could not disable MFA."
 
 #: lib/streamflix_web_web/live/account_live.ex:1320
-#: lib/streamflix_web_web/live/account_live.ex:2770
-#: lib/streamflix_web_web/live/account_live.ex:2847
+#: lib/streamflix_web_web/live/account_live.ex:2711
+#: lib/streamflix_web_web/live/account_live.ex:2788
 #, elixir-autogen, elixir-format
 msgid "Regenerar códigos"
 msgstr "Regenerate codes"
@@ -3299,7 +3298,7 @@ msgstr "Regenerate codes"
 msgid "Tu cuenta está protegida con autenticación de dos factores."
 msgstr "Your account is protected with two-factor authentication."
 
-#: lib/streamflix_web_web/live/account_live.ex:2780
+#: lib/streamflix_web_web/live/account_live.ex:2721
 #, elixir-autogen, elixir-format
 msgid "Tu cuenta quedará menos segura. Ingresa tu contraseña para confirmar."
 msgstr "Your account will be less secure. Enter your password to confirm."
@@ -3364,7 +3363,7 @@ msgstr "30d"
 msgid "7d"
 msgstr "7d"
 
-#: lib/streamflix_web_web/live/account_live.ex:2103
+#: lib/streamflix_web_web/live/account_live.ex:2044
 #, elixir-autogen, elixir-format
 msgid "Al restringir el procesamiento, los webhooks y eventos dejarán de procesarse. Puedes revertir esta acción en cualquier momento."
 msgstr "By restricting processing, webhooks and events will stop being processed. You can revert this action at any time."
@@ -3374,12 +3373,12 @@ msgstr "By restricting processing, webhooks and events will stop being processed
 msgid "Cerrar todas las demás sesiones"
 msgstr "Close all other sessions"
 
-#: lib/streamflix_web_web/live/account_live.ex:1845
+#: lib/streamflix_web_web/live/account_live.ex:1786
 #, elixir-autogen, elixir-format
 msgid "Congela el procesamiento de tus datos sin eliminarlos (RGPD Art. 18)."
 msgstr "Freeze data processing without deleting your data (GDPR Art. 18)."
 
-#: lib/streamflix_web_web/live/account_live.ex:1895
+#: lib/streamflix_web_web/live/account_live.ex:1836
 #, elixir-autogen, elixir-format
 msgid "Consentimiento de procesamiento"
 msgstr "Processing consent"
@@ -3394,7 +3393,7 @@ msgstr "Processing consent restored."
 msgid "Consentimiento revocado."
 msgstr "Consent revoked."
 
-#: lib/streamflix_web_web/live/account_live.ex:1944
+#: lib/streamflix_web_web/live/account_live.ex:1885
 #: lib/streamflix_web_web/live/docs/section_security.ex:295
 #: lib/streamflix_web_web/live/docs_live.ex:173
 #, elixir-autogen, elixir-format
@@ -3411,7 +3410,7 @@ msgstr "Incorrect password."
 msgid "Derecho de supresión"
 msgstr "Right to erasure"
 
-#: lib/streamflix_web_web/live/account_live.ex:1819
+#: lib/streamflix_web_web/live/account_live.ex:1760
 #, elixir-autogen, elixir-format
 msgid "Descarga una copia de todos tus datos personales (RGPD Art. 15)."
 msgstr "Download a copy of all your personal data (GDPR Art. 15)."
@@ -3435,12 +3434,7 @@ msgstr "Description"
 msgid "Detección de brechas"
 msgstr "Breach Detection"
 
-#: lib/streamflix_web_web/live/account_live.ex:1633
-#, elixir-autogen, elixir-format
-msgid "Dispositivo"
-msgstr "Device"
-
-#: lib/streamflix_web_web/live/account_live.ex:1898
+#: lib/streamflix_web_web/live/account_live.ex:1839
 #, elixir-autogen, elixir-format
 msgid "Ejerce tu derecho de oposición al procesamiento de datos (RGPD Art. 21)."
 msgstr "Exercise your right to object to data processing (GDPR Art. 21)."
@@ -3455,21 +3449,11 @@ msgstr "Got it"
 msgid "Error al enviar el evento"
 msgstr "Failed to send event"
 
-#: lib/streamflix_web_web/live/account_live.ex:1699
-#, elixir-autogen, elixir-format
-msgid "Escritorio"
-msgstr "Desktop"
-
 #: lib/streamflix_web_web/controllers/auth_controller.ex:328
 #: lib/streamflix_web_web/live/account_live.ex:250
 #, elixir-autogen, elixir-format
 msgid "Esta contraseña fue usada recientemente. Elige una diferente."
 msgstr "This password was used recently. Please choose a different one."
-
-#: lib/streamflix_web_web/live/account_live.ex:1702
-#, elixir-autogen, elixir-format
-msgid "Esta sesión"
-msgstr "This session"
 
 ## Uptime monitoring
 #: lib/streamflix_web_web/live/platform_dashboard/tab_components.ex:244
@@ -3499,7 +3483,7 @@ msgstr "Event sent. ID: %{id}"
 msgid "Exportación de datos"
 msgstr "Data export"
 
-#: lib/streamflix_web_web/live/account_live.ex:1816
+#: lib/streamflix_web_web/live/account_live.ex:1757
 #, elixir-autogen, elixir-format
 msgid "Exportar mis datos"
 msgstr "Export my data"
@@ -3522,12 +3506,7 @@ msgstr "Session Management"
 msgid "ID"
 msgstr "ID"
 
-#: lib/streamflix_web_web/live/account_live.ex:1636
-#, elixir-autogen, elixir-format
-msgid "IP"
-msgstr "IP"
-
-#: lib/streamflix_web_web/live/account_live.ex:2124
+#: lib/streamflix_web_web/live/account_live.ex:2065
 #, elixir-autogen, elixir-format
 msgid "Ingresa tu contraseña"
 msgstr "Enter your password"
@@ -3549,16 +3528,16 @@ msgstr "Attempting to reconnect"
 msgid "Keep a Changelog"
 msgstr "Keep a Changelog"
 
-#: lib/streamflix_web_web/live/account_live.ex:1799
-#: lib/streamflix_web_web/live/account_live.ex:1805
-#: lib/streamflix_web_web/live/account_live.ex:1878
-#: lib/streamflix_web_web/live/account_live.ex:1884
+#: lib/streamflix_web_web/live/account_live.ex:1740
+#: lib/streamflix_web_web/live/account_live.ex:1746
+#: lib/streamflix_web_web/live/account_live.ex:1819
+#: lib/streamflix_web_web/live/account_live.ex:1825
 #, elixir-autogen, elixir-format
 msgid "Levantar restricción"
 msgstr "Lift restriction"
 
 #: lib/streamflix_web_web/live/account_live.ex:757
-#: lib/streamflix_web_web/live/account_live.ex:2004
+#: lib/streamflix_web_web/live/account_live.ex:1945
 #, elixir-autogen, elixir-format
 msgid "Marketing"
 msgstr "Marketing"
@@ -3599,7 +3578,7 @@ msgstr "Could not restrict processing."
 msgid "No se pudo revocar el consentimiento."
 msgstr "Could not revoke consent."
 
-#: lib/streamflix_web_web/live/account_live.ex:1915
+#: lib/streamflix_web_web/live/account_live.ex:1856
 #, elixir-autogen, elixir-format
 msgid "Objetar procesamiento"
 msgstr "Object to processing"
@@ -3616,18 +3595,18 @@ msgid "Política de contraseñas"
 msgstr "Password Policy"
 
 #: lib/streamflix_web_web/live/account_live.ex:756
-#: lib/streamflix_web_web/live/account_live.ex:2002
+#: lib/streamflix_web_web/live/account_live.ex:1943
 #, elixir-autogen, elixir-format
 msgid "Procesamiento de datos"
 msgstr "Data processing"
 
-#: lib/streamflix_web_web/live/account_live.ex:1919
+#: lib/streamflix_web_web/live/account_live.ex:1860
 #, elixir-autogen, elixir-format
 msgid "Procesamiento objetado"
 msgstr "Processing objected"
 
 ## GDPR Compliance — Art. 18 + Art. 21
-#: lib/streamflix_web_web/live/account_live.ex:1786
+#: lib/streamflix_web_web/live/account_live.ex:1727
 #, elixir-autogen, elixir-format
 msgid "Procesamiento restringido"
 msgstr "Processing restricted"
@@ -3637,12 +3616,12 @@ msgstr "Processing restricted"
 msgid "Procesamiento restringido correctamente."
 msgstr "Processing restricted successfully."
 
-#: lib/streamflix_web_web/live/account_live.ex:1976
+#: lib/streamflix_web_web/live/account_live.ex:1917
 #, elixir-autogen, elixir-format
 msgid "Propósito"
 msgstr "Purpose"
 
-#: lib/streamflix_web_web/live/account_live.ex:1777
+#: lib/streamflix_web_web/live/account_live.ex:1718
 #, elixir-autogen, elixir-format
 msgid "Protección de datos"
 msgstr "Data protection"
@@ -3662,27 +3641,26 @@ msgstr "Resetting..."
 msgid "Restricción de procesamiento levantada."
 msgstr "Processing restriction lifted."
 
-#: lib/streamflix_web_web/live/account_live.ex:1862
+#: lib/streamflix_web_web/live/account_live.ex:1803
 #, elixir-autogen, elixir-format
 msgid "Restringir"
 msgstr "Restrict"
 
-#: lib/streamflix_web_web/live/account_live.ex:1842
-#: lib/streamflix_web_web/live/account_live.ex:2100
-#: lib/streamflix_web_web/live/account_live.ex:2139
+#: lib/streamflix_web_web/live/account_live.ex:1783
+#: lib/streamflix_web_web/live/account_live.ex:2041
+#: lib/streamflix_web_web/live/account_live.ex:2080
 #, elixir-autogen, elixir-format
 msgid "Restringir procesamiento"
 msgstr "Restrict processing"
 
-#: lib/streamflix_web_web/live/account_live.ex:2024
+#: lib/streamflix_web_web/live/account_live.ex:1965
 #, elixir-autogen, elixir-format
 msgid "Revocado"
 msgstr "Revoked"
 
-#: lib/streamflix_web_web/live/account_live.ex:1732
-#: lib/streamflix_web_web/live/account_live.ex:1738
-#: lib/streamflix_web_web/live/account_live.ex:2035
-#: lib/streamflix_web_web/live/account_live.ex:2041
+#: lib/streamflix_web_web/live/account_live.ex:1686
+#: lib/streamflix_web_web/live/account_live.ex:1976
+#: lib/streamflix_web_web/live/account_live.ex:1982
 #, elixir-autogen, elixir-format
 msgid "Revocar"
 msgstr "Revoke"
@@ -3709,12 +3687,12 @@ msgstr "Active Sessions"
 msgid "Sesión cerrada."
 msgstr "Session closed."
 
-#: lib/streamflix_web_web/live/account_live.ex:2058
+#: lib/streamflix_web_web/live/account_live.ex:1999
 #, elixir-autogen, elixir-format
 msgid "Sin consentimientos registrados."
 msgstr "No consents registered."
 
-#: lib/streamflix_web_web/live/account_live.ex:1753
+#: lib/streamflix_web_web/live/account_live.ex:1698
 #, elixir-autogen, elixir-format
 msgid "Sin sesiones activas."
 msgstr "No active sessions."
@@ -3725,7 +3703,7 @@ msgstr "No active sessions."
 msgid "Superadmin"
 msgstr "Superadmin"
 
-#: lib/streamflix_web_web/live/account_live.ex:1789
+#: lib/streamflix_web_web/live/account_live.ex:1730
 #, elixir-autogen, elixir-format
 msgid "Tu cuenta tiene el procesamiento restringido (RGPD Art. 18). Los webhooks y eventos no se procesarán hasta que levantes la restricción."
 msgstr "Your account has processing restricted (GDPR Art. 18). Webhooks and events will not be processed until you lift the restriction."
@@ -3766,7 +3744,7 @@ msgstr "name"
 msgid "¡Algo salió mal!"
 msgstr "Something went wrong!"
 
-#: lib/streamflix_web_web/live/account_live.ex:1737
+#: lib/streamflix_web_web/live/account_live.ex:1685
 #, elixir-autogen, elixir-format
 msgid "¿Cerrar esta sesión?"
 msgstr "Close this session?"
@@ -3776,31 +3754,26 @@ msgstr "Close this session?"
 msgid "¿Cerrar todas las demás sesiones?"
 msgstr "Close all other sessions?"
 
-#: lib/streamflix_web_web/live/account_live.ex:1804
-#: lib/streamflix_web_web/live/account_live.ex:1883
+#: lib/streamflix_web_web/live/account_live.ex:1745
+#: lib/streamflix_web_web/live/account_live.ex:1824
 #, elixir-autogen, elixir-format
 msgid "¿Levantar la restricción de procesamiento?"
 msgstr "Lift processing restriction?"
 
-#: lib/streamflix_web_web/live/account_live.ex:1928
+#: lib/streamflix_web_web/live/account_live.ex:1869
 #, elixir-autogen, elixir-format
 msgid "¿Objetar el procesamiento de tus datos?"
 msgstr "Object to processing of your data?"
 
-#: lib/streamflix_web_web/live/account_live.ex:1929
+#: lib/streamflix_web_web/live/account_live.ex:1870
 #, elixir-autogen, elixir-format
 msgid "¿Restaurar el consentimiento de procesamiento?"
 msgstr "Restore processing consent?"
 
-#: lib/streamflix_web_web/live/account_live.ex:2040
+#: lib/streamflix_web_web/live/account_live.ex:1981
 #, elixir-autogen, elixir-format
 msgid "¿Revocar este consentimiento?"
 msgstr "Revoke this consent?"
-
-#: lib/streamflix_web_web/live/account_live.ex:1639
-#, elixir-autogen, elixir-format
-msgid "Última actividad"
-msgstr "Last Activity"
 
 #: lib/streamflix_web_web/live/platform_dashboard_live.ex:2240
 #, elixir-autogen, elixir-format
@@ -4113,7 +4086,7 @@ msgstr "Pipeline saved."
 msgid "Pipeline no encontrado."
 msgstr "Pipeline not found."
 
-#: lib/streamflix_web_web/live/account_live.ex:1951
+#: lib/streamflix_web_web/live/account_live.ex:1892
 #, elixir-autogen, elixir-format
 msgid "Algunas políticas han sido actualizadas y requieren tu re-aceptación."
 msgstr "Some policies have been updated and require your re-acceptance."
@@ -6455,9 +6428,9 @@ msgid "Confirmar"
 msgstr "Confirm"
 
 #: lib/streamflix_web_web/components/core_components.ex:672
-#: lib/streamflix_web_web/live/account_live.ex:1803
-#: lib/streamflix_web_web/live/account_live.ex:1882
-#: lib/streamflix_web_web/live/account_live.ex:1925
+#: lib/streamflix_web_web/live/account_live.ex:1744
+#: lib/streamflix_web_web/live/account_live.ex:1823
+#: lib/streamflix_web_web/live/account_live.ex:1866
 #, elixir-autogen, elixir-format
 msgid "Confirmar acción"
 msgstr "Confirm action"
@@ -6472,7 +6445,7 @@ msgstr "Confirm cancellation"
 msgid "Confirmar cierre de sesiones"
 msgstr "Confirm session logout"
 
-#: lib/streamflix_web_web/live/account_live.ex:1736
+#: lib/streamflix_web_web/live/account_live.ex:1684
 #, elixir-autogen, elixir-format
 msgid "Confirmar cierre de sesión"
 msgstr "Confirm session logout"
@@ -6504,7 +6477,7 @@ msgstr "Confirm rejection"
 msgid "Confirmar remoción"
 msgstr "Confirm removal"
 
-#: lib/streamflix_web_web/live/account_live.ex:2039
+#: lib/streamflix_web_web/live/account_live.ex:1980
 #, elixir-autogen, elixir-format
 msgid "Confirmar revocación"
 msgstr "Confirm revocation"
@@ -6529,7 +6502,7 @@ msgstr "The URL is required"
 msgid "La expresión cron debe tener 5 partes separadas por espacios"
 msgstr "The cron expression must have 5 space-separated parts"
 
-#: lib/streamflix_web_web/live/account_live.ex:1933
+#: lib/streamflix_web_web/live/account_live.ex:1874
 #, elixir-autogen, elixir-format
 msgid "Objetar"
 msgstr "Object"
@@ -6540,7 +6513,7 @@ msgstr "Object"
 msgid "Purgar"
 msgstr "Purge"
 
-#: lib/streamflix_web_web/live/account_live.ex:1934
+#: lib/streamflix_web_web/live/account_live.ex:1875
 #, elixir-autogen, elixir-format
 msgid "Restaurar"
 msgstr "Restore"
@@ -8536,7 +8509,7 @@ msgstr "Set by the hosting infrastructure to route your requests to the same ser
 msgid "Limpiar búsqueda"
 msgstr "Clear search"
 
-#: lib/streamflix_web_web/live/account_live.ex:2776
+#: lib/streamflix_web_web/live/account_live.ex:2717
 #, elixir-autogen, elixir-format
 msgid "Los códigos anteriores dejarán de funcionar. Ingresa tu contraseña para confirmar."
 msgstr "Your previous codes will stop working. Enter your password to confirm."
@@ -8803,3 +8776,43 @@ msgstr "Disable MFA before setting it up again."
 #, elixir-autogen, elixir-format
 msgid "Ya no tienes acceso a este proyecto."
 msgstr "You no longer have access to this project."
+
+#: lib/streamflix_web_web/live/account_live.ex:2821
+#, elixir-autogen, elixir-format
+msgid "Cliente de la API"
+msgstr "API client"
+
+#: lib/streamflix_web_web/live/account_live.ex:1650
+#, elixir-autogen, elixir-format
+msgid "Dispositivo actual"
+msgstr "Current device"
+
+#: lib/streamflix_web_web/live/account_live.ex:1662
+#, elixir-autogen, elixir-format
+msgid "Inicio de sesión"
+msgstr "Signed in"
+
+#: lib/streamflix_web_web/live/account_live.ex:2818
+#, elixir-autogen, elixir-format
+msgid "Móvil"
+msgstr "Mobile"
+
+#: lib/streamflix_web_web/live/account_live.ex:2822
+#, elixir-autogen, elixir-format
+msgid "Ordenador"
+msgstr "Computer"
+
+#: lib/streamflix_web_web/live/account_live.ex:2820
+#, elixir-autogen, elixir-format
+msgid "Smart TV"
+msgstr "Smart TV"
+
+#: lib/streamflix_web_web/live/account_live.ex:2819
+#, elixir-autogen, elixir-format
+msgid "Tablet"
+msgstr "Tablet"
+
+#: lib/streamflix_web_web/live/account_live.ex:1655
+#, elixir-autogen, elixir-format
+msgid "Último uso"
+msgstr "Last used"
