@@ -45,6 +45,37 @@ const webhook = await client.createWebhook({
 > const client = new JobcelisClient({ apiKey: 'key', baseUrl: 'https://your-instance.example.com' });
 > ```
 
+## Authentication
+
+Two credentials exist:
+
+- **API key** (`apiKey`, sent as `X-Api-Key`): events, webhooks, deliveries, jobs, pipelines, project
+  settings... everything scoped to one project.
+- **User JWT** (`authToken`, sent as `Authorization: Bearer <token>`): the account routes
+  `/projects*`, `/projects/:id/members*`, `/invitations*` and `/me/*` (GDPR). With only an API key these
+  return 401.
+
+`login()`, `register()`, `verifyMfa()` and `refreshToken()` need no API key and store the returned JWT
+on the client:
+
+```typescript
+const client = new JobcelisClient({ apiKey: 'your_api_key' });
+
+const res = await client.login('you@example.com', 'password');
+if ('mfa_required' in res) {
+  await client.verifyMfa(res.mfa_token, '123456'); // TOTP code
+}
+
+const projects = await client.listProjects(); // uses the stored JWT
+
+// Or pass a JWT you already have
+client.setAuthToken(process.env.JOBCELIS_TOKEN);
+const sameClient = new JobcelisClient({ apiKey: 'your_api_key', authToken: 'eyJ...' });
+
+// Refresh before it expires (defaults to the stored token)
+await client.refreshToken();
+```
+
 ## Webhook Signature Verification
 
 ```typescript
@@ -54,7 +85,7 @@ import { verifyWebhookSignature } from '@jobcelis/sdk';
 app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
   const isValid = verifyWebhookSignature(
     'your_webhook_secret',
-    req.body.toString(),
+    req.body, // raw Buffer (a string works too)
     req.headers['x-signature'] as string
   );
 
@@ -157,18 +188,21 @@ const replay = await client.createReplay({
 - `cronPreview(expression, count?)` -- Preview cron execution times
 
 ```typescript
+// Emit an event on a cron schedule
 const job = await client.createJob({
   name: 'daily-report',
-  schedule: '0 9 * * *',
+  schedule: '0 9 * * *', // cron expression, or 'daily' | 'weekly' | 'monthly'
   topic: 'report.generate',
   payload: { type: 'daily' },
-  timezone: 'America/New_York',
 });
+
+// Or POST to a URL
+await client.createJob({ name: 'ping', schedule: 'daily', url: 'https://example.com/ping' });
 
 const runs = await client.listJobRuns(job.id, { limit: 10 });
 
 const preview = await client.cronPreview('*/5 * * * *', 5);
-console.log('Next executions:', preview.executions);
+console.log('Next executions:', preview.next_executions);
 ```
 
 ### Pipelines
@@ -181,16 +215,23 @@ console.log('Next executions:', preview.executions);
 - `testPipeline(id, payload)` -- Test a pipeline with a sample payload
 
 ```typescript
-const pipeline = await client.createPipeline({
+const { data: pipeline } = await client.createPipeline({
   name: 'order-enrichment',
-  source_topic: 'order.created',
+  topics: ['order.created'],
+  webhook_id: 'wh_abc', // required: where the processed events are delivered
   steps: [
-    { type: 'filter', config: { field: 'amount', operator: 'gt', value: 100 } },
-    { type: 'transform', config: { add_field: 'priority', value: 'high' } },
-    { type: 'deliver', config: { topic: 'order.high_value' } },
+    { type: 'filter', field: 'amount', operator: 'gt', value: 100 },
+    { type: 'transform', operation: 'set', values: { priority: 'high' } },
+    { type: 'delay', seconds: 60 },
   ],
 });
+
+const result = await client.testPipeline(pipeline.id, { amount: 150 });
+console.log(result.status, result.output); // 'passed' { amount: 150, priority: 'high' }
 ```
+
+Step types are `filter`, `transform` and `delay`. Transform steps need an `operation`: `pick` / `remove`
+(`fields`), `rename` (`mapping`), `set` (`values`), `template` (`template`) or `flatten`.
 
 ### Event Schemas
 
@@ -202,9 +243,9 @@ const pipeline = await client.createPipeline({
 - `validatePayload(topic, payload)` -- Validate a payload against its topic schema
 
 ```typescript
-const schema = await client.createEventSchema({
+const { data: schema } = await client.createEventSchema({
   topic: 'order.created',
-  version: '1.0',
+  version: 1,
   schema: {
     type: 'object',
     required: ['order_id', 'amount'],
@@ -277,7 +318,8 @@ await client.updateTokenRestrictions({ scopes: ['events:read', 'events:write'], 
 - `setDefaultProject(id)` -- Set the default project
 
 ```typescript
-const newProject = await client.createProject('staging');
+// Requires a user JWT (see Authentication)
+const { data: newProject } = await client.createProject('staging');
 await client.setDefaultProject(newProject.id);
 ```
 
@@ -289,8 +331,9 @@ await client.setDefaultProject(newProject.id);
 - `removeMember(projectId, memberId)` -- Remove a member
 
 ```typescript
-const member = await client.addMember(project.id, 'dev@example.com', 'editor');
-await client.updateMember(project.id, member.id, 'admin');
+// Requires a user JWT. Roles: 'viewer' (default) or 'editor'
+const { data: member } = await client.addMember(project.id, 'dev@example.com', 'editor');
+await client.updateMember(project.id, member.id, 'viewer');
 ```
 
 ### Invitations
@@ -337,22 +380,35 @@ const simulated = await client.simulateEvent('order.created', { order_id: '999' 
 - `getConsents()` -- List your consent records
 - `acceptConsent(purpose)` -- Accept a consent purpose
 - `exportMyData()` -- Export your personal data
-- `restrictProcessing()` -- Request processing restriction
+- `restrictProcessing(password)` -- Request processing restriction (requires your password)
 - `liftRestriction()` -- Lift processing restriction
 - `objectToProcessing()` -- Object to data processing
 - `restoreConsent()` -- Withdraw objection
 
 ```typescript
+// Requires a user JWT (see Authentication)
 await client.acceptConsent('analytics');
 const myData = await client.exportMyData();
 ```
 
 ### Health
 
-- `health()` -- Check platform health
+- `health()` / `status()` -- Check platform health (`GET /health`)
 
 ```typescript
 const status = await client.health();
+```
+
+### Retention & Purge
+
+- `getRetentionPolicy()` -- Current retention policy
+- `updateRetentionPolicy(policy)` -- Update it (sent as `{ retention_policy: policy }`)
+- `previewPurge(params)` -- Count the records a purge would delete
+- `purgeData(params)` -- Delete records older than `older_than` (YYYY-MM-DD, required)
+
+```typescript
+await client.updateRetentionPolicy({ events_days: 30, deliveries_days: 30, audit_logs_days: 90 });
+const preview = await client.previewPurge({ type: 'events', older_than: '2026-01-01' });
 ```
 
 ## Retries
@@ -360,16 +416,18 @@ const status = await client.health();
 The client retries requests that fail during a brief outage (for example while the
 platform is being deployed):
 
-- network errors (connection refused or reset, DNS, TLS, timeouts) and HTTP `429`, `502`, `503`, `504`
+- network errors (connection refused or reset, DNS, TLS), timeouts and HTTP `429`, `502`, `503`, `504`
 - up to 6 retries with exponential backoff (1 s, 2 s, 4 s, 8 s, 16 s, 30 s, about 60 s in total, with jitter);
   a `Retry-After` header is honoured (capped at 60 s)
-- `POST` requests are retried on network errors only when they carry an idempotency key, so a retry never
+- a `POST` without an idempotency key is retried only on `429` and `503` (the server did not act on it);
+  after a network error, timeout, `502` or `504` it may have, so it is not retried and a retry never
   creates a resource twice. `sendEvent` sends an `X-Idempotency-Key` header (your `idempotency_key`, or a
   generated UUID) and `sendEvents` adds an `idempotency_key` to every event that has none, so retried events are
   never duplicated.
 
 Other errors (`400`, `401`, `404`, `500`, ...) are raised at once; after the last retry the error is the same
-one you would get without retries.
+one you would get without retries. A request that exceeds `timeout` (ms, default 30000; `0` disables it)
+raises a `JobcelisError` with `status` 0.
 
 ```typescript
 // Change the number of retries
