@@ -7159,8 +7159,8 @@ msgstr "Claves de idempotencia (X-Idempotency-Key) con expiración automática."
 
 #: lib/streamflix_web_web/live/docs_live.ex:55
 #, elixir-autogen, elixir-format
-msgid "Documentación completa de la API de Jobcelis: 98 endpoints, ejemplos curl, respuestas JSON, 12 SDKs + CLI."
-msgstr "Documentación completa de la API de Jobcelis: 98 endpoints, ejemplos curl, respuestas JSON, 12 SDKs + CLI."
+msgid "Documentación completa de la API de Jobcelis: más de 100 endpoints, ejemplos curl, respuestas JSON, 12 SDKs + CLI."
+msgstr "Documentación completa de la API de Jobcelis: más de 100 endpoints, ejemplos curl, respuestas JSON, 12 SDKs + CLI."
 
 #: lib/streamflix_web_web/controllers/page_html/changelog.html.heex:57
 #, elixir-autogen, elixir-format

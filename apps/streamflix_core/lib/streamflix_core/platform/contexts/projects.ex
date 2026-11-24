@@ -120,6 +120,14 @@ defmodule StreamflixCore.Platform.Projects do
           end
         end
 
+        # Cached API keys would keep the deleted project usable for up to 120 s
+        from(k in StreamflixCore.Schemas.ApiKey,
+          where: k.project_id == ^project.id,
+          select: k.key_hash
+        )
+        |> Repo.all()
+        |> Enum.each(&Cachex.del(@cache, {:api_key, &1}))
+
         Cachex.del(@cache, {:project_user, project.user_id})
         {:ok, updated}
 

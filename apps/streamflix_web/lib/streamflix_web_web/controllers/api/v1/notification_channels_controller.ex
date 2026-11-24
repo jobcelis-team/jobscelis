@@ -107,23 +107,32 @@ defmodule StreamflixWebWeb.Api.V1.NotificationChannelsController do
     ]
   )
 
+  # One test per project per minute: the email address is not verified, so
+  # without a cooldown the endpoint could send hundreds of emails a minute to
+  # anyone from Jobcelis's own mail account.
+  @test_cooldown :timer.minutes(1)
+
   def test(conn, _params) do
     project = conn.assigns.current_project
+    cooldown_key = {:notification_test, project.id}
 
-    case NotificationChannels.get_by_project(project.id) do
-      nil ->
+    with {:ok, false} <- Cachex.exists?(:platform_cache, cooldown_key),
+         %{} = channel <- NotificationChannels.get_by_project(project.id),
+         result when result != {:error, :no_channels} <-
+           NotificationChannels.send_test(project.id) do
+      Cachex.put(:platform_cache, cooldown_key, true, expire: @test_cooldown)
+      json(conn, %{status: "sent", channels: enabled_channels(channel)})
+    else
+      {:ok, true} ->
+        conn
+        |> put_status(:too_many_requests)
+        |> put_resp_header("retry-after", "60")
+        |> json(%{error: "A test was sent less than a minute ago"})
+
+      _ ->
         conn
         |> put_status(:not_found)
         |> json(%{error: "No notification channel configured"})
-
-      channel ->
-        payload = %{
-          "message" => "This is a test notification from Jobcelis.",
-          "test" => true
-        }
-
-        NotificationChannels.dispatch(project.id, "webhook_failing", payload)
-        json(conn, %{status: "sent", channels: enabled_channels(channel)})
     end
   end
 

@@ -252,4 +252,20 @@ defmodule StreamflixWebWeb.AuditRegressionsTest do
       assert_redirect(view, "/platform")
     end
   end
+
+  describe "notification channel test" do
+    test "can be sent once a minute per project" do
+      project = insert(:project)
+      {:ok, _key, raw} = Platform.ApiKeys.create_api_key(project.id)
+
+      {:ok, _} =
+        StreamflixCore.NotificationChannels.upsert(project.id, %{
+          email_enabled: true,
+          email_address: "alerts@example.com"
+        })
+
+      assert key_conn(raw) |> post("/api/v1/notification-channels/test") |> json_response(200)
+      assert key_conn(raw) |> post("/api/v1/notification-channels/test") |> json_response(429)
+    end
+  end
 end

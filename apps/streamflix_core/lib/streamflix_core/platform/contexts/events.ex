@@ -288,12 +288,6 @@ defmodule StreamflixCore.Platform.Events do
   end
 
   # Fan-out for one event outside a request (delayed events).
-  defp create_deliveries_for_event(event) do
-    ctx = fanout_context(event.project_id)
-    {:ok, :ok} = Repo.transaction(fn -> insert_fanout([event], ctx) end)
-    :ok
-  end
-
   def list_events(project_id, opts \\ []) do
     include_inactive = Keyword.get(opts, :include_inactive, false)
     limit = Keyword.get(opts, :limit, 50)
@@ -545,6 +539,9 @@ defmodule StreamflixCore.Platform.Events do
 
   # ---------- Delayed Events ----------
 
+  # Due events dispatched per run (the worker runs every minute)
+  @delayed_batch 500
+
   def process_delayed_events() do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
@@ -553,7 +550,9 @@ defmodule StreamflixCore.Platform.Events do
         as: :event,
         where: not is_nil(e.deliver_at) and e.deliver_at <= ^now and e.status == "active",
         where: is_nil(e.dispatched_at),
-        where: not exists(from(d in Delivery, where: d.event_id == parent_as(:event).id))
+        where: not exists(from(d in Delivery, where: d.event_id == parent_as(:event).id)),
+        order_by: [asc: e.deliver_at],
+        limit: @delayed_batch
       )
       |> Repo.all()
 
@@ -562,12 +561,24 @@ defmodule StreamflixCore.Platform.Events do
         # Claim the event first: events matching no webhook (or batch-only
         # webhooks) produce no Delivery rows and would otherwise be re-processed
         # on every run. The conditional update also prevents double dispatch.
-        {claimed, _} =
-          from(e in WebhookEvent, where: e.id == ^event.id and is_nil(e.dispatched_at))
-          |> Repo.update_all(set: [dispatched_at: now])
+        # Claim and fan-out in one transaction: if creating the deliveries
+        # fails, the claim is rolled back and the next run retries the event
+        # (it used to stay marked as dispatched with no deliveries at all).
+        # (The fan-out context reads caches backed by other processes, so it is
+        # loaded before the transaction rather than inside it.)
+        ctx = fanout_context(event.project_id)
+
+        {:ok, claimed} =
+          Repo.transaction(fn ->
+            {claimed, _} =
+              from(e in WebhookEvent, where: e.id == ^event.id and is_nil(e.dispatched_at))
+              |> Repo.update_all(set: [dispatched_at: now])
+
+            if claimed == 1, do: :ok = insert_fanout([event], ctx)
+            claimed
+          end)
 
         if claimed == 1 do
-          create_deliveries_for_event(event)
           broadcast(event.project_id, {:delayed_event_delivered, event})
           true
         else
