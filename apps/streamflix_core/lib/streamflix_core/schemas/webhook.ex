@@ -60,6 +60,8 @@ defmodule StreamflixCore.Schemas.Webhook do
     |> validate_public_url()
     |> validate_headers()
     |> validate_topics()
+    |> validate_rate_limit()
+    |> validate_retry_config()
     |> foreign_key_constraint(:project_id)
   end
 
@@ -117,4 +119,74 @@ defmodule StreamflixCore.Schemas.Webhook do
       if valid?, do: [], else: [headers: "must be a map of valid header names to string values"]
     end)
   end
+
+  @max_delay_seconds 86_400
+
+  # Read by RateLimiter on every delivery. 0 throttled every delivery forever
+  # (endless snoozes); a non-integer crashed the comparison.
+  defp validate_rate_limit(changeset) do
+    validate_change(changeset, :rate_limit, fn :rate_limit, config ->
+      allowed = %{"max_per_second" => 1..10_000, "max_per_minute" => 1..600_000}
+
+      if valid_int_config?(config, allowed),
+        do: [],
+        else: [
+          rate_limit: "accepts max_per_second (1-10000) and max_per_minute (1-600000) as integers"
+        ]
+    end)
+  end
+
+  # Read by ObanDeliveryWorker.backoff/1: a string or float delay raised inside
+  # Oban and left the job stuck until it was rescued.
+  defp validate_retry_config(changeset) do
+    validate_change(changeset, :retry_config, fn :retry_config, config ->
+      allowed = %{
+        "max_attempts" => 1..20,
+        "base_delay_seconds" => 1..@max_delay_seconds,
+        "base_delay" => 1..@max_delay_seconds,
+        "max_delay_seconds" => 1..@max_delay_seconds,
+        "max_delay" => 1..@max_delay_seconds
+      }
+
+      {special, ints} = Map.split(stringify(config), ["strategy", "jitter", "backoff_seconds"])
+
+      valid? =
+        is_map(config) and valid_int_config?(ints, allowed) and
+          Map.get(special, "strategy", "exponential") in ~w(exponential linear fixed) and
+          is_boolean(Map.get(special, "jitter", true)) and
+          valid_backoff_list?(Map.get(special, "backoff_seconds"))
+
+      if valid?,
+        do: [],
+        else: [
+          retry_config:
+            "accepts strategy (exponential, linear, fixed), jitter (boolean), integer " <>
+              "max_attempts (1-20) and delays in seconds (1-86400), or backoff_seconds " <>
+              "(up to 20 such delays)"
+        ]
+    end)
+  end
+
+  defp valid_backoff_list?(nil), do: true
+
+  defp valid_backoff_list?(delays) when is_list(delays) and length(delays) <= 20,
+    do: Enum.all?(delays, &(is_integer(&1) and &1 in 1..@max_delay_seconds))
+
+  defp valid_backoff_list?(_), do: false
+
+  defp valid_int_config?(config, allowed) when is_map(config) do
+    Enum.all?(stringify(config), fn {key, value} ->
+      case Map.fetch(allowed, key) do
+        {:ok, range} -> is_integer(value) and value in range
+        :error -> false
+      end
+    end)
+  end
+
+  defp valid_int_config?(_config, _allowed), do: false
+
+  defp stringify(config) when is_map(config),
+    do: Map.new(config, fn {k, v} -> {to_string(k), v} end)
+
+  defp stringify(_config), do: %{}
 end

@@ -166,41 +166,21 @@ defmodule StreamflixCore.Teams do
     end
   end
 
-  def user_can_access?(project_id, user_id) do
-    from(p in Project,
-      where: p.id == ^project_id,
-      where:
-        p.user_id == ^user_id or
-          exists(
-            from(m in ProjectMember,
-              where:
-                m.project_id == ^project_id and m.user_id == ^user_id and m.status == "active"
-            )
-          )
-    )
-    |> Repo.exists?()
-  end
+  @doc "True when the user can read the (active) project. Invalid ids return false."
+  def user_can_access?(project_id, user_id), do: effective_role(project_id, user_id) != nil
 
-  def user_can_write?(project_id, user_id) do
-    project = Repo.get(Project, project_id)
+  @doc "True for the owner and active editors of an active project."
+  def user_can_write?(project_id, user_id),
+    do: effective_role(project_id, user_id) in ["owner", "editor"]
 
-    cond do
-      is_nil(project) ->
-        false
-
-      project.user_id == user_id ->
-        true
-
-      true ->
-        ProjectMember
-        |> where(
-          [m],
-          m.project_id == ^project_id and m.user_id == ^user_id and m.status == "active" and
-            m.role in ["owner", "editor"]
-        )
-        |> Repo.exists?()
-    end
-  end
+  @doc """
+  Whether `actor_role` may change or remove a member currently holding
+  `target_role` (and, for a change, give it `new_role`). The owner manages
+  everyone; editors only manage viewers and cannot promote anyone.
+  """
+  def can_manage_member?("owner", _target_role, _new_role), do: true
+  def can_manage_member?("editor", "viewer", new_role) when new_role in [nil, "viewer"], do: true
+  def can_manage_member?(_actor_role, _target_role, _new_role), do: false
 
   def create_owner_member(project_id, user_id) do
     %ProjectMember{}

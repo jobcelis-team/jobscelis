@@ -93,8 +93,11 @@ defmodule StreamflixCore.Platform.Pagination do
            |> where([x], x.id == ^cursor),
            cursor
          ) do
+      # The cursor's row is gone (purged or deleted): there is no position to
+      # continue from. Restarting from page 1 sent clients paging through a
+      # purge into an endless loop, so the page is empty instead.
       nil ->
-        query
+        where(query, false)
 
       record ->
         cursor_val = Map.get(record, field)
@@ -122,9 +125,14 @@ defmodule StreamflixCore.Platform.Pagination do
     %{data: data, has_next: has_next, next_cursor: next_cursor}
   end
 
-  defp maybe_filter_topic(query, nil), do: query
-  defp maybe_filter_topic(query, topic), do: where(query, [e], e.topic == ^topic)
+  # Only strings filter: `?topic[]=x` arrives as a list and raised a cast error
+  defp maybe_filter_topic(query, topic) when is_binary(topic),
+    do: where(query, [e], e.topic == ^topic)
 
-  defp maybe_where(query, _field, nil), do: query
-  defp maybe_where(query, field, value), do: where(query, [d], field(d, ^field) == ^value)
+  defp maybe_filter_topic(query, _topic), do: query
+
+  defp maybe_where(query, field, value) when is_binary(value),
+    do: where(query, [d], field(d, ^field) == ^value)
+
+  defp maybe_where(query, _field, _value), do: query
 end

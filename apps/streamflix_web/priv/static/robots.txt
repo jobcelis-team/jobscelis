@@ -9,7 +9,9 @@ Disallow: /account
 Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /login
-Disallow: /register
+Disallow: /signup
+Disallow: /mfa
+Disallow: /export
 
 # Sitemap so search engines find all pages / Sitemap para que los buscadores encuentren todas las páginas
 # If you use www, change to: https://www.jobcelis.com/sitemap.xml

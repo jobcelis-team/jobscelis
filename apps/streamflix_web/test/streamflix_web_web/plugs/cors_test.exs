@@ -21,6 +21,16 @@ defmodule StreamflixWebWeb.Plugs.CORSTest do
     assert "x-embed-token" in (allowed |> String.downcase() |> String.split(", "))
   end
 
+  test "browser clients can send idempotency keys and read Retry-After" do
+    conn = preflight("/api/v1/events", "https://app.example")
+
+    [allowed] = get_resp_header(conn, "access-control-allow-headers")
+    assert "x-idempotency-key" in (allowed |> String.downcase() |> String.split(", "))
+
+    [exposed] = get_resp_header(conn, "access-control-expose-headers")
+    assert "retry-after" in (exposed |> String.downcase() |> String.split(", "))
+  end
+
   test "browser routes only allow configured origins" do
     conn = preflight("/platform", "https://evil.example")
     assert get_resp_header(conn, "access-control-allow-origin") == []

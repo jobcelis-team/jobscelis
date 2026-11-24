@@ -101,7 +101,10 @@ defmodule StreamflixCore.GDPR do
       AuditLog.changeset(%AuditLog{}, %{
         action: "gdpr.erasure",
         metadata: %{
-          erased_email_hash: :crypto.hash(:sha256, user.email) |> Base.encode16(case: :lower)
+          # Keyed HMAC (same secret as the email lookups), not a bare SHA-256:
+          # an unkeyed hash of an email is reversed with a list of emails,
+          # which would undo the erasure for anyone reading the audit log.
+          erased_email_hash: erased_email_hash(user.email)
         },
         ip_address: "[system]"
       })
@@ -556,4 +559,11 @@ defmodule StreamflixCore.GDPR do
     do: ndt |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_iso8601()
 
   defp to_iso(other), do: to_string(other)
+
+  defp erased_email_hash(email) when is_binary(email) do
+    {:ok, hash} = StreamflixCore.Hashed.HMAC.dump(String.downcase(email))
+    Base.encode16(hash, case: :lower)
+  end
+
+  defp erased_email_hash(_), do: nil
 end

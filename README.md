@@ -60,7 +60,7 @@ Built with **Elixir/OTP**, **Phoenix 1.8**, **LiveView 1.1**, and **PostgreSQL**
 | **Multi-project** | Multiple projects per user. Project selector with URL persistence. Invite members with roles (owner/editor/viewer). |
 | **Security** | Industry-standard encryption at rest, MFA/TOTP, session management, rate limiting, IP allowlist, circuit breaker, anomaly detection, security headers, cookie consent. |
 | **GDPR** | Right to erasure (Art. 17), restriction of processing (Art. 18), right to object (Art. 21), personal data export (Art. 15/20), consent management. |
-| **API** | 98+ REST endpoints with JWT and API Key authentication. OpenAPI 3.0 with interactive Swagger UI. SSE and WebSocket for streaming. |
+| **API** | 100+ REST endpoints with JWT and API Key authentication. OpenAPI 3.0 with interactive Swagger UI. SSE and WebSocket for streaming. |
 | **Backups** | Automated daily database backups with compression. Local or cloud object storage. Configurable retention policy. |
 | **Observability** | Periodic uptime monitoring, health checks (database, jobs, cache, backup), immutable audit log, structured JSON logs in production. |
 | **Admin Panel** | Superadmin panel: user management with search, project overview, system metrics, platform settings. |
@@ -84,7 +84,7 @@ jobcelis/
 │   │                          # notifications, uptime, GDPR, backups, circuit breaker
 │   ├── streamflix_accounts/   # Users, authentication (JWT), MFA, sessions
 │   └── streamflix_web/        # Web (LiveView), REST API, plugs, docs, admin
-├── sdks/                      # 13 SDKs + CLI + GitHub Action
+├── sdks/                      # Node, Python, CLI + GitHub Action (other SDKs: own repos)
 ├── docs/                      # Public documentation
 ├── config/                    # Per-environment configuration
 ├── Dockerfile                 # Multi-stage build (dev + prod)
@@ -231,7 +231,7 @@ jobcelis/
 │   ├── config.exs                      # Base configuration
 │   ├── dev.exs / test.exs / prod.exs
 │   └── runtime.exs                     # Runtime env vars
-├── sdks/                               # 13 SDKs + CLI + GitHub Action
+├── sdks/                               # Node, Python, CLI + GitHub Action (other SDKs: own repos)
 ├── docs/                               # Public docs (architecture, quickstart, SLA, webhooks)
 └── .github/workflows/                  # CI, deploy, SDK publishing
 ```
@@ -792,7 +792,7 @@ Multi-stage Dockerfile:
 
 ## SDKs & Tools
 
-All SDKs cover **100% of the API** (99 endpoints) with full documentation.
+The SDKs cover the public API (100+ endpoints) except the embeddable portal endpoints (`/api/v1/embed/*`, used from the browser with an embed token) and the SSE stream.
 
 ### Published Packages
 
@@ -997,7 +997,7 @@ resource "jobcelis_job" "daily_report" {
 
 ### API Coverage per SDK
 
-All SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cover all 99 API routes:
+All SDKs (Node, Python, Go, PHP, Ruby, Elixir, C#/.NET, Rust, Swift, Java, Dart, Kotlin) cover these API areas:
 
 - **Auth**: register, login, refresh, MFA verify
 - **Events**: send, batch, list, get, delete, simulate

@@ -194,6 +194,16 @@ defmodule StreamflixAccounts.AccountsTest do
                StreamflixAccounts.authenticate(user.email, @valid_password)
     end
 
+    test "a locked account looks like any other to a wrong password" do
+      user = register_user()
+
+      results = for _ <- 1..6, do: StreamflixAccounts.authenticate(user.email, "Wrong1234")
+      assert Enum.all?(results, &(&1 == {:error, :invalid_credentials}))
+
+      assert StreamflixAccounts.authenticate("nobody#{System.unique_integer()}@example.com", "x") ==
+               {:error, :invalid_credentials}
+    end
+
     test "auto-unlocks after lockout expires" do
       user = register_user()
 

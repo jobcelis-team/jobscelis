@@ -3,7 +3,6 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
   use OpenApiSpex.ControllerSpecs
 
   alias StreamflixCore.Teams
-  alias StreamflixCore.Platform
   alias StreamflixCore.Notifications
   alias StreamflixAccounts
 
@@ -60,9 +59,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
         |> put_status(422)
         |> json(%{error: "User not found. Provide a valid user_id or email."})
       else
-        role = params["role"] || "viewer"
-        inviter_role = Teams.get_member_role(project_id, user.id)
-        is_owner = inviter_role == "owner" || Platform.get_project(project_id).user_id == user.id
+        role = normalize_role(params["role"])
+        is_owner = Teams.effective_role(project_id, user.id) == "owner"
 
         cond do
           user_id == user.id ->
@@ -109,29 +107,42 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
   def update(conn, %{"project_id" => project_id, "id" => id} = params) do
     user = conn.assigns.current_user
 
-    if Teams.user_can_write?(project_id, user.id) do
-      role = params["role"]
+    actor_role = Teams.effective_role(project_id, user.id)
+    member = actor_role in ["owner", "editor"] && Teams.get_project_member(project_id, id)
+    role = params["role"] && normalize_role(params["role"])
 
-      case Teams.get_project_member(project_id, id) && Teams.update_member_role(id, role) do
-        nil ->
-          conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+    cond do
+      actor_role not in ["owner", "editor"] ->
+        conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
 
-        {:error, :cannot_change_owner} ->
-          conn
-          |> put_status(:unprocessable_entity)
-          |> json(%{error: "The owner role cannot be changed or assigned"})
+      is_nil(member) ->
+        conn |> put_status(:not_found) |> json(%{error: "Member not found"})
 
-        {:ok, updated} ->
-          json(conn, %{data: member_json(updated)})
+      not Teams.can_manage_member?(actor_role, member.role, role) ->
+        conn
+        |> put_status(:forbidden)
+        |> json(%{error: "Only the project owner can change editors or grant the editor role"})
 
-        {:error, :not_found} ->
-          conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+      true ->
+        update_member(conn, id, role)
+    end
+  end
 
-        {:error, _} ->
-          conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not update"})
-      end
-    else
-      conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
+  defp update_member(conn, id, role) do
+    case Teams.update_member_role(id, role) do
+      {:ok, updated} ->
+        json(conn, %{data: member_json(updated)})
+
+      {:error, :cannot_change_owner} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "The owner role cannot be changed or assigned"})
+
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+
+      {:error, _} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not update"})
     end
   end
 
@@ -148,26 +159,39 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
 
   def delete(conn, %{"project_id" => project_id, "id" => id}) do
     user = conn.assigns.current_user
+    actor_role = Teams.effective_role(project_id, user.id)
+    member = actor_role in ["owner", "editor"] && Teams.get_project_member(project_id, id)
 
-    if Teams.user_can_write?(project_id, user.id) do
-      case Teams.get_project_member(project_id, id) && Teams.remove_member(id) do
-        nil ->
-          conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+    cond do
+      actor_role not in ["owner", "editor"] ->
+        conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
 
-        {:ok, _} ->
-          json(conn, %{ok: true})
+      is_nil(member) ->
+        conn |> put_status(:not_found) |> json(%{error: "Member not found"})
 
-        {:error, :cannot_remove_owner} ->
-          conn |> put_status(:unprocessable_entity) |> json(%{error: "Cannot remove owner"})
+      not Teams.can_manage_member?(actor_role, member.role, nil) ->
+        conn
+        |> put_status(:forbidden)
+        |> json(%{error: "Only the project owner can remove editors"})
 
-        {:error, :not_found} ->
-          conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+      true ->
+        remove_member(conn, id)
+    end
+  end
 
-        {:error, _} ->
-          conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not remove"})
-      end
-    else
-      conn |> put_status(:forbidden) |> json(%{error: "Access denied"})
+  defp remove_member(conn, id) do
+    case Teams.remove_member(id) do
+      {:ok, _} ->
+        json(conn, %{ok: true})
+
+      {:error, :cannot_remove_owner} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: "Cannot remove owner"})
+
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "Member not found"})
+
+      {:error, _} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: "Could not remove"})
     end
   end
 
@@ -271,4 +295,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
   end
 
   defp format_errors(_), do: %{}
+
+  # Several SDKs default to "member", which is not a role: it means "viewer"
+  defp normalize_role(role) when role in [nil, "member"], do: "viewer"
+  defp normalize_role(role), do: role
 end

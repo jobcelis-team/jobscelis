@@ -66,8 +66,18 @@ defmodule StreamflixCore.Platform.Projects do
   end
 
   def set_default_project(user_id, project_id) do
+    with {:ok, project_id} <- Ecto.UUID.cast(project_id),
+         %Project{} = project <-
+           Repo.get_by(Project, id: project_id, user_id: user_id, status: "active") do
+      do_set_default_project(user_id, project)
+    else
+      _ -> {:error, :not_found}
+    end
+  end
+
+  # Only the owner's own active projects can become their default
+  defp do_set_default_project(user_id, project) do
     Repo.transaction(fn ->
-      # Unset all defaults for user
       from(p in Project, where: p.user_id == ^user_id and p.is_default == true)
       |> Repo.update_all(
         set: [
@@ -76,16 +86,9 @@ defmodule StreamflixCore.Platform.Projects do
         ]
       )
 
-      # Set target as default
-      case Repo.get(Project, project_id) do
-        nil ->
-          Repo.rollback(:not_found)
-
-        project ->
-          project
-          |> Project.changeset(%{is_default: true})
-          |> Repo.update!()
-      end
+      project
+      |> Project.changeset(%{is_default: true})
+      |> Repo.update!()
     end)
     |> case do
       {:ok, project} ->
@@ -116,6 +119,14 @@ defmodule StreamflixCore.Platform.Projects do
             next |> Project.changeset(%{is_default: true}) |> Repo.update()
           end
         end
+
+        # Cached API keys would keep the deleted project usable for up to 120 s
+        from(k in StreamflixCore.Schemas.ApiKey,
+          where: k.project_id == ^project.id,
+          select: k.key_hash
+        )
+        |> Repo.all()
+        |> Enum.each(&Cachex.del(@cache, {:api_key, &1}))
 
         Cachex.del(@cache, {:project_user, project.user_id})
         {:ok, updated}

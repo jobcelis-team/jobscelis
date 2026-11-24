@@ -94,7 +94,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectsController do
 
       project ->
         if project.user_id == user.id or StreamflixCore.Teams.user_can_write?(project.id, user.id) do
-          attrs = Map.take(params, ["name", "settings", "retention_policy"])
+          attrs = Map.take(params, ["name", "settings"])
 
           case Platform.update_project(project, attrs) do
             {:ok, updated} ->
@@ -132,6 +132,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectsController do
         else
           case Platform.delete_project(project) do
             {:ok, _} ->
+              StreamflixWebWeb.UserSocket.disconnect_project(project.id)
               json(conn, %{ok: true})
 
             {:error, _} ->

@@ -108,7 +108,7 @@ defmodule StreamflixWebWeb.Admin.ProjectsLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.admin_layout active="projects" current_user_role={@current_user_role}>
+    <.admin_layout active="projects" current_user_role={@current_user_role} flash={@flash}>
       <%= if @view_id do %>
         <.project_show
           project={@project}

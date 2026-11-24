@@ -104,6 +104,9 @@ defmodule StreamflixWebWeb.Api.V1.PlatformDeadLettersController do
             {:error, :invalid_payload} ->
               conn |> put_status(422) |> json(%{error: "payload must be a JSON object"})
 
+            {:error, :already_resolved} ->
+              conn |> put_status(409) |> json(%{error: "Dead letter already resolved or retried"})
+
             {:error, _} ->
               conn |> put_status(500) |> json(%{error: "Failed to retry"})
           end

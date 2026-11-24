@@ -66,7 +66,9 @@ defmodule StreamflixWebWeb.Api.V1.EmbedTokensController do
   defp parse_expires_at(%{"expires_at" => val} = attrs) when is_binary(val) do
     case DateTime.from_iso8601(val) do
       {:ok, dt, _} -> Map.put(attrs, "expires_at", DateTime.truncate(dt, :microsecond))
-      _ -> Map.delete(attrs, "expires_at")
+      # Left as is so the changeset rejects it: dropping it silently created a
+      # token that never expires
+      _ -> attrs
     end
   end
 

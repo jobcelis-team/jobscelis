@@ -30,9 +30,12 @@ defmodule StreamflixCore.Platform.Jobs do
   def get_job!(id), do: Repo.get!(Job, id)
 
   def update_job(%Job{} = job, attrs) do
-    job
-    |> Job.changeset(attrs)
-    |> Repo.update()
+    update = fn -> job |> Job.changeset(attrs) |> Repo.update() end
+
+    # Reactivating counts against the quota like creating (see update_webhook/2)
+    if StreamflixCore.Platform.Webhooks.reactivating?(job, attrs),
+      do: StreamflixCore.Platform.Quotas.with_quota(:jobs, job.project_id, update),
+      else: update.()
   end
 
   def set_job_inactive(%Job{} = job) do

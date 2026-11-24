@@ -16,7 +16,7 @@ defmodule StreamflixWebWeb.Admin.SettingsLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.admin_layout active="settings" current_user_role={@current_user_role}>
+    <.admin_layout active="settings" current_user_role={@current_user_role} flash={@flash}>
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 mb-6 sm:mb-8">
         {gettext("Configuración")}
       </h1>

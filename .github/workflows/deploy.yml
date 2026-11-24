@@ -67,7 +67,11 @@ jobs:
           target: prod
           push: true
           build-args: APK_REFRESH=${{ steps.apk.outputs.day }}
-          tags: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          # The web app runs :latest; the commit tag keeps every release so a
+          # bad deploy can be rolled back by retagging it as latest
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

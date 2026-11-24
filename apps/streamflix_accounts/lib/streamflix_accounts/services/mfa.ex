@@ -135,34 +135,46 @@ defmodule StreamflixAccounts.Services.MFA do
   Returns {:ok, user, backup_codes} on success.
   """
   def enable_mfa(%User{} = user, secret, code) when is_binary(secret) and is_binary(code) do
-    if verify_code(secret, code) do
-      backup_codes = generate_backup_codes()
-      hashed_codes = hash_backup_codes(backup_codes)
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
+    cond do
+      # Re-enrolling would replace the secret and backup codes with a single TOTP
+      # code and no password: a hijacked session could lock the owner out. MFA
+      # must be disabled first (which requires the password).
+      mfa_enabled_now?(user) -> {:error, :already_enabled}
+      verify_code(secret, code) -> do_enable_mfa(user, secret)
+      true -> {:error, :invalid_code}
+    end
+  end
 
-      changeset =
-        User.mfa_changeset(user, %{
-          mfa_enabled: true,
-          mfa_secret: secret,
-          mfa_backup_codes: hashed_codes,
-          mfa_enabled_at: now
-        })
+  def enable_mfa(_user, _secret, _code), do: {:error, :invalid_code}
 
-      case Repo.update(changeset) do
-        {:ok, updated_user} ->
-          Audit.record("user.mfa_enabled",
-            user_id: user.id,
-            resource_type: "user",
-            resource_id: user.id
-          )
+  defp mfa_enabled_now?(%User{id: id}) do
+    Repo.exists?(from(u in User, where: u.id == ^id and u.mfa_enabled == true))
+  end
 
-          {:ok, updated_user, backup_codes}
+  defp do_enable_mfa(user, secret) do
+    backup_codes = generate_backup_codes()
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-        error ->
-          error
-      end
-    else
-      {:error, :invalid_code}
+    changeset =
+      User.mfa_changeset(user, %{
+        mfa_enabled: true,
+        mfa_secret: secret,
+        mfa_backup_codes: hash_backup_codes(backup_codes),
+        mfa_enabled_at: now
+      })
+
+    case Repo.update(changeset) do
+      {:ok, updated_user} ->
+        Audit.record("user.mfa_enabled",
+          user_id: user.id,
+          resource_type: "user",
+          resource_id: user.id
+        )
+
+        {:ok, updated_user, backup_codes}
+
+      error ->
+        error
     end
   end
 
