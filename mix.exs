@@ -28,13 +28,7 @@ defmodule Streamflix.MixProject do
           # cloak: affects the AES-CTR cipher; our vault uses AES-GCM only.
           "CVE-2026-95105",
           # cloak_ecto: affects Cloak.Ecto.PBKDF2 fields, which we do not use.
-          "CVE-2026-94206",
-          # cowboy/cowlib: no fixed release yet. The app is served by Bandit;
-          # Cowboy only runs the PromEx metrics server on port 4021, which the
-          # container does not expose (only 4000).
-          "CVE-2026-43966",
-          "CVE-2026-115701",
-          "CVE-2026-113431"
+          "CVE-2026-94206"
         ]
       ]
     ]

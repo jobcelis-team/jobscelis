@@ -84,7 +84,7 @@ defmodule StreamflixCore.GDPR do
   Uses Ecto.Multi to ensure atomicity:
   1. Record erasure in audit log (system action)
   2. Pseudonymize existing audit logs for the user
-  3. Anonymize notifications (user_id=nil, title/message="[redacted]")
+  3. Delete the user's notifications
   4. Delete consents, user_sessions, password_history
   5. Delete project_members referencing this user
   6. Hard-delete all projects owned by user (cascades api_keys, webhooks, events, etc.)
@@ -113,13 +113,11 @@ defmodule StreamflixCore.GDPR do
       end,
       set: [user_id: nil, ip_address: "[redacted]"]
     )
-    |> Ecto.Multi.update_all(
-      :anonymize_notifications,
-      fn _ ->
-        from(n in "notifications", where: n.user_id == type(^user_id, :binary_id))
-      end,
-      set: [user_id: nil, title: "[redacted]", message: "[redacted]"]
-    )
+    # notifications.user_id is NOT NULL: they are personal data with no other
+    # owner, so they are deleted rather than anonymized
+    |> Ecto.Multi.delete_all(:delete_notifications, fn _ ->
+      from(n in "notifications", where: n.user_id == type(^user_id, :binary_id))
+    end)
     |> Ecto.Multi.delete_all(:delete_consents, fn _ ->
       from(c in Consent, where: c.user_id == ^user_id)
     end)
