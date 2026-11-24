@@ -43,7 +43,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.admin_layout active="dashboard" current_user_role={@current_user_role}>
+    <.admin_layout active="dashboard" current_user_role={@current_user_role} flash={@flash}>
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 mb-6 sm:mb-8">
         {gettext("Dashboard")}
       </h1>
@@ -126,8 +126,15 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 sm:p-6">
           <p class="text-sm text-gray-500 dark:text-slate-400">{gettext("Tasa de éxito")}</p>
 
-          <p class={"text-2xl font-bold #{if @delivery_stats.success_rate >= 95, do: "text-emerald-600 dark:text-emerald-400", else: "text-amber-600 dark:text-amber-400"}"}>
-            {@delivery_stats.success_rate}%
+          <p class={[
+            "text-2xl font-bold",
+            cond do
+              is_nil(@delivery_stats.success_rate) -> "text-gray-400 dark:text-slate-500"
+              @delivery_stats.success_rate >= 95 -> "text-emerald-600 dark:text-emerald-400"
+              true -> "text-amber-600 dark:text-amber-400"
+            end
+          ]}>
+            {if @delivery_stats.success_rate, do: "#{@delivery_stats.success_rate}%", else: "—"}
           </p>
         </div>
       </div>
@@ -265,10 +272,15 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
   end
 
   def admin_layout(assigns) do
-    assigns = assign_new(assigns, :inner_block, fn -> [] end)
+    assigns =
+      assigns
+      |> assign_new(:inner_block, fn -> [] end)
+      |> assign_new(:flash, fn -> %{} end)
 
     ~H"""
     <div class="min-h-screen bg-gray-100 dark:bg-slate-900">
+      <%!-- The admin pages do not use Layouts.app, so they render the flash here --%>
+      <Layouts.flash_group flash={@flash} />
       <%!-- Mobile backdrop --%>
       <div
         id="admin-backdrop"
@@ -521,7 +533,7 @@ defmodule StreamflixWebWeb.Admin.DashboardLive do
     success_rate =
       if total > 0,
         do: Float.round(success / total * 100, 1),
-        else: 100.0
+        else: nil
 
     %{total: total, success: success, failed: failed, success_rate: success_rate}
   end

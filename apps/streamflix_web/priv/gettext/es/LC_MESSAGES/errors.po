@@ -12,7 +12,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 ## From Ecto.Changeset.cast/4
-
 msgid "can't be blank"
 msgstr "no puede estar vacío"
 
@@ -59,7 +58,6 @@ msgid "must be equal to %{number}"
 msgstr "debe ser igual a %{number}"
 
 ## From Ecto.Changeset.validate_length/3 and validate_number/3
-
 msgid "should have %{count} item(s)"
 msgid_plural "should have %{count} item(s)"
 msgstr[0] "debe tener %{count} elemento"
