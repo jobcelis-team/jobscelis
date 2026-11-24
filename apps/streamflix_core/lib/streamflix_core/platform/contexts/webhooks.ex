@@ -117,6 +117,12 @@ defmodule StreamflixCore.Platform.Webhooks do
   end
 
   def get_webhook(id), do: Repo.get_uuid(Webhook, id)
+
+  @doc false
+  def reactivating?(%{status: "inactive"}, attrs) when is_map(attrs),
+    do: (attrs["status"] || attrs[:status]) == "active"
+
+  def reactivating?(_record, _attrs), do: false
   def get_webhook!(id), do: Repo.get!(Webhook, id)
 
   def update_webhook(%Webhook{} = webhook, attrs) do
@@ -134,9 +140,16 @@ defmodule StreamflixCore.Platform.Webhooks do
         attrs
       end
 
-    case webhook
-         |> Webhook.changeset(attrs)
-         |> Repo.update() do
+    update = fn -> webhook |> Webhook.changeset(attrs) |> Repo.update() end
+
+    # Reactivating counts against the quota like creating: deleting (which only
+    # deactivates) and reactivating otherwise went past the per-project limit
+    result =
+      if reactivating?(webhook, attrs),
+        do: StreamflixCore.Platform.Quotas.with_quota(:webhooks, webhook.project_id, update),
+        else: update.()
+
+    case result do
       {:ok, updated} ->
         Cachex.del(@cache, {:active_webhooks, webhook.project_id})
         invalidate_webhook_health_cache(webhook.project_id)
@@ -256,8 +269,25 @@ defmodule StreamflixCore.Platform.Webhooks do
 
   def filters_match?(_, _, _), do: true
 
+  # Walks a dotted path through nested maps. A segment that is not a map (a
+  # string, list or number where the filter expects an object) yields nil
+  # instead of raising: get_in/2 raised there, inside the event's insert
+  # transaction, so one oddly shaped payload made the whole event fail.
+  defp value_at(data, path) when is_binary(path) do
+    path
+    |> String.split(".")
+    |> Enum.reduce_while(data, fn key, acc ->
+      case acc do
+        %{} = map -> {:cont, Map.get(map, key)}
+        _ -> {:halt, nil}
+      end
+    end)
+  end
+
+  defp value_at(_data, _path), do: nil
+
   defp filter_condition_holds?(%{"path" => path, "op" => op, "value" => value}, data) do
-    actual = get_in(data, String.split(path, "."))
+    actual = value_at(data, path)
 
     case op do
       "eq" -> actual == value
