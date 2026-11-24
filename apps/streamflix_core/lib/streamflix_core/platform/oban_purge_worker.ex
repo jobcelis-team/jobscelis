@@ -164,9 +164,12 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
     end)
   end
 
-  # 0 keeps them forever, like the other retention settings
-  defp audit_log_retention(%{"audit_logs_days" => days}) when is_integer(days), do: days
-  defp audit_log_retention(_), do: @default_audit_log_retention_days
+  # 0 keeps them forever, like the other retention settings. Values that are not
+  # non-negative integers (stored before the policy was validated) fall back to
+  # the default: one bad project must not crash the purge of every project, and
+  # a negative value would put the cutoff in the future and delete everything.
+  defp audit_log_retention(policy),
+    do: policy_days(policy, "audit_logs_days") || @default_audit_log_retention_days
 
   # Deletes the rows of schema matched by query, @delete_batch at a time
   defp delete_in_batches(schema, query, total \\ 0) do
@@ -178,15 +181,16 @@ defmodule StreamflixCore.Platform.ObanPurgeWorker do
     end
   end
 
-  defp delivery_retention(policy, legacy_days) when is_map(policy) do
-    Map.get(policy, "deliveries_days") || legacy_days || @default_retention_days
-  end
+  defp delivery_retention(policy, legacy_days),
+    do:
+      policy_days(policy, "deliveries_days") || valid_days(legacy_days) || @default_retention_days
 
-  defp delivery_retention(_, legacy_days), do: legacy_days || @default_retention_days
+  defp event_retention(policy, legacy_days),
+    do: policy_days(policy, "events_days") || valid_days(legacy_days) || @default_retention_days
 
-  defp event_retention(policy, legacy_days) when is_map(policy) do
-    Map.get(policy, "events_days") || legacy_days || @default_retention_days
-  end
+  defp policy_days(policy, key) when is_map(policy), do: valid_days(Map.get(policy, key))
+  defp policy_days(_policy, _key), do: nil
 
-  defp event_retention(_, legacy_days), do: legacy_days || @default_retention_days
+  defp valid_days(days) when is_integer(days) and days >= 0, do: days
+  defp valid_days(_), do: nil
 end

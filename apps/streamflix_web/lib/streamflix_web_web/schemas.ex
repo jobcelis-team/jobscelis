@@ -142,7 +142,7 @@ defmodule StreamflixWebWeb.Schemas do
         filters: [],
         body_config: %{},
         headers: %{"X-Custom-Header" => "my-value"},
-        retry_config: %{max_retries: 5, backoff: "exponential"},
+        retry_config: %{max_attempts: 5, strategy: "exponential", base_delay_seconds: 10},
         rate_limit: %{max_per_second: 50, max_per_minute: 3000},
         inserted_at: "2026-03-06T10:30:00.000000Z"
       }

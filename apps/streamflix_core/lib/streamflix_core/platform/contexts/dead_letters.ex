@@ -69,32 +69,51 @@ defmodule StreamflixCore.Platform.DeadLetters do
           not (is_nil(modified_payload) or is_map(modified_payload)) ->
             {:error, :invalid_payload}
 
+          dl.resolved ->
+            {:error, :already_resolved}
+
           true ->
             payload = modified_payload || dl.original_payload
             # Only carry an override when it differs from the stored event payload
             override = if dl.event && payload == dl.event.payload, do: nil, else: payload
-
-            with {:ok, delivery} <-
-                   %Delivery{}
-                   |> Delivery.changeset(%{
-                     event_id: dl.event_id,
-                     webhook_id: dl.webhook_id,
-                     status: "pending",
-                     attempt_number: 0,
-                     payload_override: override
-                   })
-                   |> Repo.insert(),
-                 {:ok, _job} <-
-                   Oban.insert(
-                     StreamflixCore.Platform.ObanDeliveryWorker.new(%{
-                       delivery_id: delivery.id,
-                       retry_config: webhook.retry_config || %{}
-                     })
-                   ) do
-              resolve_dead_letter(id)
-              {:ok, delivery}
-            end
+            redeliver(dl, webhook, override)
         end
     end
+  end
+
+  # Claiming the dead letter (resolved false -> true) in the same transaction as
+  # the new delivery makes a double click or a retried API call deliver once.
+  defp redeliver(dl, webhook, override) do
+    Repo.transaction(fn ->
+      now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+      {claimed, _} =
+        from(d in DeadLetter, where: d.id == ^dl.id and d.resolved == false)
+        |> Repo.update_all(set: [resolved: true, resolved_at: now, updated_at: now])
+
+      with 1 <- claimed,
+           {:ok, delivery} <-
+             %Delivery{}
+             |> Delivery.changeset(%{
+               event_id: dl.event_id,
+               webhook_id: dl.webhook_id,
+               status: "pending",
+               attempt_number: 0,
+               payload_override: override
+             })
+             |> Repo.insert(),
+           {:ok, _job} <-
+             Oban.insert(
+               StreamflixCore.Platform.ObanDeliveryWorker.new(%{
+                 delivery_id: delivery.id,
+                 retry_config: webhook.retry_config || %{}
+               })
+             ) do
+        delivery
+      else
+        0 -> Repo.rollback(:already_resolved)
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
   end
 end

@@ -142,7 +142,8 @@ defmodule StreamflixWebWeb.Api.V1.PipelineController do
         conn |> put_status(:not_found) |> json(%{error: "Pipeline not found"})
 
       pipeline ->
-        payload = Map.get(params, "payload", %{})
+        # The SDKs send the sample payload as the whole body
+        payload = Map.get_lazy(params, "payload", fn -> Map.delete(params, "id") end)
 
         case Platform.execute_pipeline_steps(pipeline.steps, payload) do
           {:ok, transformed} ->

@@ -92,4 +92,29 @@ defmodule StreamflixWebWeb.AccountLiveSecurityTest do
       assert render(view)
     end
   end
+
+  describe "active sessions list" do
+    test "shows browser, system and device for each session", %{conn: conn, user: user} do
+      {:ok, _token, claims} = StreamflixAccounts.generate_token(user)
+
+      {:ok, phone} =
+        StreamflixAccounts.create_session(user.id, claims["jti"],
+          ip_address: "2800:bf0:2ae:16::1",
+          user_agent:
+            "Mozilla/5.0 (Linux; Android 14; SM-A556E) AppleWebKit/537.36 (KHTML, like Gecko) " <>
+              "SamsungBrowser/26.0 Chrome/122.0.0.0 Mobile Safari/537.36"
+        )
+
+      {:ok, view, _html} = live(conn, "/account")
+
+      assert has_element?(
+               view,
+               "#sessions-list #session-#{phone.id}",
+               "Samsung Internet · Android"
+             )
+
+      assert has_element?(view, "#session-#{phone.id} .hero-device-phone-mobile")
+      assert has_element?(view, "#revoke-session-#{phone.id}")
+    end
+  end
 end
