@@ -535,4 +535,30 @@ defmodule StreamflixAccounts.AccountsTest do
       assert {:error, _} = StreamflixAccounts.verify_token(token)
     end
   end
+
+  describe "delete_user/2 (GDPR erasure)" do
+    test "erases a user who has notifications, projects and sessions" do
+      user = register_user()
+      project = StreamflixCore.Factory.insert(:project, user_id: user.id)
+      {:ok, _} = StreamflixCore.Notifications.notify_job_failed(user.id, project.id, "nightly")
+      {:ok, _token, claims} = StreamflixAccounts.generate_token(user)
+      {:ok, _} = StreamflixAccounts.create_session(user.id, claims["jti"])
+
+      assert {:ok, _} = StreamflixAccounts.delete_user(user, @valid_password)
+
+      assert StreamflixAccounts.get_user(user.id) == nil
+      assert StreamflixCore.Repo.get(StreamflixCore.Schemas.Project, project.id) == nil
+
+      assert StreamflixCore.Repo.aggregate(
+               from(n in StreamflixCore.Schemas.Notification, where: n.user_id == ^user.id),
+               :count
+             ) == 0
+    end
+
+    test "requires the current password" do
+      user = register_user()
+      assert {:error, _} = StreamflixAccounts.delete_user(user, "wrong-password-123")
+      assert StreamflixAccounts.get_user(user.id)
+    end
+  end
 end

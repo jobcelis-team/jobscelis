@@ -62,4 +62,27 @@ defmodule StreamflixWebWeb.SandboxControllerTest do
     refute Map.has_key?(headers, "x-arr-ssl")
     refute Map.has_key?(headers, "x-client-port")
   end
+
+  test "never stores the headers added by the Cloudflare failover Worker",
+       %{conn: conn, endpoint: ep} do
+    conn
+    |> put_req_header("content-type", "application/json")
+    |> put_req_header("x-jobcelis-proxy-secret", "shared-secret")
+    |> put_req_header("x-jobcelis-client-ip", "203.0.113.7")
+    |> put_req_header("cf-connecting-ip", "203.0.113.7")
+    |> put_req_header("cf-ray", "abc123-GYE")
+    |> put_req_header("cdn-loop", "cloudflare")
+    |> put_req_header("true-client-ip", "203.0.113.7")
+    |> put_req_header("x-test-header", "acme")
+    |> post("/sandbox/#{ep.slug}", "{}")
+    |> json_response(200)
+
+    headers = last_request(ep).headers
+    assert headers["x-test-header"] == "acme"
+
+    for name <- ~w(x-jobcelis-proxy-secret x-jobcelis-client-ip cf-connecting-ip cf-ray
+                   cdn-loop true-client-ip) do
+      refute Map.has_key?(headers, name), "#{name} should not be stored"
+    end
+  end
 end

@@ -51,10 +51,13 @@ defmodule StreamflixWebWeb.SandboxController do
   # Headers added by our own reverse proxy / hosting front end, not by the sender.
   # They repeat the client IP and expose internal hosting details, so they are not
   # shown as part of the captured request (the sender IP is kept in its own field).
+  # The Cloudflare failover Worker adds `x-jobcelis-proxy-secret` to every request:
+  # storing it would show the shared secret to any sandbox owner.
   @proxy_headers ~w(client-ip x-client-ip x-client-port x-forwarded-for x-forwarded-host x-forwarded-proto
                     x-forwarded-port x-forwarded-tlsversion x-original-url x-real-ip
-                    disguised-host was-default-hostname max-forwards x-site-deployment-id)
-  @proxy_header_prefixes ~w(x-arr- x-appservice- x-waws- x-ms- x-azure-)
+                    disguised-host was-default-hostname max-forwards x-site-deployment-id
+                    cdn-loop true-client-ip)
+  @proxy_header_prefixes ~w(x-jobcelis- cf- x-arr- x-appservice- x-waws- x-ms- x-azure-)
 
   defp proxy_header?(name) do
     name in @proxy_headers or String.starts_with?(name, @proxy_header_prefixes)

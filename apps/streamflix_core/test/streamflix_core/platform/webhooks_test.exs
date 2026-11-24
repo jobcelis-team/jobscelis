@@ -274,6 +274,51 @@ defmodule StreamflixCore.Platform.WebhooksTest do
     end
   end
 
+  describe "topic_matches?/2" do
+    alias StreamflixCore.Platform.Webhooks
+
+    # Straightforward backtracking reference, only used on small inputs
+    defp reference_match?([], []), do: true
+    defp reference_match?([], _), do: false
+    defp reference_match?(_, []), do: false
+    defp reference_match?(["*" | p], [_ | e]), do: reference_match?(p, e)
+
+    defp reference_match?(["#" | p], [_ | e] = segs) do
+      Enum.any?(1..length(segs), &reference_match?(p, Enum.drop(segs, &1))) or
+        (p == [] and e == [])
+    end
+
+    defp reference_match?([s | p], [s | e]), do: reference_match?(p, e)
+    defp reference_match?(_, _), do: false
+
+    test "agrees with a reference matcher on every small pattern/topic pair" do
+      alphabet = ["a", "b", "*", "#"]
+      patterns = for n <- 1..4, p <- combos(alphabet, n), do: p
+      topics = for n <- 1..5, t <- combos(["a", "b"], n), do: t
+
+      for p <- patterns, t <- topics do
+        assert Webhooks.topic_matches?([Enum.join(p, ".")], Enum.join(t, ".")) ==
+                 reference_match?(p, t),
+               "pattern #{Enum.join(p, ".")} vs topic #{Enum.join(t, ".")}"
+      end
+    end
+
+    test "many # wildcards are matched in linear-ish time" do
+      topic = Enum.map_join(1..120, ".", &"s#{&1}")
+      pattern = String.duplicate("#.", 49) <> "nomatch"
+
+      {micros, result} = :timer.tc(fn -> Webhooks.topic_matches?([pattern], topic) end)
+
+      refute result
+      assert micros < 1_000_000
+    end
+
+    defp combos(_alphabet, 0), do: [[]]
+
+    defp combos(alphabet, n),
+      do: for(x <- alphabet, rest <- combos(alphabet, n - 1), do: [x | rest])
+  end
+
   describe "webhook_templates/0" do
     test "returns all templates" do
       templates = Platform.webhook_templates()

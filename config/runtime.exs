@@ -108,21 +108,69 @@ if config_env() == :prod do
     issuer: "streamflix",
     secret_key: guardian_secret
 
-  # Cloak Vault Key (At-Rest Encryption for webhook secrets)
-  if cloak_key = System.get_env("CLOAK_KEY") do
+  # Cloak Vault Key (At-Rest Encryption of PII, MFA and webhook secrets)
+  #
+  # Rotation (see StreamflixCore.EncryptionRotation):
+  #   CLOAK_KEY=<new key>  CLOAK_KEY_TAG=AES.GCM.V2  CLOAK_KEY_RETIRED=<old key>
+  # then run StreamflixCore.Release.rotate_encryption() and drop CLOAK_KEY_RETIRED.
+  # Each ciphertext stores its tag, which selects the key that decrypts it, so the
+  # new key needs a tag different from the retired one (AES.GCM.V1 by default).
+  # The SHA-256 fingerprints below are of the dev defaults published in config.exs.
+  public_cloak_key = "bd0baf8b2ad0af04eacfd8212722049102c90f57fac60f8ad4930ea5f439e4b5"
+  public_hmac_secret = "a746c77314d009bef24f8c4f2cfcde2318ee8187b255d3eba71307a590f67a5f"
+  fingerprint = fn value -> :crypto.hash(:sha256, value) |> Base.encode16(case: :lower) end
+  cloak_key = System.get_env("CLOAK_KEY")
+
+  if is_nil(cloak_key) or fingerprint.(cloak_key) == public_cloak_key do
+    IO.puts(
+      :stderr,
+      "SECURITY WARNING: CLOAK_KEY is missing or is the public dev key from config.exs. " <>
+        "Encrypted data (emails, MFA secrets, webhook secrets) can be decrypted by anyone " <>
+        "with a database copy. Rotate it (see StreamflixCore.EncryptionRotation)."
+    )
+  end
+
+  if cloak_key do
+    retired =
+      case System.get_env("CLOAK_KEY_RETIRED") do
+        nil ->
+          []
+
+        old_key ->
+          [
+            retired: {
+              Cloak.Ciphers.AES.GCM,
+              tag: System.get_env("CLOAK_KEY_RETIRED_TAG", "AES.GCM.V1"),
+              key: Base.decode64!(old_key),
+              iv_length: 12
+            }
+          ]
+      end
+
     config :streamflix_core, StreamflixCore.Vault,
-      ciphers: [
-        default: {
-          Cloak.Ciphers.AES.GCM,
-          tag: "AES.GCM.V1", key: Base.decode64!(cloak_key), iv_length: 12
-        }
-      ]
+      ciphers:
+        [
+          default: {
+            Cloak.Ciphers.AES.GCM,
+            tag: System.get_env("CLOAK_KEY_TAG", "AES.GCM.V1"),
+            key: Base.decode64!(cloak_key),
+            iv_length: 12
+          }
+        ] ++ retired
   end
 
   # HMAC secret for deterministic hashing (email lookups)
   hmac_secret =
     System.get_env("HMAC_SECRET") || System.get_env("CLOAK_KEY") ||
       raise "environment variable HMAC_SECRET is missing."
+
+  if fingerprint.(hmac_secret) == public_hmac_secret do
+    IO.puts(
+      :stderr,
+      "SECURITY WARNING: HMAC_SECRET is the public dev secret from config.exs. " <>
+        "Rotate it (see StreamflixCore.EncryptionRotation)."
+    )
+  end
 
   config :streamflix_core, StreamflixCore.Hashed.HMAC,
     algorithm: :sha512,
