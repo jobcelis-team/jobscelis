@@ -599,6 +599,11 @@ defmodule StreamflixWebWeb.AccountLive do
 
   # ── MFA Setup ────────────────────────────────────────────────────
 
+  def handle_event("start_mfa_setup", _, %{assigns: %{user: %{mfa_enabled: true}}} = socket) do
+    {:noreply,
+     put_flash(socket, :error, gettext("Desactiva MFA antes de configurarlo de nuevo."))}
+  end
+
   def handle_event("start_mfa_setup", _, socket) do
     user = socket.assigns.user
     {:ok, secret, uri} = StreamflixAccounts.setup_mfa(user)
@@ -627,6 +632,14 @@ defmodule StreamflixWebWeb.AccountLive do
      |> assign(:mfa_qr_svg, nil)
      |> assign(:mfa_setup_errors, [])
      |> assign(:mfa_backup_codes, nil)}
+  end
+
+  def handle_event(
+        "confirm_mfa_setup",
+        %{"code" => _code},
+        %{assigns: %{mfa_secret: nil}} = socket
+      ) do
+    {:noreply, socket}
   end
 
   def handle_event("confirm_mfa_setup", %{"code" => code}, socket) do

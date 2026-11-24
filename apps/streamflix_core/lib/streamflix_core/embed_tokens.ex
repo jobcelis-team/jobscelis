@@ -48,11 +48,15 @@ defmodule StreamflixCore.EmbedTokens do
 
     now = DateTime.utc_now()
 
+    # The project must still be active: deleting a project soft-deletes it, and
+    # its embed tokens kept creating webhooks afterwards
     from(t in EmbedToken,
+      join: p in assoc(t, :project),
       where: t.token_hash == ^hash,
       where: t.status == "active",
+      where: p.status == "active",
       where: is_nil(t.expires_at) or t.expires_at > ^now,
-      preload: [:project]
+      preload: [project: p]
     )
     |> Repo.one()
   end
