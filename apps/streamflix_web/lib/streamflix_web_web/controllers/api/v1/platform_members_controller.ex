@@ -59,7 +59,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
         |> put_status(422)
         |> json(%{error: "User not found. Provide a valid user_id or email."})
       else
-        role = params["role"] || "viewer"
+        role = normalize_role(params["role"])
         is_owner = Teams.effective_role(project_id, user.id) == "owner"
 
         cond do
@@ -109,7 +109,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
 
     actor_role = Teams.effective_role(project_id, user.id)
     member = actor_role in ["owner", "editor"] && Teams.get_project_member(project_id, id)
-    role = params["role"]
+    role = params["role"] && normalize_role(params["role"])
 
     cond do
       actor_role not in ["owner", "editor"] ->
@@ -295,4 +295,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformMembersController do
   end
 
   defp format_errors(_), do: %{}
+
+  # Several SDKs default to "member", which is not a role: it means "viewer"
+  defp normalize_role(role) when role in [nil, "member"], do: "viewer"
+  defp normalize_role(role), do: role
 end

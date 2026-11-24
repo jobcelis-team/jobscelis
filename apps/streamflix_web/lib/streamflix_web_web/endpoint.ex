@@ -58,6 +58,7 @@ defmodule StreamflixWebWeb.Endpoint do
   plug StreamflixWebWeb.Plugs.SecurityHeaders
 
   plug Plug.MethodOverride
+  plug StreamflixWebWeb.Plugs.ApiMethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
   plug StreamflixWebWeb.Plugs.CORS

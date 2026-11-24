@@ -333,8 +333,15 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
     end
   end
 
-  def update_retention(conn, _params) do
-    conn |> put_status(422) |> json(%{error: "Missing retention_policy parameter"})
+  # The SDKs send the policy fields at the top level of the body
+  def update_retention(conn, params) do
+    case Map.take(params, ["events_days", "deliveries_days", "audit_logs_days"]) do
+      policy when map_size(policy) > 0 ->
+        update_retention(conn, %{"retention_policy" => policy})
+
+      _ ->
+        conn |> put_status(422) |> json(%{error: "Missing retention_policy parameter"})
+    end
   end
 
   operation(:purge,

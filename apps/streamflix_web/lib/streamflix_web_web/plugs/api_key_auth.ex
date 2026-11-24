@@ -33,20 +33,20 @@ defmodule StreamflixWebWeb.Plugs.ApiKeyAuth do
     end
   end
 
+  # X-Api-Key first: the SDKs send it on every request and, once a user has
+  # logged in, also a JWT as "Authorization: Bearer". Reading the Bearer first
+  # treated that JWT as the API key and every project route returned 401.
   defp get_api_key(conn) do
-    case get_req_header(conn, "authorization") do
-      ["Bearer " <> token] ->
+    case {get_req_header(conn, "x-api-key"), get_req_header(conn, "authorization")} do
+      {[token | _], _} ->
+        token
+
+      {_, ["Bearer " <> token | _]} ->
         token
 
       _ ->
-        case get_req_header(conn, "x-api-key") do
-          [token] ->
-            token
-
-          _ ->
-            # Fallback: check query param for browser-initiated requests (export downloads)
-            conn.query_params["api_key"]
-        end
+        # Fallback: check query param for browser-initiated requests (export downloads)
+        conn.query_params["api_key"]
     end
   end
 
