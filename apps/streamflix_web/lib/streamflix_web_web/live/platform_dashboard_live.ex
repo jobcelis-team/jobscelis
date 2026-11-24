@@ -329,6 +329,8 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
       case Platform.update_api_key_restrictions(project.id, attrs) do
         {:ok, api_key} ->
+          StreamflixWebWeb.UserSocket.disconnect_project(project.id)
+
           Audit.record("api_key.restricted",
             user_id: socket.assigns.current_user.id,
             project_id: project.id,
@@ -367,6 +369,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
       case Platform.regenerate_api_key(project.id) do
         {:ok, _api_key, raw_key} ->
+          StreamflixWebWeb.UserSocket.disconnect_project(project.id)
           api_key = Platform.get_api_key_for_project(project.id)
 
           Audit.record("api_key.regenerated",
@@ -675,10 +678,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   @impl true
   def handle_event("show_job_runs", %{"id" => id}, socket) do
-    project = socket.assigns.project
-    job = project && Platform.get_job(id)
+    job = fetch_owned(socket, &Platform.get_job/1, id)
 
-    if job && job.project_id == project.id do
+    if job do
       runs = Platform.list_job_runs(job.id, limit: 50)
 
       {:noreply,
@@ -1497,15 +1499,20 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_event("search_events", %{"q" => query}, socket) do
     query = String.trim(query)
 
-    if query == "" do
-      {:noreply, socket |> assign(:search_query, "") |> assign(:search_results, nil)}
-    else
-      results = Platform.search_events_by_text(socket.assigns.project.id, query)
+    cond do
+      not has_access?(socket) ->
+        lose_access(socket)
 
-      {:noreply,
-       socket
-       |> assign(:search_query, query)
-       |> assign(:search_results, results)}
+      query == "" ->
+        {:noreply, socket |> assign(:search_query, "") |> assign(:search_results, nil)}
+
+      true ->
+        results = Platform.search_events_by_text(socket.assigns.project.id, query)
+
+        {:noreply,
+         socket
+         |> assign(:search_query, query)
+         |> assign(:search_results, results)}
     end
   end
 
@@ -1646,6 +1653,7 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         project ->
           case Platform.delete_project(project) do
             {:ok, _} ->
+              StreamflixWebWeb.UserSocket.disconnect_project(project.id)
               # Remount from scratch: role, subscriptions and data for whatever
               # project is selected next are recomputed by mount/handle_params.
               {:noreply,
@@ -1965,9 +1973,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
   def handle_info({:do_switch_project, id}, socket) do
     old_project = socket.assigns.project
     projects = socket.assigns.projects
-    project = Enum.find(projects, fn p -> p.id == id end) || Platform.get_project(id)
+    project = Enum.find(projects, fn p -> p.id == id end)
 
-    if project do
+    if project && has_access?(socket, project) do
       if old_project,
         do: Phoenix.PubSub.unsubscribe(StreamflixCore.PubSub, "project:#{old_project.id}")
 
@@ -2134,31 +2142,9 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
         {:noreply, socket}
 
       project ->
-        socket =
-          if MapSet.member?(pending, :events),
-            do: assign(socket, :events, Platform.list_events(project.id, limit: 20)),
-            else: socket
-
-        socket =
-          if MapSet.member?(pending, :webhooks),
-            do:
-              assign(socket,
-                webhooks: Platform.list_webhooks(project.id, include_inactive: true),
-                webhook_health: Platform.webhooks_health(project.id)
-              ),
-            else: socket
-
-        socket =
-          if MapSet.member?(pending, :deliveries),
-            do:
-              assign(
-                socket,
-                :deliveries,
-                Platform.list_deliveries(project_id: project.id, limit: 30)
-              ),
-            else: socket
-
-        {:noreply, assign_kpis(socket, project)}
+        if has_access?(socket, project),
+          do: do_live_refresh(socket, project, pending),
+          else: lose_access(socket)
     end
   end
 
@@ -2768,10 +2754,56 @@ defmodule StreamflixWebWeb.PlatformDashboardLive do
 
   # Fetch a record by id only if it belongs to the current project. Event params
   # come from the client, so ids must never be trusted without this check.
+  defp do_live_refresh(socket, project, pending) do
+    socket =
+      if MapSet.member?(pending, :events),
+        do: assign(socket, :events, Platform.list_events(project.id, limit: 20)),
+        else: socket
+
+    socket =
+      if MapSet.member?(pending, :webhooks),
+        do:
+          assign(socket,
+            webhooks: Platform.list_webhooks(project.id, include_inactive: true),
+            webhook_health: Platform.webhooks_health(project.id)
+          ),
+        else: socket
+
+    socket =
+      if MapSet.member?(pending, :deliveries),
+        do:
+          assign(
+            socket,
+            :deliveries,
+            Platform.list_deliveries(project_id: project.id, limit: 30)
+          ),
+        else: socket
+
+    {:noreply, assign_kpis(socket, project)}
+  end
+
+  # Reads are checked against the role in the DB, not the project list loaded at
+  # mount: a member removed from the project must stop seeing its data (and its
+  # real-time events) right away, without reloading the page.
+  defp has_access?(socket, project \\ nil) do
+    case project || socket.assigns.project do
+      %{id: project_id} -> Teams.effective_role(project_id, socket.assigns.current_user.id) != nil
+      _ -> false
+    end
+  end
+
+  defp lose_access(socket) do
+    {:noreply,
+     socket
+     |> put_flash(:error, gettext("Ya no tienes acceso a este proyecto."))
+     |> push_navigate(to: ~p"/platform")}
+  end
+
   defp fetch_owned(socket, getter, id) do
     project = socket.assigns.project
 
     with %{id: project_id} <- project,
+         true <- has_access?(socket, project),
          {:ok, uuid} <- Ecto.UUID.cast(id),
          %{project_id: ^project_id} = record <- getter.(uuid) do
       record

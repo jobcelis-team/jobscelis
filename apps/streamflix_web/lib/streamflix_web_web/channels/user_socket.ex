@@ -33,4 +33,12 @@ defmodule StreamflixWebWeb.UserSocket do
 
   @impl true
   def id(socket), do: "user_socket:#{socket.assigns.current_project.id}"
+
+  @doc """
+  Closes every socket opened with the project's API key. Call it whenever the
+  key is regenerated or restricted, or the project is deleted: sockets only
+  check the key when they connect.
+  """
+  def disconnect_project(project_id),
+    do: StreamflixWebWeb.Endpoint.broadcast("user_socket:#{project_id}", "disconnect", %{})
 end

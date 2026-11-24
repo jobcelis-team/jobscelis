@@ -72,7 +72,7 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
 
   def update(conn, params) do
     project = conn.assigns.current_project
-    attrs = Map.take(params, ["name", "settings", "retention_policy"])
+    attrs = Map.take(params, ["name", "settings"])
     attrs = Enum.reject(attrs, fn {_, v} -> is_nil(v) end) |> Map.new()
 
     case Platform.update_project(project, attrs) do
@@ -161,12 +161,48 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
 
   def update_token(conn, params) do
     project = conn.assigns.current_project
+    attrs = Map.take(params, ["scopes", "allowed_ips"])
 
-    case Platform.update_api_key_restrictions(
-           project.id,
-           Map.take(params, ["scopes", "allowed_ips"])
-         ) do
+    if widens_restrictions?(conn.assigns[:current_api_key], attrs) do
+      conn
+      |> put_status(:forbidden)
+      |> json(%{
+        error:
+          "A restricted API key can only narrow its own scopes and allowed IPs. " <>
+            "Change them from the dashboard."
+      })
+    else
+      do_update_token(conn, project, attrs)
+    end
+  end
+
+  # A key limited to some scopes or IPs must not be able to lift its own limits
+  # (e.g. a stolen `project:write` key setting scopes ["*"] and no IP list).
+  defp widens_restrictions?(nil, _attrs), do: false
+
+  defp widens_restrictions?(api_key, attrs) do
+    current_scopes = api_key.scopes || ["*"]
+    current_ips = api_key.allowed_ips || []
+
+    new_scopes = attrs["scopes"]
+    new_ips = attrs["allowed_ips"]
+
+    scopes_widened =
+      is_list(new_scopes) and "*" not in current_scopes and
+        ("*" in new_scopes or not Enum.all?(new_scopes, &(&1 in current_scopes)))
+
+    ips_widened =
+      is_list(new_ips) and current_ips != [] and
+        (new_ips == [] or not Enum.all?(new_ips, &(&1 in current_ips)))
+
+    scopes_widened or ips_widened
+  end
+
+  defp do_update_token(conn, project, attrs) do
+    case Platform.update_api_key_restrictions(project.id, attrs) do
       {:ok, api_key} ->
+        StreamflixWebWeb.UserSocket.disconnect_project(project.id)
+
         StreamflixCore.Audit.record("api_key.restricted",
           project_id: project.id,
           resource_type: "api_key",
@@ -214,6 +250,8 @@ defmodule StreamflixWebWeb.Api.V1.PlatformProjectController do
 
     case Platform.regenerate_api_key(project.id) do
       {:ok, _api_key, raw_key} ->
+        StreamflixWebWeb.UserSocket.disconnect_project(project.id)
+
         json(conn, %{
           token: raw_key,
           message:
